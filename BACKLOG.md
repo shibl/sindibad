@@ -211,14 +211,52 @@ published to the test link and GitHub Pages.
   lit by lamps; wandering children; footstep dust.
 
 **Next ideas** (proposed):
-14. [ ] In-world challenges without leaving the island: short questions
+14. [x] In-world challenges (riddles in dialogue; guardian battles V27) without leaving the island: short questions
     asked inside the dialogue box (keep the full lesson for replays).
-15. [ ] Pearls buy things: ship paint, sails, a hat for the hero, a
+15. [x] Pearls buy things: ship paint, sails, a hat for the hero, a
     perch for Hudhud — gives pearls a purpose.
 16. [ ] More walk-on puzzles: push-block "balance" puzzle for fractions,
     a word-order door for إن وأخواتها, a noria that lifts water only when
     the right volume is chosen.
-17. [ ] Island music: a tiny synthesized oud-like loop per island
+17. [x] Island music: a tiny synthesized oud-like loop per island
     (Web Audio, no files), with a mute toggle.
-18. [ ] Accessibility: a "read aloud" button on dialogue (speechSynthesis,
+18. [x] Accessibility: a "read aloud" button on dialogue (speechSynthesis,
     Arabic voice when available) for weaker readers.
+
+### Playtest session 4 — V7 → V30 ("make the design much better")
+
+Design goal: feel like the games 10–12-year-olds already love (Zelda-like
+exploration, Duolingo-style lesson juice, Prodigy-style battles, sticker
+albums), without ever making lessons easier to buy.
+
+- **V7–V10** — story intro, family profiles + parents' page, maqam music
+  and read-aloud, 11 new topics (13 → 24).
+- **V11** — adaptive practice (missed questions come back), daily goal and
+  🔥 streak, island title card, walking tutorial.
+- **V12** — diorama ground (raised layers, surf, cobbles, flowers), sway,
+  squash-and-stretch, butterflies/fireflies, fish, gull shadow, tilt-shift.
+  Found: ground build took 640 ms at 4× throttle → Path2D, now 25 ms.
+- **V13** — subject-tinted lesson stage, candy answer tiles, star bursts,
+  +1 floats, combo badge, typewriter dialogue with voice blips.
+- **V14** — iris wipes, "you got it!" hold-up rewards, flying tokens, shake.
+- **V15** — sea map: silhouettes of locked islands, unlock tags, "هنا!".
+- **V16** — lesson-complete ribbon, slamming stars, count-up chips.
+  Found: stars covered the map button on tablets — no pointer events.
+- **V17–V20** — objective pill + edge pointer, villagers wave/emote,
+  soundscape + footsteps by ground, title shine/parallax/welcome card.
+- **V21–V26** — sticker album (30 facts), shop with try-on and rarity,
+  8 ranks + promotion card, first-launch name screen, settings (sound,
+  music, large text, calm mode).
+- **V27** — guardian battles after each monument (hearts, HP, combos).
+- **V28** — 4 topics (الأفعال الخمسة، القواسم والمضاعفات، الآلات
+  البسيطة، العواصم), each with a villager (24 → 28).
+- **V29–V30** — printable parent report; small-screen QA (320×568 →
+  1440×900).
+
+**Next ideas** (proposed):
+19. [ ] Seasonal events (Ramadan lanterns, spring flowers) re-skinning the
+    islands for a week.
+20. [ ] Villager friendship hearts: small side-requests unlock a portrait
+    in the album.
+21. [ ] Teacher/educator review pass on all 28 topics' content.
+22. [ ] Grade 5 and grade 7 worlds reusing the engines.
