@@ -12,6 +12,9 @@ import { renderJourney } from './core/journey.js';
 import { initOverworld, enterIsland, lessonReturned, debugState, debugBlocked, debugPlace } from './core/overworld.js';
 import arabicIsland from './worlds/grade6/arabic.js';
 import mathIsland from './worlds/grade6/math.js';
+import scienceIsland from './worlds/grade6/science.js';
+import socialIsland from './worlds/grade6/social.js';
+import treasureIsland from './worlds/grade6/treasure.js';
 import { initLesson, startLesson } from './core/lesson.js';
 import { sfx, toggleMute } from './core/sound.js';
 import world from './worlds/grade6.js';
@@ -168,7 +171,7 @@ paintScene();
 paintShip(document.querySelector('.ship--title'), ['sindbad', 'yasmina']);
 wireNavigation();
 wireHeroSelect();
-const ISLANDS = { arabic: arabicIsland, math: mathIsland };
+const ISLANDS = { arabic: arabicIsland, math: mathIsland, science: scienceIsland, social: socialIsland, treasure: treasureIsland };
 let lessonFromIsland = false;
 initMap(document.getElementById('map'), world, {
   openTopic: startLesson,

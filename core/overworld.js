@@ -106,13 +106,16 @@ function islandState(id) {
   const w = (s.world ||= {});
   const st = (w[id] ||= { letters: [], pearls: [], chests: [], monument: false, met: [] });
   st.puzzles ||= {};
+  st.items ||= [];
   return st;
 }
 const persist = () => save.update(() => {});
 const tokens = () => island.tokens || ['ع', 'ل', 'م'];
 const heroId = () => save.get().hero || 'sindbad';
 const fill = text => text.replace(/\{name\}/g, HEROES[heroId()].name);
-const questDone = q => (save.get().topics[q.topic]?.stars || 0) >= 1;
+// A quest is done when its lesson has a star — or, for a fetch quest, when
+// the lost thing has been found.
+const questDone = q => (q.fetch ? state.items.includes(q.fetch) : (save.get().topics[q.topic]?.stars || 0) >= 1);
 
 // ---------- Enter / leave ----------
 
@@ -333,7 +336,7 @@ function drawSprite(sp, x, y, height, { flip = false, bob = 0, tilt = 0, alpha =
   ctx.restore();
 }
 
-const HEIGHTS = { lighthouse: 5.6, compass: 2.2, fishstall: 2.9, hull: 2.4, crates: 1.1, barrel: 0.9, palm: 3.2, house: 3.4, fountain: 2.4, stall: 2.9, gate: 4, chest: 1, chestOpen: 1, sign: 1.1, bush: 0.9, rock: 0.75, boat: 2.2, lamp: 1.8, monument: 3.3, flowers: 0.5 };
+const HEIGHTS = { observatory: 4.4, crystal: 2.8, labtable: 1.5, citadel: 5.5, noria: 3.2, noriabase: 2.1, columns: 3.4, bigchest: 2.6, lighthouse: 5.6, compass: 2.2, fishstall: 2.9, hull: 2.4, crates: 1.1, barrel: 0.9, palm: 3.2, house: 3.4, fountain: 2.4, stall: 2.9, gate: 4, chest: 1, chestOpen: 1, sign: 1.1, bush: 0.9, rock: 0.75, boat: 2.2, lamp: 1.8, monument: 3.3, flowers: 0.5 };
 
 function draw() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -361,6 +364,15 @@ function draw() {
   for (const o of props) if (o.sprite.flat) drawSprite(o.sprite, o.x, o.y, HEIGHTS[o.kind]);
   island.pearls.forEach(([x, y], i) => { if (!state.pearls.includes(i)) drawPearl(ctx, sx(x), sy(y), time); });
   drawPuzzles();
+  for (const f of island.finds || []) {
+    if (state.items.includes(f.id)) continue;
+    const k = (Math.sin(time * 4 + f.at[0]) + 1) / 2;
+    ctx.fillStyle = `rgba(255,255,255,${0.4 + k * 0.6})`;
+    const x = sx(f.at[0]), y = sy(f.at[1]) - TILE * 0.3;
+    ctx.beginPath();
+    for (let i = 0; i < 8; i++) { const a = (i / 8) * Math.PI * 2, r = i % 2 ? TILE * 0.06 : TILE * (0.16 + k * 0.08); ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); }
+    ctx.fill();
+  }
 
   const drawables = [];
   for (const o of props) if (!o.sprite.flat) drawables.push({ y: o.y, draw: () => drawProp(o) });
@@ -384,14 +396,26 @@ function drawProp(o) {
     if (!gateOpen(o)) drawSprite(objectSprite('gateDoors'), o.x, o.y, HEIGHTS.gate);
     return;
   }
+  if (o.kind === 'noria') {
+    // The water wheel of Hama turns forever.
+    drawSprite(objectSprite('noriabase'), o.x, o.y + 1.6, HEIGHTS.noriabase);
+    drawSprite(o.sprite, o.x, o.y, HEIGHTS.noria, { tilt: time * 0.6 });
+    return;
+  }
+  if (o.kind === 'bigchest' && state.monument) {
+    drawSprite(objectSprite('chestOpen'), o.x, o.y, 2);
+    ctx.globalAlpha = 0.3 + 0.2 * Math.sin(time * 3); ctx.fillStyle = '#fff3a0';
+    ctx.beginPath(); ctx.arc(sx(o.x), sy(o.y) - TILE, TILE * 1.4, 0, 7); ctx.fill(); ctx.globalAlpha = 1;
+    return;
+  }
   drawSprite(o.sprite, o.x, o.y, HEIGHTS[o.kind]);
-  if (o.kind === 'monument' || o.kind === 'compass') {
+  if (o.kind === 'monument' || o.kind === 'compass' || o.kind === 'crystal') {
     // The token slots light up as golden tokens are placed.
     const letters = tokens();
     const h = HEIGHTS[o.kind] * TILE;
     letters.forEach((l, i) => {
       if (!state.monument && !state.letters.includes(l)) return;
-      let px = sx(o.x), py = sy(o.y) - h + (h * (62 + i * 34)) / 200;
+      let px = sx(o.x), py = sy(o.y) - h + (h * (62 + i * 34)) / o.sprite.h;
       if (o.kind === 'compass') {
         // Compass rose: N, S, E, W around the dial (tokens are ش ج ق غ).
         const [dx, dy] = [[0, -1], [0, 1], [1, 0], [-1, 0]][i];
@@ -457,7 +481,8 @@ function interactables() {
   for (const p of people) list.push({ kind: 'person', x: p.x, y: p.y, ref: p, label: 'تحدّث' });
   for (const s of island.signs) list.push({ kind: 'sign', x: s.at[0], y: s.at[1], ref: s, label: 'اقرأ' });
   for (const c of island.chests) if (!state.chests.includes(c.id)) list.push({ kind: 'chest', x: c.at[0], y: c.at[1], ref: c, label: 'افتح' });
-  const mon = props.find(o => o.kind === 'monument' || o.kind === 'compass');
+  for (const f of island.finds || []) if (!state.items.includes(f.id)) list.push({ kind: 'find', x: f.at[0], y: f.at[1], ref: f, label: 'ابحث' });
+  const mon = props.find(o => o.id === 'monument');
   if (mon) list.push({ kind: 'monument', x: mon.x, y: mon.y, ref: mon, label: 'انظر' });
   return list;
 }
@@ -499,6 +524,12 @@ function interact(it) {
   }
   if (it.kind === 'chest') openChest(it.ref);
   if (it.kind === 'monument') useMonument();
+  if (it.kind === 'find') {
+    const f = it.ref;
+    state.items.push(f.id); persist();
+    sfx.reveal();
+    say({ name: `${f.icon} ${f.name}`, lines: f.lines, then: () => itemPopup({ icon: f.icon, title: f.name, text: f.text }) });
+  }
 }
 
 // ---------- Dialogue ----------
@@ -509,6 +540,10 @@ function talkTo(p) {
   const q = p.quest;
   if (!q) { say({ person: p, lines: p.talk }); return; }
   if (questDone(q) && !state.letters.includes(q.letter)) { rewardQuest(p); return; }
+  if (q.fetch) {
+    say({ person: p, lines: questDone(q) ? q.after : q.intro });
+    return;
+  }
   if (questDone(q)) {
     say({ person: p, lines: q.after, choices: [
       { label: 'نعم، تحدٍّ جديد!', go: () => startQuest(p) },

@@ -4,7 +4,7 @@
 //
 // Licence: CC-BY-SA (see README.md).
 
-import { DEFS, LINE, OUT, OUT_THIN, limb, head, hudhudBody, HEROES, palmSVG } from './art.js';
+import { DEFS, LINE, OUT, OUT_THIN, limb, head, hudhudBody, HEROES, palmSVG, chestSVG } from './art.js';
 
 // ---------- Rasterising ----------
 
@@ -41,7 +41,8 @@ export function villagerBody(look) {
     kufiya: `<path d="M56 86 Q52 34 100 30 Q148 34 144 86 Q150 120 138 132 L128 96 Q100 60 72 96 L62 132 Q50 120 56 86Z" fill="#fbf7ee" ${OUT}/>
              <path d="M64 60 Q100 44 136 60 M60 76 Q100 60 140 76" fill="none" stroke="#c7373f" stroke-width="3" stroke-dasharray="4 4"/>
              <path d="M58 52 Q100 34 142 52" fill="none" stroke="#1b0f08" stroke-width="7" stroke-linecap="round"/>`,
-    hijab: `<path d="M54 90 Q50 30 100 28 Q150 30 146 90 Q148 124 132 138 L68 138 Q52 124 54 90Z" fill="${headColor}" ${OUT}/>`,
+    hijab: `<path d="M57 86 Q54 38 100 34 Q146 38 143 86 Q138 62 100 58 Q62 62 57 86Z" fill="${headColor}" ${OUT}/>
+            <path d="M64 70 Q100 50 136 70" fill="none" stroke="#fff" stroke-width="3" opacity=".35"/>`,
     cap: `<path d="M60 60 Q64 34 100 32 Q136 34 140 60 Q100 48 60 60Z" fill="${headColor}" ${OUT}/>`,
     turban: `<path d="M58 64 Q54 28 100 26 Q146 28 142 64 Q100 50 58 64Z" fill="#fbf7ee" ${OUT}/>
              <path d="M62 50 Q100 34 138 50 M64 40 Q100 26 136 40" fill="none" stroke="#e0d2b4" stroke-width="3"/>`,
@@ -75,6 +76,7 @@ export function villagerBody(look) {
   <path d="M62 262 H138" stroke="${trim}" stroke-width="5"/>
   <path d="M64 186 Q100 194 136 186 L136 198 Q100 206 64 198Z" fill="${sash}" ${OUT_THIN}/>
   ${prop && prop !== 'staff' ? propSVG : ''}
+  ${hat === 'hijab' ? `<path d="M52 92 Q48 30 100 26 Q152 30 148 92 Q150 128 132 140 L68 140 Q50 128 52 92Z" fill="${headColor}" ${OUT}/>` : ''}
   ${head({ skin, lashes })}
   ${hairSVG}${beardSVG}${glassesSVG}${hatSVG}`;
 }
@@ -230,12 +232,68 @@ const objects = {
       <path d="M8 12 Q2 38 8 64 H52 Q58 38 52 12Z" fill="#a0602e" ${OUT}/>
       <ellipse cx="30" cy="12" rx="22" ry="7" fill="#c98a50" ${OUT}/>
       <path d="M5 26 H55 M5 50 H55" stroke="#3b3b3b" stroke-width="4"/>` },
+  observatory: {
+    w: 160, h: 240, ax: 80, ay: 232, body: `
+      <ellipse cx="80" cy="232" rx="74" ry="8" fill="#000" opacity=".15"/>
+      <path d="M24 232 V110 H136 V232Z" fill="#e8d7b8" ${OUT}/>
+      <path d="M24 150 H136 M24 190 H136" stroke="#d0bc94" stroke-width="3"/>
+      <path d="M64 232 V194 Q80 176 96 194 V232Z" fill="#2c5e6e" ${OUT_THIN}/>
+      <path d="M16 112 Q16 36 80 34 Q144 36 144 112Z" fill="#9fb8d8" ${OUT}/>
+      <path d="M72 36 L68 112 M88 36 L92 112" stroke="${LINE}" stroke-width="3"/>
+      <path d="M86 60 L138 26 L146 38 L94 72Z" fill="url(#g-brass)" ${OUT}/>
+      <g fill="#fff3a0"><circle cx="30" cy="20" r="3"/><circle cx="130" cy="10" r="2.5"/><circle cx="148" cy="60" r="2"/></g>` },
+  crystal: {
+    w: 140, h: 180, ax: 70, ay: 172, body: `
+      <ellipse cx="70" cy="172" rx="64" ry="8" fill="#000" opacity=".15"/>
+      <path d="M18 172 V146 H122 V172Z" fill="#9a6b4e" ${OUT}/>
+      <path d="M30 146 L40 60 L58 30 L70 8 L82 30 L100 60 L110 146Z" fill="#bfeefa" ${OUT}/>
+      <path d="M70 8 V146 M40 60 L70 90 L100 60 M58 30 L70 60 L82 30" fill="none" stroke="#7fc8dd" stroke-width="3"/>
+      <g class="slots" fill="#1b3e4a" ${OUT_THIN}><circle cx="70" cy="62" r="11"/><circle cx="70" cy="96" r="11"/><circle cx="70" cy="130" r="11"/></g>` },
+  labtable: {
+    w: 140, h: 100, ax: 70, ay: 92, body: `
+      <ellipse cx="70" cy="92" rx="64" ry="6" fill="#000" opacity=".15"/>
+      <path d="M14 52 H126 V64 H14Z" fill="#a0602e" ${OUT}/>
+      <path d="M22 64 V92 M118 64 V92" stroke="${LINE}" stroke-width="7"/><path d="M22 64 V92 M118 64 V92" stroke="#9a6b3a" stroke-width="3"/>
+      <g ${OUT_THIN}><path d="M30 52 V30 h10 V52Z" fill="#dff6ff"/><path d="M30 44 h10 v8 h-10Z" fill="#6ee07a"/>
+      <path d="M56 22 h10 v10 l10 16 q2 6 -4 6 h-18 q-6 0 -4 -6 l10 -16Z" fill="#dff6ff"/><path d="M50 42 h26 l2 6 q0 4 -4 4 h-22 q-4 0 -4 -4Z" fill="#d0507e"/>
+      <circle cx="100" cy="40" r="12" fill="#dff6ff"/><path d="M90 44 h20 q-2 8 -10 8 q-8 0 -10 -8Z" fill="#f2c14e"/></g>
+      <g fill="#fff" opacity=".9"><circle cx="61" cy="14" r="3"/><circle cx="66" cy="6" r="2"/></g>` },
+  citadel: {
+    w: 280, h: 260, ax: 140, ay: 250, body: `
+      <ellipse cx="140" cy="250" rx="134" ry="10" fill="#000" opacity=".15"/>
+      <path d="M10 250 Q30 170 70 150 L210 150 Q250 170 270 250Z" fill="#d9b27a" ${OUT}/>
+      <path d="M30 220 L250 220 M50 190 L230 190" stroke="#b98d55" stroke-width="3"/>
+      <path d="M70 150 V70 H210 V150Z" fill="#e8cf9c" ${OUT}/>
+      <path d="M64 70 h152 v-16 h-12 v8 h-14 v-8 h-14 v8 h-14 v-8 h-16 v8 h-14 v-8 h-14 v8 h-14 v-8 h-14 v8 h-12 v-8 h-12Z" fill="#e8cf9c" ${OUT}/>
+      <path d="M120 150 V112 q20 -24 40 0 V150Z" fill="#6b3f1f" ${OUT_THIN}/>
+      <path d="M140 150 L124 250 H156Z" fill="#c9a26b" ${OUT_THIN}/>
+      <path d="M124 250 L140 150 L156 250" fill="none" stroke="#8a6a3a" stroke-width="2"/>
+      <rect x="86" y="90" width="14" height="22" rx="7" fill="#6b3f1f"/><rect x="180" y="90" width="14" height="22" rx="7" fill="#6b3f1f"/>
+      <path d="M190 54 V20" ${OUT}/><path d="M190 22 Q182 10 190 2 Q198 10 190 22Z" fill="#f2c14e" ${OUT_THIN}/>` },
+  noria: {
+    w: 180, h: 180, ax: 90, ay: 90, spin: true, body: `
+      <circle cx="90" cy="90" r="80" fill="none" stroke="${LINE}" stroke-width="12"/>
+      <circle cx="90" cy="90" r="80" fill="none" stroke="#8a5a30" stroke-width="7"/>
+      <circle cx="90" cy="90" r="56" fill="none" stroke="#8a5a30" stroke-width="4"/>
+      ${Array.from({ length: 12 }, (_, i) => { const a = (i / 12) * Math.PI * 2; return `<path d="M90 90 L${90 + Math.cos(a) * 80} ${90 + Math.sin(a) * 80}" stroke="#6b3f1f" stroke-width="5"/><rect x="${90 + Math.cos(a) * 80 - 8}" y="${90 + Math.sin(a) * 80 - 8}" width="16" height="16" fill="#b98a5a" ${OUT_THIN} transform="rotate(${(a * 180) / Math.PI} ${90 + Math.cos(a) * 80} ${90 + Math.sin(a) * 80})"/>`; }).join('')}
+      <circle cx="90" cy="90" r="12" fill="url(#g-brass)" ${OUT}/>` },
+  noriabase: {
+    w: 200, h: 120, ax: 100, ay: 112, body: `
+      <path d="M30 112 L70 10 H90 L60 112Z M170 112 L130 10 H110 L140 112Z" fill="#d9c4a0" ${OUT}/>` },
+  columns: {
+    w: 220, h: 200, ax: 110, ay: 192, body: `
+      <ellipse cx="110" cy="192" rx="104" ry="8" fill="#000" opacity=".15"/>
+      <path d="M10 192 V178 H210 V192Z" fill="#e0c79a" ${OUT}/>
+      ${[30, 80, 130, 180].map(x => `<path d="M${x - 12} 178 V50 H${x + 12} V178Z" fill="#f1e2c4" ${OUT}/><path d="M${x - 4} 170 V58 M${x + 4} 170 V58" stroke="#d8c29a" stroke-width="2"/><path d="M${x - 18} 50 h36 v-12 h-36Z" fill="#e8d7b8" ${OUT_THIN}/>`).join('')}
+      <path d="M8 38 H212 V20 H8Z" fill="#e8d7b8" ${OUT}/>` },
+  bigchest: { w: 240, h: 200, ax: 120, ay: 186, body: null },
   flowers: { w: 48, h: 30, ax: 24, ay: 26, flat: true, body: `
       <g ${OUT_THIN}><circle cx="10" cy="18" r="5" fill="#d0507e"/><circle cx="24" cy="10" r="5" fill="#fff"/><circle cx="38" cy="18" r="5" fill="#f2c14e"/><circle cx="26" cy="24" r="4" fill="#fff"/></g>` },
 };
 
 // Late-bound bodies that reuse art from art.js.
 objects.palm.body = palmSVG().replace(/^[\s\S]*?<svg[^>]*>|<\/svg>\s*$/g, '');
+objects.bigchest.body = chestSVG().replace(/^[\s\S]*?<svg[^>]*>|<\/svg>\s*$/g, '');
 objects.boat.body = `
   <path d="M10 70 Q90 96 170 70 L156 94 Q90 112 24 94Z" fill="url(#g-wood)" ${OUT}/>
   <path d="M16 74 Q90 98 164 74" fill="none" stroke="#23a39a" stroke-width="6"/>
@@ -244,7 +302,7 @@ objects.boat.body = `
 export function objectSprite(kind) {
   const o = objects[kind];
   const e = svgImage(`obj:${kind}`, o.body, o.w, o.h, 1);
-  return { ...e, ax: o.ax, ay: o.ay, flat: !!o.flat };
+  return { ...e, ax: o.ax, ay: o.ay, flat: !!o.flat, spin: !!o.spin };
 }
 
 export function villagerSprite(id, look) {
