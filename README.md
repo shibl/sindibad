@@ -10,6 +10,25 @@ Syrian national curriculum (grades 1–12) into an RPG-style adventure.
 - **Concept demos** (throwaway animation sketches, not production code):
   [`demos/`](./demos/)
 
+## Running locally
+
+No build step. Serve the repo root over http and open it in a browser:
+
+```sh
+python3 -m http.server 8000
+# then open http://localhost:8000/
+```
+
+(Opening `index.html` directly from disk won't work: the app uses ES
+modules and a service worker, which both need http(s) or localhost.)
+
+## Layout
+
+- `index.html`, `style.css`, `app.js` — core app shell (screens, navigation, backdrop).
+- `art/` — shared inline-SVG art (ship, Sindbad, Yasmina, palms).
+- `plugins/` — self-contained subject/topic plugins (see `plugins/README.md`).
+- `manifest.json`, `service-worker.js`, `icons/` — PWA / offline support.
+
 ## License
 
 - Code: MIT or GPL (open source).
@@ -18,4 +37,4 @@ Syrian national curriculum (grades 1–12) into an RPG-style adventure.
 
 ## Status
 
-Early concept stage. See BACKLOG.md for the current work queue.
+Scaffold in place (app shell, art, PWA). See BACKLOG.md for the current work queue.

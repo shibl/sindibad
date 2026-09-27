@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1c7fa0">
+<meta name="description" content="رحلات سندباد وياسمينة — مغامرة تعليمية مجانية تعمل دون اتصال بالإنترنت">
+<title>رحلات سندباد وياسمينة</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- Shared animated backdrop: sky, sun, gulls, sea, shore. Always visible
+       behind whichever screen is active. Filled in by app.js. -->
+  <div id="scene" aria-hidden="true">
+    <div class="sky"></div>
+    <div class="sun"></div>
+    <div class="gulls"></div>
+    <div class="sea">
+      <div class="wave"></div>
+      <div class="wave wave--slow"></div>
+    </div>
+    <div class="shore"></div>
+    <div class="palm palm--start"></div>
+    <div class="palm palm--end"></div>
+  </div>
+
+  <!-- Screens. Exactly one has [data-active] at a time (see showScreen in app.js). -->
+
+  <section id="screen-title" class="screen" data-active>
+    <header class="title">
+      <h1>رحلات سندباد وياسمينة</h1>
+      <p>مغامرة في بحر المعرفة</p>
+    </header>
+    <div class="ship ship--idle"></div>
+    <button class="btn btn--primary" data-go="map">ابدأ الرحلة</button>
+  </section>
+
+  <section id="screen-map" class="screen">
+    <header class="topbar">
+      <button class="btn btn--icon" data-go="title" aria-label="رجوع">→</button>
+      <h2>خريطة العالم</h2>
+    </header>
+    <!-- World map (regions, fog-of-war, sailing ship) is built in BACKLOG item 3. -->
+    <div id="map" class="map">
+      <p class="placeholder">الخريطة قيد البناء…</p>
+    </div>
+  </section>
+
+  <section id="screen-activity" class="screen">
+    <header class="topbar">
+      <button class="btn btn--icon" data-go="map" aria-label="رجوع إلى الخريطة">→</button>
+      <h2 id="activity-title"></h2>
+    </header>
+    <!-- A topic plugin renders its activity into this container (BACKLOG item 2). -->
+    <div id="activity" class="activity"></div>
+  </section>
+
+</div>
+
+<noscript>يحتاج هذا التطبيق إلى تفعيل JavaScript.</noscript>
+<script type="module" src="app.js"></script>
+</body>
+</html>
