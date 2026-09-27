@@ -5,7 +5,7 @@
 // file run `node tools/update-shell.mjs` (tests/check-shell.mjs fails if you
 // forget). A new version makes clients download the new files once.
 
-const CACHE_VERSION = 'd4dbc5c25e';
+const CACHE_VERSION = '297606e8ab';
 const CACHE_NAME = `sindbad-${CACHE_VERSION}`;
 
 const APP_SHELL = [
@@ -49,6 +49,7 @@ const APP_SHELL = [
   'plugins/social/landmarks.js',
   'worlds/grade6.js',
   'worlds/grade6/arabic.js',
+  'worlds/grade6/math.js',
   'fonts/baloo-bhaijaan-2-arabic-500-normal.woff2',
   'fonts/baloo-bhaijaan-2-arabic-800-normal.woff2',
   'fonts/baloo-bhaijaan-2-latin-500-normal.woff2',

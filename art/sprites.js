@@ -178,6 +178,58 @@ const objects = {
       <path d="M30 168 V40 Q30 14 70 10 Q110 14 110 40 V168Z" fill="#f1e2c4" ${OUT}/>
       <path d="M44 150 V56 Q44 34 70 32 Q96 34 96 56 V150Z" fill="#2c5e6e" ${OUT_THIN}/>
       <g class="slots" fill="#1b3e4a" ${OUT_THIN}><circle cx="70" cy="62" r="11"/><circle cx="70" cy="96" r="11"/><circle cx="70" cy="130" r="11"/></g>` },
+  lighthouse: {
+    w: 160, h: 320, ax: 80, ay: 310, body: `
+      <ellipse cx="80" cy="310" rx="74" ry="9" fill="#000" opacity=".15"/>
+      <path d="M22 310 V262 H138 V310Z" fill="#d9c4a0" ${OUT}/>
+      <path d="M40 262 L54 70 H106 L120 262Z" fill="#fbf1dc" ${OUT}/>
+      <path d="M43 222 L117 222 L114 188 L46 188Z M48 150 L112 150 L109 118 L51 118Z" fill="#c7373f"/>
+      <path d="M40 262 L54 70 H106 L120 262Z" fill="none" ${OUT}/>
+      <path d="M68 262 V230 Q80 214 92 230 V262Z" fill="#6b3f1f" ${OUT_THIN}/>
+      <path d="M46 70 H114 V58 H46Z" fill="#6b3f1f" ${OUT}/>
+      <path d="M56 58 V26 H104 V58Z" fill="#fff4b0" ${OUT}/>
+      <path d="M68 58 V26 M92 58 V26" stroke="${LINE}" stroke-width="3"/>
+      <path d="M50 26 Q80 -6 110 26Z" fill="#c7373f" ${OUT}/>
+      <circle cx="80" cy="4" r="5" fill="url(#g-brass)" ${OUT_THIN}/>` },
+  compass: {
+    w: 140, h: 150, ax: 70, ay: 142, body: `
+      <ellipse cx="70" cy="142" rx="64" ry="8" fill="#000" opacity=".15"/>
+      <path d="M22 142 V112 H118 V142Z" fill="#d9c4a0" ${OUT}/>
+      <path d="M40 112 V92 H100 V112Z" fill="#e8d7b8" ${OUT}/>
+      <circle cx="70" cy="62" r="54" fill="url(#g-brass)" ${OUT}/>
+      <circle cx="70" cy="62" r="44" fill="#fff7e6" ${OUT_THIN}/>
+      <path d="M70 26 L78 62 L70 98 L62 62Z" fill="#e8d3a6" ${OUT_THIN}/>
+      <path d="M34 62 L70 55 L106 62 L70 69Z" fill="#e8d3a6" ${OUT_THIN}/>
+      <circle cx="70" cy="62" r="6" fill="#c7373f" ${OUT_THIN}/>` },
+  fishstall: {
+    w: 180, h: 160, ax: 90, ay: 150, body: `
+      <ellipse cx="90" cy="152" rx="84" ry="7" fill="#000" opacity=".15"/>
+      <path d="M20 60 V150 M160 60 V150" stroke="${LINE}" stroke-width="8"/><path d="M20 60 V150 M160 60 V150" stroke="#9a6b3a" stroke-width="4"/>
+      <path d="M8 60 L90 24 L172 60Z" fill="#1f9aa0" ${OUT}/>
+      <path d="M8 60 Q22 72 36 60 Q50 72 64 60 Q78 72 92 60 Q106 72 120 60 Q134 72 148 60 Q160 72 172 60" fill="#fbf1dc" ${OUT_THIN}/>
+      <path d="M14 104 H166 V128 H14Z" fill="#a0602e" ${OUT}/>
+      <g ${OUT_THIN}><path d="M26 98 q14 -12 28 0 q-14 10 -28 0Z M54 98 l8 -6 v12Z" fill="#8fb8d8"/><path d="M70 98 q14 -12 28 0 q-14 10 -28 0Z M98 98 l8 -6 v12Z" fill="#e8a070"/></g>
+      <path d="M124 80 V104 M112 84 H136" stroke="${LINE}" stroke-width="3"/><path d="M112 84 l-6 12 h12Z M136 84 l-6 12 h12Z" fill="url(#g-brass)" ${OUT_THIN}/>` },
+  hull: {
+    w: 220, h: 150, ax: 110, ay: 140, body: `
+      <ellipse cx="110" cy="142" rx="104" ry="8" fill="#000" opacity=".15"/>
+      <path d="M40 140 L56 104 M180 140 L164 104 M100 140 V110 M130 140 V110" stroke="${LINE}" stroke-width="8"/>
+      <path d="M40 140 L56 104 M180 140 L164 104 M100 140 V110 M130 140 V110" stroke="#9a6b3a" stroke-width="4"/>
+      <path d="M8 50 Q110 96 212 50 L196 92 Q110 124 24 92Z" fill="url(#g-wood)" ${OUT}/>
+      <path d="M30 70 Q110 104 190 70 M20 58 Q110 98 200 58" fill="none" stroke="#5e3214" stroke-width="3"/>
+      <path d="M150 90 Q170 84 186 72 L190 60 Q170 78 146 84Z" fill="#fbf1dc" ${OUT_THIN}/>` },
+  crates: {
+    w: 90, h: 80, ax: 45, ay: 74, body: `
+      <ellipse cx="45" cy="74" rx="40" ry="5" fill="#000" opacity=".15"/>
+      <rect x="4" y="34" width="44" height="40" fill="#c9954f" ${OUT}/><path d="M4 34 L48 74 M48 34 L4 74" stroke="#8a5a30" stroke-width="3"/>
+      <rect x="44" y="40" width="40" height="34" fill="#b88442" ${OUT}/><path d="M44 57 H84" stroke="#8a5a30" stroke-width="3"/>
+      <rect x="20" y="4" width="36" height="30" fill="#d9a660" ${OUT}/>` },
+  barrel: {
+    w: 60, h: 70, ax: 30, ay: 66, body: `
+      <ellipse cx="30" cy="66" rx="26" ry="5" fill="#000" opacity=".15"/>
+      <path d="M8 12 Q2 38 8 64 H52 Q58 38 52 12Z" fill="#a0602e" ${OUT}/>
+      <ellipse cx="30" cy="12" rx="22" ry="7" fill="#c98a50" ${OUT}/>
+      <path d="M5 26 H55 M5 50 H55" stroke="#3b3b3b" stroke-width="4"/>` },
   flowers: { w: 48, h: 30, ax: 24, ay: 26, flat: true, body: `
       <g ${OUT_THIN}><circle cx="10" cy="18" r="5" fill="#d0507e"/><circle cx="24" cy="10" r="5" fill="#fff"/><circle cx="38" cy="18" r="5" fill="#f2c14e"/><circle cx="26" cy="24" r="4" fill="#fff"/></g>` },
 };

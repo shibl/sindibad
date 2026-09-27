@@ -109,6 +109,7 @@ function islandState(id) {
   return st;
 }
 const persist = () => save.update(() => {});
+const tokens = () => island.tokens || ['ع', 'ل', 'م'];
 const heroId = () => save.get().hero || 'sindbad';
 const fill = text => text.replace(/\{name\}/g, HEROES[heroId()].name);
 const questDone = q => (save.get().topics[q.topic]?.stars || 0) >= 1;
@@ -135,7 +136,7 @@ export function enterIsland(def) {
   // First visit: the fisherman calls out.
   if (!state.met.includes('arrival')) {
     state.met.push('arrival'); persist();
-    setTimeout(() => showHint('اقترب من <b>العم مصطفى</b> واضغط ✋ للتحدّث'), 600);
+    setTimeout(() => showHint(`اقترب من <b>${def.people[0].name}</b> واضغط ✋ للتحدّث`), 600);
   }
 }
 
@@ -332,7 +333,7 @@ function drawSprite(sp, x, y, height, { flip = false, bob = 0, tilt = 0, alpha =
   ctx.restore();
 }
 
-const HEIGHTS = { palm: 3.2, house: 3.4, fountain: 2.4, stall: 2.9, gate: 4, chest: 1, chestOpen: 1, sign: 1.1, bush: 0.9, rock: 0.75, boat: 2.2, lamp: 1.8, monument: 3.3, flowers: 0.5 };
+const HEIGHTS = { lighthouse: 5.6, compass: 2.2, fishstall: 2.9, hull: 2.4, crates: 1.1, barrel: 0.9, palm: 3.2, house: 3.4, fountain: 2.4, stall: 2.9, gate: 4, chest: 1, chestOpen: 1, sign: 1.1, bush: 0.9, rock: 0.75, boat: 2.2, lamp: 1.8, monument: 3.3, flowers: 0.5 };
 
 function draw() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -384,13 +385,18 @@ function drawProp(o) {
     return;
   }
   drawSprite(o.sprite, o.x, o.y, HEIGHTS[o.kind]);
-  if (o.kind === 'monument') {
-    // The three letter slots light up as golden letters are placed.
-    const letters = ['ع', 'ل', 'م'];
-    const h = HEIGHTS.monument * TILE;
+  if (o.kind === 'monument' || o.kind === 'compass') {
+    // The token slots light up as golden tokens are placed.
+    const letters = tokens();
+    const h = HEIGHTS[o.kind] * TILE;
     letters.forEach((l, i) => {
       if (!state.monument && !state.letters.includes(l)) return;
-      const px = sx(o.x), py = sy(o.y) - h + (h * (62 + i * 34)) / 200;
+      let px = sx(o.x), py = sy(o.y) - h + (h * (62 + i * 34)) / 200;
+      if (o.kind === 'compass') {
+        // Compass rose: N, S, E, W around the dial (tokens are ش ج ق غ).
+        const [dx, dy] = [[0, -1], [0, 1], [1, 0], [-1, 0]][i];
+        px = sx(o.x) + dx * h * 0.3; py = sy(o.y) - h * 0.52 + dy * h * 0.22;
+      }
       ctx.fillStyle = state.monument ? '#ffd23f' : 'rgba(255,210,63,.55)';
       ctx.font = `800 ${Math.round(TILE * 0.42)}px "Baloo Bhaijaan 2", sans-serif`;
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -451,7 +457,7 @@ function interactables() {
   for (const p of people) list.push({ kind: 'person', x: p.x, y: p.y, ref: p, label: 'تحدّث' });
   for (const s of island.signs) list.push({ kind: 'sign', x: s.at[0], y: s.at[1], ref: s, label: 'اقرأ' });
   for (const c of island.chests) if (!state.chests.includes(c.id)) list.push({ kind: 'chest', x: c.at[0], y: c.at[1], ref: c, label: 'افتح' });
-  const mon = props.find(o => o.kind === 'monument');
+  const mon = props.find(o => o.kind === 'monument' || o.kind === 'compass');
   if (mon) list.push({ kind: 'monument', x: mon.x, y: mon.y, ref: mon, label: 'انظر' });
   return list;
 }
@@ -595,23 +601,21 @@ function rewardQuest(p) {
     const gate = props.find(o => o.kind === 'gate' && o.opens === p.id);
     itemPopup({
       icon: `<span class="golden-letter">${p.quest.letter}</span>`,
-      title: `الحرف الذهبي «${p.quest.letter}»`,
-      text: gate ? 'انفتحت البوابة الكبيرة في الشمال!' : `معك ${num(state.letters.length)} من ٣ أحرف. ضعها على النُّصب في الحديقة الشمالية.`,
+      title: `${island.tokenName || 'الحرف الذهبي'} «${p.quest.letter}»`,
+      text: gate ? (island.gateText || 'انفتحت البوابة الكبيرة في الشمال!') : `معك ${num(state.letters.length)} من ${num(tokens().length)}. ${island.tokenHint || ''}`,
     });
   } });
 }
 
 function useMonument() {
-  if (state.monument) { say({ name: '🏛️ نُصب العلم', lines: ['تلمع الأحرف الثلاثة: <b>ع ل م</b> — «العلم نور». أكملتَ جزيرة الحروف!'] }); return; }
-  const n = state.letters.length;
-  if (n < 3) {
-    say({ name: '🏛️ نُصب العلم', lines: [`في النُّصب ثلاث فجوات لأحرف ذهبية. معك ${num(n)} منها.`, 'ساعد أهل الجزيرة لتجمع الأحرف الثلاثة.'] });
-    return;
-  }
-  say({ name: '🏛️ نُصب العلم', lines: ['تضع الأحرف الذهبية في أماكنها: <b>ع</b>… <b>ل</b>… <b>م</b>…', '«العِلم»! يتوهّج النُّصب ويُسمع صوت كصوت الأجراس!'], then: () => {
+  const m = island.monument;
+  const n = state.letters.length, need = tokens().length;
+  if (state.monument) { say({ name: m.name, lines: [m.complete] }); return; }
+  if (n < need) { say({ name: m.name, lines: [m.partial.replace('{n}', num(n)), m.hint] }); return; }
+  say({ name: m.name, lines: m.place, then: () => {
     state.monument = true; persist();
     sfx.win();
-    itemPopup({ icon: '🗝️', title: 'مفتاح الحروف', text: 'أكملتَ جزيرة الحروف! عُد إلى السفينة ⛵ لتُبحر إلى جزيرة جديدة.' });
+    itemPopup(m.reward);
   } });
 }
 
@@ -655,13 +659,17 @@ function setupPuzzles() {
 
 function newSentence(pz) {
   const { def } = pz;
-  const sentence = def.sentences[Math.floor(Math.random() * def.sentences.length)];
+  const sets = def.sets || def.sentences;
+  const sentence = sets[Math.floor(Math.random() * sets.length)];
   pz.sentence = sentence;
   pz.progress = 0;
   pz.stones = [];
-  def.rows.forEach((y, row) => {
+  def.rows.forEach((r, row) => {
     const words = shuffled(sentence);
-    def.cols.forEach((x, k) => pz.stones.push({ x, y, row, word: words[k], ok: words[k] === sentence[row], lit: false }));
+    def.cols.forEach((c, k) => {
+      const [x, y] = def.axis === 'x' ? [r, c] : [c, r];
+      pz.stones.push({ x, y, row, word: words[k], ok: words[k] === sentence[row], lit: false });
+    });
   });
 }
 
@@ -679,7 +687,7 @@ function stepPuzzles() {
       sfx.good();
       showHint(pz.progress < pz.def.rows.length
         ? `✔ ${pz.def.steps[pz.progress - 1]}: «${mine.word}» — الآن: <b>${pz.def.steps[pz.progress]}</b>`
-        : `✔ «${pz.sentence.join(' ')}» — اعبر إلى الجزيرة!`);
+        : `✔ «${pz.sentence.join(pz.def.joiner ?? ' ')}» — ${pz.def.across || 'اعبر!'}`);
       if (pz.progress === pz.def.rows.length) solvePuzzle(pz);
     } else fall(pz, mine);
   }
@@ -732,7 +740,7 @@ function drawPuzzles() {
 
 function updateHud() {
   els.pearls.textContent = num(save.get().pearls || 0);
-  els.letters.innerHTML = ['ع', 'ل', 'م'].map(l => `<span class="${state.letters.includes(l) ? 'on' : ''}">${l}</span>`).join('');
+  els.letters.innerHTML = tokens().map(l => `<span class="${state.letters.includes(l) ? 'on' : ''}">${l}</span>`).join('');
 }
 
 function itemPopup({ icon, title, text }) {

@@ -885,7 +885,8 @@ body[data-screen="island"] #scene, body[data-screen="journey"] #scene { visibili
 .island-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
 .topbar--island { position: absolute; top: 0; left: 0; right: 0; max-width: none; padding: calc(10px + var(--safe-top)) 12px 10px; gap: 8px; pointer-events: none; }
 .topbar--island > * { pointer-events: auto; }
-.topbar--island h2 { font-size: clamp(17px, 4.8vw, 26px); }
+.topbar--island h2 { font-size: clamp(15px, 4.4vw, 26px); text-overflow: clip; }
+@media (max-width: 420px) { .topbar--island .hud-pill { padding-inline: 7px; } .letter-slots span { width: 20px; height: 22px; font-size: 14px; } }
 .hud-pill {
   display: inline-flex; align-items: center; gap: 4px; height: 40px; padding: 0 10px 3px; flex: 0 0 auto;
   background: var(--paper); border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 3px 0 var(--ink); font-weight: 800; font-size: 17px;
