@@ -420,3 +420,133 @@ export function shoreSVG() {
   </g>
 </svg>`;
 }
+
+// ---------- World-map islands ----------
+// Seen from above at a slight angle. viewBox 240×200; the landmark sits on
+// the grass around (120, 96). Each island kind has its own landmark.
+
+function islandBase({ sand = '#f3d596', grass = '#86c86a', grassDark = '#5fa653' } = {}) {
+  return `
+  <ellipse cx="120" cy="150" rx="112" ry="40" fill="#8fe0e6" opacity=".55"/>
+  <path d="M22 140 Q14 108 52 96 Q70 70 118 74 Q170 70 196 94 Q232 106 222 138 Q214 172 160 176 Q120 184 76 176 Q28 170 22 140Z" fill="${sand}" ${OUT}/>
+  <path d="M42 132 Q40 110 66 104 Q84 86 120 88 Q160 86 180 104 Q206 112 198 132 Q190 152 150 154 Q120 160 90 154 Q46 150 42 132Z" fill="${grassDark}"/>
+  <path d="M42 128 Q40 106 66 100 Q84 82 120 84 Q160 82 180 100 Q206 108 198 128 Q190 148 150 150 Q120 156 90 150 Q46 146 42 128Z" fill="${grass}" ${OUT_THIN}/>
+  <path d="M60 116 q6 -6 12 0 M160 122 q6 -6 12 0 M150 104 q5 -5 10 0" fill="none" stroke="#4f9444" stroke-width="2.5" stroke-linecap="round"/>`;
+}
+
+const LANDMARKS = {
+  // Home port: Arwad's little fort tower, a pier and a flag.
+  port: () => `
+    ${islandBase({ grass: '#9bcf72' })}
+    <path d="M178 150 L228 168 L222 176 L172 158Z" fill="#a8703c" ${OUT_THIN}/>
+    <path d="M186 154 v18 M200 159 v18 M214 164 v18" stroke="${LINE}" stroke-width="3"/>
+    <path d="M86 128 V70 H130 V128Z" fill="#e6c79a" ${OUT}/>
+    <path d="M82 70 h52 v-10 h-8 v6 h-8 v-6 h-10 v6 h-8 v-6 h-10 v6 h-8 v-6 h-8Z" fill="#e6c79a" ${OUT}/>
+    <path d="M100 128 v-22 q8 -12 16 0 v22Z" fill="#6b3f1f" ${OUT_THIN}/>
+    <rect x="94" y="80" width="8" height="12" rx="4" fill="#6b3f1f"/><rect x="114" y="80" width="8" height="12" rx="4" fill="#6b3f1f"/>
+    <path d="M108 60 V30" ${OUT}/><g class="flag-sm"><path d="M108 30 l24 6 l-24 7Z" fill="#d0507e" ${OUT_THIN}/></g>
+    <path d="M140 132 h26 v-18 l-13 -10 l-13 10Z M54 134 h24 v-16 l-12 -9 l-12 9Z" fill="#fbf1dc" ${OUT_THIN}/>`,
+
+  // Letters: a Damascene gate with ablaq (striped) stone and an open book.
+  letters: () => `
+    ${islandBase()}
+    <path d="M70 128 V70 Q70 40 120 36 Q170 40 170 70 V128Z" fill="#fbf1dc" ${OUT}/>
+    <path d="M70 60 H170 M70 80 H170 M70 100 H170" stroke="#3b3029" stroke-width="7" opacity=".85"/>
+    <path d="M70 128 V70 Q70 40 120 36 Q170 40 170 70 V128Z" fill="none" ${OUT}/>
+    <path d="M94 128 V80 Q94 58 120 56 Q146 58 146 80 V128Z" fill="#2c5e6e" ${OUT}/>
+    <path d="M100 124 L100 104 Q120 96 120 104 Q120 96 140 104 L140 124 Q120 118 120 124 Q120 118 100 124Z" fill="#fff" ${OUT_THIN}/>
+    <path d="M120 104 V122" ${OUT_THIN}/>
+    <text x="110" y="117" font-size="12" font-weight="800" text-anchor="middle" fill="${LINE}" font-family="Baloo Bhaijaan 2, sans-serif">ض</text>
+    <text x="131" y="117" font-size="12" font-weight="800" text-anchor="middle" fill="#d0507e" font-family="Baloo Bhaijaan 2, sans-serif">أ</text>
+    <circle cx="120" cy="46" r="5" fill="#f2c14e" ${OUT_THIN}/>`,
+
+  // Numbers: a striped lighthouse with a brass astrolabe beside it.
+  numbers: () => `
+    ${islandBase({ grass: '#8ccf8a' })}
+    <path d="M100 132 L108 52 H132 L140 132Z" fill="#fbf1dc" ${OUT}/>
+    <path d="M103 104 L137 104 L138 116 L102 116Z M106 74 L134 74 L135 86 L105 86Z" fill="#c7373f"/>
+    <path d="M100 132 L108 52 H132 L140 132Z" fill="none" ${OUT}/>
+    <path d="M104 52 H136 V44 H104Z" fill="#6b3f1f" ${OUT_THIN}/>
+    <path d="M108 44 V30 H132 V44Z" fill="#fff4b0" ${OUT_THIN}/>
+    <path class="beam" d="M132 36 L200 20 L200 50Z" fill="#fff4b0" opacity=".6"/>
+    <path d="M106 30 Q120 16 134 30Z" fill="#c7373f" ${OUT_THIN}/>
+    <path d="M114 132 v-14 q6 -8 12 0 v14Z" fill="#6b3f1f" ${OUT_THIN}/>
+    <g transform="translate(168 112)">
+      <circle r="18" fill="url(#g-brass)" ${OUT}/>
+      <circle r="11" fill="none" stroke="${LINE}" stroke-width="2"/>
+      <path d="M-16 0 H16 M0 -16 V16" stroke="${LINE}" stroke-width="2"/>
+      <path d="M-10 -10 L10 10" stroke="#c7373f" stroke-width="3" stroke-linecap="round"/>
+    </g>`,
+
+  // Science: a friendly volcano, giant leaves and a bubbling flask.
+  science: () => `
+    ${islandBase({ grass: '#78c46a' })}
+    <path d="M62 132 L102 58 Q120 50 138 58 L178 132Z" fill="#9a6b4e" ${OUT}/>
+    <path d="M102 58 Q120 50 138 58 L130 74 Q120 66 110 74Z" fill="#f06a3a" ${OUT_THIN}/>
+    <path d="M112 74 Q108 96 118 110 M128 72 Q134 90 126 104" fill="none" stroke="#f06a3a" stroke-width="5" stroke-linecap="round"/>
+    <g class="smoke" fill="#fff" opacity=".9">
+      <circle cx="120" cy="40" r="10"/><circle cx="132" cy="30" r="8"/><circle cx="142" cy="18" r="6"/>
+    </g>
+    <path d="M50 132 Q40 100 62 92 Q66 114 50 132Z M190 132 Q204 104 184 94 Q176 116 190 132Z" fill="#3a9b4a" ${OUT_THIN}/>
+    <g transform="translate(160 116)">
+      <path d="M-6 -20 h12 v10 l10 18 q2 8 -6 8 h-20 q-8 0 -6 -8 l10 -18Z" fill="#dff6ff" ${OUT_THIN}/>
+      <path d="M-11 0 h22 l3 6 q1 4 -4 4 h-20 q-5 0 -4 -4Z" fill="#6ee07a"/>
+      <circle cx="-3" cy="-26" r="3" fill="#6ee07a"/><circle cx="4" cy="-32" r="2" fill="#6ee07a"/>
+    </g>`,
+
+  // Geography & history: the Citadel of Aleppo on its mound.
+  citadel: () => `
+    ${islandBase({ grass: '#9ccf6e' })}
+    <path d="M56 134 Q64 96 88 88 L152 88 Q176 96 184 134Z" fill="#d9b27a" ${OUT}/>
+    <path d="M70 124 L170 124" stroke="#b98d55" stroke-width="3"/>
+    <path d="M82 88 V56 H158 V88Z" fill="#e8cf9c" ${OUT}/>
+    <path d="M78 56 h84 v-10 h-8 v6 h-10 v-6 h-10 v6 h-10 v-6 h-12 v6 h-10 v-6 h-10 v6 h-6 v-6 h-8Z" fill="#e8cf9c" ${OUT}/>
+    <path d="M110 88 V70 q10 -12 20 0 V88Z" fill="#6b3f1f" ${OUT_THIN}/>
+    <path d="M120 88 L112 134 H128Z" fill="#c9a26b" ${OUT_THIN}/>
+    <path d="M147 56 V34" ${OUT}/><path d="M147 36 Q141 26 147 20 Q153 26 147 36Z" fill="#f2c14e" ${OUT_THIN}/>`,
+
+  // Treasure: a glowing chest under a palm — the final review island.
+  treasure: () => `
+    ${islandBase({ sand: '#f7dc9c', grass: '#8fd06e' })}
+    <circle cx="120" cy="104" r="44" fill="#fff3a0" opacity=".55" class="glow"/>
+    <path d="M150 124 Q144 80 156 56" fill="none" stroke="${LINE}" stroke-width="10" stroke-linecap="round"/>
+    <path d="M150 124 Q144 80 156 56" fill="none" stroke="#a86e3c" stroke-width="6" stroke-linecap="round"/>
+    <path d="M156 56 Q130 40 112 56 Q134 50 156 58 Q180 36 200 50 Q176 50 156 58 Q170 70 176 88 Q160 72 156 58Z" fill="#3a8f45" ${OUT_THIN}/>
+    <path d="M90 104 h52 v28 h-52Z" fill="#a0602e" ${OUT}/>
+    <path d="M88 104 Q116 78 144 104Z" fill="#b8723a" ${OUT}/>
+    <path d="M90 112 h52 M114 104 v28" stroke="url(#g-brass)" stroke-width="5"/>
+    <rect x="109" y="108" width="10" height="10" rx="2" fill="url(#g-brass)" ${OUT_THIN}/>
+    <g fill="#ffd23f" ${OUT_THIN}><circle cx="82" cy="130" r="5"/><circle cx="150" cy="134" r="5"/><circle cx="92" cy="138" r="4"/></g>`,
+};
+
+// An island for the world map. kind: port | letters | numbers | science | citadel | treasure
+export function islandSVG(kind) {
+  return `<svg class="island-art island-art--${kind}" viewBox="0 0 240 200" aria-hidden="true" overflow="visible">${LANDMARKS[kind]()}</svg>`;
+}
+
+// Compass rose for the map corner. viewBox 100×100.
+export function compassSVG() {
+  return `
+<svg class="compass-art" viewBox="0 0 100 100" aria-hidden="true">
+  <circle cx="50" cy="50" r="40" fill="#fff7e6" ${OUT}/>
+  <circle cx="50" cy="50" r="32" fill="none" stroke="#e0c890" stroke-width="2"/>
+  <path d="M50 10 L58 50 L50 90 L42 50Z" fill="#fbf1dc" ${OUT_THIN}/>
+  <path d="M50 10 L58 50 L42 50Z" fill="#c7373f"/>
+  <path d="M10 50 L50 43 L90 50 L50 57Z" fill="#e8d3a6" ${OUT_THIN}/>
+  <circle cx="50" cy="50" r="5" fill="url(#g-brass)" ${OUT_THIN}/>
+  <text x="50" y="8" text-anchor="middle" font-size="11" font-weight="800" fill="${LINE}" font-family="Baloo Bhaijaan 2, sans-serif">ش</text>
+</svg>`;
+}
+
+// A friendly whale that surfaces now and then. viewBox 140×80.
+export function whaleSVG() {
+  return `
+<svg class="whale-art" viewBox="0 0 140 80" aria-hidden="true" overflow="visible">
+  <g class="spout" fill="#fff" opacity=".9"><circle cx="46" cy="-4" r="6"/><circle cx="38" cy="-12" r="5"/><circle cx="54" cy="-12" r="5"/></g>
+  <path d="M10 56 Q8 22 50 20 Q96 18 112 44 Q124 38 134 26 Q138 44 124 54 Q134 62 132 72 Q118 64 110 58 Q90 72 50 70 Q14 70 10 56Z" fill="#5a8fd0" ${OUT}/>
+  <path d="M16 58 Q50 72 104 58 Q88 68 50 68 Q22 68 16 58Z" fill="#cfe3f7"/>
+  <circle cx="34" cy="42" r="4" fill="${LINE}"/><circle cx="33" cy="40.5" r="1.4" fill="#fff"/>
+  <path d="M22 52 Q30 56 38 52" fill="none" ${OUT_THIN}/>
+  <ellipse cx="44" cy="50" rx="6" ry="3.5" fill="url(#g-cheek)"/>
+</svg>`;
+}

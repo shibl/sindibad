@@ -71,27 +71,36 @@
     </div>
   </section>
 
-  <section id="screen-map" class="screen">
-    <header class="topbar">
-      <button class="btn btn--round" data-go="select" aria-label="رجوع">→</button>
-      <h2>خريطة الصف السادس</h2>
+  <section id="screen-map" class="screen screen--map">
+    <header class="topbar topbar--map">
+      <button class="btn btn--round" data-go="select" aria-label="تغيير البطل" id="hero-btn"></button>
+      <h2>الصف السادس</h2>
+      <span class="stars-badge" title="النجوم">★ <span id="stars-total">٠</span></span>
+      <button class="btn btn--round" id="mute-btn" aria-label="الصوت">🔊</button>
     </header>
-    <div id="map" class="map">
-      <div class="ship ship--map"></div>
-      <div class="guide guide--center">
-        <div class="guide__bird"></div>
-        <p class="bubble">أرسم لك الخريطة الآن… قريباً ستُبحر إلى جزر المعرفة!</p>
-      </div>
+    <div id="map" class="map"></div>
+    <div id="map-toast" class="map__toast" hidden>
+      <div class="guide__bird"></div><p class="bubble" aria-live="polite"></p>
     </div>
+    <div id="sheet" class="sheet" hidden></div>
   </section>
 
-  <section id="screen-activity" class="screen">
+  <section id="screen-activity" class="screen screen--activity">
     <header class="topbar">
-      <button class="btn btn--round" data-go="map" aria-label="رجوع إلى الخريطة">→</button>
+      <button class="btn btn--round" id="lesson-quit" aria-label="رجوع إلى الخريطة">→</button>
       <h2 id="activity-title"></h2>
     </header>
+    <div class="progress" aria-hidden="true">
+      <div class="progress__fill"></div>
+      <div class="progress__ship">⛵</div>
+    </div>
     <!-- A topic plugin renders its activity into this container. -->
     <div id="activity" class="activity"></div>
+    <div class="coach" data-mood="happy">
+      <div class="guide__bird"></div>
+      <p class="bubble" id="coach-bubble" aria-live="polite"></p>
+    </div>
+    <div class="result" id="result" hidden></div>
   </section>
 
 </div>

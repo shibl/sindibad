@@ -7,6 +7,11 @@
 
 import { defsSVG, shipSVG, palmSVG, gullSVG, cloudSVG, skylineSVG, shoreSVG, heroSVG, hudhudSVG } from './art/art.js';
 import { save } from './core/save.js';
+import { initMap, render as renderMap } from './core/map.js';
+import { initLesson, startLesson } from './core/lesson.js';
+import { sfx, toggleMute } from './core/sound.js';
+import world from './worlds/grade6.js';
+import './plugins/index.js';
 
 // ---------- Backdrop ----------
 
@@ -52,14 +57,23 @@ export function showScreen(name) {
   document.querySelectorAll('.screen').forEach(el => {
     el.toggleAttribute('data-active', el.id === `screen-${name}`);
   });
-  if (name === 'map') paintShip(document.querySelector('.ship--map'), [save.get().hero || 'sindbad']);
+  document.body.dataset.screen = name;
+  if (name === 'map') {
+    const hero = save.get().hero || 'sindbad';
+    document.getElementById('hero-btn').innerHTML = `<span class="hero-face">${heroSVG(hero)}</span>`;
+    renderMap();
+  }
 }
 
 function wireNavigation() {
   document.addEventListener('click', e => {
     const target = e.target.closest('[data-go]');
-    if (target) showScreen(target.dataset.go);
+    if (target) { sfx.tap(); showScreen(target.dataset.go); }
   });
+  const mute = document.getElementById('mute-btn');
+  const paintMute = () => { mute.textContent = save.get().muted ? '🔇' : '🔊'; };
+  mute.addEventListener('click', () => { toggleMute(); paintMute(); sfx.tap(); });
+  paintMute();
 }
 
 // ---------- Character select ----------
@@ -121,4 +135,9 @@ paintScene();
 paintShip(document.querySelector('.ship--title'), ['sindbad', 'yasmina']);
 wireNavigation();
 wireHeroSelect();
+initMap(document.getElementById('map'), world, { openTopic: startLesson });
+initLesson({ showScreen, onReturn: () => showScreen('map') });
 registerServiceWorker();
+
+// Returning players skip straight past the title once they've chosen a hero.
+document.querySelector('#screen-title [data-go]').dataset.go = save.get().hero ? 'map' : 'select';
