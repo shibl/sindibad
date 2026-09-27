@@ -62,10 +62,10 @@ p { margin: 0; }
 .top .wrap { display: flex; align-items: center; gap: 18px; height: 64px; }
 .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 700; font-size: 16px; white-space: nowrap; }
 .brand img { width: 28px; height: 28px; border-radius: 7px; }
-.top nav { display: flex; gap: 4px; margin-inline-start: auto; overflow-x: auto; scrollbar-width: none; }
-.top nav::-webkit-scrollbar { display: none; }
-.top nav a { text-decoration: none; font-size: 14.5px; color: var(--muted); padding: 6px 10px; border-radius: 8px; white-space: nowrap; }
-.top nav a:hover, .top nav a.is-on { color: var(--text); background: var(--surface-2); }
+.top .main-nav { display: flex; gap: 4px; margin-inline-start: auto; overflow-x: auto; scrollbar-width: none; }
+.top .main-nav::-webkit-scrollbar { display: none; }
+.top .main-nav a { text-decoration: none; font-size: 14.5px; color: var(--muted); padding: 6px 10px; border-radius: 8px; white-space: nowrap; }
+.top .main-nav a:hover, .top .main-nav a.is-on { color: var(--text); background: var(--surface-2); }
 .top .spacer { flex: 1; display: none; }
 .btn {
   display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 10px;
@@ -178,12 +178,16 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: s
 footer a { color: var(--muted); }
 
 /* ---------- Responsive ---------- */
+@media (max-width: 1180px) {
+  .top .main-nav { display: none; }
+  .top .spacer { display: block; }
+}
 @media (max-width: 1040px) {
   .head { grid-template-columns: 1fr; gap: 10px; }
   .head .n { padding-top: 0; }
   .body { margin-inline-start: 0; }
   .roles { grid-template-columns: repeat(2, 1fr); }
-  .top nav { display: none; }
+  .top .main-nav { display: none; }
   .top .spacer { display: block; }
 }
 @media (max-width: 640px) {
@@ -206,6 +210,90 @@ footer a { color: var(--muted); }
   .facts, .facts div { background: #fff !important; border-color: #ccc !important; }
   .section { break-inside: avoid-page; padding: 32px 0; }
 }
+
+/* ---------- Site navigation ---------- */
+.menu-btn { display: none; width: 40px; height: 40px; padding: 0; justify-content: center; font-size: 20px; }
+.mobile-nav { display: none; }
+@media (max-width: 1180px) {
+  .menu-btn { display: inline-flex; }
+  .mobile-nav { position: fixed; top: 64px; inset-inline: 0; z-index: 9; background: var(--bg); border-bottom: 1px solid var(--line); box-shadow: 0 12px 30px rgba(0,0,0,.12); padding: 8px 18px 16px; }
+  .mobile-nav.is-open { display: grid; }
+  .mobile-nav a { padding: 12px 6px; border-bottom: 1px solid var(--line); text-decoration: none; font-weight: 500; }
+  .mobile-nav a:last-child { border-bottom: 0; }
+}
+
+/* ---------- Demo ---------- */
+.demo-banner { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; padding: 24px 28px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--surface); margin-bottom: 32px; }
+.alt .demo-banner { background: var(--bg); }
+.demo-banner h3 { font-size: 20px; margin-bottom: 6px; }
+.demo-banner p { color: var(--muted); font-size: 16px; }
+.badge { display: inline-block; font-size: 12.5px; font-weight: 700; color: var(--teal); background: var(--teal-soft); border: 1px solid color-mix(in srgb, var(--teal) 35%, transparent); border-radius: 6px; padding: 1px 8px; margin-inline-start: 8px; vertical-align: 3px; }
+.shots { display: grid; grid-template-columns: repeat(6, 1fr); gap: 18px; }
+.shot { margin: 0; }
+.shot img { display: block; width: 100%; height: auto; aspect-ratio: 390 / 844; object-fit: cover; border-radius: 22px; border: 6px solid #10151d; box-shadow: 0 1px 0 var(--line-strong), 0 14px 30px rgba(15, 27, 45, .18); background: #10151d; }
+.shot figcaption { margin-top: 10px; font-size: 14px; color: var(--muted); line-height: 1.5; text-align: center; }
+.shot figcaption b { display: block; color: var(--text); font-weight: 600; font-size: 15px; }
+.demo-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 28px; margin-top: 32px; padding: 0; list-style: none; }
+.demo-list li { position: relative; padding-inline-start: 22px; color: var(--muted); font-size: 15.5px; line-height: 1.7; }
+.demo-list li::before { content: "✓"; position: absolute; inset-inline-start: 0; color: var(--teal); font-weight: 700; }
+.demo-list b { color: var(--text); font-weight: 600; }
+
+/* ---------- Stage art ---------- */
+.stage-art { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.stage { position: relative; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--bg); }
+.stage .scene { position: relative; height: 190px; background: linear-gradient(var(--sky1), var(--sky2) 62%, var(--sea1) 62%, var(--sea2)); }
+.stage .scene .isle { position: absolute; inset-inline-end: 4%; bottom: 8%; width: 62%; }
+.stage .scene .isle svg { width: 100%; height: auto; display: block; }
+.stage .scene .kids { position: absolute; inset-inline-start: 6%; bottom: 6%; display: flex; align-items: flex-end; gap: 0; height: var(--h); }
+.stage .scene .kids span { height: 100%; display: block; }
+.stage .scene .kids svg { height: 100%; width: auto; display: block; }
+.stage .cap { padding: 12px 14px 14px; }
+.stage .cap b { display: block; font-size: 15.5px; }
+.stage .cap span { font-size: 13.5px; color: var(--muted); }
+.stage .cap em { font-style: normal; font-size: 12.5px; font-weight: 700; color: var(--accent); }
+.stage--1 { --sky1: #fde9c8; --sky2: #f6d29a; --sea1: #7fc9d8; --sea2: #4ea8c2; --h: 38%; }
+.stage--2 { --sky1: #cdebf5; --sky2: #9fd6ea; --sea1: #43a9cc; --sea2: #1f86b0; --h: 50%; }
+.stage--3 { --sky1: #c9d6ef; --sky2: #8fa7d6; --sea1: #2b6f9e; --sea2: #1a4f7a; --h: 60%; }
+.stage--4 { --sky1: #f3c9a8; --sky2: #c98a7a; --sea1: #2c5378; --sea2: #172f4c; --h: 70%; }
+
+/* ---------- FAQ ---------- */
+.faq { border-top: 1px solid var(--line); }
+.faq details { border-bottom: 1px solid var(--line); }
+.faq summary { cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 4px; font-size: 18px; font-weight: 600; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; flex: 0 0 auto; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--line-strong); color: var(--muted); font-weight: 400; font-size: 18px; transition: transform .2s; }
+.faq details[open] summary::after { content: "−"; }
+.faq .a { padding: 0 4px 22px; color: var(--muted); font-size: 16.5px; max-width: 820px; }
+.faq .a p + p { margin-top: 10px; }
+.faq .a a { color: var(--accent); }
+.faq .pending { display: inline-block; font-size: 13px; font-weight: 600; color: var(--faint); border: 1px dashed var(--line-strong); border-radius: 6px; padding: 2px 10px; }
+
+/* ---------- Footer sitemap ---------- */
+.sitemap { padding: 56px 0 24px; border-top: 1px solid var(--line); background: var(--surface); }
+.sitemap .wrap { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 32px; }
+.sitemap h4 { font-size: 14px; color: var(--faint); font-weight: 600; margin-bottom: 12px; }
+.sitemap ul { list-style: none; margin: 0; padding: 0; }
+.sitemap li + li { margin-top: 8px; }
+.sitemap a { text-decoration: none; color: var(--muted); font-size: 15px; }
+.sitemap a:hover { color: var(--text); text-decoration: underline; }
+.sitemap .about-brand p { color: var(--muted); font-size: 15px; margin-top: 10px; max-width: 340px; }
+footer { background: var(--surface); border-top: 1px solid var(--line); }
+
+@media (max-width: 1040px) {
+  .shots { grid-template-columns: repeat(3, 1fr); }
+  .stage-art { grid-template-columns: repeat(2, 1fr); }
+  .demo-list { grid-template-columns: 1fr 1fr; }
+  .sitemap .wrap { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 640px) {
+  .shots { grid-template-columns: repeat(6, 70%); overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 10px; }
+  .shot { scroll-snap-align: center; }
+  .demo-banner { grid-template-columns: 1fr; }
+  .demo-list { grid-template-columns: 1fr; }
+  .stage-art { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .stage .scene { height: 140px; }
+  .sitemap .wrap { grid-template-columns: 1fr; gap: 24px; }
+}
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 </style>
 </head>
@@ -213,38 +301,51 @@ footer a { color: var(--muted); }
 
 <header class="top">
   <div class="wrap">
-    <a class="brand" href="./"><img src="icons/icon.svg" alt=""><span>رحلات سندباد وياسمينة</span></a>
-    <nav aria-label="أقسام الصفحة">
+    <a class="brand" href="#top"><img src="icons/icon.svg" alt=""><span>رحلات سندباد وياسمينة</span></a>
+    <nav class="main-nav" aria-label="أقسام الصفحة">
       <a href="#mission">المهمّة</a>
+      <a href="#demo">العرض التجريبي</a>
+      <a href="#architecture">البنية التقنية</a>
+      <a href="#contribute">المساهمة</a>
+      <a href="#faq">الأسئلة الشائعة</a>
+    </nav>
+    <span class="spacer"></span>
+    <button class="btn theme" id="theme" type="button" aria-label="تبديل الوضع الليلي" title="الوضع الليلي">◐</button>
+    <a class="btn btn--primary" href="./">العرض التجريبي</a>
+    <button class="btn menu-btn" id="menu" type="button" aria-label="القائمة" aria-expanded="false" aria-controls="mobile-nav">☰</button>
+  </div>
+  <nav class="mobile-nav" id="mobile-nav" aria-label="القائمة">
+      <a href="#mission">المهمّة</a>
+      <a href="#demo">العرض التجريبي</a>
       <a href="#design">التصميم التربوي</a>
-      <a href="#stages">المراحل العمرية</a>
+      <a href="#stages">المراحل</a>
       <a href="#architecture">البنية التقنية</a>
       <a href="#model">النموذج المجتمعي</a>
       <a href="#review">التدقيق التربوي</a>
       <a href="#contribute">المساهمة</a>
-    </nav>
-    <span class="spacer"></span>
-    <button class="btn theme" id="theme" type="button" aria-label="تبديل الوضع الليلي" title="الوضع الليلي">◐</button>
-    <a class="btn btn--primary" href="./">جرّب النموذج</a>
-  </div>
+      <a href="#faq">الأسئلة الشائعة</a>
+      <a href="./">▶ افتح العرض التجريبي (الصف السادس)</a>
+      <a href="https://github.com/shibl/sindibad" target="_blank" rel="noopener">المستودع على GitHub</a>
+  </nav>
 </header>
 
-<main>
+<main id="top">
   <section class="hero" aria-labelledby="title">
     <div class="wrap">
       <span class="eyebrow">مشروع تعليمي تفاعلي سوري حرّ</span>
       <h1 id="title">رحلات سندباد وياسمينة</h1>
       <p class="lead">تحويل المنهاج السوري بمراحله الاثنتي عشرة إلى لعبة مغامرات وتقمّص أدوار (RPG) تنمو مع الطالب خطوة بخطوة، وتعمل بالكامل دون إنترنت.</p>
       <div class="actions">
-        <a class="btn btn--primary" href="#contribute">انضمّ إلى المشروع</a>
+        <a class="btn btn--primary" href="./">▶ جرّب العرض التجريبي (الصف السادس)</a>
+        <a class="btn" href="#contribute">انضمّ إلى المشروع</a>
         <a class="btn" href="https://github.com/shibl/sindibad" target="_blank" rel="noopener">المستودع على GitHub</a>
         <a class="btn" href="docs/original-project-brief.pdf">وثيقة المشروع (PDF)</a>
       </div>
       <div class="facts">
         <div><b>١٠٠٪</b><span>مجاني ومفتوح المصدر</span></div>
         <div><b>١٢</b><span>مستوى يغطّي كامل المراحل الدراسية</span></div>
-        <div><b>≤ ٣٥ MB</b><span>حجم حزمة الصف الواحد، دون إنترنت</span></div>
-        <div><b>٠</b><span>إعلانات، اشتراكات، أو جمع بيانات</span></div>
+        <div><b>دون إنترنت</b><span>يعمل على الهواتف البسيطة والأجهزة المتواضعة</span></div>
+        <div><b>صفر</b><span>إعلانات، اشتراكات، أو جمع بيانات</span></div>
       </div>
     </div>
   </section>
@@ -268,14 +369,51 @@ footer a { color: var(--muted); }
         </div>
         <div class="note">
           <span class="tag">الحلّ الجذري</span>
-          <div><h3>هندسة العمل غير المتصل (Offline-First)</h3><p>تُحمَّل حزمة الصف الدراسي مرّة واحدة بحجم لا يتجاوز ٣٥ ميغابايت، لتعمل اللعبة بعدها دون أي اتصال بالإنترنت، مع إمكانية تبادل التحديثات عبر الشبكات المحلية والبلوتوث.</p></div>
+          <div><h3>هندسة العمل غير المتصل (Offline-First)</h3><p>تُحمَّل حزمة الصف الدراسي مرّة واحدة، لتعمل اللعبة بعدها على الهواتف البسيطة دون أي اتصال بالإنترنت، مع إمكانية تبادل التحديثات عبر الشبكات المحلية والبلوتوث.</p></div>
         </div>
       </div>
     </div>
   </section>
 
+
+  <!-- Demo -->
+  <section class="section alt" id="demo" aria-labelledby="h-demo">
+    <div class="wrap">
+      <div class="head">
+        <div class="n">العرض التجريبي<small>الصف السادس</small></div>
+        <div>
+          <h2 id="h-demo">جرّب النموذج الأول: الصف السادس</h2>
+          <p>عرض تجريبي عملي يعمل في المتصفّح ودون إنترنت، يثبت الفكرة على صفّ واحد قبل التوسّع إلى الصفوف الاثني عشر.</p>
+        </div>
+      </div>
+      <div class="demo-banner">
+        <div>
+          <h3>رحلات سندباد وياسمينة — الصف السادس <span class="badge">عرض تجريبي</span></h3>
+          <p>المحتوى مسودّة تعليمية بانتظار مراجعة معلّمين سوريين. تُحفظ البيانات على الجهاز فقط.</p>
+        </div>
+        <a class="btn btn--primary" href="./">▶ افتح العرض التجريبي</a>
+      </div>
+      <div class="shots">
+        <figure class="shot"><img src="docs/screens/1-title.jpg" alt="شاشة البداية" loading="lazy" width="390" height="844"><figcaption><b>البداية</b>ملف لكل طفل، ونجوم وسلسلة أيام</figcaption></figure>
+        <figure class="shot"><img src="docs/screens/2-map.jpg" alt="خريطة البحر والجزر" loading="lazy" width="390" height="844"><figcaption><b>خريطة البحر</b>جزيرة لكل مادة، يرفع التعلّم عنها الضباب</figcaption></figure>
+        <figure class="shot"><img src="docs/screens/4-dialogue.jpg" alt="الجزيرة والحوار مع الشخصيات" loading="lazy" width="390" height="844"><figcaption><b>الجزر</b>استكشاف حرّ وشخصيات تطلب المساعدة</figcaption></figure>
+        <figure class="shot"><img src="docs/screens/5-lesson.jpg" alt="درس تفاعلي" loading="lazy" width="390" height="844"><figcaption><b>الدروس</b>شرح قصير ثم تدريب تكيّفي</figcaption></figure>
+        <figure class="shot"><img src="docs/screens/6-battle.jpg" alt="تحدّي الحارس" loading="lazy" width="390" height="844"><figcaption><b>تحدّي الحارس</b>مراجعة شاملة لكل جزيرة</figcaption></figure>
+        <figure class="shot"><img src="docs/screens/7-album.jpg" alt="ألبوم الملصقات" loading="lazy" width="390" height="844"><figcaption><b>ألبوم الملصقات</b>معلومات حقيقية عن سوريا والعالم</figcaption></figure>
+      </div>
+      <ul class="demo-list">
+        <li><b>٢٨ درساً</b> في العربية والرياضيات والعلوم والجغرافيا والتاريخ.</li>
+        <li><b>خمس جزر</b> قابلة للاستكشاف بالمشي، بأكثر من ٣٠ شخصية.</li>
+        <li><b>تدريب تكيّفي:</b> الأسئلة التي يخطئ فيها الطالب تعود حتى يتقنها.</li>
+        <li><b>مراجعة متباعدة</b> تذكّر بالدروس بعد أيام كي لا تُنسى.</li>
+        <li><b>لوحة للأهل</b> خلف تحقّق بسيط، مع تقرير قابل للطباعة.</li>
+        <li><b>يعمل دون إنترنت</b> بعد الفتح الأول، ولا يجمع أي بيانات.</li>
+      </ul>
+    </div>
+  </section>
+
   <!-- 02 Pedagogical design -->
-  <section class="section alt" id="design" aria-labelledby="h-design">
+  <section class="section" id="design" aria-labelledby="h-design">
     <div class="wrap">
       <div class="head">
         <div class="n">٠٢<small>فلسفة اللعبة وميكانيكياتها</small></div>
@@ -317,7 +455,7 @@ footer a { color: var(--muted); }
   </section>
 
   <!-- 03 Stages -->
-  <section class="section" id="stages" aria-labelledby="h-stages">
+  <section class="section alt" id="stages" aria-labelledby="h-stages">
     <div class="wrap">
       <div class="head">
         <div class="n">٠٣<small>التطوّر العمري والشخصيات</small></div>
@@ -327,6 +465,12 @@ footer a { color: var(--muted); }
         </div>
       </div>
       <div class="body">
+        <div class="stage-art" aria-hidden="true">
+          <div class="stage stage--1"><div class="scene"><div class="isle" data-isle="port"></div><div class="kids"><span data-hero="sindbad"></span><span data-hero="yasmina"></span></div></div><div class="cap"><em>الصفوف ١–٣</em><b>الحارة والميناء الصغير</b><span>الطفل المستكشف</span></div></div>
+          <div class="stage stage--2"><div class="scene"><div class="isle" data-isle="letters"></div><div class="kids"><span data-hero="sindbad"></span><span data-hero="yasmina"></span></div></div><div class="cap"><em>الصفوف ٤–٦ • العرض التجريبي</em><b>الجزر الساحلية</b><span>البحّار الصغير</span></div></div>
+          <div class="stage stage--3"><div class="scene"><div class="isle" data-isle="science"></div><div class="kids"><span data-hero="sindbad"></span><span data-hero="yasmina"></span></div></div><div class="cap"><em>الصفوف ٧–٩</em><b>أعالي البحار</b><span>الربّان اليافع</span></div></div>
+          <div class="stage stage--4"><div class="scene"><div class="isle" data-isle="citadel"></div><div class="kids"><span data-hero="sindbad"></span><span data-hero="yasmina"></span></div></div><div class="cap"><em>الصفوف ١٠–١٢</em><b>الأساطيل والممالك</b><span>قائد الأسطول</span></div></div>
+        </div>
         <div class="scroll-x">
           <table class="table">
             <thead><tr><th>المرحلة</th><th>الصفوف</th><th>الشخصية والمحتوى</th></tr></thead>
@@ -347,7 +491,7 @@ footer a { color: var(--muted); }
   </section>
 
   <!-- 04 Architecture -->
-  <section class="section alt" id="architecture" aria-labelledby="h-arch">
+  <section class="section" id="architecture" aria-labelledby="h-arch">
     <div class="wrap">
       <div class="head">
         <div class="n">٠٤<small>الابتكار التقني الموزّع</small></div>
@@ -374,7 +518,7 @@ footer a { color: var(--muted); }
   </section>
 
   <!-- 05 Community model -->
-  <section class="section" id="model" aria-labelledby="h-model">
+  <section class="section alt" id="model" aria-labelledby="h-model">
     <div class="wrap">
       <div class="head">
         <div class="n">٠٥<small>النموذج المجتمعي والاستدامة</small></div>
@@ -411,7 +555,7 @@ footer a { color: var(--muted); }
   </section>
 
   <!-- 06 Pedagogical review -->
-  <section class="section alt" id="review" aria-labelledby="h-review">
+  <section class="section" id="review" aria-labelledby="h-review">
     <div class="wrap">
       <div class="head">
         <div class="n">٠٦<small>حجر الزاوية التربوي</small></div>
@@ -452,7 +596,7 @@ footer a { color: var(--muted); }
   </section>
 
   <!-- 07 Contribute -->
-  <section class="section" id="contribute" aria-labelledby="h-contrib">
+  <section class="section alt" id="contribute" aria-labelledby="h-contrib">
     <div class="wrap">
       <div class="head">
         <div class="n">٠٧<small>انضمّ إلى الرحلة</small></div>
@@ -482,20 +626,73 @@ footer a { color: var(--muted); }
     </div>
   </section>
 
+
+  <!-- FAQ -->
+  <section class="section" id="faq" aria-labelledby="h-faq">
+    <div class="wrap">
+      <div class="head">
+        <div class="n">٠٨<small>الأسئلة الشائعة</small></div>
+        <div>
+          <h2 id="h-faq">الأسئلة الشائعة</h2>
+          <p>إجابات مختصرة للمطوّرين والشركاء والمؤسّسين.</p>
+        </div>
+      </div>
+      <div class="body faq">
+        <details><summary>هل المشروع مجاني فعلاً؟</summary><div class="a"><p>نعم. اللعبة مجانية بالكامل، دون إعلانات أو اشتراكات أو مشتريات داخلية. الكود مفتوح المصدر (MIT / GPL)، والمحتوى التعليمي والرسوم تحت رخصة المشاع الإبداعي (CC-BY-SA).</p></div></details>
+        <details><summary>ما الذي يمكن تجربته الآن؟</summary><div class="a"><p>عرض تجريبي للصف السادس: ٢٨ درساً موزّعة على خمس جزر (العربية، الرياضيات، العلوم، الجغرافيا والتاريخ، ومراجعة شاملة). <a href="./">افتح العرض التجريبي</a>.</p></div></details>
+        <details><summary>هل يعمل دون إنترنت؟ وعلى أي أجهزة؟</summary><div class="a"><p>نعم. بعد الفتح الأول يعمل العرض التجريبي بالكامل دون اتصال، ويمكن إضافته إلى الشاشة الرئيسية كتطبيق. صُمّم ليعمل في متصفّح الهواتف البسيطة والأجهزة اللوحية والحواسيب، مع وضع خفيف تلقائي للأجهزة الضعيفة.</p></div></details>
+        <details><summary>هل تُجمع أي بيانات عن الأطفال؟</summary><div class="a"><p>لا. التقدّم محفوظ على الجهاز نفسه فقط، ولا يُرسَل أي شيء إلى أي خادم. يدعم الجهاز الواحد عدّة أطفال بملفات منفصلة، ولوحة الأهل محلية أيضاً.</p></div></details>
+        <details><summary>هل المحتوى معتمد ومطابق للمنهاج السوري؟</summary><div class="a"><p>محتوى العرض التجريبي مسودّة مبنية على أهداف منهاج الصف السادس، وهو بانتظار مراجعة معلّمين سوريين مختصّين قبل اعتماده. لن يُعتمد أي درس أو لعبة مصغّرة دون توقيع معلّم مختص.</p></div></details>
+        <details><summary>بأي تقنية بُني العرض التجريبي؟ وما علاقته بمحرّك Godot؟</summary><div class="a"><p>العرض التجريبي الحالي تطبيق ويب خفيف (HTML و JavaScript) يعمل دون خادم ودون خطوة بناء، مع نظام إضافات للدروس والألعاب المصغّرة. الخطة التقنية النهائية للمحرّك: <span class="pending">الإجابة قيد الإعداد</span></p></div></details>
+        <details><summary>كيف أساهم في المشروع؟</summary><div class="a"><p>عبر <a href="https://github.com/shibl/sindibad" target="_blank" rel="noopener">المستودع على GitHub</a>: قائمة المهام المفتوحة في ملف BACKLOG، ودليل إضافة درس جديد في plugins/README. نرحّب بالمبرمجين والرسّامين وصنّاع الألعاب والمعلّمين (انظر <a href="#contribute">أدوار المساهمة</a>).</p></div></details>
+        <details><summary>من يقف وراء المشروع؟</summary><div class="a"><p><span class="pending">الإجابة قيد الإعداد</span></p></div></details>
+        <details><summary>كيف يُموَّل المشروع؟ وكيف يمكنني التبرّع؟</summary><div class="a"><p>تُغطّى نفقات الخوادم ومكافآت المعلّمين بالتبرّعات الشفافة والمنح غير المشروطة. طريقة التبرّع: <span class="pending">الإجابة قيد الإعداد</span></p></div></details>
+        <details><summary>ما وضع الشراكة مع نقابة المعلّمين السوريين؟</summary><div class="a"><p><span class="pending">الإجابة قيد الإعداد</span></p></div></details>
+        <details><summary>متى تصدر بقية الصفوف؟</summary><div class="a"><p><span class="pending">الإجابة قيد الإعداد</span></p></div></details>
+        <details><summary>كيف نتواصل معكم؟</summary><div class="a"><p><span class="pending">الإجابة قيد الإعداد</span></p></div></details>
+      </div>
+    </div>
+  </section>
+
   <section class="cta" aria-label="روابط المشروع">
     <div class="wrap">
       <div>
         <h2>الكود والمحتوى متاحان للجميع</h2>
-        <p>النموذج الأول (الصف السادس) قابل للتجربة الآن في المتصفّح ويعمل دون إنترنت. المستودع يضمّ المواصفات وقائمة المهام المفتوحة.</p>
+        <p>العرض التجريبي للصف السادس قابل للتجربة الآن في المتصفّح ويعمل دون إنترنت. المستودع يضمّ المواصفات وقائمة المهام المفتوحة.</p>
       </div>
       <div class="links">
         <a class="btn btn--primary" href="https://github.com/shibl/sindibad" target="_blank" rel="noopener">github.com/shibl/sindibad</a>
-        <a class="btn" href="./">جرّب النموذج</a>
+        <a class="btn" href="./">▶ العرض التجريبي (الصف السادس)</a>
       </div>
     </div>
   </section>
 </main>
 
+<nav class="sitemap" aria-label="خريطة الموقع">
+  <div class="wrap">
+    <div class="about-brand">
+      <a class="brand" href="#top"><img src="icons/icon.svg" alt=""><span>رحلات سندباد وياسمينة</span></a>
+      <p>مشروع تعليمي سوري حرّ ومفتوح المصدر يحوّل المنهاج إلى لعبة مغامرات تعمل دون إنترنت.</p>
+    </div>
+    <div><h4>المشروع</h4><ul>
+      <li><a href="#mission">المهمّة والتحدّيات</a></li>
+      <li><a href="#design">التصميم التربوي</a></li>
+      <li><a href="#stages">المراحل العمرية</a></li>
+      <li><a href="#architecture">البنية التقنية</a></li>
+    </ul></div>
+    <div><h4>المجتمع</h4><ul>
+      <li><a href="#model">النموذج المجتمعي</a></li>
+      <li><a href="#review">التدقيق التربوي</a></li>
+      <li><a href="#contribute">المساهمة</a></li>
+      <li><a href="#faq">الأسئلة الشائعة</a></li>
+    </ul></div>
+    <div><h4>روابط</h4><ul>
+      <li><a href="./">العرض التجريبي (الصف السادس)</a></li>
+      <li><a href="https://github.com/shibl/sindibad" target="_blank" rel="noopener">المستودع على GitHub</a></li>
+      <li><a href="docs/original-project-brief.pdf">وثيقة المشروع (PDF)</a></li>
+    </ul></div>
+  </div>
+</nav>
 <footer>
   <div class="wrap">
     <span>رحلات سندباد وياسمينة — الكود: MIT / GPL • المحتوى والرسوم: CC-BY-SA</span>
@@ -503,7 +700,21 @@ footer a { color: var(--muted); }
   </div>
 </footer>
 
+<script type="module">
+// Stage illustrations, drawn with the game's own art (art/art.js).
+import { heroSVG, islandSVG, defsSVG } from './art/art.js';
+document.body.insertAdjacentHTML('afterbegin', `<div hidden>${defsSVG()}</div>`);
+document.querySelectorAll('[data-isle]').forEach(el => { el.innerHTML = islandSVG(el.dataset.isle); });
+document.querySelectorAll('[data-hero]').forEach(el => { el.innerHTML = heroSVG(el.dataset.hero); });
+</script>
 <script>
+// Mobile menu.
+(() => {
+  const btn = document.getElementById('menu'), nav = document.getElementById('mobile-nav');
+  const set = open => { nav.classList.toggle('is-open', open); btn.setAttribute('aria-expanded', open); btn.textContent = open ? '✕' : '☰'; };
+  btn.addEventListener('click', () => set(!nav.classList.contains('is-open')));
+  nav.addEventListener('click', e => { if (e.target.closest('a')) set(false); });
+})();
 // Theme toggle (remembered in this browser) and highlighting the section in view.
 (() => {
   const root = document.documentElement;
@@ -513,7 +724,7 @@ footer a { color: var(--muted); }
     root.dataset.theme = dark ? 'light' : 'dark';
     try { localStorage.setItem('sindbad.aboutTheme', root.dataset.theme); } catch { /* ignore */ }
   });
-  const links = [...document.querySelectorAll('.top nav a')];
+  const links = [...document.querySelectorAll('.top .main-nav a, .mobile-nav a')];
   const io = new IntersectionObserver(entries => {
     for (const e of entries) if (e.isIntersecting) links.forEach(a => a.classList.toggle('is-on', a.getAttribute('href') === `#${e.target.id}`));
   }, { rootMargin: '-40% 0px -55% 0px' });
