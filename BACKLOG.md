@@ -185,3 +185,40 @@ guide bird is **Hudhud** (the hoopoe). SPEC.md updated.
 
 **Known gaps / next**: see items 8–13 above. Content is a draft pending
 educator review; not yet tried on a real low-end phone.
+
+## Playtest notes — 2026-09-27 (third session: from quiz to adventure)
+
+Owner feedback: "it feels like a glorified quiz — go more like Zelda: walk
+around the world, meet characters". Each version below was played
+headless (scripted walks, quests, puzzles), screenshotted, fixed, then
+published to the test link and GitHub Pages.
+
+- **V2** — walkable islands (`core/overworld.js`): canvas top-down world,
+  keyboard / floating joystick / tap-to-walk, Hudhud flies along.
+  Arabic island with 5 villagers; 3 quests run the lessons and give golden
+  letters ع ل م; the gate opens; the monument completes the island.
+  Found: overlays covered the screen (`display` beat `[hidden]`) — fixed
+  globally; the talk range was too tight to reach villagers from below.
+- **V3** — walk-on puzzle "جسر الكلمات": stepping stones in sentence order
+  (verb → فاعل → مفعول به, told apart by ضمة/فتحة). Wrong stone = splash.
+- **V4** — maths island: lighthouse keeper, merchant, fish seller,
+  shipwright; compass letters ش ج ق غ; "جسر الأعداد" (smallest → largest).
+- **V5** — science (Dr Nour, Ibn al-Nafis, astronomer Maryam; planets
+  bridge), citadel island (noria, Palmyra columns, cities bridge north →
+  south, first fetch quest), treasure island (Luqman's final review).
+  Found: headscarves hid villagers' faces — redrawn.
+- **V6** — villagers host their own lessons; quest log; island nights
+  lit by lamps; wandering children; footstep dust.
+
+**Next ideas** (proposed):
+14. [ ] In-world challenges without leaving the island: short questions
+    asked inside the dialogue box (keep the full lesson for replays).
+15. [ ] Pearls buy things: ship paint, sails, a hat for the hero, a
+    perch for Hudhud — gives pearls a purpose.
+16. [ ] More walk-on puzzles: push-block "balance" puzzle for fractions,
+    a word-order door for إن وأخواتها, a noria that lifts water only when
+    the right volume is chosen.
+17. [ ] Island music: a tiny synthesized oud-like loop per island
+    (Web Audio, no files), with a mute toggle.
+18. [ ] Accessibility: a "read aloud" button on dialogue (speechSynthesis,
+    Arabic voice when available) for weaker readers.
