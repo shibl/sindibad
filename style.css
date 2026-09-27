@@ -1763,3 +1763,6 @@ body.calm .isle__ring, body.calm .shop__stage::before, body.calm .result__rays, 
   .choices { gap: 10px; }
   .choice { min-height: 58px; }
 }
+
+/* Link to the About page (about.html), opposite the parents' link. */
+.about-link { inset-inline-start: auto; inset-inline-end: 12px; text-decoration: none; }

@@ -6,6 +6,10 @@ Syrian national curriculum (grades 1–12) into an RPG-style adventure.
 - **Project spec**: see [`SPEC.md`](./SPEC.md) — read this first.
 - **Work queue**: see [`BACKLOG.md`](./BACKLOG.md) — the living backlog and
   playtest log; pick the top open item, implement, test, and append notes.
+- **About the project** (Arabic, for developers and founders): the
+  8-slide brief as a swipeable page — [`about.html`](./about.html), live at
+  <https://shibl.github.io/sindibad/about.html> (also linked as «ℹ️ عن
+  المشروع» on the game's title screen).
 - **Original project brief** (Arabic): [`docs/original-project-brief.pdf`](./docs/original-project-brief.pdf)
 - **Concept demos** (throwaway animation sketches, not production code):
   [`demos/`](./demos/)
@@ -13,7 +17,7 @@ Syrian national curriculum (grades 1–12) into an RPG-style adventure.
 ## What's playable now
 
 **Grade 6** (الصف السادس): pick Sindbad or Yasmina, sail a fog-covered
-archipelago guided by Hudhud the hoopoe, and learn through 13 short
+archipelago guided by Hudhud the hoopoe, and learn through 28 short
 lessons — Arabic grammar, fractions/decimals/percent, science, and
 Syrian geography — each starting with an illustrated mini-lesson. Stars
 lift the fog, islands award badges, finished topics come back for spaced
@@ -48,6 +52,8 @@ the service worker caches it for offline play (the test fails otherwise).
 ## Layout
 
 - `index.html`, `style.css`, `app.js` — app shell: screens, backdrop, boot.
+- `about.html` — the project brief as swipeable cards (self-contained;
+  reuses `fonts/` and `art/art.js`).
 - `core/` — the engine: map, lesson runner, topic registry, save data,
   sounds, journey page, finale. Never changes when content is added.
 - `worlds/grade6.js` — the grade-6 islands, positions, unlock rules, badges.

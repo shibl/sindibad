@@ -9,7 +9,7 @@ import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
-const TOP = ['index.html', 'style.css', 'app.js', 'manifest.json'];
+const TOP = ['index.html', 'about.html', 'style.css', 'app.js', 'manifest.json'];
 const DIRS = { art: /\.js$/, core: /\.js$/, plugins: /\.js$/, worlds: /\.js$/, fonts: /\.woff2$/, icons: /\.(png|svg)$/ };
 
 function walk(dir, re) {
