@@ -120,6 +120,8 @@ const heroId = () => save.get().hero || 'sindbad';
 const fill = text => text.replace(/\{name\}/g, HEROES[heroId()].name);
 // A quest is done when its lesson has a star — or, for a fetch quest, when
 // the lost thing has been found.
+// Has this villager already handed over their reward?
+const rewarded = p => (p.quest.letter ? state.letters.includes(p.quest.letter) : (state.rewarded || []).includes(p.id));
 const questDone = q => (q.fetch ? state.items.includes(q.fetch) : (save.get().topics[q.topic]?.stars || 0) >= 1);
 
 // ---------- Enter / leave ----------
@@ -536,7 +538,7 @@ function drawPrompts() {
   const near = nearest();
   for (const p of people) {
     let mark = null;
-    if (p.quest) mark = questDone(p.quest) ? (state.letters.includes(p.quest.letter) ? '✔' : '!') : '!';
+    if (p.quest) mark = questDone(p.quest) ? (rewarded(p) ? '✔' : '!') : '!';
     else if (p.riddles) mark = '🧩';
     else if (!state.met.includes(p.id)) mark = '…';
     if (!mark) continue;
@@ -630,7 +632,7 @@ function talkTo(p) {
     return;
   }
   if (!q) { say({ person: p, lines: p.talk }); return; }
-  if (questDone(q) && !state.letters.includes(q.letter)) { rewardQuest(p); return; }
+  if (questDone(q) && !rewarded(p)) { rewardQuest(p); return; }
   if (q.fetch) {
     say({ person: p, lines: questDone(q) ? q.after : q.intro });
     return;
@@ -748,18 +750,28 @@ export function lessonReturned({ topic, gained }) {
   const p = pendingQuest;
   pendingQuest = null;
   if (!p) return;
-  if (questDone(p.quest) && !state.letters.includes(p.quest.letter)) setTimeout(() => rewardQuest(p), 350);
+  if (questDone(p.quest) && !rewarded(p)) setTimeout(() => rewardQuest(p), 350);
   else if (!questDone(p.quest)) setTimeout(() => say({ person: p, lines: p.quest.retry }), 350);
 }
 
 function rewardQuest(p) {
-  say({ person: p, lines: p.quest.done, then: () => {
-    state.letters.push(p.quest.letter); persist();
+  const q = p.quest;
+  say({ person: p, lines: q.done, then: () => {
+    if (!q.letter) {
+      // Quests without a token pay pearls.
+      const n = q.pearls || 10;
+      state.rewarded = [...(state.rewarded || []), p.id]; persist();
+      save.update(s => { s.pearls = (s.pearls || 0) + n; });
+      updateHud();
+      itemPopup({ icon: '🦪', title: `${num(n)} لؤلؤات!`, text: `هدية من ${p.name} شكراً على مساعدتك.` });
+      return;
+    }
+    state.letters.push(q.letter); persist();
     updateHud();
     const gate = props.find(o => o.kind === 'gate' && o.opens === p.id);
     itemPopup({
-      icon: `<span class="golden-letter">${p.quest.letter}</span>`,
-      title: `${island.tokenName || 'الحرف الذهبي'} «${p.quest.letter}»`,
+      icon: `<span class="golden-letter">${q.letter}</span>`,
+      title: `${island.tokenName || 'الحرف الذهبي'} «${q.letter}»`,
       text: gate ? (island.gateText || 'انفتحت البوابة الكبيرة في الشمال!') : `معك ${num(state.letters.length)} من ${num(tokens().length)}. ${island.tokenHint || ''}`,
     });
   } });
@@ -902,7 +914,7 @@ function toggleLog(force) {
   if (!open) { log.hidden = true; busy = !!dialog || !els.popup.hidden; return; }
   const status = p => {
     const q = p.quest;
-    if (state.letters.includes(q.letter)) return ['done', `✔ أعطاك ${q.letter}`];
+    if (rewarded(p)) return ['done', q.letter ? `✔ أعطاك ${q.letter}` : '✔ ساعدته'];
     if (questDone(q)) return ['ready', 'عُد إليه لتأخذ مكافأتك!'];
     if (q.fetch) return ['todo', state.items.includes(q.fetch) ? 'أعِد إليه ما وجدته' : 'أضاع شيئاً… ابحث عنه'];
     return ['todo', state.met.includes(p.id) ? 'ينتظر مساعدتك' : 'لم تلتقِ به بعد'];

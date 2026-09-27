@@ -121,6 +121,30 @@ export default {
 
   people: [
     {
+      id: 'archaeologist', name: 'عالمة الآثار لمى', at: [20.6, 20.9],
+      look: { skin: '#eab38a', robe: '#c98d1c', trim: '#fbf1dc', sash: '#6b3f1f', hat: 'cap', headColor: '#e8d3a6', glasses: true, prop: 'book', lashes: true },
+      quest: {
+        topic: 'social-civilizations', pearls: 10,
+        intro: ['أنا لمى، أنقّب عن آثار الحضارات القديمة.', 'بطاقاتي عن <b>أوغاريت وإيبلا وماري</b> تبعثرت! هل تساعدني في ترتيبها؟'],
+        accept: 'هيّا ننقّب!', decline: 'لاحقاً',
+        done: ['رائع! تعرف حضارات بلادك العريقة.', 'خذ هذه اللآلئ، وجدتها في التنقيب!'],
+        retry: ['بعض البطاقات في غير مكانها. أوغاريت: أول أبجدية في العالم.'],
+        after: ['وجدت ألواحاً جديدة! تساعدني؟'],
+      },
+    },
+    {
+      id: 'weather', name: 'راصد الطقس أبو مطر', at: [6.4, 8.6],
+      look: { skin: '#c98e60', robe: '#6b8fa8', trim: '#fbf1dc', sash: '#2f5e8a', hat: 'kufiya', beard: 'white', prop: 'staff' },
+      quest: {
+        topic: 'social-climate', pearls: 10,
+        intro: ['أرصد الغيوم والرياح من فوق هذا التل.', 'هل تعرف <b>مناخ سوريا</b>: أين يكثر المطر؟ ومتى؟'],
+        accept: 'أعرفه!', decline: 'لاحقاً',
+        done: ['نشرتي الجوية دقيقة بفضلك!', 'خذ هذه اللآلئ.'],
+        retry: ['تذكّر: الساحل ماطر، والبادية جافة، ومعظم المطر في الشتاء.'],
+        after: ['تغيّر الطقس! تساعدني في نشرة جديدة؟'],
+      },
+    },
+    {
       riddles: () => riddle('social'), id: 'soc-greeter', name: 'العم نزار', at: [10.4, 29.9],
       look: { skin: '#c98e60', robe: '#6b8fa8', sash: '#c7373f', hat: 'kufiya', beard: 'white', prop: 'staff' },
       talk: [

@@ -13,6 +13,11 @@ import { QUESTIONS as BODY } from '../science/body.js';
 import { QUESTIONS as PLANETS } from '../science/planets.js';
 import { QUESTIONS as GEO } from '../social/geography.js';
 import { PAIRS as LANDMARKS } from '../social/landmarks.js';
+import { ITEMS as KANA } from '../arabic/kana.js';
+import { ITEMS as INNA } from '../arabic/inna.js';
+import { QUESTIONS as RATIO } from '../math/ratio.js';
+import { QUESTIONS as CLIMATE } from '../social/climate.js';
+import { PAIRS as CIVS } from '../social/civilizations.js';
 
 const fromTap = it => ({
   q: `في جملة «${it.words.join(' ')}»، ما ${it.ask}؟`,
@@ -43,15 +48,17 @@ function mixed() {
     ...pick(percent(), 1), ...pick(FRACOPS, 1),
     ...pick(MATTER, 1).map(fromMatter), ...pick(BODY, 1), ...pick(PLANETS, 1),
     ...pick(GEO, 1), ...pick(LANDMARKS, 1).map(p => fromLandmark(p, LANDMARKS)),
+    ...pick([...KANA, ...INNA], 1).map(fromTap), ...pick(RATIO, 1), ...pick(CLIMATE, 1),
   ];
 }
 
 
 const POOLS = {
-  arabic: () => [...FAEL.map(fromTap), ...MUBTADA.map(fromTap), ...PLURALS.map(fromPlural)],
-  math: () => [...percent(), ...FRACOPS],
+  arabic: () => [...FAEL.map(fromTap), ...MUBTADA.map(fromTap), ...PLURALS.map(fromPlural), ...KANA.map(fromTap), ...INNA.map(fromTap)],
+  math: () => [...percent(), ...FRACOPS, ...RATIO],
   science: () => [...MATTER.map(fromMatter), ...BODY, ...PLANETS],
-  social: () => [...GEO, ...LANDMARKS.map(p => fromLandmark(p, LANDMARKS))],
+  social: () => [...GEO, ...CLIMATE, ...LANDMARKS.map(p => fromLandmark(p, LANDMARKS)),
+    ...CIVS.map(p => ({ q: `بماذا اشتهرت ${p.a}؟`, options: [p.b, ...shuffle(CIVS.filter(x => x !== p)).slice(0, 3).map(x => x.b)], answer: 0, hint: p.hint, explain: `${p.a}: ${p.b}.` }))],
 };
 
 // One random question from a subject (or from everything).

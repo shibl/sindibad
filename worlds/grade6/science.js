@@ -115,6 +115,42 @@ export default {
 
   people: [
     {
+      id: 'photographer', name: 'المصوّر ماهر', at: [15.8, 19.9],
+      look: { skin: '#e3a878', robe: '#3b3b3b', trim: '#f2c14e', sash: '#c7373f', hat: 'cap', headColor: '#c7373f', beard: 'dark' },
+      quest: {
+        topic: 'science-light', pearls: 10,
+        intro: ['أنا مصوّر! الضوء صديقي.', 'أحتاج مواد <b>شفافة</b> و<b>نصف شفافة</b> و<b>معتمة</b> لصوري، لكنها اختلطت. تساعدني؟'],
+        accept: 'بكل سرور!', decline: 'لاحقاً',
+        done: ['صوري صارت رائعة بفضلك! فهمتَ الضوء والظلال.', 'خذ هذه اللآلئ.'],
+        retry: ['تذكّر: الشفاف نرى من خلاله بوضوح، والمعتم يصنع ظلاً.'],
+        after: ['عندي جلسة تصوير جديدة! تساعدني؟'],
+      },
+    },
+    {
+      id: 'farmer', name: 'المزارعة زينب', at: [19.4, 24.2],
+      look: { skin: '#c98e60', robe: '#2f8a5f', trim: '#f2c14e', sash: '#a0602e', hat: 'hijab', headColor: '#e0a93a', prop: 'basket', lashes: true },
+      quest: {
+        topic: 'science-plants', pearls: 10,
+        intro: ['أهلاً بك في بستاني يا {name}!', 'أريد أن أعلّم الأطفال: ماذا يعمل كل جزء من <b>النبات</b>؟ هل تعرف؟'],
+        accept: 'أعرف!', decline: 'لاحقاً',
+        done: ['أحسنت! الجذر يمتص، والورقة تصنع الغذاء، والزهرة تكوّن البذور.', 'خذ هذه اللآلئ من بستاني.'],
+        retry: ['تذكّر: الورقة مطبخ النبات، والجذر فمه تحت التراب.'],
+        after: ['نبتت نباتات جديدة! تراجعها معي؟'],
+      },
+    },
+    {
+      id: 'electrician', name: 'الكهربائي فراس', at: [6.6, 21.6],
+      look: { skin: '#d8a070', robe: '#f2c14e', trim: '#3b3b3b', sash: '#3b3b3b', hat: 'cap', headColor: '#3b3b3b', beard: 'dark', prop: 'staff' },
+      quest: {
+        topic: 'science-electricity', pearls: 10,
+        intro: ['انطفأ مصباح المختبر! أختبر المواد لأصلحه.', 'أيّها <b>موصل</b> للكهرباء وأيّها <b>عازل</b>؟ تساعدني؟'],
+        accept: 'لنختبر!', decline: 'لاحقاً',
+        done: ['أضاء المصباح! المعادن موصلة، والبلاستيك عازل.', 'خذ هذه اللآلئ، واحذر الكهرباء دائماً!'],
+        retry: ['ما زال مطفأً. المعادن توصل، والخشب الجاف والمطاط والبلاستيك لا.'],
+        after: ['عندي دارة جديدة! تختبرها معي؟'],
+      },
+    },
+    {
       id: 'sci-greeter', name: 'البحّارة سعاد', at: [10.4, 29.9],
       look: { skin: '#d49a6c', robe: '#1f9aa0', trim: '#fbf1dc', sash: '#f2c14e', hat: 'hijab', headColor: '#2f5e8a', lashes: true },
       talk: [

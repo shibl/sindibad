@@ -5,7 +5,7 @@
 // file run `node tools/update-shell.mjs` (tests/check-shell.mjs fails if you
 // forget). A new version makes clients download the new files once.
 
-const CACHE_VERSION = '4432dd15e0';
+const CACHE_VERSION = '8de6573b87';
 const CACHE_NAME = `sindbad-${CACHE_VERSION}`;
 
 const APP_SHELL = [
@@ -32,8 +32,11 @@ const APP_SHELL = [
   'core/topics.js',
   'core/voice.js',
   'plugins/arabic/fael-mafool.js',
+  'plugins/arabic/inna.js',
+  'plugins/arabic/kana.js',
   'plugins/arabic/mubtada-khabar.js',
   'plugins/arabic/plurals.js',
+  'plugins/arabic/tenses.js',
   'plugins/engines/kit.js',
   'plugins/engines/match.js',
   'plugins/engines/numberline.js',
@@ -42,15 +45,23 @@ const APP_SHELL = [
   'plugins/engines/tapword.js',
   'plugins/engines/visuals.js',
   'plugins/index.js',
+  'plugins/math/area.js',
   'plugins/math/decimals.js',
   'plugins/math/fraction-ops.js',
   'plugins/math/fractions-line.js',
+  'plugins/math/integers.js',
   'plugins/math/percent.js',
+  'plugins/math/ratio.js',
   'plugins/review/pools.js',
   'plugins/review/treasure.js',
   'plugins/science/body.js',
+  'plugins/science/electricity.js',
+  'plugins/science/light.js',
   'plugins/science/matter.js',
   'plugins/science/planets.js',
+  'plugins/science/plants.js',
+  'plugins/social/civilizations.js',
+  'plugins/social/climate.js',
   'plugins/social/geography.js',
   'plugins/social/landmarks.js',
   'worlds/grade6.js',

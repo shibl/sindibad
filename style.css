@@ -1162,3 +1162,7 @@ body[data-screen="island"] #scene, body[data-screen="journey"] #scene { visibili
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* Shape figures in maths questions */
+.shape-fig { display: block; width: min(100%, 220px); margin: 0 auto 6px; overflow: visible; }
+.fig-t { font: 800 16px "Baloo Bhaijaan 2", sans-serif; fill: var(--ink); text-anchor: middle; }
