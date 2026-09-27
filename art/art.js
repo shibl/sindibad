@@ -54,6 +54,9 @@ export function defsSVG() {
     <linearGradient id="g-brass" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#ffe08a"/><stop offset=".5" stop-color="#e0a93a"/><stop offset="1" stop-color="#a8741e"/>
     </linearGradient>
+    <radialGradient id="g-glow">
+      <stop offset="0" stop-color="#fff2b0" stop-opacity="1"/><stop offset=".4" stop-color="#ffc94a" stop-opacity=".6"/><stop offset="1" stop-color="#ffb030" stop-opacity="0"/>
+    </radialGradient>
     <radialGradient id="g-cheek">
       <stop offset="0" stop-color="#ff7f7f" stop-opacity=".55"/><stop offset="1" stop-color="#ff7f7f" stop-opacity="0"/>
     </radialGradient>
@@ -309,6 +312,11 @@ export function shipSVG({ crew = ['sindbad', 'yasmina'], hudhud = true } = {}) {
   <path d="M58 214 Q100 224 150 224 L300 222 M84 230 Q120 236 170 236 L290 234" fill="none" stroke="#4a2610" stroke-width="2" opacity=".55"/>
   <path d="M300 214 h18 v12 h-18Z M270 216 h16 v10 h-16Z" fill="#f2c14e" ${OUT_THIN}/>
   <path d="M18 176 Q6 164 12 152 Q20 150 20 160" fill="none" ${OUT}/>
+  <!-- stern lantern (glows at night) -->
+  <circle class="lantern-glow" cx="330" cy="150" r="40" fill="url(#g-glow)"/>
+  <path d="M330 162 V176" stroke="${LINE}" stroke-width="3"/>
+  <rect x="322" y="140" width="16" height="22" rx="4" fill="#ffe08a" ${OUT_THIN}/>
+  <path d="M320 140 h20 l-4 -6 h-12Z" fill="#7a4520" ${OUT_THIN}/>
   <!-- foam at the waterline -->
   <path d="M40 232 Q190 250 336 228 L340 252 Q190 262 36 250Z" fill="#2c9fc6" opacity=".55"/>
   <g class="foam" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".9">
@@ -373,15 +381,15 @@ export function skylineSVG() {
   const dome = (cx, r, base) => `M${cx - r} ${base} A${r} ${r * 1.05} 0 0 1 ${cx + r} ${base}Z M${cx - r - 4} ${base} h${2 * r + 8} v14 h-${2 * r + 8}Z`;
   return `
 <svg class="skyline-art" viewBox="0 0 2000 200" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-  <path d="M0 150 Q160 96 330 124 Q500 84 700 116 Q880 70 1060 118 Q1220 92 1400 124 Q1580 80 1760 118 Q1880 104 2000 124 V200 H0Z" fill="#e8bcbc"/>
-  <path d="M0 166 Q200 136 420 156 Q640 130 860 154 Q1100 132 1340 156 Q1600 136 2000 160 V200 H0Z" fill="#dca6b0"/>
-  <g fill="#bf8ca5">
+  <path class="sk-far" d="M0 150 Q160 96 330 124 Q500 84 700 116 Q880 70 1060 118 Q1220 92 1400 124 Q1580 80 1760 118 Q1880 104 2000 124 V200 H0Z"/>
+  <path class="sk-near" d="M0 166 Q200 136 420 156 Q640 130 860 154 Q1100 132 1340 156 Q1600 136 2000 160 V200 H0Z"/>
+  <g class="sk-city">
     <path d="${houses}"/>
     <path d="${dome(1000, 44, 138)} M950 152 h100 v48 h-100Z ${square(900, 76)} ${pencil(1090, 66)}"/>
     <path d="${pencil(760, 98)} ${pencil(1260, 92)} ${pencil(420, 110)} ${pencil(1640, 104)}"/>
     <path d="${dome(840, 16, 172)} ${dome(1170, 20, 168)} ${dome(560, 14, 176)} ${dome(1480, 18, 172)} ${dome(1820, 14, 176)}"/>
   </g>
-  <g fill="#ffe3a6" opacity=".75">${windows}</g>
+  <g class="sk-win">${windows}</g>
 </svg>`;
 }
 

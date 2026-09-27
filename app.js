@@ -15,7 +15,21 @@ import './plugins/index.js';
 
 // ---------- Backdrop ----------
 
+// Day, sunset or night, from the device clock (override with ?time=night).
+function timeOfDay() {
+  const forced = new URLSearchParams(location.search).get('time');
+  if (['day', 'sunset', 'night'].includes(forced)) return forced;
+  const h = new Date().getHours();
+  return h >= 6 && h < 16 ? 'day' : h >= 16 && h < 19 ? 'sunset' : 'night';
+}
+
 function paintScene() {
+  document.body.dataset.time = timeOfDay();
+  const stars = document.querySelector('.stars');
+  let seed = 11;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  stars.innerHTML = Array.from({ length: 70 }, () =>
+    `<i style="left:${(rnd() * 100).toFixed(1)}%;top:${(rnd() * 100).toFixed(1)}%;--s:${(1 + rnd() * 2.2).toFixed(1)}px;animation-delay:${(-rnd() * 4).toFixed(1)}s"></i>`).join('');
   document.body.insertAdjacentHTML('afterbegin', defsSVG());
   document.querySelector('.skyline').innerHTML = skylineSVG();
   document.querySelector('.shore').innerHTML = shoreSVG();
@@ -139,5 +153,10 @@ initMap(document.getElementById('map'), world, { openTopic: startLesson });
 initLesson({ showScreen, onReturn: after => showScreen('map', after) });
 registerServiceWorker();
 
-// Returning players skip straight past the title once they've chosen a hero.
-document.querySelector('#screen-title [data-go]').dataset.go = save.get().hero ? 'map' : 'select';
+// Returning players skip straight past character select once they've chosen a hero.
+if (save.get().hero) {
+  const start = document.querySelector('#screen-title [data-go]');
+  start.dataset.go = 'map';
+  start.textContent = 'تابِع الرحلة';
+  document.getElementById('title-tag').textContent = `مرحباً بعودتك يا ${save.get().hero === 'yasmina' ? 'ياسمينة' : 'سندباد'}! ⛵`;
+}

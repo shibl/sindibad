@@ -116,6 +116,8 @@ svg { display: block; }
   opacity: .92;
 }
 .skyline-art { width: 100%; height: 100%; }
+.sk-far { fill: #e8bcbc; } .sk-near { fill: #dca6b0; } .sk-city { fill: #bf8ca5; } .sk-win { fill: #ffe3a6; opacity: .75; }
+.lantern-glow { opacity: 0; }
 
 .sea {
   position: absolute; left: 0; right: 0; top: var(--horizon-y); bottom: 0;
@@ -168,6 +170,47 @@ svg { display: block; }
   position: absolute; inset: 0; pointer-events: none;
   background: radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(40, 15, 0, .28) 100%);
 }
+
+/* ---------- Time of day ---------- */
+
+.stars { position: absolute; inset: 0 0 calc(100% - var(--horizon-y)) 0; opacity: 0; transition: opacity 1s; }
+.stars i {
+  position: absolute; width: var(--s); height: var(--s); border-radius: 50%; background: #fff;
+  box-shadow: 0 0 6px 1px rgba(255, 255, 255, .8); animation: twinkle 3.2s ease-in-out infinite;
+}
+@keyframes twinkle { 50% { opacity: .25; transform: scale(.6); } }
+
+body[data-time="sunset"] {
+  --sky-top: #5a66b8; --sky-mid: #c883a8; --sky-low: #ffab7a; --horizon: #ff8c5a;
+  --sea-top: #d58a7a; --sea-mid: #5a6fa6; --sea-deep: #2a3a6e;
+}
+body[data-time="sunset"] .sun { top: calc(var(--horizon-y) - 16vmin); }
+body[data-time="sunset"] .sun::before { background: radial-gradient(circle at 40% 38%, #fff4d0 0 25%, #ffb35a 60%, #ff6a3a 100%); box-shadow: 0 0 60px 30px rgba(255, 140, 80, .55), 0 0 160px 80px rgba(255, 110, 80, .3); }
+body[data-time="sunset"] .sk-far { fill: #c98aa8; } body[data-time="sunset"] .sk-near { fill: #a8759a; } body[data-time="sunset"] .sk-city { fill: #7e5a88; }
+body[data-time="sunset"] .sk-win { opacity: 1; }
+body[data-time="sunset"] .cloud-art { filter: sepia(.4) saturate(2.2) hue-rotate(-20deg) brightness(.98); }
+
+body[data-time="night"] {
+  --sky-top: #081634; --sky-mid: #16275c; --sky-low: #2e3470; --horizon: #4a3f78;
+  --sea-top: #1d3d74; --sea-mid: #122c5a; --sea-deep: #081a3a;
+}
+body[data-time="night"] .stars { opacity: 1; }
+body[data-time="night"] .sun { top: calc(var(--horizon-y) - 34vmin); width: 15vmin; height: 15vmin; }
+body[data-time="night"] .sun::before { /* the moon */
+  background: radial-gradient(circle at 35% 35%, #fffef5, #f1ecd2 60%, #d9d2b0);
+  box-shadow: inset -10px -6px 0 rgba(170, 160, 120, .35), 0 0 40px 14px rgba(220, 230, 255, .35), 0 0 120px 50px rgba(160, 180, 255, .15);
+}
+body[data-time="night"] .sun__rays { display: none; }
+body[data-time="night"] .sea__glint { background: repeating-linear-gradient(to bottom, rgba(230, 240, 255, .7) 0 3px, transparent 3px 12px); }
+body[data-time="night"] .sk-far { fill: #2a3166; } body[data-time="night"] .sk-near { fill: #1f2656; } body[data-time="night"] .sk-city { fill: #151b42; }
+body[data-time="night"] .sk-win { fill: #ffd86a; opacity: 1; }
+body[data-time="night"] .lantern-glow { opacity: 1; animation: lantern 2.4s ease-in-out infinite; }
+@keyframes lantern { 50% { opacity: .6; } }
+body[data-time="night"] .cloud-art { opacity: .35; }
+body[data-time="night"] .gulls { display: none; }
+body[data-time="night"] .shore-art, body[data-time="night"] .palm-art { filter: brightness(.6) saturate(.8); }
+body[data-time="night"] .vignette { background: radial-gradient(ellipse at 50% 45%, transparent 45%, rgba(0, 5, 30, .5) 100%); }
+body[data-time="night"] .logo__tag { background: rgba(10, 20, 60, .7); }
 
 /* ================= Characters ================= */
 
@@ -433,6 +476,33 @@ body[data-screen="map"] #scene, body[data-screen="activity"] #scene { visibility
 @keyframes fog-out-d { to { transform: translate(0, 40%) scale(1.4); opacity: 0; } }
 
 .map__ship { position: absolute; left: 0; top: 0; z-index: 2; pointer-events: none; will-change: transform; }
+.ship__wake { position: absolute; left: 50%; bottom: 4%; width: 90%; height: 20%; transform: translateX(-50%); opacity: 0; transition: opacity .4s; }
+.ship__wake i { position: absolute; left: 50%; top: 50%; width: 60%; height: 60%; border: 3px solid rgba(255, 255, 255, .8); border-radius: 50%; transform: translate(-50%, -50%); animation: wake 1.2s ease-out infinite; }
+.ship__wake i:nth-child(2) { animation-delay: .4s; } .ship__wake i:nth-child(3) { animation-delay: .8s; }
+@keyframes wake { from { width: 40%; opacity: 1; } to { width: 140%; height: 120%; opacity: 0; } }
+.map__ship.is-sailing .ship__wake { opacity: 1; }
+
+.sparkle { position: absolute; width: 14px; height: 14px; pointer-events: none;
+  background: radial-gradient(circle, #fff 0 20%, transparent 22%), conic-gradient(from 45deg, transparent 0 10%, #fff 12% 13%, transparent 15% 35%, #fff 37% 38%, transparent 40% 60%, #fff 62% 63%, transparent 65% 85%, #fff 87% 88%, transparent 90%);
+  animation: sparkle 4.2s ease-in-out infinite; }
+@keyframes sparkle { 0%, 70%, 100% { transform: scale(0) rotate(0); opacity: 0; } 80% { transform: scale(1.2) rotate(45deg); opacity: 1; } }
+.map__fish { position: absolute; width: 60px; height: 50px; pointer-events: none; }
+.map__fish span { position: absolute; left: 0; bottom: 0; font-size: 22px; opacity: 0; animation: fish-jump 7s ease-in-out infinite; }
+.map__fish--2 span { animation-delay: -3.5s; transform: scaleX(-1); }
+@keyframes fish-jump {
+  0%, 60% { opacity: 0; transform: translate(0, 0) rotate(40deg); }
+  62% { opacity: 1; }
+  70% { transform: translate(20px, -34px) rotate(-10deg); }
+  78% { opacity: 1; transform: translate(40px, 0) rotate(-60deg); }
+  80%, 100% { opacity: 0; transform: translate(40px, 6px); }
+}
+.map__gulls { position: absolute; inset: 0; pointer-events: none; }
+.map__gulls svg { position: absolute; left: 0; width: 26px; filter: drop-shadow(0 18px 2px rgba(0, 40, 80, .25)); animation: map-gull 26s linear infinite; }
+.map__gulls svg:nth-child(1) { top: 20%; }
+.map__gulls svg:nth-child(2) { top: 26%; width: 20px; animation-delay: -4s; }
+.map__gulls svg:nth-child(3) { top: 62%; animation-duration: 34s; animation-delay: -17s; }
+.map__gulls path { animation: flap-wing .5s ease-in-out infinite alternate; transform-origin: center; transform-box: fill-box; }
+@keyframes map-gull { from { transform: translateX(110vw); } to { transform: translateX(-40px); } }
 .ship__flip.is-east { transform: scaleX(-1); }
 .map__ship.is-sailing .ship__bob { animation-duration: 1.2s; }
 

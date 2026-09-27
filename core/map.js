@@ -93,7 +93,9 @@ function berth(id) {
   const p = layout.points[id];
   // Moor on the open-sea side of the island so the ship doesn't hide its label.
   const side = p.x > layout.w / 2 ? -1 : 1;
-  return { x: p.x + side * layout.size * 0.5, y: p.y + layout.size * 0.2 };
+  const half = layout.size * 0.33;
+  const x = Math.max(half, Math.min(layout.w - half, p.x + side * layout.size * 0.72));
+  return { x, y: p.y + layout.size * 0.12 };
 }
 
 // ---------- Render ----------
@@ -144,9 +146,15 @@ export function render() {
     <svg class="map__routes" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" aria-hidden="true">${routes}</svg>
     <div class="map__whale" style="left:${layout.portrait ? w * 0.72 : w * 0.5}px;top:${layout.portrait ? h * 0.8 : h * 0.78}px">${whaleSVG()}</div>
     <div class="map__compass">${compassSVG()}</div>
+    ${[[18, 30], [80, 44], [44, 60], [62, 12], [12, 84], [88, 76]].map(([x, y], i) =>
+      `<i class="sparkle" style="left:${x}%;top:${y}%;animation-delay:${-i * 0.7}s"></i>`).join('')}
+    <div class="map__fish" style="left:${layout.portrait ? 16 : 30}%;top:${layout.portrait ? 52 : 70}%"><span>🐟</span></div>
+    <div class="map__fish map__fish--2" style="left:${layout.portrait ? 82 : 64}%;top:${layout.portrait ? 34 : 24}%"><span>🐠</span></div>
+    <div class="map__gulls">${'<svg viewBox="0 0 24 12"><path d="M1 8 Q6 1 12 8 Q18 1 23 8" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>'.repeat(3)}</div>
     ${isle({ id: 'home' }, world.home.art, `<b>${world.home.name}</b>`, 'isle--home')}
     ${islands}
     <div class="map__ship" style="width:${size * 0.62}px">
+      <div class="ship__wake"><i></i><i></i><i></i></div>
       <div class="ship__flip"><div class="ship__bob">${shipSVG({ crew: [s.hero || 'sindbad'] })}</div></div>
     </div>
 `;
