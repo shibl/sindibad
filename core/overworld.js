@@ -21,6 +21,7 @@ import { HEROES, g, heroSVG } from '../art/art.js';
 import { shake } from './fx.js';
 import { setSeaLevel } from './ambience.js';
 import { awardSticker } from './stickers.js';
+import { startBattle, GUARDIANS } from './battle.js';
 import { save } from './save.js';
 import { sfx } from './sound.js';
 import { num } from './format.js';
@@ -867,6 +868,7 @@ function currentGoal() {
     return { text: `${state.met.includes(todo.id) ? 'ساعد' : 'تحدّث إلى'} <b>${todo.name}</b>`, at: todo };
   }
   if (!state.monument && m) return { text: `اجمع ${island.tokenName} وضعها على <b>${island.monument.name}</b>`, at: m };
+  if (m && state.monument && !(save.get().guardians || []).includes(island.id)) return { text: `⚔️ تحدَّ <b>${GUARDIANS[island.id].name}</b> عند ${island.monument.name}`, at: m };
   const left = island.pearls.length - state.pearls.length;
   if (left > 0) return { text: `أكملت الجزيرة! 🦪 بقيت ${num(left)} لآلئ مخبّأة`, at: null };
   return { text: 'أكملت كل شيء هنا! ⛵ أبحر إلى جزيرة أخرى', at: null };
@@ -1202,7 +1204,14 @@ function earnSticker() {
 function useMonument() {
   const m = island.monument;
   const n = state.letters.length, need = tokens().length;
-  if (state.monument) { say({ name: m.name, lines: [m.complete] }); return; }
+  if (state.monument) {
+    const g = GUARDIANS[island.id];
+    say({ name: m.name, lines: [m.complete, `ظهر <b>${g.name}</b>! يريد أن يختبر ما تعلّمته. هل تقبل التحدّي؟`], choices: [
+      { label: '⚔️ تحدَّ الحارس', go: () => fight() },
+      { label: 'لاحقاً', go: () => {} },
+    ] });
+    return;
+  }
   if (n < need) { say({ name: m.name, lines: [m.partial.replace('{n}', num(n)), m.hint] }); return; }
   say({ name: m.name, lines: m.place, then: () => {
     state.monument = true; persist();
@@ -1210,6 +1219,12 @@ function useMonument() {
     itemPopup({ ...m.reward, hold: true });
     earnSticker();
   } });
+}
+
+// A guardian battle over the island's subject.
+function fight() {
+  busy = true;
+  startBattle({ island: island.id, subject: island.id, onEnd: () => { busy = false; last = performance.now(); updateHud(); } });
 }
 
 function openChest(c) {

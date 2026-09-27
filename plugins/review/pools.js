@@ -69,3 +69,9 @@ export function riddle(subject) {
 
 // The treasure island's mixed review: a little of everything.
 export { mixed };
+
+// Every question for a subject ('treasure' → the mixed review).
+export function pool(subject) {
+  if (subject === 'treasure') return [...mixed(), ...mixed()];
+  return POOLS[subject] ? POOLS[subject]() : Object.values(POOLS).flatMap(f => f());
+}
