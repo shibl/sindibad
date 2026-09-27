@@ -151,6 +151,7 @@ export function renderParents(el) {
         <div class="parents__face">${heroSVG(hero)}</div>
         <div><h3>لوحة الأهل — ${child}</h3><p>الصف السادس • كل البيانات محفوظة على هذا الجهاز فقط</p></div>
       </header>
+      <p class="print-only">تقرير رحلات سندباد وياسمينة — ${new Date().toLocaleDateString('ar-SY', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
 
       <section class="p-tiles">
         <div class="p-tile"><b>${num(week)}</b><small>دقيقة لعب هذا الأسبوع</small></div>
@@ -205,6 +206,7 @@ export function renderParents(el) {
       <section class="p-danger">
         <h4>إدارة الملفات</h4>
         <div class="p-actions">
+          <button class="btn btn--gold" data-p="print">🖨️ طباعة التقرير</button>
           <button class="btn btn--ghost" data-p="switch">👨‍👩‍👧 تبديل اللاعب</button>
           <button class="btn btn--ghost btn--danger" data-p="delete">🗑️ حذف ملف ${child}</button>
         </div>
@@ -215,6 +217,11 @@ export function renderParents(el) {
     if (!b) return;
     sfx.tap();
     if (b.dataset.p === 'switch') show('who');
+    if (b.dataset.p === 'print') {
+      // Open every subject table so the printout is complete.
+      el.querySelectorAll('details').forEach(d => { d.open = true; });
+      window.print();
+    }
     if (b.dataset.p === 'delete') {
       if (!b.dataset.armed) { b.dataset.armed = '1'; b.textContent = `⚠️ اضغط مرة أخرى لحذف ${child} نهائياً`; return; }
       deleteProfile(activeProfile()?.id);

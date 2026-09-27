@@ -1731,3 +1731,18 @@ body.calm .isle__ring, body.calm .shop__stage::before, body.calm .result__rays, 
 .battle__heroart::before { background: radial-gradient(ellipse, #9ad8a0 0 45%, #3f7a4c 46% 60%, transparent 62%); }
 .battle__guardian { isolation: isolate; }
 .battle__heroart { isolation: isolate; }
+
+/* ================= V29: printable parent report ================= */
+.print-only { display: none; }
+@media print {
+  @page { size: A4; margin: 14mm; }
+  html, body { background: #fff !important; height: auto !important; overflow: visible !important; }
+  #scene, .topbar, .screen:not(#screen-parents), .p-actions, .p-danger, .wipe, .sticker-toast { display: none !important; }
+  #app, #screen-parents, .parents-wrap { position: static !important; display: block !important; height: auto !important; overflow: visible !important; padding: 0 !important; background: none !important; }
+  .parents { box-shadow: none !important; border: 0 !important; background: #fff !important; max-width: none !important; }
+  .parents section { break-inside: avoid; }
+  .p-tile, .p-subject, .p-table { border-color: #999 !important; box-shadow: none !important; }
+  .print-only { display: block; margin: 0 0 8px; font-size: 12px; color: #555; }
+  details.p-subject > summary { list-style: none; }
+  * { animation: none !important; transition: none !important; }
+}
