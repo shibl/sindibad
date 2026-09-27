@@ -3,6 +3,7 @@
 
 import { registerTopic } from '../../core/topics.js';
 import { quiz } from '../engines/quiz.js';
+import { cards } from '../engines/visuals.js';
 
 const Q = (q, options, hint, explain) => ({ q, options, answer: 0, hint, explain });
 
@@ -25,6 +26,26 @@ registerTopic({
   icon: '🗺️',
   title: 'جغرافية سوريا',
   blurb: 'أنهار وجبال وبحر',
+  learn: [
+    {
+      title: 'أنهار سوريا',
+      html: cards([
+        ['🏞️', 'الفرات', 'الأطول، يجري في الشرق'],
+        ['🎡', 'العاصي', 'حمص وحماة، يجري شمالاً'],
+        ['🌳', 'بردى', 'يروي دمشق وغوطتها'],
+      ]),
+      say: 'الأنهار سرّ الحياة: حولها قامت أقدم المدن.',
+    },
+    {
+      title: 'جبال وساحل',
+      html: cards([
+        ['🏔️', 'جبل الشيخ', 'الأعلى، تكسوه الثلوج'],
+        ['⛰️', 'قاسيون', 'يطلّ على دمشق'],
+        ['🌊', 'البحر المتوسط', 'على الساحل غرباً'],
+      ]),
+      say: 'هيّا نختبر خريطتك!',
+    },
+  ],
   render: quiz({
     questions: QUESTIONS, count: 7,
     intro: 'كل بحّار يعرف خريطة بلاده! لنتعرّف إلى <b>أنهار سوريا وجبالها وساحلها</b>.',

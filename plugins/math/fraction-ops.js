@@ -6,6 +6,7 @@
 import { registerTopic } from '../../core/topics.js';
 import { quiz } from '../engines/quiz.js';
 import { frac as f } from '../../core/format.js';
+import { fracBar } from '../engines/visuals.js';
 
 const Q = (q, options, hint, explain) => ({ q: `${q} = ؟`, options, answer: 0, hint, explain });
 
@@ -35,6 +36,25 @@ registerTopic({
   icon: '➗',
   title: 'العمليات على الكسور',
   blurb: 'جمع وطرح وضرب الكسور',
+  learn: [
+    {
+      title: 'مقامات متساوية',
+      html: `<p>${f(2, 7)} + ${f(3, 7)} = ${f(5, 7)} — نجمع <b>البسطين</b> فقط ويبقى المقام.</p>${fracBar(5, 7, '#2f8a5f')}`,
+      say: 'الأجزاء من الحجم نفسه، فنعدّها فقط.',
+    },
+    {
+      title: 'مقامات مختلفة',
+      html: `<p>${f(1, 2)} + ${f(1, 4)}: نحوّل ${f(1, 2)} = ${f(2, 4)}، ثم ${f(2, 4)} + ${f(1, 4)} = <b>${f(3, 4)}</b></p>
+             ${fracBar(2, 4)}${fracBar(3, 4, '#2f8a5f')}
+             <p class="tip">⚠️ لا نجمع المقامات أبداً: ${f(1, 2)} + ${f(1, 4)} ≠ ${f(2, 6)}</p>`,
+      say: 'أشهر خطأ هو جمع المقامات. لا تقع فيه!',
+    },
+    {
+      title: 'الضرب',
+      html: `<p>بسط × بسط، ومقام × مقام، ثم نختصر:</p><p class="big">${f(2, 3)} × ${f(3, 4)} = ${f(6, 12)} = ${f(1, 2)}</p>`,
+      say: 'الضرب أسهل مما تظن. هيّا نحسب حمولة السفينة!',
+    },
+  ],
   render: quiz({
     questions: QUESTIONS, count: 8,
     intro: 'لنحسب حمولة السفينة بالكسور! تذكّر: <b>وحِّد المقامات</b> قبل الجمع والطرح.',

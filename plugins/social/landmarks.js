@@ -3,6 +3,7 @@
 
 import { registerTopic } from '../../core/topics.js';
 import { match } from '../engines/match.js';
+import { cards } from '../engines/visuals.js';
 
 export const PAIRS = [
   { a: '🕌 الجامع الأموي', b: 'دمشق', hint: 'بُني في العاصمة أيام الدولة الأموية.' },
@@ -22,6 +23,13 @@ registerTopic({
   icon: '🏰',
   title: 'معالم بلادي',
   blurb: 'صِل كل معلم بمحافظته',
+  learn: [
+    {
+      title: 'معالم ومحافظات',
+      html: cards(PAIRS.map(p => [p.a.split(' ')[0], p.a.split(' ').slice(1).join(' '), p.b])),
+      say: 'تأمّل البطاقات جيداً… بعدها ستصلها من ذاكرتك!',
+    },
+  ],
   render: match({
     pairs: PAIRS, boards: 2, perBoard: 4,
     headA: 'المعلم', headB: 'المحافظة',

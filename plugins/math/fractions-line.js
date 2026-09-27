@@ -4,6 +4,7 @@
 import { registerTopic } from '../../core/topics.js';
 import { numberline } from '../engines/numberline.js';
 import { frac, num } from '../../core/format.js';
+import { fracBar, miniLine } from '../engines/visuals.js';
 
 const F = (n, d) => ({
   value: n / d, label: frac(n, d), min: 0, max: 1, ticks: d,
@@ -28,6 +29,26 @@ registerTopic({
   icon: '🧭',
   title: 'الكسور على خط الأعداد',
   blurb: 'أبحِر بالقارب إلى الكسر الصحيح!',
+  learn: [
+    {
+      title: 'ما الكسر؟',
+      html: `<p><b>المقام</b> (العدد في الأسفل) = عدد الأجزاء المتساوية.<br><b>البسط</b> (العدد في الأعلى) = عدد الأجزاء التي نأخذها.</p>
+             ${fracBar(3, 4)}`,
+      say: 'قسّمنا الشريط إلى ٤ أجزاء متساوية ولوّنّا ٣ منها: ثلاثة أرباع.',
+    },
+    {
+      title: 'الكسر على خط الأعداد',
+      html: `<p>قسّم المسافة من ${num(0)} إلى ${num(1)} إلى أجزاء بعدد <b>المقام</b>، ثم عُدّ من الصفر بعدد <b>البسط</b>.</p>
+             ${miniLine(0.75, 1, 4, frac(3, 4))}`,
+      say: 'عُدّ القفزات: واحدة، اثنتان، ثلاث… وصلنا إلى ثلاثة أرباع!',
+    },
+    {
+      title: 'أكبر من الواحد',
+      html: `<p>إذا كان البسط أكبر من المقام فالكسر <b>أكبر من ${num(1)}</b>: ${frac(3, 2)} = واحد ونصف.</p>
+             ${miniLine(1.5, 2, 4, frac(3, 2))}`,
+      say: 'هيّا! أوصل القارب إلى كل كسر أطلبه.',
+    },
+  ],
   render: numberline({
     items: ITEMS, count: 7,
     intro: 'الكسر يدلّنا على المكان: <b>المقام</b> عدد الأجزاء المتساوية، و<b>البسط</b> عدد ما نأخذه منها.',

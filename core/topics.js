@@ -12,6 +12,9 @@
 //     icon:   '✍️',                  // one emoji
 //     blurb:  'مَن فعل؟ وعلى مَن وقع الفعل؟',   // optional one-liner
 //     order:  1,                     // optional sort order within the island
+//     learn: [                       // optional mini-lesson shown before
+//       { title, html, say },        //   practice (always the first time,
+//     ],                             //   on request afterwards)
 //     render(container, onComplete, ctx) { ... },
 //   });
 //

@@ -46,7 +46,7 @@ function progress(i, n) {
   document.getElementById('q-count').textContent = n > 1 ? `${num(Math.min(i + 1, n))} / ${num(n)}` : '';
 }
 
-export function startLesson(topicId) {
+export function startLesson(topicId, opts = {}) {
   const topic = getTopic(topicId);
   if (!topic) return;
   current?.abort.abort();
@@ -72,14 +72,64 @@ export function startLesson(topicId) {
     num,
     signal: abort.signal,
   };
-  say(topic.blurb ? `${topic.blurb}` : 'هيّا نبدأ!', 'happy');
+  const learnBtn = document.getElementById('learn-btn');
+  learnBtn.hidden = !topic.learn?.length;
+  learnBtn.onclick = () => { sfx.tap(); startLesson(topic.id, { learn: true }); };
 
+  const firstTime = !save.get().topics[topic.id];
+  if (topic.learn?.length && (opts.learn || firstTime)) {
+    showLearn(topic, container, abort.signal, () => practice(topic, container, ctx, abort));
+  } else {
+    practice(topic, container, ctx, abort);
+  }
+}
+
+// Hudhud's mini-lesson: a few illustrated cards, then practice.
+function showLearn(topic, container, signal, then) {
+  let i = 0;
+  const cards = topic.learn;
+  progress(0, 1);
+  document.getElementById('q-count').textContent = '📖';
+  const draw = () => {
+    if (signal.aborted) return;
+    const c = cards[i];
+    const last = i === cards.length - 1;
+    container.innerHTML = `
+      <div class="learn">
+        <div class="learn__dots" aria-hidden="true">${cards.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('')}</div>
+        <p class="learn__kicker">📖 تعلّم مع هدهد</p>
+        <h3 class="learn__title">${c.title}</h3>
+        <div class="learn__body">${c.html}</div>
+        <div class="learn__nav">
+          ${i > 0 ? '<button class="btn btn--ghost" data-learn="prev">→ السابق</button>' : ''}
+          <button class="btn btn--gold" data-learn="next">${last ? 'هيّا نتدرّب! ⚓' : 'التالي ←'}</button>
+        </div>
+      </div>`;
+    say(c.say || '', 'happy');
+    container.querySelector('[data-learn="next"]').focus({ preventScroll: true });
+  };
+  container.onclick = e => {
+    const b = e.target.closest('[data-learn]');
+    if (!b) return;
+    sfx.tap();
+    if (b.dataset.learn === 'prev') { i -= 1; draw(); return; }
+    if (i < cards.length - 1) { i += 1; draw(); return; }
+    container.onclick = null;
+    then();
+  };
+  draw();
+}
+
+function practice(topic, container, ctx, abort) {
+  container.innerHTML = '';
+  container.onclick = null;
+  say(topic.blurb || 'هيّا نبدأ!', 'happy');
   let completed = false;
   const onComplete = result => {
     if (completed || abort.signal.aborted) return;
     completed = true;
     record(topic, result);
-    showResult(topic, result, hero);
+    showResult(topic, result, ctx.hero);
   };
   try {
     topic.render(container, onComplete, ctx);

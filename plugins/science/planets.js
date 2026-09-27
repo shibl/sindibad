@@ -3,6 +3,7 @@
 
 import { registerTopic } from '../../core/topics.js';
 import { quiz } from '../engines/quiz.js';
+import { planets } from '../engines/visuals.js';
 
 const P = ['عطارد', 'الزهرة', 'الأرض', 'المريخ', 'المشتري', 'زحل', 'أورانوس', 'نبتون'];
 const Q = (q, ans, hint, explain) => ({
@@ -27,6 +28,18 @@ registerTopic({
   icon: '🪐',
   title: 'المجموعة الشمسية',
   blurb: 'ثمانية كواكب تدور حول الشمس',
+  learn: [
+    {
+      title: 'ثمانية كواكب',
+      html: `${planets()}<p>بالترتيب من الشمس: عطارد، الزهرة، الأرض، المريخ، المشتري، زحل، أورانوس، نبتون.</p>`,
+      say: 'نحن نعيش على الكوكب الثالث: الأرض.',
+    },
+    {
+      title: 'حيل للتذكّر',
+      html: `<ul class="facts"><li>☀️ <b>عطارد</b> الأقرب إلى الشمس</li><li>🪐 <b>المشتري</b> الأكبر</li><li>🔴 <b>المريخ</b> الكوكب الأحمر</li><li>💍 <b>زحل</b> صاحب الحلقات</li><li>🥶 <b>نبتون</b> الأبعد</li></ul>`,
+      say: 'احفظ هذه الخمس جيداً، ستحتاجها بعد قليل!',
+    },
+  ],
   render: quiz({
     questions: QUESTIONS, count: 7,
     intro: 'البحّارة قديماً اهتدوا بالنجوم! تعرّف إلى <b>الكواكب الثمانية</b> التي تدور حول الشمس.',

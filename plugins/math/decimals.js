@@ -3,7 +3,8 @@
 
 import { registerTopic } from '../../core/topics.js';
 import { numberline } from '../engines/numberline.js';
-import { num } from '../../core/format.js';
+import { num, frac } from '../../core/format.js';
+import { fracBar, miniLine } from '../engines/visuals.js';
 
 const D = (v, max = 1) => ({
   value: v, label: `<b>${num(v)}</b>`, min: 0, max, ticks: max * 10,
@@ -24,6 +25,21 @@ registerTopic({
   icon: '📏',
   title: 'الأعداد العشرية',
   blurb: 'الأعشار على خط الأعداد',
+  learn: [
+    {
+      title: 'الأعشار',
+      html: `<p>نقسم الواحد إلى <b>${num(10)}</b> أجزاء متساوية؛ كل جزء = <b>${num(0.1)}</b> (عُشر).</p>
+             ${fracBar(3, 10, '#1f9aa0')}
+             <p class="tip">${num(0.3)} = ثلاثة أعشار = ${frac(3, 10)}</p>`,
+      say: 'الفاصلة العشرية تفصل الآحاد عن الأعشار.',
+    },
+    {
+      title: 'بين ١ و٢',
+      html: `<p>${num(1.5)} = واحد وخمسة أعشار = واحد ونصف.</p>
+             ${miniLine(1.5, 2, 20, num(1.5))}`,
+      say: 'كل قفزة صغيرة عُشر. عشر قفزات تساوي واحداً كاملاً.',
+    },
+  ],
   render: numberline({
     items: ITEMS, count: 7,
     intro: `العدد العشري يعدّ الأعشار: ${num(0.3)} تعني ثلاثة أعشار. أبحِر إلى كل عدد!`,
