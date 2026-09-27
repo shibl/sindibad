@@ -26,7 +26,7 @@ export function initLesson({ showScreen, onReturn }) {
     const b = e.target.closest('[data-result]');
     if (!b) return;
     sfx.tap();
-    if (b.dataset.result === 'again') { const before = current.before; startLesson(current.topic.id); current.before = before; }
+    if (b.dataset.result === 'again') { const { before, host } = current; startLesson(current.topic.id, { host }); current.before = before; }
     else finish();
   });
 }
@@ -51,7 +51,13 @@ export function startLesson(topicId, opts = {}) {
   if (!topic) return;
   current?.abort.abort();
   const abort = new AbortController();
-  current = { topic, abort, before: save.get().topics[topicId]?.stars || 0 };
+  current = { topic, abort, before: save.get().topics[topicId]?.stars || 0, host: opts.host || null };
+
+  // Who coaches this lesson: Hudhud, or the villager whose quest it is.
+  const host = opts.host;
+  document.querySelector('#screen-activity .guide__bird').innerHTML = host
+    ? `<div class="coach__host">${host.portrait}<small>${host.name}</small></div>`
+    : hudhudSVG();
 
   const hero = save.get().hero || 'sindbad';
   document.querySelector('.coach__hero').innerHTML = heroSVG(hero);
@@ -74,18 +80,18 @@ export function startLesson(topicId, opts = {}) {
   };
   const learnBtn = document.getElementById('learn-btn');
   learnBtn.hidden = !topic.learn?.length;
-  learnBtn.onclick = () => { sfx.tap(); startLesson(topic.id, { learn: true }); };
+  learnBtn.onclick = () => { sfx.tap(); const b = current.before; startLesson(topic.id, { learn: true, host }); current.before = b; };
 
   const firstTime = !save.get().topics[topic.id];
   if (topic.learn?.length && (opts.learn || firstTime)) {
-    showLearn(topic, container, abort.signal, () => practice(topic, container, ctx, abort));
+    showLearn(topic, container, abort.signal, () => practice(topic, container, ctx, abort), host);
   } else {
     practice(topic, container, ctx, abort);
   }
 }
 
 // Hudhud's mini-lesson: a few illustrated cards, then practice.
-function showLearn(topic, container, signal, then) {
+function showLearn(topic, container, signal, then, host) {
   let i = 0;
   const cards = topic.learn;
   progress(0, 1);
@@ -97,7 +103,7 @@ function showLearn(topic, container, signal, then) {
     container.innerHTML = `
       <div class="learn">
         <div class="learn__dots" aria-hidden="true">${cards.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('')}</div>
-        <p class="learn__kicker">📖 تعلّم مع هدهد</p>
+        <p class="learn__kicker">📖 تعلّم مع ${host ? host.name : 'هدهد'}</p>
         <h3 class="learn__title">${c.title}</h3>
         <div class="learn__body">${c.html}</div>
         <div class="learn__nav">

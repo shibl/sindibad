@@ -179,7 +179,7 @@ initMap(document.getElementById('map'), world, {
   enterIsland: id => { showScreen('island'); enterIsland(ISLANDS[id]); },
 });
 initOverworld({
-  startLesson: id => { lessonFromIsland = true; startLesson(id); },
+  startLesson: (id, host) => { lessonFromIsland = true; startLesson(id, { host }); },
   leave: after => showScreen('map', after),
 });
 initLesson({

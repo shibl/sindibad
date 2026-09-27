@@ -138,7 +138,7 @@ export default {
       ],
     },
     {
-      id: 'kid', name: 'رامي', at: [6.4, 21.5],
+      wander: 1.8, id: 'kid', name: 'رامي', at: [6.4, 21.5],
       look: { skin: '#eab38a', robe: '#e0a93a', sash: '#1f9aa0', hat: 'none', hair: '#4a2c1a' },
       talk: [
         'هل تعرف سرّاً؟ الكلمة التي في آخرها <b>ـُـ</b> (ضمة) تكون غالباً <b>مرفوعة</b>!',

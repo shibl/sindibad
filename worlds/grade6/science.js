@@ -122,7 +122,7 @@ export default {
       ],
     },
     {
-      id: 'sci-kid', name: 'عمر', at: [15.5, 22.9],
+      wander: 1.8, id: 'sci-kid', name: 'عمر', at: [15.5, 22.9],
       look: { skin: '#e3a878', robe: '#2f8a5f', sash: '#f2c14e', hat: 'none', hair: '#3a2215' },
       talk: [
         'هل تعلم أن <b>ابن النفيس</b> طبيب عاش في دمشق قبل أكثر من سبعمئة سنة؟',

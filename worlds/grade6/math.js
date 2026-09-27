@@ -127,7 +127,7 @@ export default {
       ],
     },
     {
-      id: 'kid2', name: 'لين', at: [15.4, 22.6],
+      wander: 1.8, id: 'kid2', name: 'لين', at: [15.4, 22.6],
       look: { skin: '#eab38a', robe: '#d0507e', sash: '#1f9aa0', hat: 'none', hair: '#3e2415', lashes: true },
       talk: [
         'هل تعرف حيلتي؟ لأقارن ١/٢ و٠٫٤ أحوّل كل شيء إلى أعشار: ١/٢ = ٠٫٥ وهي أكبر من ٠٫٤!',

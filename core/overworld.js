@@ -47,6 +47,9 @@ let pendingQuest = null;    // quest waiting for a lesson result
 let sessionGain = { gained: 0, topic: null };
 let puzzles = [];           // live walk-on puzzles (see setupPuzzles)
 let splashes = [];          // water splash effects { x, y, t }
+let dust = [];              // footstep puffs { x, y, t }
+let dustTimer = 0;
+let shade = null;           // offscreen canvas for night lighting
 
 // ---------- Setup ----------
 
@@ -85,6 +88,7 @@ export function initOverworld({ startLesson, leave }) {
   document.getElementById('island-leave').addEventListener('click', () => { sfx.tap(); leaveIsland(); });
   els.dlg.addEventListener('click', onDialogClick);
   els.popup.addEventListener('click', () => closePopup());
+  document.getElementById('log-btn').addEventListener('click', e => { e.stopPropagation(); sfx.tap(); toggleLog(); });
 }
 
 function resize() {
@@ -127,7 +131,7 @@ export function enterIsland(def) {
   player = { x: sx, y: sy, face: 1, moving: false, step: 0, sprite: heroSprite(heroId()) };
   bird = { x: sx - 0.9, y: sy - 0.6, sprite: hudhudSprite() };
   cam = { x: sx, y: sy };
-  people = def.people.map(p => ({ ...p, x: p.at[0], y: p.at[1], face: -1, sprite: villagerSprite(p.id, p.look) }));
+  people = def.people.map(p => ({ ...p, x: p.at[0], y: p.at[1], face: -1, sprite: villagerSprite(p.id, p.look), pause: Math.random() * 3 }));
   props = def.objects.map(o => ({ ...o, x: o.at[0], y: o.at[1], sprite: objectSprite(o.kind === 'gate' && gateOpen(o) ? 'gate' : o.kind) }));
   sessionGain = { gained: 0, topic: null };
   setupPuzzles();
@@ -164,15 +168,20 @@ function onStone(x, y) {
   return null;
 }
 
-function blocked(x, y) {
-  const t = tileAt(x, y);
-  if (SOLID.has(t) && !(WATER.has(t) && onStone(x, y))) return true;
+function propAt(x, y) {
   for (const o of props) {
     if (!o.block) continue;
     if (o.kind === 'gate' && gateOpen(o)) continue;
     const [bw, bh] = o.block;
     if (x > o.x - bw / 2 && x < o.x + bw / 2 && y > o.y - bh && y < o.y) return true;
   }
+  return false;
+}
+
+function blocked(x, y) {
+  const t = tileAt(x, y);
+  if (SOLID.has(t) && !(WATER.has(t) && onStone(x, y))) return true;
+  if (propAt(x, y)) return true;
   for (const p of people) if (Math.hypot(p.x - x, p.y - 0.15 - y) < 0.42) return true;
   return false;
 }
@@ -303,6 +312,9 @@ function update(dt) {
   }
   collectPearls();
   stepPuzzles();
+  wander(dt);
+  if (player.moving && (dustTimer -= dt) <= 0) { dustTimer = 0.16; dust.push({ x: player.x + (Math.random() - 0.5) * 0.2, y: player.y, t: 0 }); }
+  dust = dust.filter(d => (d.t += dt) < 0.5);
   splashes = splashes.filter(sp => (sp.t += dt) < 0.9);
   // Hudhud flutters behind the hero.
   const bx = player.x + player.face * 0.9, by = player.y - 0.5;
@@ -374,6 +386,10 @@ function draw() {
     ctx.fill();
   }
 
+  for (const d of dust) {
+    ctx.fillStyle = `rgba(255,250,235,${0.5 * (1 - d.t / 0.5)})`;
+    ctx.beginPath(); ctx.arc(sx(d.x), sy(d.y) - d.t * 10, TILE * (0.06 + d.t * 0.18), 0, 7); ctx.fill();
+  }
   const drawables = [];
   for (const o of props) if (!o.sprite.flat) drawables.push({ y: o.y, draw: () => drawProp(o) });
   for (const s of island.signs) drawables.push({ y: s.at[1], draw: () => drawSprite(objectSprite('sign'), s.at[0], s.at[1], HEIGHTS.sign) });
@@ -387,7 +403,72 @@ function draw() {
   ctx.beginPath(); ctx.ellipse(sx(bird.x), sy(bird.y + 0.6), TILE * 0.22, TILE * 0.08, 0, 0, 7); ctx.fill();
   drawSprite(bird.sprite, bird.x, bird.y + Math.sin(time * 5) * 0.08, 0.75, { flip: player.face > 0 });
 
+  drawLighting();
   drawPrompts();
+}
+
+// Night: darken the island and cut warm pools of light around lamps, the
+// hero, and lit monuments. Sunset: a soft orange wash. (Follows the same
+// clock as the title screen; lite mode uses a flat tint.)
+function drawLighting() {
+  const t = document.body.dataset.time;
+  if (t === 'sunset') { ctx.fillStyle = 'rgba(255,120,60,.12)'; ctx.fillRect(0, 0, W, H); return; }
+  if (t !== 'night') return;
+  if (document.body.classList.contains('lite')) { ctx.fillStyle = 'rgba(10,20,60,.35)'; ctx.fillRect(0, 0, W, H); return; }
+  if (!shade || shade.width !== els.canvas.width || shade.height !== els.canvas.height) {
+    shade = document.createElement('canvas');
+    shade.width = els.canvas.width; shade.height = els.canvas.height;
+  }
+  const c = shade.getContext('2d');
+  c.setTransform(dpr, 0, 0, dpr, 0, 0);
+  c.globalCompositeOperation = 'source-over';
+  c.clearRect(0, 0, W, H);
+  c.fillStyle = 'rgba(8,16,52,.62)';
+  c.fillRect(0, 0, W, H);
+  c.globalCompositeOperation = 'destination-out';
+  const lights = [{ x: player.x, y: player.y - 0.6, r: 2.6 }];
+  for (const o of props) {
+    if (o.kind === 'lamp') lights.push({ x: o.x, y: o.y - 1.5, r: 2.2 });
+    if (o.kind === 'lighthouse') lights.push({ x: o.x, y: o.y - 5, r: 3.5 });
+    if (o.id === 'monument' && state.monument) lights.push({ x: o.x, y: o.y - 1.2, r: 3 });
+    if (o.kind === 'house') lights.push({ x: o.x, y: o.y - 0.4, r: 1.3 });
+  }
+  const flick = 1 + Math.sin(time * 7) * 0.03;
+  for (const l of lights) {
+    const x = sx(l.x), y = sy(l.y), r = l.r * TILE * flick;
+    if (x < -r || y < -r || x > W + r || y > H + r) continue;
+    const gr = c.createRadialGradient(x, y, 0, x, y, r);
+    gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(0.5, 'rgba(0,0,0,.7)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    c.fillStyle = gr;
+    c.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+  ctx.drawImage(shade, 0, 0, W, H);
+  // A warm glow on top of the lamps themselves.
+  ctx.globalCompositeOperation = 'lighter';
+  for (const l of lights.slice(1)) {
+    const x = sx(l.x), y = sy(l.y), r = l.r * TILE * 0.45;
+    if (x < -r || y < -r || x > W + r || y > H + r) continue;
+    const gr = ctx.createRadialGradient(x, y, 0, x, y, r);
+    gr.addColorStop(0, 'rgba(255,190,90,.35)'); gr.addColorStop(1, 'rgba(255,190,90,0)');
+    ctx.fillStyle = gr; ctx.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+// Villagers with \`wander\` stroll around their home spot.
+function wander(dt) {
+  for (const p of people) {
+    if (!p.wander || (dialog && dialog.person === p)) continue;
+    if (p.pause > 0) { p.pause -= dt; p.walking = false; continue; }
+    if (!p.tx) { const a = Math.random() * Math.PI * 2, r = Math.random() * p.wander; p.tx = p.at[0] + Math.cos(a) * r; p.ty = p.at[1] + Math.sin(a) * r * 0.6; }
+    const dx = p.tx - p.x, dy = p.ty - p.y, d = Math.hypot(dx, dy);
+    const step = Math.min(d, 1.1 * dt);
+    const nx = p.x + (dx / d) * step, ny = p.y + (dy / d) * step;
+    const clear = !SOLID.has(tileAt(nx, ny)) && !propAt(nx, ny) && Math.hypot(nx - player.x, ny - player.y) > 0.7;
+    if (d < 0.05 || !clear) { p.tx = null; p.pause = 1.5 + Math.random() * 3; continue; }
+    p.x = nx; p.y = ny; p.walking = true;
+    if (Math.abs(dx) > 0.05) p.face = dx > 0 ? 1 : -1;
+  }
 }
 
 function drawProp(o) {
@@ -437,7 +518,8 @@ function drawProp(o) {
 
 function drawPerson(p) {
   const talking = dialog && dialog.person === p;
-  drawSprite(p.sprite, p.x, p.y, 1.5, { flip: p.face > 0, bob: talking ? Math.sin(time * 8) * 1.5 : Math.sin(time * 2 + p.x) * 1 });
+  const bob = talking ? Math.sin(time * 8) * 1.5 : p.walking ? -Math.abs(Math.sin(time * 9)) * TILE * 0.06 : Math.sin(time * 2 + p.at[0]) * 1;
+  drawSprite(p.sprite, p.x, p.y, 1.5, { flip: p.face > 0, bob, tilt: p.walking ? Math.sin(time * 9) * 0.04 : 0 });
 }
 
 function drawPlayer() {
@@ -613,7 +695,7 @@ function closeDialog() {
 function startQuest(p) {
   pendingQuest = p;
   busy = true;
-  hooks.startLesson(p.quest.topic);
+  hooks.startLesson(p.quest.topic, { name: p.name, portrait: portraitSVG(p.look) });
 }
 
 // Called by app.js when the lesson screen closes.
@@ -769,6 +851,37 @@ function drawPuzzles() {
     ctx.fillStyle = `rgba(210,245,255,${1 - k})`;
     for (let d = 0; d < 6; d++) { const a = (d / 6) * Math.PI * 2; ctx.beginPath(); ctx.arc(sx(sp.x) + Math.cos(a) * TILE * 0.4 * k, sy(sp.y) - TILE * 0.6 * Math.sin(k * Math.PI) + Math.sin(a) * TILE * 0.15, 4, 0, 7); ctx.fill(); }
   }
+}
+
+// ---------- Quest log ----------
+
+function toggleLog(force) {
+  const log = document.getElementById('quest-log');
+  const open = force ?? log.hidden;
+  if (!open) { log.hidden = true; busy = !!dialog || !els.popup.hidden; return; }
+  const status = p => {
+    const q = p.quest;
+    if (state.letters.includes(q.letter)) return ['done', `✔ أعطاك ${q.letter}`];
+    if (questDone(q)) return ['ready', 'عُد إليه لتأخذ مكافأتك!'];
+    if (q.fetch) return ['todo', state.items.includes(q.fetch) ? 'أعِد إليه ما وجدته' : 'أضاع شيئاً… ابحث عنه'];
+    return ['todo', state.met.includes(p.id) ? 'ينتظر مساعدتك' : 'لم تلتقِ به بعد'];
+  };
+  const quests = island.people.filter(p => p.quest).map(p => { const [k, t] = status(p); return `<li class="qlog__item qlog__item--${k}"><b>${p.name}</b><small>${t}</small></li>`; }).join('');
+  const puzzleRows = puzzles.map(pz => `<li class="qlog__item qlog__item--${pz.solved ? 'done' : 'todo'}"><b>🧩 ${pz.def.title}</b><small>${pz.solved ? '✔ عبرته' : 'لم تعبره بعد'}</small></li>`).join('');
+  const m = island.monument;
+  const foundChests = island.chests.filter(c => state.chests.includes(c.id)).length;
+  log.innerHTML = `
+    <div class="qlog__card">
+      <h3>📜 مهمّات ${island.name}</h3>
+      <ul>${quests}${puzzleRows}
+        <li class="qlog__item qlog__item--${state.monument ? 'done' : 'todo'}"><b>${m.name}</b><small>${state.monument ? '✔ اكتمل' : `${num(state.letters.length)} / ${num(tokens().length)} ${island.tokenName}`}</small></li>
+      </ul>
+      <p class="qlog__extra">🦪 اللآلئ: ${num(state.pearls.length)} / ${num(island.pearls.length)} &nbsp;•&nbsp; 🧰 الصناديق: ${num(foundChests)} / ${num(island.chests.length)}</p>
+      <button class="btn btn--gold" data-close-log>متابعة</button>
+    </div>`;
+  log.hidden = false;
+  busy = true;
+  log.querySelector('[data-close-log]').onclick = () => { sfx.tap(); toggleLog(false); };
 }
 
 // ---------- HUD ----------
