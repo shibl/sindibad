@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>World of Learning - Grade 5</title>
+<style>
+  :root{
+    --ocean1:#2b6da8; --ocean2:#164a75; --card:#ffffff; --ink:#1c3550;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){ --card:#22314a; --ink:#eef3f9; }
+  }
+  :root[data-theme="dark"]{ --card:#22314a; --ink:#eef3f9; }
+  html,body{height:100%;margin:0;overflow:hidden;font-family:'Segoe UI',Tahoma,sans-serif;}
+  body{background:var(--ocean1);}
+  #stage{position:relative;width:100%;height:100%;overflow:hidden;
+         background:radial-gradient(ellipse at 50% 20%,var(--ocean1),var(--ocean2));}
+
+  .title{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));left:0;right:0;
+         text-align:center;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.35);}
+  .title h1{margin:0;font-size:clamp(18px,4vw,26px);}
+  .title p{margin:4px 0 0;font-size:12px;opacity:.85;}
+
+  .cloud{position:absolute;background:#fff;opacity:.55;border-radius:50px;filter:blur(1px);
+         animation:drift linear infinite;}
+  @keyframes drift{from{transform:translateX(-140px);}to{transform:translateX(110vw);}}
+
+  .wave-ring{position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,.15);
+             animation:ripple 6s ease-out infinite;}
+  @keyframes ripple{0%{transform:scale(.8);opacity:.6;}100%{transform:scale(1.4);opacity:0;}}
+
+  .continent{position:absolute;cursor:pointer;transition:transform .25s;
+             filter:drop-shadow(0 6px 10px rgba(0,0,0,.25));animation:pulse 4.5s ease-in-out infinite;}
+  .continent:hover{transform:scale(1.06);}
+  @keyframes pulse{0%,100%{filter:drop-shadow(0 6px 10px rgba(0,0,0,.25)) brightness(1);}
+                   50%{filter:drop-shadow(0 8px 14px rgba(0,0,0,.3)) brightness(1.08);}}
+
+  .label{position:absolute;transform:translate(-50%,-50%);text-align:center;pointer-events:none;}
+  .label .icon{font-size:22px;line-height:1;}
+  .label .name{display:block;font-size:11px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.5);
+               margin-top:2px;white-space:nowrap;}
+
+  .card{position:absolute;left:50%;bottom:calc(2% + env(safe-area-inset-bottom,0px));
+        transform:translateX(-50%) translateY(120%);width:min(88vw,360px);
+        background:var(--card);color:var(--ink);border-radius:16px;padding:14px 16px;
+        box-shadow:0 10px 30px rgba(0,0,0,.3);transition:transform .35s ease;z-index:5;}
+  .card.show{transform:translateX(-50%) translateY(0);}
+  .card h3{margin:0 0 4px;font-size:15px;}
+  .card p{margin:0;font-size:13px;opacity:.85;}
+  .card .close{position:absolute;top:8px;right:10px;cursor:pointer;opacity:.5;font-size:14px;}
+
+  .hint{position:absolute;bottom:calc(3% + env(safe-area-inset-bottom,0px));left:0;right:0;
+        text-align:center;color:#fff;font-size:12px;opacity:.75;}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="title"><h1>🌍 World of Learning</h1><p>Grade 5 &mdash; tap a continent to explore its subject</p></div>
+
+  <div class="cloud" style="width:90px;height:26px;top:10%;animation-duration:38s"></div>
+  <div class="cloud" style="width:60px;height:18px;top:6%;animation-duration:52s;animation-delay:-10s"></div>
+  <div class="cloud" style="width:110px;height:30px;top:16%;animation-duration:60s;animation-delay:-25s"></div>
+
+  <div class="wave-ring" style="width:120px;height:120px;left:30%;top:45%"></div>
+  <div class="wave-ring" style="width:100px;height:100px;left:65%;top:60%;animation-delay:2s"></div>
+
+  <svg viewBox="0 0 100 100" style="position:absolute;inset:0;width:100%;height:100%" preserveAspectRatio="xMidYMid meet">
+    <!-- North America -->
+    <path class="continent" data-id="na" d="M10 22 Q20 14 30 18 Q34 24 30 30 Q26 40 18 38 Q10 34 10 22Z" fill="#4caf6f"/>
+    <!-- South America -->
+    <path class="continent" data-id="sa" d="M24 46 Q30 44 32 52 Q33 62 27 68 Q22 64 22 54Z" fill="#8bc34a"/>
+    <!-- Europe -->
+    <path class="continent" data-id="eu" d="M46 18 Q53 15 58 19 Q57 25 51 26 Q45 25 46 18Z" fill="#ffb74d"/>
+    <!-- Africa -->
+    <path class="continent" data-id="af" d="M46 30 Q56 28 58 38 Q59 50 52 58 Q45 56 44 44Z" fill="#f06292"/>
+    <!-- Asia -->
+    <path class="continent" data-id="as" d="M60 14 Q76 12 84 22 Q82 32 70 34 Q60 30 60 14Z" fill="#ba68c8"/>
+    <!-- Oceania -->
+    <path class="continent" data-id="oc" d="M76 56 Q84 54 88 60 Q85 66 78 65 Q74 62 76 56Z" fill="#4dd0e1"/>
+  </svg>
+
+  <div class="label" style="left:19%;top:26%"><div class="icon">🔢</div><span class="name">N. America</span></div>
+  <div class="label" style="left:27%;top:56%"><div class="icon">📖</div><span class="name">S. America</span></div>
+  <div class="label" style="left:52%;top:21%"><div class="icon">🎨</div><span class="name">Europe</span></div>
+  <div class="label" style="left:51%;top:44%"><div class="icon">🦁</div><span class="name">Africa</span></div>
+  <div class="label" style="left:72%;top:23%"><div class="icon">🧪</div><span class="name">Asia</span></div>
+  <div class="label" style="left:81%;top:60%"><div class="icon">🌊</div><span class="name">Oceania</span></div>
+
+  <div class="hint" id="hint">Tap a continent to preview its topic</div>
+
+  <div class="card" id="card">
+    <span class="close" id="close">✕</span>
+    <h3 id="card-title"></h3>
+    <p id="card-text"></p>
+  </div>
+</div>
+
+<script>
+const topics = {
+  na: {title:"🔢 North America — Mathematics", text:"Fractions, decimals, and problem solving through real-world examples."},
+  sa: {title:"📖 South America — Language Arts", text:"Reading comprehension, storytelling, and creative writing."},
+  eu: {title:"🎨 Europe — Art & Culture", text:"Famous artworks, styles, and hands-on creative projects."},
+  af: {title:"🦁 Africa — Science & Nature", text:"Ecosystems, animals, and the wonders of the natural world."},
+  as: {title:"🧪 Asia — Experiments & Discovery", text:"Simple chemistry, physics, and inventions through history."},
+  oc: {title:"🌊 Oceania — Geography & Oceans", text:"Maps, climates, and life in and around the world's oceans."}
+};
+const card = document.getElementById('card');
+const hint = document.getElementById('hint');
+document.querySelectorAll('.continent').forEach(el=>{
+  el.addEventListener('click',()=>{
+    const t = topics[el.dataset.id];
+    document.getElementById('card-title').textContent = t.title;
+    document.getElementById('card-text').textContent = t.text;
+    card.classList.add('show');
+    hint.style.opacity = 0;
+  });
+});
+document.getElementById('close').addEventListener('click',()=>{
+  card.classList.remove('show');
+  hint.style.opacity = .75;
+});
+</script>
+</body>
+</html>
