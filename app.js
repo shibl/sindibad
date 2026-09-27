@@ -9,22 +9,23 @@ import { wipe } from './core/fx.js';
 import { startAmbience, stopAmbience, refreshAmbience } from './core/ambience.js';
 import { defsSVG, shipSVG, palmSVG, gullSVG, cloudSVG, skylineSVG, shoreSVG, heroSVG, hudhudSVG } from './art/art.js';
 import { save } from './core/save.js';
-import { initMap, enter as enterMap } from './core/map.js';
+import { initMap, enter as enterMap, totalStars } from './core/map.js';
 import { renderJourney } from './core/journey.js';
 import { openShop, applyStyle } from './core/shop.js';
 import { showStory } from './core/story.js';
 import { initFamily, renderWho, renderParentGate } from './core/family.js';
 import { playMusic, refreshMusicVolume } from './core/music.js';
-import { profileList, addPlayTime } from './core/save.js';
+import { profileList, addPlayTime, activeProfile } from './core/save.js';
 import { initOverworld, enterIsland, lessonReturned, debugState, debugBlocked, debugPlace } from './core/overworld.js';
 import arabicIsland from './worlds/grade6/arabic.js';
 import mathIsland from './worlds/grade6/math.js';
 import scienceIsland from './worlds/grade6/science.js';
 import socialIsland from './worlds/grade6/social.js';
 import treasureIsland from './worlds/grade6/treasure.js';
-import { initLesson, startLesson } from './core/lesson.js';
+import { initLesson, startLesson, streak } from './core/lesson.js';
 import { sfx, toggleMute } from './core/sound.js';
 import world from './worlds/grade6.js';
+import { num } from './core/format.js';
 import './plugins/index.js';
 
 // ---------- Backdrop ----------
@@ -240,7 +241,24 @@ if (save.get().hero && profileList().length <= 1) {
   start.dataset.go = 'map';
   start.textContent = 'تابِع الرحلة';
   document.getElementById('title-tag').textContent = `مرحباً بعودتك يا ${save.get().hero === 'yasmina' ? 'ياسمينة' : 'سندباد'}! ⛵`;
+  // A "welcome back" card: face, name, stars and the day streak.
+  const { stars, max } = totalStars();
+  const days = streak();
+  const card = document.createElement('div');
+  card.className = 'title-card';
+  card.innerHTML = `<span class="title-card__face">${heroSVG(save.get().hero)}</span>
+    <b>${activeProfile()?.name || (save.get().hero === 'yasmina' ? 'ياسمينة' : 'سندباد')}</b>
+    <span class="title-card__stat">★ ${num(stars)}<small>/${num(max)}</small></span>
+    ${days ? `<span class="title-card__stat title-card__stat--fire">🔥 ${num(days)}</span>` : ''}`;
+  start.before(card);
 }
+
+// Gentle parallax on the title scene: layers drift with the finger/mouse.
+document.getElementById('screen-title').addEventListener('pointermove', e => {
+  const scene = document.getElementById('scene');
+  scene.style.setProperty('--px', ((e.clientX / innerWidth) - 0.5).toFixed(3));
+  scene.style.setProperty('--py', ((e.clientY / innerHeight) - 0.5).toFixed(3));
+});
 
 // Test hook: lets headless tests read the hero's position on an island.
 if (window.__SINDBAD_TEST__) Object.assign(window, { __island: debugState, __blocked: debugBlocked, __place: debugPlace, __lesson: startLesson });
