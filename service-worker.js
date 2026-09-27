@@ -5,7 +5,7 @@
 // file run `node tools/update-shell.mjs` (tests/check-shell.mjs fails if you
 // forget). A new version makes clients download the new files once.
 
-const CACHE_VERSION = '023abdb57b';
+const CACHE_VERSION = 'b0160603dd';
 const CACHE_NAME = `sindbad-${CACHE_VERSION}`;
 
 const APP_SHELL = [
@@ -27,6 +27,7 @@ const APP_SHELL = [
   'core/map.js',
   'core/music.js',
   'core/overworld.js',
+  'core/ranks.js',
   'core/save.js',
   'core/shop.js',
   'core/sound.js',

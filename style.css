@@ -1635,3 +1635,4 @@ body.lite .map__sea::after { animation: none; }
 .rankbar i { display: block; height: 100%; border-radius: 999px; background: repeating-linear-gradient(-45deg, rgba(255, 255, 255, .35) 0 7px, transparent 7px 14px), linear-gradient(#ffe58a, #f2b21e); transition: width 1s cubic-bezier(.2, .8, .3, 1.2); min-width: 10px; }
 .rankbar__next { margin: 0; font-size: 13px; color: var(--ink-soft); }
 .rankbar__next b { color: var(--rose); }
+.rankup__icon { font-size: 84px; line-height: 1.1; animation: medal-in .9s cubic-bezier(.2, .8, .3, 1.4); filter: drop-shadow(0 6px 0 rgba(59, 36, 20, .3)); }

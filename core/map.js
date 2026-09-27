@@ -10,6 +10,7 @@ import { sfx } from './sound.js';
 import { num } from './format.js';
 import { showFinale } from './finale.js';
 import { awardSticker } from './stickers.js';
+import { rankInfo } from './ranks.js';
 
 let world;          // the current grade world (worlds/grade6.js)
 let el;             // the .map element
@@ -206,6 +207,11 @@ export async function enter(after) {
     return b && (s.badges || {})[r.id] !== b;
   });
   for (const r of earned) { await showBadge(r, badgeState(r.id)); spoke = true; }
+  // Promotion to a new sailor rank.
+  const { stars: total, max: maxStars } = totalStars();
+  const info = rankInfo(s.hero || 'sindbad', total, maxStars);
+  if (s.rankLevel === undefined) save.update(v => { v.rankLevel = info.level; });
+  else if (info.level > s.rankLevel) { await showRankUp(info); spoke = true; }
   // Grade complete: the treasure island has at least one star.
   const last = world.regions[world.regions.length - 1];
   if (!s.finale && regionStars(last.id).stars > 0) { await showFinale(totalStars()); render(); return; }
@@ -286,6 +292,28 @@ function flyStars(regionId, n) {
       b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump');
     });
   }
+}
+
+// A promotion card when the child reaches a new rank.
+function showRankUp(info) {
+  return new Promise(resolve => {
+    save.update(v => { v.rankLevel = info.level; });
+    const modal = document.getElementById('badge-modal');
+    modal.innerHTML = `
+      <div class="badge-modal__rays"></div>
+      <div class="badge-modal__card rankup" role="dialog" aria-modal="true" aria-labelledby="rank-title">
+        <div class="rankup__icon">🎖️</div>
+        <p class="badge-modal__kicker">ترقية!</p>
+        <h3 id="rank-title">${info.rank}</h3>
+        <p>أحسنت يا ${heroName()}! ${info.next ? `الرتبة التالية: <b>${info.next}</b>` : 'بلغت أعلى رتبة في البحر كلّه! 👑'}</p>
+        <button class="btn btn--gold" data-close-badge>هيّا!</button>
+      </div>`;
+    modal.hidden = false;
+    sfx.fanfare();
+    const btn = modal.querySelector('[data-close-badge]');
+    btn.focus({ preventScroll: true });
+    btn.addEventListener('click', () => { sfx.tap(); modal.hidden = true; resolve(); }, { once: true });
+  });
 }
 
 // Award an island badge with a full-screen moment.

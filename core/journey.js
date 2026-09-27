@@ -3,6 +3,7 @@
 
 import { heroSVG, medalSVG, HEROES, g } from '../art/art.js';
 import { save, activeProfile } from './save.js';
+import { rankInfo } from './ranks.js';
 import { regionStars, badgeState, totalStars } from './map.js';
 import { sfx } from './sound.js';
 import { num } from './format.js';
@@ -16,22 +17,7 @@ export function renderJourney(el, world, { showScreen }) {
   const { stars, max } = totalStars();
   const earned = world.regions.filter(r => badgeState(r.id)).length;
   const played = Object.values(s.topics).filter(t => t.plays).length;
-  // Ranks by share of all stars; the bar shows the way to the next one.
-  const RANKS = [
-    [0, g(hero, 'بحّار مبتدئ', 'بحّارة مبتدئة')],
-    [0.1, g(hero, 'بحّار متدرّب', 'بحّارة متدرّبة')],
-    [0.2, g(hero, 'بحّار نشيط', 'بحّارة نشيطة')],
-    [0.35, g(hero, 'بحّار شجاع', 'بحّارة شجاعة')],
-    [0.5, g(hero, 'ربّان ماهر', 'ربّانة ماهرة')],
-    [0.65, g(hero, 'ربّان خبير', 'ربّانة خبيرة')],
-    [0.8, g(hero, 'سيّد الأمواج', 'سيّدة الأمواج')],
-    [0.95, g(hero, 'قائد الأسطول الصغير', 'قائدة الأسطول الصغيرة')],
-  ];
-  const level = RANKS.filter(([k]) => stars >= Math.ceil(k * max)).length - 1;
-  const rank = RANKS[level][1];
-  const next = RANKS[level + 1];
-  const from = Math.ceil(RANKS[level][0] * max), to = next ? Math.ceil(next[0] * max) : max;
-  const pct = next ? Math.round(((stars - from) / Math.max(1, to - from)) * 100) : 100;
+  const { rank, next, to, pct } = rankInfo(hero, stars, max);
   const child = activeProfile()?.name || HEROES[hero].name;
 
   el.innerHTML = `
@@ -41,7 +27,7 @@ export function renderJourney(el, world, { showScreen }) {
         <h3>${child}</h3>
         <p class="journey__rank">🎖️ ${rank}</p>
         <div class="rankbar"><i style="width:${pct}%"></i></div>
-        <p class="rankbar__next">${next ? `${num(to - stars)} ${to - stars === 1 ? 'نجمة' : 'نجوم'} أخرى ${g(hero, 'لتصبح', 'لتصبحي')} <b>${next[1]}</b>` : 'بلغت أعلى رتبة! 👑'}</p>
+        <p class="rankbar__next">${next ? `${num(to - stars)} ${to - stars === 1 ? 'نجمة' : 'نجوم'} أخرى ${g(hero, 'لتصبح', 'لتصبحي')} <b>${next}</b>` : 'بلغت أعلى رتبة! 👑'}</p>
         <div class="journey__stats">
           <span><b>★ ${num(stars)}</b> من ${num(max)}</span>
           <span><b>🏅 ${num(earned)}</b> شارات</span>
