@@ -3,403 +3,522 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#1c7fa0">
-<meta name="description" content="عن مشروع رحلات سندباد وياسمينة — الرؤية، التحديات، فلسفة اللعبة، البنية التقنية، والنموذج المجتمعي.">
+<meta name="theme-color" content="#0f1b2d">
+<meta name="description" content="رحلات سندباد وياسمينة — مشروع تعليمي سوري حرّ ومفتوح المصدر يحوّل المنهاج السوري للصفوف ١–١٢ إلى لعبة مغامرات تعمل دون إنترنت. الرؤية، البنية التقنية، النموذج المجتمعي، ودعوة للمساهمة.">
 <title>عن المشروع — رحلات سندباد وياسمينة</title>
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
-<link rel="preload" href="fonts/baloo-bhaijaan-2-arabic-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
 <style>
-/* The About page: the project brief (docs/original-project-brief.pdf) as
-   eight swipeable cards, in the game's own cartoon style. Self-contained
-   apart from the game's fonts and art (art/art.js). */
-
-@font-face { font-family: "Baloo Bhaijaan 2"; font-weight: 500; font-display: swap; src: url(fonts/baloo-bhaijaan-2-arabic-500-normal.woff2) format("woff2"); unicode-range: U+0600-06FF, U+0750-077F, U+FB50-FDFF, U+FE70-FEFF, U+200C-200E, U+2010-2011, U+204F, U+2E41; }
-@font-face { font-family: "Baloo Bhaijaan 2"; font-weight: 800; font-display: swap; src: url(fonts/baloo-bhaijaan-2-arabic-800-normal.woff2) format("woff2"); unicode-range: U+0600-06FF, U+0750-077F, U+FB50-FDFF, U+FE70-FEFF, U+200C-200E, U+2010-2011, U+204F, U+2E41; }
-@font-face { font-family: "Baloo Bhaijaan 2"; font-weight: 500; font-display: swap; src: url(fonts/baloo-bhaijaan-2-latin-500-normal.woff2) format("woff2"); unicode-range: U+0000-00FF, U+2000-206F, U+20AC, U+2122; }
-@font-face { font-family: "Baloo Bhaijaan 2"; font-weight: 800; font-display: swap; src: url(fonts/baloo-bhaijaan-2-latin-800-normal.woff2) format("woff2"); unicode-range: U+0000-00FF, U+2000-206F, U+20AC, U+2122; }
+/* About page for developers, founders and partners: the project brief
+   (docs/original-project-brief.pdf) as a long-form document. Self-contained;
+   the web font is optional and falls back to system Arabic fonts offline. */
 
 :root {
-  --ink: #3b2414; --ink-soft: #6a4a34; --paper: #fff7e6; --paper-2: #fbeed2;
-  --gold: #f2c14e; --gold-deep: #c98d1c; --rose: #d0507e; --teal: #1f9aa0;
-  --green: #2f8a5f; --red: #c7373f; --blue: #2f7fd0; --purple: #7a4fc9;
-  --sky: #9ad8ea; --sea: #1f86b0; --sea-deep: #0f4f7a;
-  --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --bg: #f7f5f0; --surface: #ffffff; --surface-2: #f1eee6;
+  --text: #1b2330; --muted: #5b6573; --faint: #8a93a0;
+  --line: #e2ddd2; --line-strong: #cfc8b8;
+  --navy: #0f1b2d; --accent: #b0722a; --accent-soft: #f4e8d6;
+  --teal: #1d6f6a; --teal-soft: #e1efed;
+  --radius: 12px;
+  --max: 1120px;
+  --font: "IBM Plex Sans Arabic", "Segoe UI", "Noto Sans Arabic", Tahoma, system-ui, sans-serif;
+  color-scheme: light;
 }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e141d; --surface: #151d29; --surface-2: #1a2432;
+    --text: #e6e9ee; --muted: #a3acb9; --faint: #7a8494;
+    --line: #253041; --line-strong: #334157;
+    --navy: #0a1019; --accent: #d9a15a; --accent-soft: #2a2218;
+    --teal: #5fb5ad; --teal-soft: #17292a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e141d; --surface: #151d29; --surface-2: #1a2432;
+  --text: #e6e9ee; --muted: #a3acb9; --faint: #7a8494;
+  --line: #253041; --line-strong: #334157;
+  --navy: #0a1019; --accent: #d9a15a; --accent-soft: #2a2218;
+  --teal: #5fb5ad; --teal-soft: #17292a;
+  color-scheme: dark;
+}
+
 * { box-sizing: border-box; }
-html, body { margin: 0; height: 100%; }
-body {
-  font-family: "Baloo Bhaijaan 2", system-ui, "Segoe UI", Tahoma, sans-serif; font-weight: 500; color: var(--ink);
-  background:
-    radial-gradient(ellipse 80% 40% at 50% 0%, rgba(255, 255, 255, .55), transparent 70%),
-    linear-gradient(#8fd3ea 0%, #bfe7f2 38%, #5cc0db 38.1%, #2593c0 70%, #146b9c 100%);
-  display: flex; flex-direction: column; overflow: hidden;
-}
-/* Gentle waves drifting across the sea. */
-body::before {
-  content: ""; position: fixed; inset: 38% -200px 0; pointer-events: none; opacity: .5;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60'%3E%3Cpath d='M10 20 q10 -8 20 0 M70 45 q10 -8 20 0' fill='none' stroke='white' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E");
-  animation: waves 26s linear infinite;
-}
-@keyframes waves { to { transform: translateX(120px); } }
+html { scroll-behavior: smooth; scroll-padding-top: 76px; -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 400 17px/1.85 var(--font); }
+a { color: inherit; }
+h1, h2, h3, h4 { line-height: 1.35; font-weight: 700; margin: 0; }
+p { margin: 0; }
+.wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
 
-/* ---------- Top bar ---------- */
-.bar { position: relative; z-index: 2; display: flex; align-items: center; gap: 10px; padding: calc(10px + var(--safe-top)) 14px 8px; }
-.bar h1 { flex: 1; margin: 0; font-size: clamp(18px, 4.8vw, 26px); font-weight: 800; color: #fff; -webkit-text-stroke: 6px var(--ink); paint-order: stroke fill; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* ---------- Header ---------- */
+.top {
+  position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: saturate(1.2) blur(10px); -webkit-backdrop-filter: saturate(1.2) blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.top .wrap { display: flex; align-items: center; gap: 18px; height: 64px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 700; font-size: 16px; white-space: nowrap; }
+.brand img { width: 28px; height: 28px; border-radius: 7px; }
+.top nav { display: flex; gap: 4px; margin-inline-start: auto; overflow-x: auto; scrollbar-width: none; }
+.top nav::-webkit-scrollbar { display: none; }
+.top nav a { text-decoration: none; font-size: 14.5px; color: var(--muted); padding: 6px 10px; border-radius: 8px; white-space: nowrap; }
+.top nav a:hover, .top nav a.is-on { color: var(--text); background: var(--surface-2); }
+.top .spacer { flex: 1; display: none; }
 .btn {
-  font: inherit; font-weight: 800; color: var(--ink); cursor: pointer; text-decoration: none;
-  display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 46px; padding: 4px 18px 8px;
-  border-radius: 999px; border: 3px solid var(--ink);
-  background: linear-gradient(#fff 0 45%, #f6e7c4); box-shadow: inset 0 -4px 0 rgba(160, 110, 40, .25), 0 4px 0 var(--ink);
-  transition: transform .12s, box-shadow .12s;
+  display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 10px;
+  font: 600 15px/1.2 var(--font); text-decoration: none; white-space: nowrap; cursor: pointer;
+  border: 1px solid var(--line-strong); background: var(--surface); color: var(--text);
 }
-.btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
-.btn:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
-.btn--gold { background: linear-gradient(#fff2b0, #ffd84f 38%, #f2b52a 62%, #e39a1c); box-shadow: inset 0 -5px 0 rgba(170, 90, 0, .35), 0 5px 0 var(--ink); }
-.btn--round { width: 46px; padding: 0; font-size: 20px; }
-.btn[disabled] { opacity: .45; pointer-events: none; }
+.btn:hover { border-color: var(--text); }
+.btn:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn--primary { background: var(--navy); color: #fff; border-color: var(--navy); }
+.btn--primary:hover { background: #1c2c45; border-color: #1c2c45; }
+:root[data-theme="dark"] .top .btn--primary { background: var(--accent); color: #1a1208; border-color: var(--accent); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .top .btn--primary { background: var(--accent); color: #1a1208; border-color: var(--accent); } }
+.theme { width: 38px; height: 38px; padding: 0; justify-content: center; font-size: 16px; }
 
-/* ---------- Deck ---------- */
-.deck {
-  position: relative; z-index: 1; flex: 1; min-height: 0; display: flex; gap: 0;
-  overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scroll-behavior: smooth;
-  scrollbar-width: none; overscroll-behavior-x: contain;
+/* ---------- Hero ---------- */
+.hero { background: var(--navy); color: #eef1f5; padding: 88px 0 72px; position: relative; overflow: hidden; }
+.hero::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .07;
+  background-image: linear-gradient(rgba(255,255,255,.9) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.9) 1px, transparent 1px);
+  background-size: 48px 48px;
+  -webkit-mask-image: radial-gradient(ellipse at 30% 40%, #000 20%, transparent 75%); mask-image: radial-gradient(ellipse at 30% 40%, #000 20%, transparent 75%);
 }
-.deck::-webkit-scrollbar { display: none; }
-.slide { flex: 0 0 100%; scroll-snap-align: center; display: flex; justify-content: center; padding: 6px 14px 14px; min-height: 0; }
-.card {
-  position: relative; width: 100%; overflow-x: hidden; max-width: 980px; height: 100%; overflow-y: auto; overscroll-behavior: contain;
-  padding: 22px 20px 26px; border-radius: 28px;
-  background: linear-gradient(var(--paper), var(--paper-2)); border: 4px solid var(--ink);
-  box-shadow: 0 8px 0 var(--ink), 0 22px 40px rgba(0, 30, 50, .35);
+.hero .wrap { position: relative; z-index: 1; }
+.eyebrow { display: inline-block; font-size: 14px; font-weight: 600; color: #d9a15a; border: 1px solid rgba(217, 161, 90, .45); padding: 4px 12px; border-radius: 999px; }
+.hero h1 { margin: 22px 0 16px; font-size: clamp(34px, 6vw, 58px); color: #fff; }
+.hero .lead { max-width: 760px; font-size: clamp(18px, 2.3vw, 21px); color: #c3cad6; line-height: 1.8; }
+.hero .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+.hero .btn, .cta .btn { background: transparent; color: #fff; border-color: rgba(255,255,255,.35); }
+.hero .btn:hover, .cta .btn:hover { border-color: #fff; }
+.hero .btn--primary, .cta .btn--primary { background: #d9a15a; color: #1a1208; border-color: #d9a15a; }
+.facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin-top: 56px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.12); border-radius: var(--radius); overflow: hidden; }
+.facts div { background: var(--navy); padding: 20px 22px; }
+.facts b { display: block; font-size: 28px; color: #fff; line-height: 1.3; }
+.facts span { font-size: 14.5px; color: #9aa4b3; }
+
+/* ---------- Sections ---------- */
+.section { padding: 84px 0; border-bottom: 1px solid var(--line); }
+.section.alt { background: var(--surface); }
+.head { display: grid; grid-template-columns: 220px 1fr; gap: 40px; margin-bottom: 40px; }
+.head .n { font-size: 14px; font-weight: 600; color: var(--accent); padding-top: 10px; }
+.head .n small { display: block; color: var(--faint); font-weight: 500; font-size: 14px; }
+.head h2 { font-size: clamp(26px, 3.4vw, 36px); }
+.head p { margin-top: 12px; color: var(--muted); font-size: 18px; max-width: 720px; }
+.body { margin-inline-start: 260px; }
+
+.quote { margin: 0 0 40px; padding-inline-start: 24px; border-inline-start: 3px solid var(--accent); font-size: clamp(19px, 2.4vw, 23px); line-height: 1.8; font-weight: 500; }
+
+.cols { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+.box { padding: 24px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg); }
+.alt .box, .alt .layer, .alt .role { background: var(--surface); }
+.box.wide { grid-column: 1 / -1; }
+.box h3 { font-size: 18.5px; margin-bottom: 8px; }
+.box p, .box li, .role li { color: var(--muted); font-size: 16px; line-height: 1.8; }
+.k { display: block; font-size: 13px; font-weight: 600; color: var(--accent); margin-bottom: 8px; }
+ul.clean { list-style: none; padding: 0; margin: 10px 0 0; }
+ul.clean li { position: relative; padding-inline-start: 18px; }
+ul.clean li + li { margin-top: 8px; }
+ul.clean li::before { content: ""; position: absolute; inset-inline-start: 0; top: .8em; width: 6px; height: 6px; border-radius: 50%; background: var(--line-strong); }
+ul.clean b, .box p b { color: var(--text); font-weight: 600; }
+
+.note { margin-top: 28px; display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: start; padding: 22px 24px; border-radius: var(--radius); background: var(--teal-soft); border: 1px solid color-mix(in srgb, var(--teal) 30%, transparent); }
+.note .tag { font-size: 13px; font-weight: 700; color: var(--teal); border: 1px solid currentColor; border-radius: 6px; padding: 2px 8px; white-space: nowrap; }
+.note h3 { font-size: 18px; margin-bottom: 4px; }
+.note p { color: var(--muted); font-size: 16px; }
+.note--accent { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
+.note--accent .tag { color: var(--accent); }
+
+/* Stages table */
+.scroll-x { overflow-x: auto; }
+.table { width: 100%; min-width: 560px; border-collapse: separate; border-spacing: 0; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; font-size: 16px; background: var(--bg); }
+.table th, .table td { text-align: start; vertical-align: top; padding: 16px 18px; border-bottom: 1px solid var(--line); }
+.table thead th { background: var(--surface-2); font-size: 14px; font-weight: 600; color: var(--muted); }
+.table tbody tr:last-child td { border-bottom: 0; }
+.table td:first-child { font-weight: 600; white-space: nowrap; }
+.table .role-name { display: block; font-size: 13.5px; font-weight: 500; color: var(--accent); }
+.table td:last-child { color: var(--muted); }
+
+/* Architecture layers */
+.layers { display: grid; gap: 12px; }
+.layer { display: grid; grid-template-columns: 56px 1fr; gap: 18px; align-items: start; padding: 22px 24px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg); }
+.layer .idx { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; font-weight: 700; background: var(--surface-2); border: 1px solid var(--line); }
+.layer h3 { font-size: 18px; margin-bottom: 6px; }
+.layer p { color: var(--muted); font-size: 16px; }
+.subhead { margin-top: 40px; font-size: 20px; }
+.subhead + p { color: var(--muted); margin-top: 6px; }
+
+/* Process */
+.process { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 24px; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--bg); }
+.process div { padding: 22px 24px; border-inline-start: 1px solid var(--line); }
+.process div:first-child { border-inline-start: 0; }
+.process b { display: block; font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+.process h4 { font-size: 17px; margin-bottom: 6px; }
+.process p { color: var(--muted); font-size: 15.5px; }
+
+/* Roles */
+.roles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.role { display: flex; flex-direction: column; padding: 24px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg); }
+.role h3 { font-size: 18px; }
+.role .sub { font-size: 14px; color: var(--accent); font-weight: 600; margin: 4px 0 6px; }
+
+/* CTA */
+.cta { background: var(--navy); color: #e6e9ee; padding: 72px 0; }
+.cta .wrap { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px; }
+.cta h2 { font-size: clamp(24px, 3vw, 32px); color: #fff; }
+.cta p { color: #aab3c0; margin-top: 8px; max-width: 620px; }
+.cta .links { display: flex; flex-wrap: wrap; gap: 12px; }
+
+footer { padding: 28px 0 calc(28px + env(safe-area-inset-bottom, 0px)); color: var(--faint); font-size: 14.5px; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; }
+footer a { color: var(--muted); }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1040px) {
+  .head { grid-template-columns: 1fr; gap: 10px; }
+  .head .n { padding-top: 0; }
+  .body { margin-inline-start: 0; }
+  .roles { grid-template-columns: repeat(2, 1fr); }
+  .top nav { display: none; }
+  .top .spacer { display: block; }
 }
-.slide.is-current .card { animation: card-in .5s cubic-bezier(.2, .8, .3, 1.3); }
-@keyframes card-in { from { transform: translateY(18px) scale(.97); opacity: .4; } }
-
-.kicker { display: inline-block; margin: 0 0 6px; padding: 2px 14px 5px; border-radius: 999px; font-size: 14px; font-weight: 800; color: #fff; background: var(--c, var(--teal)); border: 2.5px solid var(--ink); box-shadow: 0 3px 0 var(--ink); }
-.card h2 { margin: 6px 0 4px; font-size: clamp(24px, 5.6vw, 38px); line-height: 1.25; font-weight: 800; }
-.card .sub { margin: 0 0 16px; font-size: clamp(15px, 3.8vw, 19px); color: var(--ink-soft); line-height: 1.5; }
-.num { position: absolute; top: 16px; inset-inline-end: 18px; font-weight: 800; color: rgba(59, 36, 20, .25); font-size: 30px; line-height: 1; }
-
-.grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
-.grid--4 { grid-template-columns: repeat(auto-fit, minmax(195px, 1fr)); }
-.tile {
-  position: relative; padding: 14px 16px 16px; border-radius: 20px; background: #fff;
-  border: 3px solid var(--ink); box-shadow: 0 5px 0 var(--c, var(--gold));
+@media (max-width: 640px) {
+  body { font-size: 16px; }
+  .wrap { padding: 0 18px; }
+  .hero { padding: 56px 0 48px; }
+  .facts { grid-template-columns: repeat(2, 1fr); }
+  .section { padding: 56px 0; }
+  .roles, .process { grid-template-columns: 1fr; }
+  .process div { border-inline-start: 0; border-top: 1px solid var(--line); }
+  .process div:first-child { border-top: 0; }
+  .brand span { display: none; }
+  .note { grid-template-columns: 1fr; }
+  .layer { grid-template-columns: 1fr; gap: 10px; }
 }
-.tile h3 { margin: 0 0 6px; display: flex; align-items: center; gap: 8px; font-size: 19px; line-height: 1.3; }
-.tile h3 .ic { display: grid; place-items: center; flex: 0 0 auto; width: 40px; height: 40px; border-radius: 12px; font-size: 22px; background: color-mix(in srgb, var(--c, var(--gold)) 22%, #fff); border: 2.5px solid var(--ink); }
-.tile p, .tile li { margin: 0; font-size: 15.5px; line-height: 1.65; }
-.tile ul { margin: 4px 0 0; padding-inline-start: 18px; }
-.tile li + li { margin-top: 4px; }
-.tile b { color: var(--ink); }
-.tag { display: inline-block; margin: 0 0 8px; padding: 1px 10px 3px; border-radius: 10px; font-size: 13px; font-weight: 800; background: color-mix(in srgb, var(--c, var(--gold)) 20%, #fff); color: color-mix(in srgb, var(--c, var(--gold)) 70%, #000); }
-
-.quote {
-  margin: 0 0 16px; padding: 14px 18px; border-radius: 18px; font-size: clamp(16px, 4vw, 20px); line-height: 1.7; font-weight: 800;
-  background: #fff3cf; border: 3px solid var(--ink); border-inline-start-width: 10px; border-inline-start-color: var(--gold);
+@media print {
+  .top, .theme, .hero .actions, .cta .links { display: none !important; }
+  .hero, .cta { background: #fff !important; }
+  .hero *, .cta * { color: #000 !important; }
+  .facts, .facts div { background: #fff !important; border-color: #ccc !important; }
+  .section { break-inside: avoid-page; padding: 32px 0; }
 }
-.callout {
-  margin-top: 16px; padding: 14px 18px; border-radius: 20px; color: #fff;
-  background: linear-gradient(#2fae86, #1f8a6a); border: 3px solid var(--ink); box-shadow: 0 5px 0 var(--ink);
-}
-.callout h3 { margin: 0 0 4px; font-size: 19px; }
-.callout p { margin: 0; font-size: 15.5px; line-height: 1.6; }
-.callout--gold { color: var(--ink); background: linear-gradient(#ffe89a, #f7c64a); }
-
-/* Slide 1: title */
-.hero-slide { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100%; }
-.hero-slide h2 { font-size: clamp(34px, 9vw, 64px); color: #ffd23f; -webkit-text-stroke: 9px var(--ink); paint-order: stroke fill; margin: 4px 0 8px; }
-.hero-slide .sub { max-width: 640px; font-size: clamp(16px, 4.2vw, 21px); color: var(--ink); }
-.crew { display: flex; align-items: flex-end; justify-content: center; gap: 4px; height: clamp(140px, 26vh, 230px); margin: 8px auto 2px; }
-.crew > span { height: 100%; min-width: 0; display: block; animation: bob 3.4s ease-in-out infinite; }
-.crew > span:last-child { animation-delay: -1.7s; }
-.crew svg { height: 100%; width: auto; display: block; }
-.crew__bird { height: 48% !important; align-self: center; animation-duration: 2.2s !important; }
-@keyframes bob { 50% { transform: translateY(-8px) rotate(-1deg); } }
-.pills { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 10px; }
-.pill { padding: 3px 14px 6px; border-radius: 999px; font-weight: 800; font-size: 15px; background: #fff; border: 2.5px solid var(--ink); box-shadow: 0 3px 0 var(--c, var(--gold)); }
-
-/* Slide 4: growth ladder */
-.ladder { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); align-items: end; }
-.step { text-align: center; }
-.step .who { height: var(--h, 120px); display: flex; align-items: flex-end; justify-content: center; margin-bottom: -6px; }
-.step .who svg { height: 100%; width: auto; }
-.step .tile { text-align: start; }
-
-/* Slide 5 and 8 numbered lists */
-.path { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 8px; }
-.path div { display: flex; gap: 10px; align-items: flex-start; font-size: 15.5px; line-height: 1.6; }
-.path i { flex: 0 0 auto; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; font-style: normal; font-weight: 800; color: #fff; background: var(--c, var(--gold-deep)); border: 2.5px solid var(--ink); }
-
-/* Guide: Hudhud in the corner of each card */
-.guide { position: absolute; bottom: 10px; inset-inline-start: 12px; width: 64px; opacity: .95; pointer-events: none; }
-.guide svg { width: 100%; height: auto; }
-.card--guided { padding-bottom: 70px; }
-
-/* ---------- Bottom navigation ---------- */
-.nav { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 4px 14px calc(12px + var(--safe-bottom)); }
-.dots { display: flex; gap: 7px; }
-.dots button { width: 13px; height: 13px; padding: 0; border-radius: 50%; border: 2.5px solid var(--ink); background: #fff; cursor: pointer; transition: width .25s, background .25s; }
-.dots button[aria-current="true"] { width: 30px; border-radius: 999px; background: var(--gold); }
-.count { min-width: 64px; text-align: center; font-weight: 800; color: #fff; -webkit-text-stroke: 5px var(--ink); paint-order: stroke fill; font-size: 18px; }
-
-@media (max-width: 600px) {
-  .card { padding: 18px 14px 22px; border-radius: 24px; }
-  .guide { display: none; }
-  .crew { height: 150px; }
-  .card--guided { padding-bottom: 22px; }
-  .dots { display: none; }
-}
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation: none !important; scroll-behavior: auto !important; }
-}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 </style>
 </head>
 <body>
 
-<header class="bar">
-  <a class="btn btn--round" href="./" aria-label="العودة إلى اللعبة">→</a>
-  <h1>عن المشروع</h1>
-  <a class="btn btn--gold" href="./">🎮 العب الآن</a>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="icons/icon.svg" alt=""><span>رحلات سندباد وياسمينة</span></a>
+    <nav aria-label="أقسام الصفحة">
+      <a href="#mission">المهمّة</a>
+      <a href="#design">التصميم التربوي</a>
+      <a href="#stages">المراحل العمرية</a>
+      <a href="#architecture">البنية التقنية</a>
+      <a href="#model">النموذج المجتمعي</a>
+      <a href="#review">التدقيق التربوي</a>
+      <a href="#contribute">المساهمة</a>
+    </nav>
+    <span class="spacer"></span>
+    <button class="btn theme" id="theme" type="button" aria-label="تبديل الوضع الليلي" title="الوضع الليلي">◐</button>
+    <a class="btn btn--primary" href="./">جرّب النموذج</a>
+  </div>
 </header>
 
-<main class="deck" id="deck" tabindex="0" aria-roledescription="عرض شرائح" aria-label="عن مشروع رحلات سندباد وياسمينة">
-
-  <!-- 1 — Title -->
-  <section class="slide" aria-roledescription="شريحة" aria-label="١ من ٨">
-    <div class="card"><div class="hero-slide">
-      <span class="kicker" style="--c:var(--rose)">مشروع تعليمي تفاعلي سوري حر</span>
-      <div class="crew"><span data-art="sindbad"></span><span class="crew__bird" data-art="hudhud"></span><span data-art="yasmina"></span></div>
-      <h2>رحلات سندباد وياسمينة</h2>
-      <p class="sub">تحويل المنهاج السوري بمراحله الاثنتي عشرة إلى لعبة مغامرات وتقمّص أدوار (RPG) تنمو مع الطالب خطوة بخطوة، وتعمل بالكامل بدون إنترنت.</p>
-      <div class="pills">
-        <span class="pill" style="--c:var(--green)">مجاني ومفتوح المصدر ١٠٠٪</span>
-        <span class="pill" style="--c:var(--blue)">١٢ مستوى لكامل المراحل</span>
-        <span class="pill" style="--c:var(--purple)">محرّك ألعاب مصغّرة حرّة</span>
-        <span class="pill" style="--c:var(--gold)">مراجعة وتدقيق تربوي مدفوع</span>
+<main>
+  <section class="hero" aria-labelledby="title">
+    <div class="wrap">
+      <span class="eyebrow">مشروع تعليمي تفاعلي سوري حرّ</span>
+      <h1 id="title">رحلات سندباد وياسمينة</h1>
+      <p class="lead">تحويل المنهاج السوري بمراحله الاثنتي عشرة إلى لعبة مغامرات وتقمّص أدوار (RPG) تنمو مع الطالب خطوة بخطوة، وتعمل بالكامل دون إنترنت.</p>
+      <div class="actions">
+        <a class="btn btn--primary" href="#contribute">انضمّ إلى المشروع</a>
+        <a class="btn" href="https://github.com/shibl/sindibad" target="_blank" rel="noopener">المستودع على GitHub</a>
+        <a class="btn" href="docs/original-project-brief.pdf">وثيقة المشروع (PDF)</a>
       </div>
-      <p class="sub" style="margin-top:18px;font-size:15px;color:var(--ink-soft)">اسحب أو استخدم الأسهم للتنقّل ←</p>
-    </div></div>
-  </section>
-
-  <!-- 2 — Mission and challenges -->
-  <section class="slide" aria-roledescription="شريحة" aria-label="٢ من ٨">
-    <div class="card"><span class="num">٢</span>
-      <span class="kicker" style="--c:var(--gold-deep)">المنطلق والمهمة</span>
-      <h2>الهدف الاستراتيجي والتحديات الميدانية</h2>
-      <p class="sub">إيصال التعليم النوعي لكل طفل وشاب سوري رغم قسوة الظروف وانقطاع البنية التحتية.</p>
-      <p class="quote">«الهدف هو بناء مسار تعليمي متكامل ومجاني يرافق الطالب السوري من الصف الأول وحتى نيل الشهادة الثانوية، محوّلاً عبء الدراسة إلى رحلة كشف ممتعة تحفّز الشغف الذاتي.»</p>
-      <div class="grid">
-        <div class="tile" style="--c:var(--red)"><h3><span class="ic">⚡</span>تحدّي الطاقة والاتصال</h3><p>انقطاعات متواصلة للتيار الكهربائي وشبكات إنترنت مكلفة وضعيفة وغير مستقرة. لا يمكن للاعتماد أن يكون على منصّات البث الحي أو السحابية.</p></div>
-        <div class="tile" style="--c:var(--gold)"><h3><span class="ic">📱</span>تحدّي الأجهزة والإمكانيات</h3><p>اعتماد الغالبية العظمى من العائلات على هواتف أندرويد متواضعة وبذاكرة محدودة. يجب أن تكون اللعبة فائقة الخفّة وصغيرة الحجم.</p></div>
-        <div class="tile" style="--c:var(--blue)"><h3><span class="ic">🧭</span>تحدّي الحافز والانقطاع</h3><p>تسرّب ملايين الطلاب والضغوط النفسية والمعيشية. تحويل المنهاج الرسمي إلى لعبة مشوّقة يخلق دافعاً ذاتياً مستمراً للتعلّم والتفوّق.</p></div>
+      <div class="facts">
+        <div><b>١٠٠٪</b><span>مجاني ومفتوح المصدر</span></div>
+        <div><b>١٢</b><span>مستوى يغطّي كامل المراحل الدراسية</span></div>
+        <div><b>≤ ٣٥ MB</b><span>حجم حزمة الصف الواحد، دون إنترنت</span></div>
+        <div><b>٠</b><span>إعلانات، اشتراكات، أو جمع بيانات</span></div>
       </div>
-      <div class="callout"><h3>الحلّ الجذري: هندسة العمل غير المتصل (Offline-First)</h3><p>تحميل حزم الصفوف الدراسية لمرّة واحدة بحجم لا يتجاوز ٣٥ ميغابايت، لتنطلق اللعبة بدون الحاجة لاتصال بالإنترنت، مع إمكانية تبادل التحديثات عبر الشبكات المحلية وبلوتوث.</p></div>
     </div>
   </section>
 
-  <!-- 3 — Game philosophy -->
-  <section class="slide" aria-roledescription="شريحة" aria-label="٣ من ٨">
-    <div class="card card--guided"><span class="num">٣</span>
-      <span class="kicker" style="--c:var(--teal)">فلسفة اللعبة وميكانيكياتها</span>
-      <h2>رحلة سندباد وياسمينة: فتح العالم مرحلة بمرحلة</h2>
-      <p class="sub">عالم غامض يكتنفه الضباب، يُكشف تدريجياً مع كل مهارة ودرس يتقنه الطالب.</p>
-      <div class="grid">
-        <div class="tile" style="--c:var(--gold-deep)"><h3><span class="ic">🗺️</span>ميكانيكية فتح العالم الكامل في كل صف</h3>
-          <p>في بداية كل صف دراسي، يدخل الطالب إلى عالم غير مكتشف يغطيه الضباب الجغرافي. لا يمكن لسندباد وياسمينة الإبحار أو فتح الأقاليم إلا بحلّ تحديات المنهاج:</p>
-          <ul>
-            <li><b>فكّ شفرات الموانئ:</b> تطبيق قواعد اللغة العربية لحلّ ألغاز المخطوطات القديمة.</li>
-            <li><b>الملاحة الفلكية:</b> حلّ معادلات الرياضيات ومسائل الهندسة لتحديد مسار السفينة.</li>
-            <li><b>كيمياء الطبيعة والأحياء:</b> فهم مبادئ العلوم لصنع الأشرعة وتجاوز التيارات البحرية.</li>
-            <li><b>إتمام المستوى:</b> إزاحة الستار عن كامل خريطة العالم الخاصة بذلك الصف مع التمكّن من المنهاج.</li>
-          </ul></div>
+  <!-- 01 Mission -->
+  <section class="section" id="mission" aria-labelledby="h-mission">
+    <div class="wrap">
+      <div class="head">
+        <div class="n">٠١<small>المنطلق والمهمّة</small></div>
         <div>
-          <div class="tile" style="--c:var(--blue)"><h3><span class="ic">🐦</span>رفيق الرحلة: هدهد الحكيم</h3>
-            <p>يمثّل «هدهد» الموجّه التربوي التكيّفي داخل اللعبة:</p>
-            <ul>
-              <li><b>دعم دون وصاية:</b> يقدّم تلميحات ذكية وشروحات مختصرة عند تعثّر الطالب.</li>
-              <li><b>مراجعة وتثبيت:</b> يطرح أسئلة استرجاع دورية مبنية على خوارزميات التكرار المتباعد.</li>
-              <li><b>صوت شامي أصيل:</b> لغة فصحى راقية ومحبّبة تشجّع الطالب وتعزّز انتماءه اللغوي والحضاري.</li>
-            </ul></div>
-          <div class="tile" style="--c:var(--green);margin-top:14px"><h3><span class="ic">📈</span>تطوّر التعقيد المتصاعد</h3>
-            <p>تتدرّج البيئة من قرية شاطئية بسيطة في الصف الأول إلى مسالك تجارية وإمبراطوريات بحرية متشابكة بحلول المرحلة الثانوية.</p></div>
+          <h2 id="h-mission">الهدف الاستراتيجي والتحدّيات الميدانية</h2>
+          <p>إيصال التعليم النوعي لكل طفل وشاب سوري رغم قسوة الظروف وانقطاع البنية التحتية.</p>
         </div>
       </div>
-      <div class="guide" data-art="hudhud"></div>
+      <div class="body">
+        <blockquote class="quote">«الهدف هو بناء مسار تعليمي متكامل ومجاني يرافق الطالب السوري من الصف الأول وحتى نيل الشهادة الثانوية، محوّلاً عبء الدراسة إلى رحلة كشف ممتعة تحفّز الشغف الذاتي.»</blockquote>
+        <div class="cols">
+          <div class="box"><span class="k">التحدّي الأول</span><h3>الطاقة والاتصال</h3><p>انقطاعات متواصلة للتيار الكهربائي، وشبكات إنترنت مكلفة وضعيفة وغير مستقرة. لا يمكن الاعتماد على منصّات البث الحي أو الخدمات السحابية.</p></div>
+          <div class="box"><span class="k">التحدّي الثاني</span><h3>الأجهزة والإمكانيات</h3><p>تعتمد الغالبية العظمى من العائلات على هواتف أندرويد متواضعة وبذاكرة محدودة؛ لذا يجب أن تكون اللعبة فائقة الخفّة وصغيرة الحجم.</p></div>
+          <div class="box"><span class="k">التحدّي الثالث</span><h3>الحافز والانقطاع</h3><p>تسرّب ملايين الطلاب تحت الضغوط النفسية والمعيشية. تحويل المنهاج الرسمي إلى لعبة مشوّقة يخلق دافعاً ذاتياً مستمراً للتعلّم والتفوّق.</p></div>
+        </div>
+        <div class="note">
+          <span class="tag">الحلّ الجذري</span>
+          <div><h3>هندسة العمل غير المتصل (Offline-First)</h3><p>تُحمَّل حزمة الصف الدراسي مرّة واحدة بحجم لا يتجاوز ٣٥ ميغابايت، لتعمل اللعبة بعدها دون أي اتصال بالإنترنت، مع إمكانية تبادل التحديثات عبر الشبكات المحلية والبلوتوث.</p></div>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- 4 — Growth ladder -->
-  <section class="slide" aria-roledescription="شريحة" aria-label="٤ من ٨">
-    <div class="card"><span class="num">٤</span>
-      <span class="kicker" style="--c:var(--purple)">التطوّر العمري والشخصيات</span>
-      <h2>محطّات نموّ سندباد الأربع عبر الصفوف الاثني عشر</h2>
-      <p class="sub">نضج بصري وتربوي يعكس ملامح الطفل والشاب السوري وأصالته الثقافية.</p>
-      <div class="ladder">
-        <div class="step"><div class="who" data-art="hero" style="--h:90px"></div>
-          <div class="tile" style="--c:var(--gold)"><span class="tag">الطفل المستكشف</span><h3>عمر ٦ سنوات (الصف ١–٣)</h3><p>ملامح طفولية بريئة، لباس شامي بسيط (صدرية وقبعة نسيجية)، يستكشف مع ياسمينة أزقّة حارته والميناء الصغير لتعلّم الحروف والأرقام والحساب البسيط.</p></div></div>
-        <div class="step"><div class="who" data-art="hero" style="--h:115px"></div>
-          <div class="tile" style="--c:var(--green)"><span class="tag">البحّار الصغير</span><h3>عمر ١٠ سنوات (الصف ٤–٦)</h3><p>قوام أنشط، وشاح عملي، حزام جلدي مزوّد بحافظة أدوات. يبحر مع ياسمينة في الجزر الساحلية المقابلة ويتعلّم حلّ مسائل الكسور، مبادئ العلوم، وتاريخ الشام.</p></div></div>
-        <div class="step"><div class="who" data-art="hero" style="--h:135px"></div>
-          <div class="tile" style="--c:var(--blue)"><span class="tag">الربّان اليافع • الشهادة الإعدادية</span><h3>عمر ١٤ سنة (الصف ٧–٩)</h3><p>ملامح يافع واثق يحمل أسطرلاباً وخريطة جلدية. يقود سفينته في أعالي البحار. تجارب علمية دقيقة، جبر، وهندسة استعداداً لامتحان التعليم الأساسي.</p></div></div>
-        <div class="step"><div class="who" data-art="hero" style="--h:150px"></div>
-          <div class="tile" style="--c:var(--purple)"><span class="tag">قائد الأسطول • البكالوريا</span><h3>عمر ١٨ سنة (الصف ١٠–١٢)</h3><p>شاب متمرّس ذو هيبة، عباءة دمشقية رصينة. يدير شبكات تجارية وعلاقات دولية معقّدة، متقناً حساب التفاضل والتكامل، والفيزياء، والفلسفة لنيل البكالوريا.</p></div></div>
+  <!-- 02 Pedagogical design -->
+  <section class="section alt" id="design" aria-labelledby="h-design">
+    <div class="wrap">
+      <div class="head">
+        <div class="n">٠٢<small>فلسفة اللعبة وميكانيكياتها</small></div>
+        <div>
+          <h2 id="h-design">فتح العالم مرحلةً بمرحلة</h2>
+          <p>عالم يكتنفه الضباب، يُكشف تدريجياً مع كل مهارة ودرس يتقنه الطالب.</p>
+        </div>
       </div>
-      <div class="callout"><h3>أصالة بصرية وهوية شامية صافية</h3><p>رسوم فنية أصيلة مستوحاة من البيئة السورية المتوسطية والمشرقية بعيداً عن الطابع الأجنبي؛ لتعزيز اعتزاز الطالب ببيئته وثقافته ولغته العربية.</p></div>
+      <div class="body">
+        <div class="cols">
+          <div class="box wide">
+            <span class="k">الحلقة الأساسية</span>
+            <h3>فتح العالم الكامل في كل صف</h3>
+            <p>في بداية كل صف دراسي يدخل الطالب إلى عالم غير مكتشف يغطيه الضباب. لا يستطيع سندباد وياسمينة الإبحار أو فتح الأقاليم إلا بحلّ تحدّيات المنهاج:</p>
+            <ul class="clean">
+              <li><b>فكّ شفرات الموانئ:</b> تطبيق قواعد اللغة العربية لحلّ ألغاز المخطوطات القديمة.</li>
+              <li><b>الملاحة الفلكية:</b> حلّ معادلات الرياضيات ومسائل الهندسة لتحديد مسار السفينة.</li>
+              <li><b>كيمياء الطبيعة والأحياء:</b> فهم مبادئ العلوم لصنع الأشرعة وتجاوز التيارات البحرية.</li>
+              <li><b>إتمام المستوى:</b> إزاحة الستار عن كامل خريطة الصف مع التمكّن من منهاجه.</li>
+            </ul>
+          </div>
+          <div class="box">
+            <span class="k">الموجّه التكيّفي</span>
+            <h3>رفيق الرحلة: هدهد</h3>
+            <ul class="clean">
+              <li><b>دعم دون وصاية:</b> تلميحات ذكية وشروحات مختصرة عند تعثّر الطالب.</li>
+              <li><b>مراجعة وتثبيت:</b> أسئلة استرجاع دورية مبنية على التكرار المتباعد.</li>
+              <li><b>صوت شامي أصيل:</b> فصحى راقية ومحبّبة تعزّز الانتماء اللغوي والحضاري.</li>
+            </ul>
+          </div>
+          <div class="box">
+            <span class="k">منحنى الصعوبة</span>
+            <h3>تطوّر التعقيد المتصاعد</h3>
+            <p>تتدرّج البيئة من قرية شاطئية بسيطة في الصف الأول إلى مسالك تجارية وإمبراطوريات بحرية متشابكة بحلول المرحلة الثانوية.</p>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- 5 — Plugin engine -->
-  <section class="slide" aria-roledescription="شريحة" aria-label="٥ من ٨">
-    <div class="card"><span class="num">٥</span>
-      <span class="kicker" style="--c:var(--blue)">الابتكار التقني الموزّع</span>
-      <h2>محرّك ألعاب الإضافات الحرّة (Plugin Mini-games)</h2>
-      <p class="sub">هيكلية برمجية مرنة تسمح للجميع بابتكار تحدّيات وألعاب تعليمية مصغّرة.</p>
-      <div class="grid">
-        <div class="tile" style="--c:var(--blue)"><h3><span class="ic">🧩</span>١. نواة اللعبة ومحرّك المغامرة</h3><p>محرّك مفتوح المصدر وخفيف (Godot Engine) يدير حفظ التقدّم محلياً، وحقيبة السندباد، ونقاط الخبرة والخرائط، دون الحاجة للاتصال بالإنترنت.</p></div>
-        <div class="tile" style="--c:var(--green)"><h3><span class="ic">🧰</span>٢. حزمة التطوير البرمجية (SDK)</h3><p>واجهة برمجية موحّدة تتيح لأي مبرمج أو استوديو مستقل بناء لعبة مصغّرة (كألعاب تركيب الجزيئات أو ألغاز الإعراب النحوي) وإدماجها بسهولة كـ Plugin.</p></div>
-        <div class="tile" style="--c:var(--purple)"><h3><span class="ic">🎲</span>٣. تنوّع أساليب وتجارب اللعب</h3><p>كسر الملل والنمطية، حيث تتنوّع الألعاب المصغّرة بين استراتيجية وبناء، ألغاز منطقية، وتجارب محاكاة فيزيائية، كلٌّ بحسب طبيعة المادة والصف.</p></div>
+  <!-- 03 Stages -->
+  <section class="section" id="stages" aria-labelledby="h-stages">
+    <div class="wrap">
+      <div class="head">
+        <div class="n">٠٣<small>التطوّر العمري والشخصيات</small></div>
+        <div>
+          <h2 id="h-stages">محطّات النموّ الأربع عبر الصفوف الاثني عشر</h2>
+          <p>نضج بصري وتربوي يعكس ملامح الطفل والشاب السوري وأصالته الثقافية.</p>
+        </div>
       </div>
-      <div class="tile" style="--c:var(--gold-deep);margin-top:14px"><h3><span class="ic">✅</span>مسار الدمج المعتمد: كيف تصبح لعبتك جزءاً من المغامرة الرسمية؟</h3>
-        <div class="path">
-          <div><i>أ</i><span><b>التطوير:</b> يبني المطوّر اللعبة المصغّرة وفق مخرجات تعلّم محدّدة من المنهاج.</span></div>
-          <div><i>ب</i><span><b>التدقيق الفنّي:</b> فحص الأداء البرمجي والتأكّد من خلوّها من الثغرات وخفّتها.</span></div>
-          <div><i>ج</i><span><b>الاعتماد التربوي:</b> إقرار نقابة المعلّمين السوريين وموافقتهم عليها قبل نشرها.</span></div>
-        </div></div>
+      <div class="body">
+        <div class="scroll-x">
+          <table class="table">
+            <thead><tr><th>المرحلة</th><th>الصفوف</th><th>الشخصية والمحتوى</th></tr></thead>
+            <tbody>
+              <tr><td>عمر ٦ سنوات<span class="role-name">الطفل المستكشف</span></td><td>١–٣</td><td>ملامح طفولية ولباس شامي بسيط (صدرية وقبعة نسيجية). يستكشف مع ياسمينة أزقّة حارته والميناء الصغير لتعلّم الحروف والأرقام والحساب البسيط.</td></tr>
+              <tr><td>عمر ١٠ سنوات<span class="role-name">البحّار الصغير</span></td><td>٤–٦</td><td>وشاح عملي وحزام جلدي بحافظة أدوات. يبحر في الجزر الساحلية ويتعلّم الكسور ومبادئ العلوم وتاريخ الشام.</td></tr>
+              <tr><td>عمر ١٤ سنة<span class="role-name">الربّان اليافع</span></td><td>٧–٩</td><td>يحمل أسطرلاباً وخريطة جلدية ويقود سفينته في أعالي البحار: تجارب علمية، جبر، وهندسة استعداداً لشهادة التعليم الأساسي.</td></tr>
+              <tr><td>عمر ١٨ سنة<span class="role-name">قائد الأسطول</span></td><td>١٠–١٢</td><td>شاب متمرّس بعباءة دمشقية، يدير شبكات تجارية وعلاقات دولية معقّدة، متقناً التفاضل والتكامل والفيزياء والفلسفة لنيل البكالوريا.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note note--accent">
+          <span class="tag">الهوية البصرية</span>
+          <div><h3>أصالة بصرية وهوية شامية صافية</h3><p>رسوم مستوحاة من البيئة السورية المتوسطية والمشرقية بعيداً عن الطابع الأجنبي، لتعزيز اعتزاز الطالب ببيئته وثقافته ولغته العربية.</p></div>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- 6 — Open source and sustainability -->
-  <section class="slide" aria-roledescription="شريحة" aria-label="٦ من ٨">
-    <div class="card"><span class="num">٦</span>
-      <span class="kicker" style="--c:var(--green)">النموذج المجتمعي والاستدامة</span>
-      <h2>مشروع حرّ ومفتوح المصدر: سواعد المتطوّعين ودعم الخوادم</h2>
-      <p class="sub">وقف معرفي وإنساني للجميع، خالٍ من أي غايات ربحية أو اشتراكات.</p>
-      <div class="grid">
-        <div class="tile" style="--c:var(--green)"><h3><span class="ic">🔓</span>١٠٠٪ حرّ ومفتوح المصدر (FOSS)</h3><ul>
-          <li><b>الكود مفتوح للجميع:</b> ترخيص كود المحرّك تحت رخص البرمجيات الحرّة (MIT / GPL).</li>
-          <li><b>مواد تعليمية مشاعة:</b> ترخيص المناهج والرسومات تحت رخص المشاع الإبداعي (CC-BY-SA).</li>
-          <li><b>أمان تام وخصوصية:</b> صفر جمع بيانات خاصة بالطلاب، ولا وجود للإعلانات أو المشتريات إطلاقاً.</li>
-          <li><b>استدامة أبدية:</b> المشروع محمي من التوقّف، حيث يمكن لأي جهة تنزيل النسخة وتشغيلها.</li></ul></div>
-        <div class="tile" style="--c:var(--blue)"><h3><span class="ic">🤝</span>سواعد المتطوّعين وتمويل البنية التحتية</h3><ul>
-          <li><b>تطوير قائم على التطوّع:</b> يبني الكود ويكتب السيناريوهات نخبة من المطوّرين والكتّاب المتطوّعين حول العالم.</li>
-          <li><b>تمويل الخوادم عبر التبرّعات:</b> تغطية نفقات خوادم توزيع الملفات وحزم التحديثات من خلال التبرّعات الشفافة والمنح غير المشروطة.</li>
-          <li><b>توزيع ندّي محلي (P2P):</b> تقليل الاعتماد على السيرفرات بتمكين الطلاب والمدارس من تناقل الحزم محلياً بدون تكلفة.</li></ul></div>
+  <!-- 04 Architecture -->
+  <section class="section alt" id="architecture" aria-labelledby="h-arch">
+    <div class="wrap">
+      <div class="head">
+        <div class="n">٠٤<small>الابتكار التقني الموزّع</small></div>
+        <div>
+          <h2 id="h-arch">محرّك ألعاب الإضافات الحرّة (Plugin Mini-games)</h2>
+          <p>هيكلية برمجية مرنة تتيح للجميع ابتكار تحدّيات وألعاب تعليمية مصغّرة.</p>
+        </div>
       </div>
-      <p class="quote" style="margin-top:16px">«ليس ملكاً لشركة أو جهة، بل هو جهد جماعي تصنعه طاقات حرّة ومخلصة ليبقى حقّ التعليم مكفولاً ومتاحاً لكل بيت.»</p>
+      <div class="body">
+        <div class="layers">
+          <div class="layer"><span class="idx">١</span><div><h3>نواة اللعبة ومحرّك المغامرة</h3><p>محرّك مفتوح المصدر وخفيف (Godot Engine) يدير حفظ التقدّم محلياً، وحقيبة السندباد، ونقاط الخبرة والخرائط، دون الحاجة للاتصال بالإنترنت.</p></div></div>
+          <div class="layer"><span class="idx">٢</span><div><h3>حزمة التطوير البرمجية (SDK)</h3><p>واجهة برمجية موحّدة تتيح لأي مبرمج أو استوديو مستقل بناء لعبة مصغّرة — كألعاب تركيب الجزيئات أو ألغاز الإعراب — وإدماجها بسهولة كإضافة (Plugin).</p></div></div>
+          <div class="layer"><span class="idx">٣</span><div><h3>تنوّع أساليب اللعب</h3><p>ألعاب مصغّرة متنوّعة بين الاستراتيجية والبناء والألغاز المنطقية والمحاكاة الفيزيائية، بحسب طبيعة المادة والصف، لكسر الملل والنمطية.</p></div></div>
+        </div>
+        <h3 class="subhead">مسار الدمج المعتمد</h3>
+        <p>كيف تصبح لعبة مصغّرة جزءاً من المغامرة الرسمية؟</p>
+        <div class="process">
+          <div><b>المرحلة أ</b><h4>التطوير</h4><p>يبني المطوّر اللعبة المصغّرة وفق مخرجات تعلّم محدّدة من المنهاج.</p></div>
+          <div><b>المرحلة ب</b><h4>التدقيق الفنّي</h4><p>فحص الأداء البرمجي والتأكّد من خلوّها من الثغرات وخفّتها.</p></div>
+          <div><b>المرحلة ج</b><h4>الاعتماد التربوي</h4><p>إقرار نقابة المعلّمين السوريين وموافقتهم قبل النشر.</p></div>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- 7 — Teachers -->
-  <section class="slide" aria-roledescription="شريحة" aria-label="٧ من ٨">
-    <div class="card"><span class="num">٧</span>
-      <span class="kicker" style="--c:var(--gold-deep)">حجر الزاوية التربوي</span>
-      <h2>نقابة المعلّمين السوريين: تدقيق تربوي بمكافآت مدفوعة</h2>
-      <p class="sub">صون كرامة المعلّم السوري وضمان دقّة المنهاج واعتماد الألعاب المصغّرة.</p>
-      <div class="grid">
-        <div class="tile" style="--c:var(--gold)"><h3><span class="ic">💛</span>لماذا تُدفع المكافآت للمعلّمين؟</h3>
-          <p>بينما يتطوّع المبرمجون والتقنيون بجهودهم، فإن المعلّم السوري في الداخل ودول اللجوء يواجه ظروفاً اقتصادية بالغة القسوة. نرى أن واجبنا الأخلاقي والمهني يقتضي:</p>
-          <ul>
-            <li><b>تعويض مالي عادل:</b> تخصيص مكافآت مالية مباشرة ومحترمة لكل مراجعة وتدقيق لأي لعبة مصغّرة أو مهمّة تعليمية.</li>
-            <li><b>استدامة التركيز والجودة:</b> ضمان تفرّغ المعلّم لتدقيق المادة العلمية بدقّة وأمانة بدلاً من إثقاله بطلب التطوّع المرهق.</li>
-            <li><b>دعم صمود المربّين:</b> المساهمة في تأمين دخل كريم للمعلّمين الذين يحملون أمانة الأجيال.</li>
-          </ul></div>
-        <div class="tile" style="--c:var(--green)"><h3><span class="ic">📋</span>صلاحيات ومهام هيئة المعلّمين</h3><ul>
-          <li><b>تفكيك المنهاج:</b> صياغة أهداف الوحدات المدرسية إلى تحدّيات ومسارات قابلة للبرمجة.</li>
-          <li><b>حقّ النقض والاعتماد:</b> لن يتم دمج أي لعبة مصغّرة أو إتاحتها للطلاب دون توقيع معلّم مختص.</li>
-          <li><b>مواءمة أسئلة الامتحانات:</b> ضمان تدريب الطلاب على نمط وطبيعة أسئلة شهادتي الإعدادية والبكالوريا.</li>
-          <li><b>مراعاة الفروق الفردية:</b> فحص مستوى الصعوبة وسلاسة الشروحات والإرشادات المساعدة.</li></ul></div>
+  <!-- 05 Community model -->
+  <section class="section" id="model" aria-labelledby="h-model">
+    <div class="wrap">
+      <div class="head">
+        <div class="n">٠٥<small>النموذج المجتمعي والاستدامة</small></div>
+        <div>
+          <h2 id="h-model">مشروع حرّ ومفتوح المصدر</h2>
+          <p>وقف معرفي وإنساني للجميع، خالٍ من أي غايات ربحية أو اشتراكات.</p>
+        </div>
       </div>
-      <div class="callout"><h3>🏦 صندوق دعم المراجعين</h3><p>تُوجَّه أموال التبرّعات والمنح ذات الأولوية الأولى لتغطية مكافآت تدقيق المعلّمين بانتظام وشفافية كاملة.</p></div>
+      <div class="body">
+        <div class="cols">
+          <div class="box">
+            <span class="k">المبادئ</span>
+            <h3>١٠٠٪ حرّ ومفتوح المصدر (FOSS)</h3>
+            <ul class="clean">
+              <li><b>الكود مفتوح للجميع:</b> رخص البرمجيات الحرّة (MIT / GPL).</li>
+              <li><b>مواد تعليمية مشاعة:</b> المناهج والرسومات تحت رخصة المشاع الإبداعي (CC-BY-SA).</li>
+              <li><b>أمان وخصوصية:</b> صفر جمع بيانات عن الطلاب، ولا إعلانات ولا مشتريات إطلاقاً.</li>
+              <li><b>استدامة أبدية:</b> يمكن لأي جهة تنزيل النسخة وتشغيلها، فالمشروع محمي من التوقّف.</li>
+            </ul>
+          </div>
+          <div class="box">
+            <span class="k">الموارد</span>
+            <h3>المتطوّعون وتمويل البنية التحتية</h3>
+            <ul class="clean">
+              <li><b>تطوير تطوّعي:</b> يبني الكود ويكتب السيناريوهات مطوّرون وكتّاب متطوّعون حول العالم.</li>
+              <li><b>تمويل الخوادم بالتبرّعات:</b> نفقات توزيع الملفات والتحديثات تُغطّى بتبرّعات شفافة ومنح غير مشروطة.</li>
+              <li><b>توزيع ندّي محلي (P2P):</b> يتناقل الطلاب والمدارس الحزم محلياً دون تكلفة، فيقلّ الاعتماد على الخوادم.</li>
+            </ul>
+          </div>
+        </div>
+        <blockquote class="quote" style="margin:40px 0 0">«ليس ملكاً لشركة أو جهة، بل جهد جماعي تصنعه طاقات حرّة ومخلصة ليبقى حقّ التعليم مكفولاً ومتاحاً لكل بيت.»</blockquote>
+      </div>
     </div>
   </section>
 
-  <!-- 8 — Call to contributors -->
-  <section class="slide" aria-roledescription="شريحة" aria-label="٨ من ٨">
-    <div class="card"><span class="num">٨</span>
-      <span class="kicker" style="--c:var(--rose)">انضمّ إلى الرحلة</span>
-      <h2>نداء إلى كل المبدعين: معاً نبني أمل الأجيال القادمة</h2>
-      <p class="sub">شريحة جامعة لكل المبرمجين، والرسّامين، وصنّاع الألعاب، والمعلّمين للمساهمة في المشروع.</p>
-      <div class="grid grid--4">
-        <div class="tile" style="--c:var(--blue)"><span class="tag">محرّك ألعاب وبنية خفيفة</span><h3><span class="ic">💻</span>المبرمجون والمطوّرون</h3><ul>
-          <li>بناء محرّك خفيف للغاية يعمل على هواتف بذاكرة 2GB.</li>
-          <li>تطوير حزم الإضافات البرمجية ومزامنة التقدّم دون إنترنت.</li>
-          <li>برمجة أنظمة التبادل المحلي للبيانات والدروس عبر P2P و Bluetooth.</li></ul></div>
-        <div class="tile" style="--c:var(--red)"><span class="tag">هوية شامية وعوالم غنية</span><h3><span class="ic">🎨</span>الرسّامون ومصمّمو البيئات</h3><ul>
-          <li>رسم سندباد وياسمينة بمراحلهما العمرية الأربع بأصالة مشرقية.</li>
-          <li>تصميم أزقّة دمشق وحلب، موانئ اللاذقية، وبحار وأساطيل الشرق.</li>
-          <li>رسم واجهات استخدام عربية بديهية ومريحة لعين الطفل.</li></ul></div>
-        <div class="tile" style="--c:var(--gold)"><span class="tag">حكايا وألعاب مصغّرة ممتعة</span><h3><span class="ic">📖</span>صنّاع الألعاب والمؤلّفون</h3><ul>
-          <li>ابتكار ألعاب مصغّرة مستقلة لكل فكرة ومفهوم علمي أو لغوي.</li>
-          <li>كتابة نصوص سردية مشوّقة وألغاز أسطورية تتكامل مع المنهاج.</li>
-          <li>تصميم آليات التحدّي والتحفيز والمكافآت التفاعلية.</li></ul></div>
-        <div class="tile" style="--c:var(--green)"><span class="tag">تدقيق تربوي بمكافآت مدفوعة</span><h3><span class="ic">🍎</span>المعلّمون والمعلّمات</h3><ul>
-          <li>صياغة أهداف المنهاج ومطابقتها مع المهام والأسئلة.</li>
-          <li>مراجعة الألعاب المصغّرة واعتمادها تربوياً وعلمياً.</li>
-          <li>مكافآت مالية مباشرة لكل لعبة ومهمّة يتم تدقيقها.</li></ul></div>
+  <!-- 06 Pedagogical review -->
+  <section class="section alt" id="review" aria-labelledby="h-review">
+    <div class="wrap">
+      <div class="head">
+        <div class="n">٠٦<small>حجر الزاوية التربوي</small></div>
+        <div>
+          <h2 id="h-review">نقابة المعلّمين السوريين: تدقيق تربوي بمكافآت مدفوعة</h2>
+          <p>صون كرامة المعلّم السوري، وضمان دقّة المنهاج، واعتماد الألعاب المصغّرة.</p>
+        </div>
       </div>
-      <div class="callout callout--gold" style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;justify-content:space-between">
-        <div><h3>مستودع المشروع</h3><p>الكود، والمحتوى، وقائمة المهام المفتوحة — ساهم معنا.</p></div>
-        <a class="btn" href="https://github.com/shibl/sindibad" target="_blank" rel="noopener">⭐ github.com/shibl/sindibad</a>
+      <div class="body">
+        <div class="cols">
+          <div class="box">
+            <span class="k">المبرّر</span>
+            <h3>لماذا تُدفع المكافآت للمعلّمين؟</h3>
+            <p>بينما يتطوّع المبرمجون والتقنيون بجهودهم، يواجه المعلّم السوري في الداخل ودول اللجوء ظروفاً اقتصادية بالغة القسوة. واجبنا الأخلاقي والمهني يقتضي:</p>
+            <ul class="clean">
+              <li><b>تعويض مالي عادل</b> لكل مراجعة وتدقيق للعبة مصغّرة أو مهمّة تعليمية.</li>
+              <li><b>استدامة التركيز والجودة:</b> تفرّغ المعلّم للتدقيق بدقّة وأمانة بدل إثقاله بتطوّع مرهق.</li>
+              <li><b>دعم صمود المربّين</b> الذين يحملون أمانة الأجيال.</li>
+            </ul>
+          </div>
+          <div class="box">
+            <span class="k">الحوكمة</span>
+            <h3>صلاحيات هيئة المعلّمين ومهامها</h3>
+            <ul class="clean">
+              <li><b>تفكيك المنهاج:</b> تحويل أهداف الوحدات إلى تحدّيات ومسارات قابلة للبرمجة.</li>
+              <li><b>حقّ النقض والاعتماد:</b> لا تُدمج أي لعبة مصغّرة دون توقيع معلّم مختص.</li>
+              <li><b>مواءمة أسئلة الامتحانات:</b> على نمط شهادتي التعليم الأساسي والبكالوريا.</li>
+              <li><b>مراعاة الفروق الفردية:</b> ضبط مستوى الصعوبة وسلاسة الشروحات.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="note">
+          <span class="tag">صندوق دعم المراجعين</span>
+          <div><h3>الأولوية الأولى للتمويل</h3><p>تُوجَّه أموال التبرّعات والمنح أولاً لتغطية مكافآت تدقيق المعلّمين بانتظام وشفافية كاملة.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 Contribute -->
+  <section class="section" id="contribute" aria-labelledby="h-contrib">
+    <div class="wrap">
+      <div class="head">
+        <div class="n">٠٧<small>انضمّ إلى الرحلة</small></div>
+        <div>
+          <h2 id="h-contrib">دعوة للمساهمة: معاً نبني أمل الأجيال القادمة</h2>
+          <p>للمبرمجين، والرسّامين، وصنّاع الألعاب، والمعلّمين.</p>
+        </div>
+      </div>
+      <div class="roles">
+        <div class="role"><h3>المبرمجون والمطوّرون</h3><p class="sub">محرّك ألعاب وبنية خفيفة</p><ul class="clean">
+          <li>محرّك خفيف للغاية يعمل على هواتف بذاكرة 2GB.</li>
+          <li>حزم الإضافات البرمجية ومزامنة التقدّم دون إنترنت.</li>
+          <li>تبادل البيانات والدروس محلياً عبر P2P والبلوتوث.</li></ul></div>
+        <div class="role"><h3>الرسّامون ومصمّمو البيئات</h3><p class="sub">هوية شامية وعوالم غنية</p><ul class="clean">
+          <li>رسم سندباد وياسمينة بمراحلهما العمرية الأربع.</li>
+          <li>أزقّة دمشق وحلب، موانئ اللاذقية، وبحار الشرق.</li>
+          <li>واجهات عربية بديهية ومريحة لعين الطفل.</li></ul></div>
+        <div class="role"><h3>صنّاع الألعاب والمؤلّفون</h3><p class="sub">حكايا وألعاب مصغّرة</p><ul class="clean">
+          <li>ألعاب مصغّرة مستقلة لكل فكرة ومفهوم.</li>
+          <li>نصوص سردية وألغاز تتكامل مع المنهاج.</li>
+          <li>آليات التحدّي والتحفيز والمكافآت.</li></ul></div>
+        <div class="role"><h3>المعلّمون والمعلّمات</h3><p class="sub">تدقيق تربوي بمكافآت مدفوعة</p><ul class="clean">
+          <li>صياغة أهداف المنهاج ومطابقتها مع المهام.</li>
+          <li>مراجعة الألعاب المصغّرة واعتمادها.</li>
+          <li>مكافأة مالية مباشرة لكل مهمّة تُدقَّق.</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta" aria-label="روابط المشروع">
+    <div class="wrap">
+      <div>
+        <h2>الكود والمحتوى متاحان للجميع</h2>
+        <p>النموذج الأول (الصف السادس) قابل للتجربة الآن في المتصفّح ويعمل دون إنترنت. المستودع يضمّ المواصفات وقائمة المهام المفتوحة.</p>
+      </div>
+      <div class="links">
+        <a class="btn btn--primary" href="https://github.com/shibl/sindibad" target="_blank" rel="noopener">github.com/shibl/sindibad</a>
+        <a class="btn" href="./">جرّب النموذج</a>
       </div>
     </div>
   </section>
 </main>
 
-<nav class="nav" aria-label="التنقّل بين الشرائح">
-  <button class="btn btn--round" id="prev" aria-label="الشريحة السابقة">→</button>
-  <div class="dots" id="dots"></div>
-  <span class="count" id="count" aria-live="polite"></span>
-  <button class="btn btn--round" id="next" aria-label="الشريحة التالية">←</button>
-</nav>
+<footer>
+  <div class="wrap">
+    <span>رحلات سندباد وياسمينة — الكود: MIT / GPL • المحتوى والرسوم: CC-BY-SA</span>
+    <span><a href="docs/original-project-brief.pdf">وثيقة المشروع الأصلية (PDF)</a></span>
+  </div>
+</footer>
 
-<script type="module">
-import { heroSVG, hudhudSVG, defsSVG } from './art/art.js';
-
-// The game's art (shared SVG defs first, then each piece).
-document.body.insertAdjacentHTML('afterbegin', `<div hidden>${defsSVG()}</div>`);
-document.querySelectorAll('[data-art]').forEach(el => {
-  const kind = el.dataset.art;
-  el.innerHTML = kind === 'hudhud' ? hudhudSVG() : heroSVG(kind === 'yasmina' ? 'yasmina' : 'sindbad');
-});
-
-const deck = document.getElementById('deck');
-const slides = [...deck.querySelectorAll('.slide')];
-const dots = document.getElementById('dots');
-const count = document.getElementById('count');
-const ar = n => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
-let current = 0;
-
-dots.innerHTML = slides.map((_, i) => `<button aria-label="الشريحة ${ar(i + 1)}"></button>`).join('');
-const go = i => { i = Math.max(0, Math.min(slides.length - 1, i)); slides[i].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); };
-dots.onclick = e => { const b = e.target.closest('button'); if (b) go([...dots.children].indexOf(b)); };
-document.getElementById('prev').onclick = () => go(current - 1);
-document.getElementById('next').onclick = () => go(current + 1);
-document.addEventListener('keydown', e => {
-  // RTL: the next slide is to the left.
-  if (e.key === 'ArrowLeft' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); go(current + 1); }
-  if (e.key === 'ArrowRight' || e.key === 'PageUp') { e.preventDefault(); go(current - 1); }
-  if (e.key === 'Home') go(0);
-  if (e.key === 'End') go(slides.length - 1);
-});
-
-function setCurrent(i) {
-  current = i;
-  slides.forEach((s, k) => s.classList.toggle('is-current', k === i));
-  [...dots.children].forEach((d, k) => d.setAttribute('aria-current', k === i));
-  count.textContent = `${ar(i + 1)} / ${ar(slides.length)}`;
-  document.getElementById('prev').disabled = i === 0;
-  document.getElementById('next').disabled = i === slides.length - 1;
-  history.replaceState(null, '', `#${i + 1}`);
-}
-const io = new IntersectionObserver(entries => {
-  for (const en of entries) if (en.isIntersecting) setCurrent(slides.indexOf(en.target));
-}, { root: deck, threshold: 0.6 });
-// Open at a slide from the address (#1 … #8), read before anything rewrites it.
-const start = Math.min(Math.max(parseInt(location.hash.slice(1), 10) || 1, 1), slides.length);
-setCurrent(start - 1);
-if (start > 1) slides[start - 1].scrollIntoView({ inline: 'center', block: 'nearest' });
-slides.forEach(s => io.observe(s));
+<script>
+// Theme toggle (remembered in this browser) and highlighting the section in view.
+(() => {
+  const root = document.documentElement;
+  try { const t = localStorage.getItem('sindbad.aboutTheme'); if (t) root.dataset.theme = t; } catch { /* ignore */ }
+  document.getElementById('theme').addEventListener('click', () => {
+    const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    root.dataset.theme = dark ? 'light' : 'dark';
+    try { localStorage.setItem('sindbad.aboutTheme', root.dataset.theme); } catch { /* ignore */ }
+  });
+  const links = [...document.querySelectorAll('.top nav a')];
+  const io = new IntersectionObserver(entries => {
+    for (const e of entries) if (e.isIntersecting) links.forEach(a => a.classList.toggle('is-on', a.getAttribute('href') === `#${e.target.id}`));
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  document.querySelectorAll('.section[id]').forEach(s => io.observe(s));
+})();
 </script>
 </body>
 </html>
