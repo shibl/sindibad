@@ -2,7 +2,7 @@
 // a child, and the parents' page (لوحة الأهل) behind a simple adult check.
 // Everything stays on the device.
 
-import { heroSVG, HEROES } from '../art/art.js';
+import { heroSVG, hudhudSVG, HEROES } from '../art/art.js';
 import { save, profileList, activeProfile, profileSave, createProfile, switchProfile, deleteProfile } from './save.js';
 import { allTopics } from './topics.js';
 import { sfx } from './sound.js';
@@ -20,6 +20,7 @@ export function initFamily({ worldDef, showScreen }) {
 
 export function renderWho(el) {
   const list = profileList();
+  if (!list.length) { renderFirstName(el); return; }
   el.innerHTML = `
     <h3 class="who__title">مَن سيبحر اليوم؟</h3>
     <div class="who__grid">
@@ -57,6 +58,29 @@ export function renderWho(el) {
     e.preventDefault();
     const name = el.querySelector('#child-name').value.trim();
     if (!name) return;
+    createProfile(name);
+    bootInto('select');
+  };
+}
+
+// A brand-new device: Hudhud asks the child's name straight away.
+function renderFirstName(el) {
+  el.innerHTML = `
+    <div class="first-name">
+      <div class="first-name__bird">${hudhudSVG()}</div>
+      <p class="bubble first-name__bubble">أهلاً بك في الميناء! أنا <b>هُدهُد</b>. قبل أن نُبحر… <b>ما اسمك؟</b></p>
+      <form class="first-name__form" id="who-form">
+        <input id="child-name" maxlength="20" autocomplete="off" placeholder="اكتب اسمك هنا" required aria-label="اسمك">
+        <button class="btn btn--gold btn--big" type="submit">هذا اسمي ←</button>
+      </form>
+    </div>`;
+  const input = el.querySelector('#child-name');
+  setTimeout(() => input.focus(), 300);
+  el.querySelector('#who-form').onsubmit = e => {
+    e.preventDefault();
+    const name = input.value.trim();
+    if (!name) { input.classList.remove('shake'); void input.offsetWidth; input.classList.add('shake'); return; }
+    sfx.good();
     createProfile(name);
     bootInto('select');
   };
