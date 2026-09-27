@@ -68,6 +68,8 @@ export function initOverworld({ startLesson, leave }) {
     dlg: document.getElementById('dialog'),
     popup: document.getElementById('item-popup'),
     hint: document.getElementById('island-hint'),
+    banner: document.getElementById('isle-banner'),
+    tut: document.getElementById('walk-tut'),
   };
   ctx = els.canvas.getContext('2d');
   new ResizeObserver(resize).observe(els.canvas);
@@ -126,7 +128,7 @@ const questDone = q => (q.fetch ? state.items.includes(q.fetch) : (save.get().to
 
 // ---------- Enter / leave ----------
 
-export function enterIsland(def) {
+export function enterIsland(def, region) {
   island = def;
   state = islandState(def.id);
   els.name.textContent = def.name;
@@ -143,11 +145,42 @@ export function enterIsland(def) {
   buildGround();
   updateHud();
   if (!running) { running = true; last = performance.now(); requestAnimationFrame(loop); }
+  showBanner(def, region);
   // First visit: the fisherman calls out.
   if (!state.met.includes('arrival')) {
     state.met.push('arrival'); persist();
-    setTimeout(() => showHint(`اقترب من <b>${def.people[0].name}</b> واضغط ✋ للتحدّث`), 600);
+    setTimeout(() => showHint(`اقترب من <b>${def.people[0].name}</b> واضغط ✋ للتحدّث`), 2600);
   }
+  // Very first island ever: show how to walk until the child moves.
+  let tutSeen = false;
+  try { tutSeen = !!localStorage.getItem('sindbad.walked'); } catch { /* ignore */ }
+  if (!tutSeen) setTimeout(() => { if (island === def && !walked) els.tut.hidden = false; }, 2400);
+}
+
+// A big title card as the hero steps ashore: island name, subject and how
+// many golden tokens are already collected.
+let bannerTimer;
+function showBanner(def, region) {
+  const have = def.tokens.filter(t => state.letters.includes(t)).length;
+  els.banner.innerHTML = `
+    ${region ? `<small style="--c:${region.color}">${region.subject}</small>` : ''}
+    <b>${def.name}</b>
+    <span>${def.tokens.map(t => `<i class="${state.letters.includes(t) ? 'on' : ''}">${t}</i>`).join('')}</span>
+    <em>${have === def.tokens.length ? 'أكملت هذه الجزيرة! ✔' : `${def.tokenName}: ${have} / ${def.tokens.length}`.replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d])}</em>`;
+  els.banner.hidden = false;
+  els.banner.classList.remove('is-out'); void els.banner.offsetWidth;
+  clearTimeout(bannerTimer);
+  bannerTimer = setTimeout(() => els.banner.classList.add('is-out'), 2200);
+  els.banner.onanimationend = e => { if (e.animationName === 'banner-out') els.banner.hidden = true; };
+}
+
+// Called the first time the player actually moves.
+let walked = false;
+function markWalked() {
+  if (walked) return;
+  walked = true;
+  els.tut.hidden = true;
+  try { localStorage.setItem('sindbad.walked', '1'); } catch { /* ignore */ }
 }
 
 function leaveIsland() {
@@ -305,6 +338,7 @@ function update(dt) {
   const len = Math.hypot(dx, dy);
   player.moving = len > 0.01;
   if (player.moving) {
+    if (!walked) markWalked();
     const sp = SPEED * Math.min(1, len) / (len > 1 ? len : 1);
     const mx = dx * sp * dt, my = dy * sp * dt;
     if (!hits(player.x + mx, player.y)) player.x += mx;

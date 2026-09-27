@@ -200,7 +200,7 @@ let lessonFromIsland = false;
 initMap(document.getElementById('map'), world, {
   openTopic: startLesson,
   islands: ISLANDS,
-  enterIsland: id => { showScreen('island'); enterIsland(ISLANDS[id]); place = id; playMusic(id); },
+  enterIsland: id => { showScreen('island'); enterIsland(ISLANDS[id], world.regions.find(r => r.id === id)); place = id; playMusic(id); },
 });
 initOverworld({
   startLesson: (id, host) => { lessonFromIsland = true; startLesson(id, { host }); },
@@ -240,4 +240,4 @@ if (save.get().hero && profileList().length <= 1) {
 }
 
 // Test hook: lets headless tests read the hero's position on an island.
-if (window.__SINDBAD_TEST__) Object.assign(window, { __island: debugState, __blocked: debugBlocked, __place: debugPlace });
+if (window.__SINDBAD_TEST__) Object.assign(window, { __island: debugState, __blocked: debugBlocked, __place: debugPlace, __lesson: startLesson });

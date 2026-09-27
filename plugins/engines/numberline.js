@@ -7,12 +7,12 @@
 //           labels: [[0,'٠'], [1,'١']], hint, explain }]
 // A tap counts if it lands within half a tick of the value.
 
-import { runRounds, pick, h, TEST } from './kit.js';
+import { runRounds, draw, h, TEST } from './kit.js';
 
 export function numberline({ items, count = 7, intro }) {
   return (container, onComplete, ctx) => {
     runRounds({
-      container, ctx, items: pick(items, count), onComplete, intro,
+      container, ctx, items: draw(ctx, items, count), onComplete, intro,
       renderRound(item, round, stage) {
         const { min = 0, max = 1, ticks = 10 } = item;
         stage.append(h(`<p class="prompt">أوصِل القارب إلى العدد <span class="target">${item.label}</span></p>`));

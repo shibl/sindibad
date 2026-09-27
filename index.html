@@ -92,6 +92,7 @@
       <button class="btn btn--round" data-go="journey" aria-label="رحلتي" id="hero-btn"></button>
       <h2>الصف السادس</h2>
       <span class="stars-badge" title="النجوم">★ <span id="stars-total">٠</span></span>
+      <span class="stars-badge streak-pill" id="streak-pill" title="هدف اليوم: ٣ دروس">🔥 <span id="streak-n">٠</span></span>
       <button class="stars-badge pearl-btn" id="pearl-btn" title="سوق الميناء">🦪 <span id="pearl-total">٠</span></button>
       <button class="btn btn--round" id="mute-btn" aria-label="الصوت">🔊</button>
     </header>
@@ -114,6 +115,11 @@
       <span class="hud-pill" title="اللآلئ">🦪 <b id="pearl-count">٠</b></span>
     </header>
     <p class="island-hint" id="island-hint" hidden></p>
+    <div class="isle-banner" id="isle-banner" hidden aria-live="polite"></div>
+    <div class="walk-tut" id="walk-tut" hidden aria-hidden="true">
+      <div class="walk-tut__hand">👆</div>
+      <p>اسحب إصبعك في أي مكان لتمشي<br><small>أو اضغط على المكان الذي تريد الذهاب إليه</small></p>
+    </div>
     <div class="joy" id="joy" hidden aria-hidden="true"><div class="joy__knob"></div></div>
     <button class="act-btn" id="act-btn" hidden><b>✋</b><span></span></button>
     <div class="dialog" id="dialog" hidden role="dialog" aria-live="polite">

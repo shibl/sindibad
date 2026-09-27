@@ -7,6 +7,7 @@ import { save, profileList, activeProfile, profileSave, createProfile, switchPro
 import { allTopics } from './topics.js';
 import { sfx } from './sound.js';
 import { num } from './format.js';
+import { streak, todayLessons, DAILY_GOAL } from './lesson.js';
 
 let world, show;
 
@@ -102,11 +103,12 @@ export function renderParents(el) {
   const hero = s.hero || 'sindbad';
   const child = prof?.name || HEROES[hero].name;
   const topics = allTopics().filter(t => world.regions.some(r => r.id === t.region));
-  const rec = id => s.topics[id] || null;
+  const rec = id => (s.topics[id]?.plays ? s.topics[id] : null);
   const mastered = topics.filter(t => (rec(t.id)?.stars || 0) >= 3);
   const started = topics.filter(t => rec(t.id));
   const weak = topics.filter(t => rec(t.id) && (rec(t.id).best || 0) < 0.7);
   const due = topics.filter(t => s.review?.[t.id]?.due <= Date.now());
+  const missedTotal = topics.reduce((a, t) => a + (s.topics[t.id]?.missed?.length || 0), 0);
 
   // Last 7 days of play, oldest first.
   const days = Array.from({ length: 7 }, (_, i) => {
@@ -131,6 +133,8 @@ export function renderParents(el) {
         <div class="p-tile"><b>${num(mastered.length)}<i>/${num(topics.length)}</i></b><small>دروس أُتقنت (★★★)</small></div>
         <div class="p-tile"><b>${num(started.length)}</b><small>دروس بدأها</small></div>
         <div class="p-tile ${due.length ? 'p-tile--warn' : ''}"><b>${num(due.length)}</b><small>مراجعات مستحقة</small></div>
+        <div class="p-tile"><b>🔥 ${num(streak(s))}</b><small>أيام متتالية • اليوم ${num(todayLessons(s))}/${num(DAILY_GOAL)} دروس</small></div>
+        <div class="p-tile"><b>${num(missedTotal)}</b><small>أسئلة أخطأ فيها ويعيد التدرّب عليها</small></div>
       </section>
 
       <section>
@@ -146,8 +150,8 @@ export function renderParents(el) {
           const list = topics.filter(t => t.region === r.id);
           return `<details class="p-subject" style="--region:${r.color}">
             <summary><b>${r.subject}</b><span class="p-stars">${list.map(t => '★'.repeat(rec(t.id)?.stars || 0) + '☆'.repeat(3 - (rec(t.id)?.stars || 0))).join(' ')}</span></summary>
-            <table class="p-table"><thead><tr><th>الدرس</th><th>النجوم</th><th>أفضل نتيجة</th><th>مرات</th></tr></thead><tbody>
-            ${list.map(t => { const x = rec(t.id); return `<tr><td>${t.icon} ${t.title}</td><td>${x ? '★'.repeat(x.stars) || '—' : '—'}</td><td>${x ? `${num(Math.round((x.best || 0) * 100))}٪` : 'لم يبدأ'}</td><td>${num(x?.plays || 0)}</td></tr>`; }).join('')}
+            <table class="p-table"><thead><tr><th>الدرس</th><th>النجوم</th><th>أفضل نتيجة</th><th>مرات</th><th>للمراجعة</th></tr></thead><tbody>
+            ${list.map(t => { const x = rec(t.id); return `<tr><td>${t.icon} ${t.title}</td><td>${x ? '★'.repeat(x.stars) || '—' : '—'}</td><td>${x ? `${num(Math.round((x.best || 0) * 100))}٪` : 'لم يبدأ'}</td><td>${num(x?.plays || 0)}</td><td>${x?.missed?.length ? num(x.missed.length) : '—'}</td></tr>`; }).join('')}
             </tbody></table>
           </details>`;
         }).join('')}

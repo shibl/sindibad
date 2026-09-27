@@ -5,12 +5,12 @@
 // items: [{ words: ['كتبَ', 'الطالبُ', 'الدرسَ'], ask: 'الفاعل', answer: 1,
 //           hint, explain }]
 
-import { runRounds, pick, h, TEST } from './kit.js';
+import { runRounds, draw, h, TEST } from './kit.js';
 
 export function tapword({ items, count = 8, intro }) {
   return (container, onComplete, ctx) => {
     runRounds({
-      container, ctx, items: pick(items, count), onComplete, intro,
+      container, ctx, items: draw(ctx, items, count), onComplete, intro,
       renderRound(item, round, stage) {
         stage.append(h(`<p class="prompt">اضغط على <b class="ask">${item.ask}</b> في الجملة:</p>`));
         const line = h('<div class="sentence" dir="rtl"></div>');

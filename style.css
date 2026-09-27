@@ -1166,3 +1166,44 @@ body[data-screen="island"] #scene, body[data-screen="journey"] #scene { visibili
 /* Shape figures in maths questions */
 .shape-fig { display: block; width: min(100%, 220px); margin: 0 auto 6px; overflow: visible; }
 .fig-t { font: 800 16px "Baloo Bhaijaan 2", sans-serif; fill: var(--ink); text-anchor: middle; }
+
+/* Daily streak pill on the map: 🔥 days in a row, with a small bar that
+   fills as today's lessons reach the daily goal. */
+.streak-pill { position: relative; color: #d9541e; padding-inline: 10px; }
+.streak-pill::after {
+  content: ''; position: absolute; inset-inline: 10px; bottom: 5px; height: 4px; border-radius: 4px;
+  background: linear-gradient(to left, #f08a24 var(--goal, 0%), #e6dcc4 0);
+}
+.streak-pill.is-cold { color: #8a8a8a; filter: grayscale(.8); }
+.streak-pill.is-done { background: #fff1c9; animation: glow 2.4s ease-in-out infinite; }
+@keyframes glow { 50% { box-shadow: 0 4px 0 var(--ink), 0 0 16px 4px #ffb347; } }
+.result__goal { margin: 4px 0 0; padding: 6px 10px; border-radius: 12px; background: #fff1c9; color: #a4481a; font-weight: 800; }
+
+/* Island arrival title card. */
+.isle-banner {
+  position: absolute; top: 22%; left: 50%; z-index: 6; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: min(86vw, 360px);
+  padding: 14px 26px 16px; pointer-events: none; text-align: center;
+  background: linear-gradient(#fff8e6, #f6e3b4); border: 4px solid var(--ink); border-radius: 22px;
+  box-shadow: 0 8px 0 var(--ink), 0 18px 40px rgba(0,0,0,.35);
+  animation: banner-in .6s cubic-bezier(.2, .9, .3, 1.4) both;
+}
+.isle-banner.is-out { animation: banner-out .5s ease-in forwards; }
+.isle-banner small { font-weight: 800; color: #fff; background: var(--c, var(--sea)); padding: 2px 14px; border-radius: 999px; font-size: 15px; }
+.isle-banner b { font-size: clamp(28px, 8vw, 42px); line-height: 1.15; color: var(--ink); }
+.isle-banner span { display: flex; gap: 6px; direction: rtl; }
+.isle-banner i { font-style: normal; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; border: 3px dashed #b99a5b; color: #b99a5b; font-weight: 800; font-size: 18px; opacity: .6; }
+.isle-banner i.on { border: 3px solid var(--ink); background: radial-gradient(#ffe38a, #f2b21e); color: var(--ink); opacity: 1; }
+.isle-banner em { font-style: normal; font-size: 14px; color: #6a5530; font-weight: 800; }
+@keyframes banner-in { from { opacity: 0; transform: translateX(-50%) translateY(-30px) scale(.8); } }
+@keyframes banner-out { to { opacity: 0; transform: translateX(-50%) translateY(-20px) scale(.9); } }
+
+/* First-time walking tutorial. */
+.walk-tut {
+  position: absolute; left: 50%; bottom: 18%; z-index: 5; transform: translateX(-50%); pointer-events: none;
+  display: flex; flex-direction: column; align-items: center; gap: 6px; width: min(88vw, 380px); text-align: center;
+}
+.walk-tut p { margin: 0; padding: 10px 16px; border-radius: 16px; background: rgba(26, 35, 50, .82); color: #fff; font-weight: 800; font-size: 18px; line-height: 1.4; }
+.walk-tut small { font-size: 14px; font-weight: 500; opacity: .9; }
+.walk-tut__hand { font-size: 46px; filter: drop-shadow(0 3px 0 rgba(0,0,0,.4)); animation: swipe 1.8s ease-in-out infinite; }
+@keyframes swipe { 0%, 100% { transform: translate(40px, 0) rotate(-10deg); } 50% { transform: translate(-40px, -10px) rotate(10deg); } }

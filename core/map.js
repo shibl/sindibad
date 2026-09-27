@@ -3,6 +3,7 @@
 // Tapping an unlocked island sails there and opens its panel of topics.
 
 import { islandSVG, shipSVG, compassSVG, whaleSVG, cloudSVG, hudhudSVG, medalSVG, g } from '../art/art.js';
+import { streak, todayLessons, DAILY_GOAL } from './lesson.js';
 import { save } from './save.js';
 import { topicsIn, getTopic } from './topics.js';
 import { sfx } from './sound.js';
@@ -206,6 +207,12 @@ export async function enter(after) {
     return;
   }
   const due = dueReviews();
+  if (!todayLessons() && streak() > 0 && !reviewNagged) {
+    reviewNagged = true;
+    await wait(600);
+    toast(`🔥 سلسلتك ${num(streak())} ${streak() === 1 ? 'يوم' : 'أيام'}! أنهِ درساً اليوم كي لا تنطفئ النار. هدف اليوم: ${num(DAILY_GOAL)} دروس.`, 6000);
+    return;
+  }
   if (due.length && !reviewNagged) {
     reviewNagged = true;
     await wait(600);
@@ -221,6 +228,15 @@ function updateStarsBadge() {
   if (badge) badge.textContent = `${num(stars)} / ${num(max)}`;
   const pearlEl = document.getElementById('pearl-total');
   if (pearlEl) pearlEl.textContent = num(save.get().pearls || 0);
+  const pill = document.getElementById('streak-pill');
+  if (pill) {
+    const today = Math.min(todayLessons(), DAILY_GOAL);
+    document.getElementById('streak-n').textContent = num(streak());
+    pill.style.setProperty('--goal', `${(today / DAILY_GOAL) * 100}%`);
+    pill.classList.toggle('is-done', today >= DAILY_GOAL);
+    pill.classList.toggle('is-cold', !todayLessons());
+    pill.title = `هدف اليوم: ${num(today)} من ${num(DAILY_GOAL)} دروس • ${num(streak())} ${streak() === 1 ? 'يوم' : 'أيام'} متتالية`;
+  }
 }
 
 // Lift the fog from a newly unlocked island.

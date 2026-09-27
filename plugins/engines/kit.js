@@ -18,6 +18,17 @@ export function shuffle(list) {
 
 export const pick = (list, n) => shuffle(list).slice(0, n);
 
+// A stable key for a content item, so the lesson runner can remember which
+// ones a child got wrong and bring them back next time.
+export function itemKey(it) {
+  const raw = it.q || it.text || it.label || it.a || (it.words ? it.words.join(' ') + (it.ask || '') : '') || JSON.stringify(it);
+  return String(raw).replace(/<[^>]*>/g, '').slice(0, 80);
+}
+
+// Draw n items for a lesson: the runner's adaptive choice (missed items
+// first) when available, otherwise at random.
+export const draw = (ctx, list, n) => (ctx.choose ? ctx.choose(list, n) : pick(list, n));
+
 const PRAISE = [
   'أحسنت يا {name}!', 'إجابة صحيحة! ⭐', 'ممتاز! هكذا يفعل البحّارة.', 'رائع، تابع!',
   'عين الصواب!', 'بارك الله فيك!', 'صحيح! الريح في صالحنا.',
@@ -62,6 +73,7 @@ export function runRounds({ container, ctx, items, onComplete, renderRound, intr
         if (done) return;
         done = true;
         if (attempts === 0) correct += 1;
+        ctx.mark?.(item, attempts === 0);
         ctx.sfx.good();
         const praise = PRAISE[Math.floor(Math.random() * PRAISE.length)].replace('{name}', ctx.heroName);
         ctx.say(note ? `${praise} ${note}` : praise, 'cheer');
@@ -77,6 +89,7 @@ export function runRounds({ container, ctx, items, onComplete, renderRound, intr
           return;
         }
         done = true;
+        ctx.mark?.(item, false);
         round.onReveal();
         ctx.say(`لا بأس، هذه هي الإجابة الصحيحة. ${round.explain}`, 'oops');
         const btn = document.createElement('button');

@@ -5,13 +5,13 @@
 // bins:  [{ id, label, icon }]
 // items: [{ text, bin, hint, explain }]
 
-import { runRounds, pick, h, TEST } from './kit.js';
+import { runRounds, draw, h, TEST } from './kit.js';
 
 export function sort({ bins, items, count = 9, intro, prompt = 'إلى أي سلّة تنتمي هذه الكلمة؟' }) {
   return (container, onComplete, ctx) => {
     const tally = Object.fromEntries(bins.map(b => [b.id, 0]));
     runRounds({
-      container, ctx, items: pick(items, count), onComplete, intro,
+      container, ctx, items: draw(ctx, items, count), onComplete, intro,
       renderRound(item, round, stage) {
         stage.append(h(`<p class="prompt">${prompt}</p>`));
         const card = h(`<div class="sort-card"><span>${item.text}</span></div>`);

@@ -5,11 +5,11 @@
 //               hint: html, explain: html }]
 // Options are shuffled; `count` questions are drawn at random.
 
-import { runRounds, pick, shuffle, h, TEST } from './kit.js';
+import { runRounds, draw, shuffle, h, TEST } from './kit.js';
 
 export function quiz({ questions, count = 8, intro }) {
   return (container, onComplete, ctx) => {
-    const items = pick(typeof questions === 'function' ? questions() : questions, count);
+    const items = draw(ctx, typeof questions === 'function' ? questions() : questions, count);
     runRounds({
       container, ctx, items, onComplete, intro,
       renderRound(item, round, stage) {

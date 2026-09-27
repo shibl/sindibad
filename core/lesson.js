@@ -7,6 +7,7 @@ import { save } from './save.js';
 import { getTopic, starsFor } from './topics.js';
 import { sfx } from './sound.js';
 import { num } from './format.js';
+import { shuffle, itemKey } from '../plugins/engines/kit.js';
 import { canSpeak, speak, stopSpeaking } from './voice.js';
 
 let show;        // showScreen from app.js
@@ -85,6 +86,23 @@ export function startLesson(topicId, opts = {}) {
     sfx,
     num,
     signal: abort.signal,
+    // Adaptive practice: items this child missed before come back first
+    // (up to half the lesson) until they are answered right first time.
+    choose(list, n) {
+      const missed = new Set(save.get().topics[topic.id]?.missed || []);
+      const again = shuffle(list.filter(it => missed.has(itemKey(it)))).slice(0, Math.ceil(n / 2));
+      const rest = shuffle(list.filter(it => !again.includes(it))).slice(0, n - again.length);
+      return shuffle([...again, ...rest]);
+    },
+    mark(item, ok) {
+      const key = itemKey(item);
+      save.update(s => {
+        const t = s.topics[topic.id] || (s.topics[topic.id] = { stars: 0, best: 0, plays: 0 });
+        const m = (t.missed || []).filter(k => k !== key);
+        if (!ok) m.push(key);
+        t.missed = m.slice(-30);
+      });
+    },
   };
   const learnBtn = document.getElementById('learn-btn');
   learnBtn.hidden = !topic.learn?.length;
@@ -154,6 +172,22 @@ function practice(topic, container, ctx, abort) {
 }
 
 let lastPearls = 0;
+let goalHit = false;
+export const DAILY_GOAL = 3;
+const GOAL_BONUS = 10;
+const dayKey = (t = Date.now()) => new Date(t).toISOString().slice(0, 10);
+
+// Consecutive days with at least one lesson, ending today (or yesterday, so
+// the streak isn't shown as lost before the child has played today).
+export function streak(s = save.get()) {
+  const d = s.daily || {};
+  let n = 0;
+  let t = Date.now();
+  if (!d[dayKey(t)]) t -= DAY;
+  while (d[dayKey(t)]) { n += 1; t -= DAY; }
+  return n;
+}
+export const todayLessons = (s = save.get()) => (s.daily || {})[dayKey()] || 0;
 
 function record(topic, { correct, total }) {
   const stars = starsFor({ correct, total });
@@ -163,12 +197,18 @@ function record(topic, { correct, total }) {
     lastPearls = Math.max(0, stars - prev.stars) * 5;
     s.pearls = (s.pearls || 0) + lastPearls;
     s.topics[topic.id] = {
+      missed: prev.missed || [],
       stars: Math.max(prev.stars, stars),
       best: Math.max(prev.best, total ? correct / total : 0),
       plays: prev.plays + 1,
       last: Date.now(),
       history: [...(prev.history || []), { t: Date.now(), pct: total ? correct / total : 0 }].slice(-10),
     };
+    // Daily goal: three lessons a day earns a bonus.
+    const today = dayKey();
+    s.daily = { ...(s.daily || {}), [today]: ((s.daily || {})[today] || 0) + 1 };
+    goalHit = s.daily[today] === DAILY_GOAL;
+    if (goalHit) s.pearls += GOAL_BONUS;
     const r = s.review[topic.id] || { box: 0 };
     const box = stars >= 3 ? Math.min(r.box + 1, REVIEW_DAYS.length - 1) : stars >= 2 ? r.box : 0;
     s.review[topic.id] = { box, due: Date.now() + REVIEW_DAYS[box] * DAY };
@@ -200,6 +240,7 @@ function showResult(topic, result, hero) {
       <p class="result__score">أجبت صحيحاً من المحاولة الأولى عن <b>${num(result.correct)}</b> من <b>${num(result.total)}</b></p>
       <p class="result__line">${LINES[stars]}</p>
       ${lastPearls ? `<p class="result__pearls">+${num(lastPearls)} 🦪 لؤلؤة للسوق</p>` : ''}
+      ${goalHit ? `<p class="result__goal">🎯 أنجزت هدف اليوم: ${num(DAILY_GOAL)} دروس!<br><small>مكافأة ${num(GOAL_BONUS)} لآلئ 🦪 — 🔥 ${num(streak())} ${streak() > 1 ? 'أيام متتالية' : 'يوم'}</small></p>` : ''}
       <div class="actions">
         <button class="btn btn--ghost" data-result="again">مرة أخرى</button>
         <button class="btn btn--gold" data-result="map">إلى الخريطة</button>
