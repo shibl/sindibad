@@ -11,6 +11,8 @@ import { initMap, enter as enterMap } from './core/map.js';
 import { renderJourney } from './core/journey.js';
 import { openShop, applyStyle } from './core/shop.js';
 import { showStory } from './core/story.js';
+import { initFamily, renderWho, renderParentGate } from './core/family.js';
+import { profileList, addPlayTime } from './core/save.js';
 import { initOverworld, enterIsland, lessonReturned, debugState, debugBlocked, debugPlace } from './core/overworld.js';
 import arabicIsland from './worlds/grade6/arabic.js';
 import mathIsland from './worlds/grade6/math.js';
@@ -86,6 +88,8 @@ export function showScreen(name, detail) {
     document.getElementById('hero-btn').innerHTML = `<span class="hero-face">${heroSVG(hero)}</span>`;
     enterMap(detail);
   }
+  if (name === 'who') renderWho(document.getElementById('who'));
+  if (name === 'parents') renderParentGate(document.getElementById('parents'));
   if (name === 'journey') renderJourney(document.getElementById('journey'), world, { showScreen });
 }
 
@@ -203,8 +207,24 @@ initLesson({
 });
 registerServiceWorker();
 
-// Returning players skip straight past character select once they've chosen a hero.
-if (save.get().hero) {
+initFamily({ worldDef: world, showScreen });
+try {
+  const boot = sessionStorage.getItem('sindbad.boot');
+  if (boot) { sessionStorage.removeItem('sindbad.boot'); showScreen(boot); }
+} catch { /* ignore */ }
+
+// Count play time for the parents' page (only while the game is visible).
+setInterval(() => { if (!document.hidden && document.body.dataset.screen !== 'title') addPlayTime(15); }, 15000);
+
+// Start button: several children → "who is playing?"; a new device → ask
+// the child's name; one returning child → straight back to the map.
+{
+  const start = document.querySelector('#screen-title [data-go]');
+  const list = profileList();
+  if (list.length > 1) { start.dataset.go = 'who'; start.textContent = 'مَن يلعب؟'; }
+  else if (!list.length || !list[0].name && !save.get().hero) start.dataset.go = 'who';
+}
+if (save.get().hero && profileList().length <= 1) {
   const start = document.querySelector('#screen-title [data-go]');
   start.dataset.go = 'map';
   start.textContent = 'تابِع الرحلة';

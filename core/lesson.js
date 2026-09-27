@@ -159,6 +159,7 @@ function record(topic, { correct, total }) {
       best: Math.max(prev.best, total ? correct / total : 0),
       plays: prev.plays + 1,
       last: Date.now(),
+      history: [...(prev.history || []), { t: Date.now(), pct: total ? correct / total : 0 }].slice(-10),
     };
     const r = s.review[topic.id] || { box: 0 };
     const box = stars >= 3 ? Math.min(r.box + 1, REVIEW_DAYS.length - 1) : stars >= 2 ? r.box : 0;

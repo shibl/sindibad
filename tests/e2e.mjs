@@ -70,7 +70,12 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   await p.goto(URL_);
   await p.evaluate(() => navigator.serviceWorker.ready);
   await p.click('text=ابدأ الرحلة');
-  check(await p.isVisible('#screen-select'), 'start → character select');
+  check(await p.isVisible('#screen-who'), 'start → who is playing?');
+  await p.click('[data-who=new]');
+  await p.fill('#child-name', 'سارة');
+  await p.click('#who-form [type=submit]');
+  await p.waitForSelector('#screen-select[data-active]', { timeout: 5000 });
+  check(true, 'new child named → character select');
   await p.click('[data-hero=yasmina]');
   await p.click('#select-go');
   check(await p.isVisible('#story'), 'hero chosen → the opening story');

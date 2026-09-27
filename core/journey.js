@@ -59,6 +59,7 @@ export function renderJourney(el, world, { showScreen }) {
       ${s.finale ? '<button class="btn btn--gold" data-j="cert">📜 شهادتي</button>' : ''}
       <button class="btn btn--ghost" data-j="story">📖 الحكاية</button>
       <button class="btn btn--ghost" data-j="hero">🔄 تغيير البطل</button>
+      <button class="btn btn--ghost" data-j="who">👨‍👩‍👧 تبديل اللاعب</button>
       <button class="btn btn--ghost btn--danger" data-j="reset">🗑️ ابدأ من جديد</button>
     </div>
     <p class="journey__privacy">🔒 كل تقدّمك محفوظ على هذا الجهاز فقط. لا نجمع أي بيانات.</p>`;
@@ -70,6 +71,7 @@ export function renderJourney(el, world, { showScreen }) {
     if (b.dataset.j === 'hero') showScreen('select');
     if (b.dataset.j === 'cert') showCertificate(totalStars());
     if (b.dataset.j === 'story') showStory();
+    if (b.dataset.j === 'who') showScreen('who');
     if (b.dataset.j === 'reset') {
       if (b.dataset.armed) {
         save.reset();
