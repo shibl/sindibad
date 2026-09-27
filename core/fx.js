@@ -3,7 +3,7 @@
 // screen shake for big moments.
 
 const TEST = typeof window !== 'undefined' && !!window.__SINDBAD_TEST__;
-const lite = () => document.body.classList.contains('lite');
+const lite = () => document.body.classList.contains('lite') || document.body.classList.contains('calm');
 let busy = false;
 
 // Close an iris on (x, y) (screen px; default centre), run `mid` while the

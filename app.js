@@ -6,7 +6,8 @@
 // so adding a topic never requires editing this file.
 
 import { wipe } from './core/fx.js';
-import { startAmbience, stopAmbience, refreshAmbience } from './core/ambience.js';
+import { openSettings, applySettings } from './core/settings.js';
+import { startAmbience, stopAmbience } from './core/ambience.js';
 import { defsSVG, shipSVG, palmSVG, gullSVG, cloudSVG, skylineSVG, shoreSVG, heroSVG, hudhudSVG } from './art/art.js';
 import { save } from './core/save.js';
 import { initMap, enter as enterMap, totalStars } from './core/map.js';
@@ -14,7 +15,7 @@ import { renderJourney } from './core/journey.js';
 import { openShop, applyStyle } from './core/shop.js';
 import { showStory } from './core/story.js';
 import { initFamily, renderWho, renderParentGate } from './core/family.js';
-import { playMusic, refreshMusicVolume } from './core/music.js';
+import { playMusic } from './core/music.js';
 import { profileList, addPlayTime, activeProfile } from './core/save.js';
 import { initOverworld, enterIsland, lessonReturned, debugState, debugBlocked, debugPlace } from './core/overworld.js';
 import arabicIsland from './worlds/grade6/arabic.js';
@@ -23,7 +24,7 @@ import scienceIsland from './worlds/grade6/science.js';
 import socialIsland from './worlds/grade6/social.js';
 import treasureIsland from './worlds/grade6/treasure.js';
 import { initLesson, startLesson, streak } from './core/lesson.js';
-import { sfx, toggleMute } from './core/sound.js';
+import { sfx } from './core/sound.js';
 import world from './worlds/grade6.js';
 import { num } from './core/format.js';
 import './plugins/index.js';
@@ -113,10 +114,8 @@ function wireNavigation() {
       enterMap();
     },
   }));
-  const mute = document.getElementById('mute-btn');
-  const paintMute = () => { mute.textContent = save.get().muted ? '🔇' : '🔊'; };
-  mute.addEventListener('click', () => { toggleMute(); paintMute(); refreshMusicVolume(); refreshAmbience(); sfx.tap(); });
-  paintMute();
+  document.getElementById('mute-btn').addEventListener('click', () => { sfx.tap(); openSettings(); });
+  applySettings();
 }
 
 // ---------- Character select ----------
