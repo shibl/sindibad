@@ -9,7 +9,7 @@ import { defsSVG, shipSVG, palmSVG, gullSVG, cloudSVG, skylineSVG, shoreSVG, her
 import { save } from './core/save.js';
 import { initMap, enter as enterMap } from './core/map.js';
 import { renderJourney } from './core/journey.js';
-import { initOverworld, enterIsland, lessonReturned, debugState } from './core/overworld.js';
+import { initOverworld, enterIsland, lessonReturned, debugState, debugBlocked, debugPlace } from './core/overworld.js';
 import arabicIsland from './worlds/grade6/arabic.js';
 import { initLesson, startLesson } from './core/lesson.js';
 import { sfx, toggleMute } from './core/sound.js';
@@ -196,4 +196,4 @@ if (save.get().hero) {
 }
 
 // Test hook: lets headless tests read the hero's position on an island.
-if (window.__SINDBAD_TEST__) window.__island = debugState;
+if (window.__SINDBAD_TEST__) Object.assign(window, { __island: debugState, __blocked: debugBlocked, __place: debugPlace });

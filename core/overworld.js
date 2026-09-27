@@ -15,6 +15,8 @@
 // or thing walks there and interacts.
 
 import { objectSprite, villagerSprite, heroSprite, hudhudSprite, portraitSVG, drawPearl } from '../art/sprites.js';
+import { hudhudSVG } from '../art/art.js';
+const hudhudPortrait = () => hudhudSVG();
 import { HEROES, g } from '../art/art.js';
 import { save } from './save.js';
 import { sfx } from './sound.js';
@@ -23,7 +25,8 @@ import { num } from './format.js';
 const SPEED = 4.2;          // tiles per second
 const RADIUS = 0.28;        // player collision radius (tiles)
 const TALK_RANGE = 1.8;     // how close you must be to interact (tiles)
-const SOLID = new Set(['~', '#']);
+const SOLID = new Set(['~', 'w', '#']);
+const WATER = new Set(['~', 'w']);
 
 let els;                    // DOM handles
 let ctx, dpr = 1, W = 0, H = 0, TILE = 48;
@@ -42,6 +45,8 @@ let busy = false;           // input locked (dialogue, lesson, popups)
 let hooks;                  // { startLesson, leave, hero }
 let pendingQuest = null;    // quest waiting for a lesson result
 let sessionGain = { gained: 0, topic: null };
+let puzzles = [];           // live walk-on puzzles (see setupPuzzles)
+let splashes = [];          // water splash effects { x, y, t }
 
 // ---------- Setup ----------
 
@@ -99,7 +104,9 @@ function resize() {
 function islandState(id) {
   const s = save.get();
   const w = (s.world ||= {});
-  return (w[id] ||= { letters: [], pearls: [], chests: [], monument: false, met: [] });
+  const st = (w[id] ||= { letters: [], pearls: [], chests: [], monument: false, met: [] });
+  st.puzzles ||= {};
+  return st;
 }
 const persist = () => save.update(() => {});
 const heroId = () => save.get().hero || 'sindbad';
@@ -119,6 +126,7 @@ export function enterIsland(def) {
   people = def.people.map(p => ({ ...p, x: p.at[0], y: p.at[1], face: -1, sprite: villagerSprite(p.id, p.look) }));
   props = def.objects.map(o => ({ ...o, x: o.at[0], y: o.at[1], sprite: objectSprite(o.kind === 'gate' && gateOpen(o) ? 'gate' : o.kind) }));
   sessionGain = { gained: 0, topic: null };
+  setupPuzzles();
   dialog = null; busy = false; target = null; keys.clear();
   resize();
   buildGround();
@@ -147,8 +155,14 @@ const tileAt = (x, y) => {
 };
 const gateOpen = o => o.opens && state && state.letters.includes(island.people.find(p => p.id === o.opens)?.quest.letter);
 
+function onStone(x, y) {
+  for (const pz of puzzles) for (const st of pz.stones) if (Math.abs(x - st.x) < 0.5 && Math.abs(y - st.y) < 0.5) return st;
+  return null;
+}
+
 function blocked(x, y) {
-  if (SOLID.has(tileAt(x, y))) return true;
+  const t = tileAt(x, y);
+  if (SOLID.has(t) && !(WATER.has(t) && onStone(x, y))) return true;
   for (const o of props) {
     if (!o.block) continue;
     if (o.kind === 'gate' && gateOpen(o)) continue;
@@ -176,13 +190,14 @@ function buildGround() {
   ground.width = Math.ceil(cols * T);
   ground.height = Math.ceil(rows * T);
   const c = ground.getContext('2d');
-  const land = (x, y) => !'~'.includes(tileAt(x + 0.5, y + 0.5));
+  const land = (x, y) => !WATER.has(tileAt(x + 0.5, y + 0.5));
 
   // Sea: deep with a lighter shallow band near land.
   c.fillStyle = '#2b8fbf';
   c.fillRect(0, 0, ground.width, ground.height);
   for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
     if (land(x, y)) continue;
+    if (tileAt(x + 0.5, y + 0.5) === 'w') { c.fillStyle = '#5fcbe0'; c.fillRect(x * T, y * T, T + 1, T + 1); continue; }
     let near = 0;
     for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) if (land(x + dx, y + dy)) near = Math.max(near, 3 - Math.max(Math.abs(dx), Math.abs(dy)));
     if (near) { c.fillStyle = near >= 2 ? '#5fcbe0' : '#3fa9d2'; c.fillRect(x * T, y * T, T + 1, T + 1); }
@@ -283,6 +298,8 @@ function update(dt) {
     if (target && Math.abs(mx) + Math.abs(my) < 1e-4) target = null; // stuck: give up
   }
   collectPearls();
+  stepPuzzles();
+  splashes = splashes.filter(sp => (sp.t += dt) < 0.9);
   // Hudhud flutters behind the hero.
   const bx = player.x + player.face * 0.9, by = player.y - 0.5;
   bird.x += (bx - bird.x) * Math.min(1, dt * 3);
@@ -331,7 +348,7 @@ function draw() {
   ctx.lineWidth = 2; ctx.lineCap = 'round';
   const x0 = Math.floor(cam.x - W / 2 / TILE) - 1, y0 = Math.floor(cam.y - H / 2 / TILE) - 1;
   for (let y = y0; y < y0 + H / TILE + 2; y++) for (let x = x0; x < x0 + W / TILE + 2; x++) {
-    if (tileAt(x + 0.5, y + 0.5) !== '~' || rand(x, y) > 0.35) continue;
+    if (!WATER.has(tileAt(x + 0.5, y + 0.5)) || rand(x, y) > 0.35) continue;
     const ph = time * 1.2 + rand(x, y, 2) * 6;
     const px = sx(x + 0.5 + Math.sin(ph) * 0.15), py = sy(y + 0.5);
     ctx.globalAlpha = 0.25 + 0.3 * Math.sin(ph * 1.3) ** 2;
@@ -342,6 +359,7 @@ function draw() {
   // Flat decals, pearls, then everything that stands up, sorted by depth.
   for (const o of props) if (o.sprite.flat) drawSprite(o.sprite, o.x, o.y, HEIGHTS[o.kind]);
   island.pearls.forEach(([x, y], i) => { if (!state.pearls.includes(i)) drawPearl(ctx, sx(x), sy(y), time); });
+  drawPuzzles();
 
   const drawables = [];
   for (const o of props) if (!o.sprite.flat) drawables.push({ y: o.y, draw: () => drawProp(o) });
@@ -469,7 +487,10 @@ function interact(it) {
   sfx.tap();
   hideHint();
   if (it.kind === 'person') talkTo(it.ref);
-  if (it.kind === 'sign') say({ name: '📜 لافتة', lines: [it.ref.text] });
+  if (it.kind === 'sign') {
+    const pz = it.ref.puzzle && puzzles.find(p => p.def.id === it.ref.puzzle);
+    say(pz && !pz.solved ? { bird: true, name: `هُدهُد — ${pz.def.title}`, lines: pz.def.intro } : { name: '📜 لافتة', lines: [it.ref.text] });
+  }
   if (it.kind === 'chest') openChest(it.ref);
   if (it.kind === 'monument') useMonument();
 }
@@ -495,12 +516,12 @@ function talkTo(p) {
   ] });
 }
 
-function say({ person = null, name, lines, choices = null, then = null }) {
+function say({ person = null, bird = false, name, lines, choices = null, then = null }) {
   busy = true;
   dialog = { person, lines: lines.map(fill), i: 0, choices, then, name: name || person?.name };
   els.dlg.hidden = false;
-  els.dlg.querySelector('.dialog__portrait').innerHTML = person ? portraitSVG(person.look) : '';
-  els.dlg.querySelector('.dialog__portrait').hidden = !person;
+  els.dlg.querySelector('.dialog__portrait').innerHTML = person ? portraitSVG(person.look) : bird ? hudhudPortrait() : '';
+  els.dlg.querySelector('.dialog__portrait').hidden = !person && !bird;
   els.dlg.querySelector('.dialog__name').textContent = dialog.name;
   showLine();
 }
@@ -618,6 +639,95 @@ function collectPearls() {
   });
 }
 
+// ---------- Walk-on puzzles ----------
+// 'stones': rows of stepping stones over water. Each row shows the words of
+// one sentence; the student must step on them in grammatical order.
+
+function shuffled(a) { return [...a].sort(() => Math.random() - 0.5); }
+
+function setupPuzzles() {
+  puzzles = (island.puzzles || []).map(def => {
+    const pz = { def, solved: !!state.puzzles[def.id], progress: 0, stones: [], cur: null };
+    newSentence(pz);
+    return pz;
+  });
+}
+
+function newSentence(pz) {
+  const { def } = pz;
+  const sentence = def.sentences[Math.floor(Math.random() * def.sentences.length)];
+  pz.sentence = sentence;
+  pz.progress = 0;
+  pz.stones = [];
+  def.rows.forEach((y, row) => {
+    const words = shuffled(sentence);
+    def.cols.forEach((x, k) => pz.stones.push({ x, y, row, word: words[k], ok: words[k] === sentence[row], lit: false }));
+  });
+}
+
+function stepPuzzles() {
+  for (const pz of puzzles) {
+    const st = onStone(player.x, player.y);
+    const mine = st && pz.stones.includes(st) ? st : null;
+    if (mine === pz.cur) continue;
+    pz.cur = mine;
+    if (!mine || pz.solved) continue;
+    if (mine.lit) continue;
+    if (mine.row === pz.progress && mine.ok) {
+      mine.lit = true;
+      pz.progress += 1;
+      sfx.good();
+      showHint(pz.progress < pz.def.rows.length
+        ? `✔ ${pz.def.steps[pz.progress - 1]}: «${mine.word}» — الآن: <b>${pz.def.steps[pz.progress]}</b>`
+        : `✔ «${pz.sentence.join(' ')}» — اعبر إلى الجزيرة!`);
+      if (pz.progress === pz.def.rows.length) solvePuzzle(pz);
+    } else fall(pz, mine);
+  }
+}
+
+function fall(pz, stone) {
+  splashes.push({ x: stone.x, y: stone.y, t: 0 });
+  sfx.bad();
+  const [rx, ry] = pz.def.reset;
+  player.x = rx; player.y = ry; target = null;
+  pz.cur = null;
+  newSentence(pz);
+  say({ bird: true, name: 'هُدهُد', lines: [pz.def.fail] });
+}
+
+function solvePuzzle(pz) {
+  pz.solved = true;
+  state.puzzles[pz.def.id] = true; persist();
+  sfx.reveal();
+  setTimeout(() => say({ bird: true, name: 'هُدهُد', lines: [pz.def.done] }), 400);
+}
+
+function drawPuzzles() {
+  const fs = Math.round(TILE * 0.24);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  for (const pz of puzzles) for (const st of pz.stones) {
+    const x = sx(st.x), y = sy(st.y);
+    const sink = !pz.solved && pz.cur === st ? 2 : 0;
+    ctx.fillStyle = 'rgba(0,40,70,.25)';
+    ctx.beginPath(); ctx.ellipse(x, y + TILE * 0.12, TILE * 0.46, TILE * 0.3, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = st.lit || pz.solved ? '#ffe28a' : '#d8cdb8';
+    ctx.strokeStyle = '#3b2414'; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.ellipse(x, y + sink, TILE * 0.46, TILE * 0.32, 0, 0, 7); ctx.fill(); ctx.stroke();
+    if (!pz.solved) {
+      ctx.fillStyle = '#3b2414';
+      ctx.font = `800 ${fs}px "Baloo Bhaijaan 2", sans-serif`;
+      ctx.fillText(st.word, x, y + sink + 1, TILE * 0.86);
+    }
+  }
+  for (const sp of splashes) {
+    const k = sp.t / 0.9;
+    ctx.strokeStyle = `rgba(255,255,255,${1 - k})`; ctx.lineWidth = 3;
+    for (let r = 0; r < 3; r++) { ctx.beginPath(); ctx.ellipse(sx(sp.x), sy(sp.y), TILE * (0.2 + k * 0.7 + r * 0.15), TILE * (0.1 + k * 0.35 + r * 0.08), 0, 0, 7); ctx.stroke(); }
+    ctx.fillStyle = `rgba(210,245,255,${1 - k})`;
+    for (let d = 0; d < 6; d++) { const a = (d / 6) * Math.PI * 2; ctx.beginPath(); ctx.arc(sx(sp.x) + Math.cos(a) * TILE * 0.4 * k, sy(sp.y) - TILE * 0.6 * Math.sin(k * Math.PI) + Math.sin(a) * TILE * 0.15, 4, 0, 7); ctx.fill(); }
+  }
+}
+
 // ---------- HUD ----------
 
 function updateHud() {
@@ -687,7 +797,12 @@ function onPointerUp(e) {
   els.joy.hidden = true;
 }
 
+// For tests: what blocks a spot, and teleporting the hero.
+export function debugBlocked(x, y) { return blocked(x, y); }
+export function debugPlace(x, y) { player.x = x; player.y = y; }
+
 // For tests: current position and state.
 export function debugState() {
-  return island && { x: player.x, y: player.y, busy, dialog: !!dialog, letters: [...state.letters], pearls: state.pearls.length, monument: state.monument };
+  return island && { x: player.x, y: player.y, busy, dialog: !!dialog, letters: [...state.letters], pearls: state.pearls.length, monument: state.monument,
+    puzzles: puzzles.map(p => ({ id: p.def.id, solved: p.solved, progress: p.progress, stones: p.stones.map(s => ({ x: s.x, y: s.y, row: s.row, ok: s.ok })) })) };
 }

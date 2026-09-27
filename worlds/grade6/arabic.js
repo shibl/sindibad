@@ -4,7 +4,7 @@
 // which lesson each quest uses. The engine is core/overworld.js.
 //
 // tiles: one character per tile —
-//   ~ sea   s sand   . grass   = stone path   d wooden dock   # stone wall
+//   ~ sea   w pond   s sand   . grass   = stone path   d wooden dock   # stone wall
 // Positions are [x, y] in tiles (x grows right, y grows down); objects and
 // people stand with their feet at that point.
 //
@@ -21,12 +21,12 @@ export default {
   tiles: [
     '~~~~~~~~~~~~~~~~~~~~~~~~',
     '~~~~~~~~ssssssss~~~~~~~~',
-    '~~~~~sssss....sssss~~~~~',
-    '~~~~ss............ss~~~~',
-    '~~~ss..............ss~~~',
-    '~~ss................ss~~',
-    '~~s..................s~~',
-    '~~s..................s~~',
+    '~~~~~~~~~s....sssss~~~~~',
+    '~~~wssssw.........ss~~~~',
+    '~~~ws..sw..........ss~~~',
+    '~~swwwwww...........ss~~',
+    '~~swwwwww............s~~',
+    '~~swwwwww............s~~',
     '~~s.........==.......s~~',
     '~~s.........==.......s~~',
     '~~s#########==#######s~~',
@@ -68,13 +68,13 @@ export default {
     { kind: 'house', at: [5, 25.2], block: [4, 2.2] },
     { kind: 'house', at: [18.5, 24.6], block: [4, 2.2] },
     { kind: 'monument', id: 'monument', at: [13, 5.6], block: [2.4, 1] },
-    { kind: 'palm', at: [4, 7.5], block: [0.6, 0.4] }, { kind: 'palm', at: [20.2, 6.8], block: [0.6, 0.4] },
+    { kind: 'palm', at: [2.9, 9.6], block: [0.6, 0.4] }, { kind: 'palm', at: [20.2, 6.8], block: [0.6, 0.4] },
     { kind: 'palm', at: [3.2, 20.5], block: [0.6, 0.4] }, { kind: 'palm', at: [21, 21.5], block: [0.6, 0.4] },
     { kind: 'palm', at: [6.5, 28.3], block: [0.6, 0.4] }, { kind: 'palm', at: [18, 28.5], block: [0.6, 0.4] },
     { kind: 'palm', at: [9, 3.4], block: [0.6, 0.4] }, { kind: 'palm', at: [17, 3.6], block: [0.6, 0.4] },
     { kind: 'bush', at: [8, 8.4], block: [1, 0.5] }, { kind: 'bush', at: [17.5, 8.8], block: [1, 0.5] },
     { kind: 'bush', at: [3.5, 16.5], block: [1, 0.5] }, { kind: 'bush', at: [9, 22.5], block: [1, 0.5] },
-    { kind: 'rock', at: [16.5, 21], block: [1, 0.5] }, { kind: 'rock', at: [6, 4.8], block: [1, 0.5] },
+    { kind: 'rock', at: [16.5, 21], block: [1, 0.5] }, { kind: 'rock', at: [10.5, 4.6], block: [1, 0.5] },
     { kind: 'lamp', at: [11.2, 20], block: [0.4, 0.3] }, { kind: 'lamp', at: [14.8, 20], block: [0.4, 0.3] },
     { kind: 'lamp', at: [11.2, 26], block: [0.4, 0.3] }, { kind: 'lamp', at: [14.8, 26], block: [0.4, 0.3] },
     { kind: 'flowers', at: [10, 6.5] }, { kind: 'flowers', at: [16, 7] }, { kind: 'flowers', at: [7, 18.5] },
@@ -85,15 +85,35 @@ export default {
     { at: [11.3, 29.2], text: 'جزيرة الحروف ↑<br>الساحة — البوابة — حديقة الحكمة' },
     { at: [10.6, 12.4], text: '«بوابة الحروف»<br>لا تُفتح إلا لمن يفكّ شيفرتها: فعلٌ وفاعلٌ ومفعولٌ به.' },
     { at: [15.8, 4.9], text: '«نُصب العلم»<br>ثلاثة أحرف ذهبية تُكمل كلمته.' },
+    { at: [7.8, 9.2], text: '«جسر الكلمات» ↑<br>فعلٌ، ثم فاعلٌ مرفوع، ثم مفعولٌ به منصوب.', puzzle: 'word-bridge' },
+  ],
+
+  // Walk-on puzzles. 'stones': rows of stepping stones across water; each
+  // row offers the words of one sentence, and the student must step on
+  // them in grammatical order (rows[0] first). A wrong stone = a splash
+  // back to `reset`. Sentences are drawn at random each attempt.
+  puzzles: [
+    {
+      id: 'word-bridge', kind: 'stones', title: 'جسر الكلمات',
+      rows: [7.5, 6.5, 5.5], cols: [4.5, 5.5, 6.5], reset: [5.5, 8.6],
+      steps: ['الفعل', 'الفاعل', 'المفعول به'],
+      sentences: [
+        ['كتبَ', 'الطالبُ', 'الدرسَ'], ['رفعَ', 'البحّارُ', 'الشراعَ'], ['قرأتْ', 'ياسمينةُ', 'القصةَ'],
+        ['زرعَ', 'الفلاحُ', 'الزيتونَ'], ['فتحَ', 'المعلمُ', 'البابَ'], ['شربَ', 'العصفورُ', 'الماءَ'],
+      ],
+      intro: ['«جسر الكلمات»: الحجارة تحمل كلمات جملة فعلية مبعثرة.', 'اعبر عليها <b>بترتيب الجملة</b>: الفعل أولاً، ثم <b>الفاعل</b> (آخره ضمة ـُـ)، ثم <b>المفعول به</b> (آخره فتحة ـَـ).', 'الحجر الخطأ يغوص في الماء!'],
+      fail: 'سبلاش! 💦 انظر إلى آخر الكلمة: الضمة للفاعل، والفتحة للمفعول به، والفعل يأتي أولاً.',
+      done: 'أحسنت! عبرت جسر الكلمات. الصندوق على الجزيرة الصغيرة صار لك!',
+    },
   ],
 
   chests: [
-    { id: 'garden-chest', at: [4.4, 6.2], pearls: 10 },
+    { id: 'garden-chest', at: [5.5, 4.5], pearls: 10 },
   ],
 
   pearls: [
     [7, 16], [20, 18.5], [4.5, 22], [16, 23], [20.5, 27.5], [8, 27.5],
-    [5, 10], [20, 9.5], [12.5, 8], [18.5, 5], [7, 3.8], [3.5, 11.8],
+    [5, 9.2], [20, 9.5], [12.5, 8], [18.5, 5], [6.8, 3.6], [3.5, 11.8],
   ],
 
   people: [
