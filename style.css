@@ -1395,3 +1395,56 @@ body.lite .island-lens::before, body.lite .island-lens::after { display: none; }
 .letter-slots span.pop { animation: slot-pop .5s cubic-bezier(.2, .8, .3, 1.8); }
 @keyframes slot-pop { 40% { transform: scale(1.6); } }
 .item-popup__rays { pointer-events: none; } .item-popup__card .btn { position: relative; }
+
+/* ================= V15: sea map ================= */
+.map__sea {
+  background:
+    radial-gradient(ellipse 70% 45% at 30% 18%, rgba(255, 255, 255, .22), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 75%, rgba(10, 40, 90, .25), transparent 70%),
+    linear-gradient(to bottom, #52c3dc, #2593c0 45%, #146b9c);
+}
+/* Drifting caustic light. */
+.map__sea::after {
+  content: ""; position: absolute; inset: -160px; opacity: .22; will-change: transform;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cpath d='M0 40 C30 20 50 60 80 40 S130 20 160 40 M0 120 C30 100 50 140 80 120 S130 100 160 120 M40 0 C20 30 60 50 40 80 S20 130 40 160 M120 0 C100 30 140 50 120 80 S100 130 120 160' fill='none' stroke='white' stroke-width='2.5'/%3E%3C/svg%3E");
+  animation: caustics 24s linear infinite;
+}
+@keyframes caustics { to { transform: translate(160px, -160px); } }
+body.lite .map__sea::after { animation: none; }
+
+/* Turquoise shallows under every island. */
+.isle::before {
+  content: ""; position: absolute; left: -12%; right: -12%; top: 38%; height: 58%; z-index: -1; border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(140, 235, 230, .75), rgba(90, 210, 220, .35) 50%, transparent 72%);
+}
+
+/* Bolder route; unlocked legs shimmer along. */
+.route { stroke: rgba(255, 255, 255, .35); stroke-width: 6; stroke-dasharray: 1 16; }
+.route--open { stroke: #fff6d0; stroke-width: 8; stroke-dasharray: 1 18; animation: route-flow 1.6s linear infinite; filter: drop-shadow(0 2px 0 rgba(20, 60, 90, .35)); }
+@keyframes route-flow { to { stroke-dashoffset: -19; } }
+
+/* Locked islands: a mysterious silhouette in thin mist, with what opens it. */
+.isle--locked .isle__art { filter: brightness(0) invert(.18) sepia(.6) hue-rotate(160deg) opacity(.6); animation: none; }
+.isle--locked .fog { opacity: .75; }
+.isle--locked .isle__label { opacity: 1; background: rgba(255, 247, 230, .92); }
+.isle__need { display: block; font-size: 12px; font-weight: 800; color: #7b5c2e; }
+
+/* "Here next!" beacon. */
+.isle__beacon { position: absolute; left: 50%; top: -6%; z-index: 3; transform: translateX(-50%); pointer-events: none; animation: beacon-bob 1s ease-in-out infinite; }
+.isle__beacon i {
+  display: block; font-style: normal; font-weight: 800; font-size: 16px; line-height: 1; color: #fff; white-space: nowrap;
+  padding: 5px 12px 8px; border-radius: 14px; background: linear-gradient(#ff8a3d, #e5541b); border: 3px solid var(--ink); box-shadow: 0 3px 0 var(--ink);
+}
+.isle__beacon::after { content: ""; position: absolute; left: 50%; bottom: -9px; margin-left: -8px; border: 8px solid transparent; border-top-color: var(--ink); border-bottom: 0; }
+@keyframes beacon-bob { 50% { transform: translate(-50%, -8px); } }
+.isle__ring { position: absolute; left: 50%; top: 62%; width: 90%; aspect-ratio: 2.4; z-index: -1; transform: translate(-50%, -50%); border-radius: 50%; border: 4px solid rgba(255, 255, 255, .9); animation: ring-out 1.8s ease-out infinite; pointer-events: none; }
+@keyframes ring-out { from { opacity: .9; transform: translate(-50%, -50%) scale(.6); } to { opacity: 0; transform: translate(-50%, -50%) scale(1.25); } }
+.isle { isolation: isolate; }
+.map__sea::after { opacity: .09; }
+.isle--locked .fog { opacity: .5; inset: 10% -10% 4%; }
+.isle--locked .isle__art { filter: brightness(0) invert(.22) sepia(.5) hue-rotate(160deg) opacity(.7); }
+.isle__beacon { top: -24%; }
+.isle--locked .fog { opacity: .95; inset: 38% -14% -6%; }
+.isle--locked .fog .cloud-art { width: 58%; }
+.isle--locked .isle__art { filter: brightness(0) invert(.42) sepia(.35) hue-rotate(165deg) opacity(.75); }
+.isle--locked .isle__label { z-index: 3; }

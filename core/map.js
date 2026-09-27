@@ -131,23 +131,25 @@ export function render() {
   };
 
   const due = new Set(dueReviews().map(t => t.region));
+  const next = nextIsland(due);
   const islands = world.regions.map(r => {
     const open = isUnlocked(r);
     const pending = open && pendingReveal(r);
     const { stars, max } = regionStars(r.id);
     const badge = badgeState(r.id);
-    const label = `<b>${r.name}</b>${open ? `<span class="isle__stars">${starRow(Math.round((stars / (max || 1)) * 3))}</span>` : ''}`
+    const prev = r.unlock && world.regions.find(x => x.id === r.unlock.region);
+    const label = `<b>${r.name}</b>${open ? `<span class="isle__stars">${starRow(Math.round((stars / (max || 1)) * 3))}</span>` : `<span class="isle__need">🔒 ${num(r.unlock.stars)}★ في ${prev.name}</span>`}`
       + (badge && !pending ? `<span class="isle__badge isle__badge--${badge}" title="${r.badge.name}">${r.badge.icon}</span>` : '')
       + (open && !pending && due.has(r.id) ? '<span class="isle__review" title="حان وقت المراجعة">🔁</span>' : '');
     const fog = open && !pending ? '' : `
       <span class="fog" aria-hidden="true">
         ${cloudSVG()}${cloudSVG()}${cloudSVG()}
-        <span class="fog__lock">🔒</span>
       </span>`;
     const aria = open && !pending
       ? `${r.name}، ${r.subject}، ${num(stars)} من ${num(max)} نجوم${badge ? `، شارة ${r.badge.name}` : ''}`
       : `${r.name}، يغطيها الضباب`;
-    return isle(r, r.art, label, open ? '' : 'isle--locked', aria).replace('</button>', `${fog}</button>`);
+    const beacon = r.id === next && !pending ? '<span class="isle__beacon" aria-hidden="true"><i>هنا!</i></span><span class="isle__ring" aria-hidden="true"></span>' : '';
+    return isle(r, r.art, label, `${open ? '' : 'isle--locked'} ${beacon ? 'isle--next' : ''}`, aria).replace('</button>', `${fog}${beacon}</button>`);
   }).join('');
 
   el.innerHTML = `
@@ -169,6 +171,13 @@ export function render() {
 `;
   placeShip(berth(here));
   updateStarsBadge();
+}
+
+// The island Hudhud suggests next: the first open one with lessons still
+// to try, else one with a review due, else the first not yet mastered.
+function nextIsland(due) {
+  const open = world.regions.filter(r => isUnlocked(r));
+  return (open.find(r => !badgeState(r.id)) || open.find(r => due.has(r.id)) || open.find(r => badgeState(r.id) !== 'gold'))?.id;
 }
 
 const pendingReveal = r => r.unlock && isUnlocked(r) && !(save.get().revealed || []).includes(r.id);
