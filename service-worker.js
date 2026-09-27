@@ -1,23 +1,57 @@
 // Service worker: makes the app fully playable offline after the first load.
 //
 // Strategy: precache the whole app shell on install, then serve cache-first.
-// When you add or rename a file the app needs offline (including new plugin
-// files), add it to APP_SHELL and bump CACHE_VERSION so clients pick it up.
-// BACKLOG item 6 hardens and verifies this end to end.
+// APP_SHELL and CACHE_VERSION are generated — after adding or changing any
+// file run `node tools/update-shell.mjs` (tests/check-shell.mjs fails if you
+// forget). A new version makes clients download the new files once.
 
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = '360c89078d';
 const CACHE_NAME = `sindbad-${CACHE_VERSION}`;
 
 const APP_SHELL = [
+  // <app-shell>
   './',
   'index.html',
   'style.css',
   'app.js',
-  'art/art.js',
   'manifest.json',
-  'icons/icon.svg',
+  'art/art.js',
+  'core/format.js',
+  'core/lesson.js',
+  'core/map.js',
+  'core/save.js',
+  'core/sound.js',
+  'core/topics.js',
+  'plugins/arabic/fael-mafool.js',
+  'plugins/arabic/mubtada-khabar.js',
+  'plugins/arabic/plurals.js',
+  'plugins/engines/kit.js',
+  'plugins/engines/match.js',
+  'plugins/engines/numberline.js',
+  'plugins/engines/quiz.js',
+  'plugins/engines/sort.js',
+  'plugins/engines/tapword.js',
+  'plugins/engines/visuals.js',
+  'plugins/index.js',
+  'plugins/math/decimals.js',
+  'plugins/math/fraction-ops.js',
+  'plugins/math/fractions-line.js',
+  'plugins/math/percent.js',
+  'plugins/review/treasure.js',
+  'plugins/science/body.js',
+  'plugins/science/matter.js',
+  'plugins/science/planets.js',
+  'plugins/social/geography.js',
+  'plugins/social/landmarks.js',
+  'worlds/grade6.js',
+  'fonts/baloo-bhaijaan-2-arabic-500-normal.woff2',
+  'fonts/baloo-bhaijaan-2-arabic-800-normal.woff2',
+  'fonts/baloo-bhaijaan-2-latin-500-normal.woff2',
+  'fonts/baloo-bhaijaan-2-latin-800-normal.woff2',
   'icons/icon-192.png',
   'icons/icon-512.png',
+  'icons/icon.svg',
+  // </app-shell>
 ];
 
 self.addEventListener('install', event => {
