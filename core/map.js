@@ -9,6 +9,7 @@ import { topicsIn, getTopic } from './topics.js';
 import { sfx } from './sound.js';
 import { num } from './format.js';
 import { showFinale } from './finale.js';
+import { awardSticker } from './stickers.js';
 
 let world;          // the current grade world (worlds/grade6.js)
 let el;             // the .map element
@@ -290,7 +291,9 @@ function flyStars(regionId, n) {
 // Award an island badge with a full-screen moment.
 function showBadge(region, state) {
   return new Promise(resolve => {
+    const first = !(save.get().badges || {})[region.id];
     save.update(v => { v.badges = { ...(v.badges || {}), [region.id]: state }; });
+    if (first && region.id !== 'treasure') setTimeout(() => awardSticker('treasure'), 900);
     const modal = document.getElementById('badge-modal');
     const gold = state === 'gold';
     modal.innerHTML = `

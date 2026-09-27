@@ -8,6 +8,7 @@ import { sfx } from './sound.js';
 import { num } from './format.js';
 import { showCertificate } from './finale.js';
 import { showStory } from './story.js';
+import { openAlbum, owned, TOTAL } from './stickers.js';
 
 export function renderJourney(el, world, { showScreen }) {
   const s = save.get();
@@ -33,6 +34,7 @@ export function renderJourney(el, world, { showScreen }) {
         </div>
       </div>
     </div>
+    <button class="album-btn" data-j="album"><span>📒</span><b>ألبوم الملصقات</b><small>${num(owned().length)} / ${num(TOTAL)}</small></button>
     <h4 class="journey__h">خزانة الشارات</h4>
     <div class="shelf">
       ${world.regions.map(r => {
@@ -71,6 +73,7 @@ export function renderJourney(el, world, { showScreen }) {
     if (b.dataset.j === 'hero') showScreen('select');
     if (b.dataset.j === 'cert') showCertificate(totalStars());
     if (b.dataset.j === 'story') showStory();
+    if (b.dataset.j === 'album') openAlbum(world.regions);
     if (b.dataset.j === 'who') showScreen('who');
     if (b.dataset.j === 'reset') {
       if (b.dataset.armed) {

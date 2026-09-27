@@ -20,6 +20,7 @@ const hudhudPortrait = () => hudhudSVG();
 import { HEROES, g, heroSVG } from '../art/art.js';
 import { shake } from './fx.js';
 import { setSeaLevel } from './ambience.js';
+import { awardSticker } from './stickers.js';
 import { save } from './save.js';
 import { sfx } from './sound.js';
 import { num } from './format.js';
@@ -1175,6 +1176,7 @@ function rewardQuest(p) {
       save.update(s => { s.pearls = (s.pearls || 0) + n; });
       updateHud();
       itemPopup({ icon: '🦪', title: `${num(n)} لؤلؤات!`, text: `هدية من ${p.name} شكراً على مساعدتك.` });
+      earnSticker();
       return;
     }
     state.letters.push(q.letter); persist();
@@ -1186,7 +1188,15 @@ function rewardQuest(p) {
       title: `${island.tokenName || 'الحرف الذهبي'} «${q.letter}»`,
       text: gate ? (island.gateText || 'انفتحت البوابة الكبيرة في الشمال!') : `معك ${num(state.letters.length)} من ${num(tokens().length)}. ${island.tokenHint || ''}`,
     });
+    earnSticker();
   } });
+}
+
+// Stickers arrive after the reward card closes (or at once if none is open).
+let stickerPending = 0;
+function earnSticker() {
+  if (!els.popup.hidden) { stickerPending += 1; return; }
+  awardSticker(island.id);
 }
 
 function useMonument() {
@@ -1198,6 +1208,7 @@ function useMonument() {
     state.monument = true; persist();
     shake(els.screen, 1.2);
     itemPopup({ ...m.reward, hold: true });
+    earnSticker();
   } });
 }
 
@@ -1210,6 +1221,7 @@ function openChest(c) {
   save.update(s => { s.pearls = (s.pearls || 0) + c.pearls; });
   updateHud();
   itemPopup({ icon: '🦪', title: `${num(c.pearls)} لؤلؤات!`, text: 'كنز صغير مخبّأ! اللآلئ تُزيّن سفينتك.' });
+  earnSticker();
   return before;
 }
 
@@ -1290,6 +1302,7 @@ function solvePuzzle(pz) {
   pz.solved = true;
   state.puzzles[pz.def.id] = true; persist();
   sfx.reveal();
+  earnSticker();
   setTimeout(() => say({ bird: true, name: 'هُدهُد', lines: [pz.def.done] }), 400);
 }
 
@@ -1380,6 +1393,7 @@ function closePopup() {
   sfx.tap();
   if (flyToken && from) flyToSlot(flyToken, from);
   flyToken = null;
+  for (; stickerPending > 0; stickerPending--) awardSticker(island.id);
 }
 
 // The golden token flies from the card into its slot in the top bar.
