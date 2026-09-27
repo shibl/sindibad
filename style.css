@@ -1589,3 +1589,43 @@ body.lite .map__sea::after { animation: none; }
 .album__slot.is-have:nth-child(2n) .sticker { --r: 5deg; }
 .album__slot.is-picked .sticker { transform: scale(1.12); box-shadow: 0 0 0 2.5px var(--ink), 0 4px 0 2px var(--ink), 0 0 18px 6px rgba(255, 210, 80, .8); }
 .album__fact { margin: 0; padding: 10px 16px 14px; font-size: 16px; line-height: 1.5; border-top: 2.5px solid rgba(59, 36, 20, .15); background: #fff8e6; min-height: 70px; }
+
+/* ================= V22: harbour shop ================= */
+.shop__card { display: flex; flex-direction: column; padding: 0; overflow: hidden; max-height: 100%; }
+.shop__head { display: flex; align-items: center; gap: 10px; padding: 10px 12px 8px 16px; background: linear-gradient(#2d9fc6, #1b6f99); border-bottom: 3px solid var(--ink); color: #fff; }
+.shop__head h3 { flex: 1; font-size: 22px !important; -webkit-text-stroke: 5px var(--ink); paint-order: stroke fill; }
+.shop__head .shop__close { position: static; }
+.shop__head .shop__purse { padding: 2px 12px 4px; border-radius: 999px; background: #fff7e6; color: var(--ink); border: 2.5px solid var(--ink); font-size: 17px; }
+.shop__stage {
+  position: relative; flex: 0 0 auto; height: clamp(150px, 26vh, 230px); display: grid; place-items: center; overflow: hidden;
+  background: radial-gradient(ellipse at 50% 110%, #7fdbe8, transparent 60%), linear-gradient(#bfe9f5, #4fb9d6);
+  border-bottom: 3px solid var(--ink);
+}
+.shop__stage::before { content: ""; position: absolute; width: 360px; height: 360px; background: repeating-conic-gradient(rgba(255, 255, 255, .22) 0 10deg, transparent 10deg 20deg); animation: spin 30s linear infinite; }
+.shop__stage > div { position: relative; height: 92%; }
+.shop__stage .shop__ship { width: min(78%, 300px); height: auto; }
+.shop__stage .shop__hero svg, .shop__stage .shop__bird--big svg { height: 100%; width: auto; }
+.shop__stage .shop__bird--big { position: relative; top: auto; inset-inline-start: auto; width: auto; }
+.shop__stage.is-bought > div { animation: bought .7s cubic-bezier(.2, .8, .3, 1.6); }
+@keyframes bought { 30% { transform: scale(1.15) rotate(-3deg); } }
+.shop__trying { position: absolute; top: 8px; inset-inline-start: 10px; padding: 2px 10px 4px; border-radius: 999px; background: #fff; border: 2px solid var(--ink); font-weight: 800; font-size: 14px; }
+.shop__tabs { display: flex; gap: 6px; padding: 10px 10px 0; background: #f3e4c2; }
+.shop__tab {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0; padding: 4px 2px 6px; font: inherit; font-weight: 800; font-size: 13px; color: var(--ink);
+  background: #e6cf9f; border: 2.5px solid var(--ink); border-bottom: 0; border-radius: 14px 14px 0 0; cursor: pointer;
+}
+.shop__tab span { font-size: 22px; line-height: 1.2; }
+.shop__tab.is-on { background: #fff7e6; transform: translateY(2px); }
+.shop__grid { flex: 1 1 auto; overflow-y: auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 12px; background: #fff7e6; }
+.shop__item { position: relative; padding-top: 16px; }
+.shop__item .shop__swatch { width: 46px; height: 46px; font-size: 24px; }
+.shop__rarity { position: absolute; top: -2px; left: -2px; right: -2px; padding: 1px 0 2px; font-style: normal; font-size: 11px; font-weight: 800; color: #fff; border-radius: 14px 14px 0 0; background: #8aa0b0; border: 2px solid var(--ink); }
+.shop__item--rare .shop__rarity { background: #3b8fd8; }
+.shop__item--epic .shop__rarity { background: #8a4fd6; }
+.shop__item--legend .shop__rarity { background: linear-gradient(90deg, #f2b21e, #ff7a3d, #f2b21e); }
+.shop__item--legend { box-shadow: 0 0 0 2px #f2b21e, 0 3px 0 var(--ink), 0 0 14px rgba(242, 178, 30, .6); }
+.shop__item.is-trying { background: #fff3cf; box-shadow: 0 0 0 3px #f2b21e, 0 3px 0 var(--ink); transform: translateY(-2px); }
+.shop__foot { flex: 0 0 auto; padding: 10px 12px 14px; background: #f3e4c2; border-top: 3px solid var(--ink); text-align: center; }
+.shop__foot .shop__note { margin: 0; }
+.shop__buy { width: 100%; font-size: 19px; animation: nudge 2s ease-in-out infinite; }
+.shop__need { margin: 0; font-weight: 800; color: #a4481a; }
