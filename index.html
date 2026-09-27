@@ -9,55 +9,113 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preload" href="fonts/baloo-bhaijaan-2-arabic-800-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div id="app">
 
-  <!-- Shared animated backdrop: sky, sun, gulls, sea, shore. Always visible
-       behind whichever screen is active. Filled in by app.js. -->
+  <!-- Shared animated backdrop: sky, sun, clouds, Damascus skyline, sea,
+       shore. Always visible behind whichever screen is active. Filled in by
+       app.js from art/art.js. -->
   <div id="scene" aria-hidden="true">
     <div class="sky"></div>
-    <div class="sun"></div>
+    <div class="stars"></div>
+    <div class="sun"><div class="sun__rays"></div></div>
+    <div class="clouds"></div>
     <div class="gulls"></div>
+    <div class="skyline"></div>
     <div class="sea">
-      <div class="wave"></div>
-      <div class="wave wave--slow"></div>
+      <div class="sea__glint"></div>
+      <div class="waves waves--far"></div>
+      <div class="waves waves--mid"></div>
+      <div class="waves waves--near"></div>
     </div>
     <div class="shore"></div>
     <div class="palm palm--start"></div>
     <div class="palm palm--end"></div>
+    <div class="vignette"></div>
   </div>
 
   <!-- Screens. Exactly one has [data-active] at a time (see showScreen in app.js). -->
 
   <section id="screen-title" class="screen" data-active>
-    <header class="title">
-      <h1>رحلات سندباد وياسمينة</h1>
-      <p>مغامرة في بحر المعرفة</p>
+    <header class="logo">
+      <span class="logo__small">رحلات</span>
+      <h1 class="logo__big">سندباد وياسمينة</h1>
+      <span class="logo__tag" id="title-tag">مغامرة في بحر المعرفة • الصف السادس</span>
     </header>
-    <div class="ship ship--idle"></div>
-    <button class="btn btn--primary" data-go="map">ابدأ الرحلة</button>
+    <div class="ship ship--title" data-crew="sindbad,yasmina"></div>
+    <button class="btn btn--gold btn--big" data-go="select">ابدأ الرحلة</button>
   </section>
 
-  <section id="screen-map" class="screen">
-    <header class="topbar">
-      <button class="btn btn--icon" data-go="title" aria-label="رجوع">→</button>
-      <h2>خريطة العالم</h2>
-    </header>
-    <!-- World map (regions, fog-of-war, sailing ship) is built in BACKLOG item 3. -->
-    <div id="map" class="map">
-      <p class="placeholder">الخريطة قيد البناء…</p>
+  <section id="screen-select" class="screen">
+    <div class="guide">
+      <div class="guide__bird"></div>
+      <p class="bubble" id="select-bubble">أهلاً! أنا <b>هُدهُد</b>، دليلك في الرحلة. مَن سيبحر معي اليوم؟</p>
+    </div>
+    <div class="heroes" role="radiogroup" aria-label="اختر بطلك">
+      <button class="hero-card" role="radio" aria-checked="false" data-hero="sindbad">
+        <span class="hero-card__art"></span>
+        <span class="hero-card__name">سندباد</span>
+        <span class="hero-card__trait">البحّار الشجاع</span>
+      </button>
+      <button class="hero-card" role="radio" aria-checked="false" data-hero="yasmina">
+        <span class="hero-card__art"></span>
+        <span class="hero-card__name">ياسمينة</span>
+        <span class="hero-card__trait">المستكشفة الذكية</span>
+      </button>
+    </div>
+    <div class="actions">
+      <button class="btn btn--ghost" data-go="title" aria-label="رجوع">رجوع</button>
+      <button class="btn btn--gold" id="select-go" disabled>هيّا نُبحر!</button>
     </div>
   </section>
 
-  <section id="screen-activity" class="screen">
-    <header class="topbar">
-      <button class="btn btn--icon" data-go="map" aria-label="رجوع إلى الخريطة">→</button>
-      <h2 id="activity-title"></h2>
+  <section id="screen-map" class="screen screen--map">
+    <header class="topbar topbar--map">
+      <button class="btn btn--round" data-go="journey" aria-label="رحلتي" id="hero-btn"></button>
+      <h2>الصف السادس</h2>
+      <span class="stars-badge" title="النجوم">★ <span id="stars-total">٠</span></span>
+      <button class="btn btn--round" id="mute-btn" aria-label="الصوت">🔊</button>
     </header>
-    <!-- A topic plugin renders its activity into this container (BACKLOG item 2). -->
+    <div id="map" class="map"></div>
+    <div id="map-toast" class="map__toast" hidden>
+      <div class="guide__bird"></div><p class="bubble" aria-live="polite"></p>
+    </div>
+    <div id="sheet" class="sheet" hidden></div>
+    <div id="badge-modal" class="badge-modal" hidden></div>
+  </section>
+
+  <section id="screen-journey" class="screen screen--journey">
+    <header class="topbar">
+      <button class="btn btn--round" data-go="map" aria-label="رجوع إلى الخريطة">→</button>
+      <h2>رحلتي</h2>
+    </header>
+    <div class="journey" id="journey"></div>
+  </section>
+
+  <section id="screen-activity" class="screen screen--activity">
+    <header class="topbar">
+      <button class="btn btn--round" id="lesson-quit" aria-label="رجوع إلى الخريطة">→</button>
+      <h2 id="activity-title"></h2>
+      <button class="btn btn--round" id="learn-btn" aria-label="الدرس" title="راجع الدرس" hidden>📖</button>
+    </header>
+    <div class="progress-row">
+      <span class="q-count" id="q-count" aria-live="polite"></span>
+      <div class="progress" aria-hidden="true">
+        <div class="progress__fill"></div>
+        <div class="progress__ship">⛵</div>
+      </div>
+    </div>
+    <!-- A topic plugin renders its activity into this container. -->
     <div id="activity" class="activity"></div>
+    <div class="coach" data-mood="happy">
+      <div class="guide__bird"></div>
+      <p class="bubble" id="coach-bubble" aria-live="polite"></p>
+      <div class="coach__hero"></div>
+    </div>
+    <div class="result" id="result" hidden></div>
   </section>
 
 </div>

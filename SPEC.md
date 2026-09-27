@@ -5,8 +5,8 @@
 A free, open-source, offline-first educational web app that turns the Syrian
 national curriculum (grades 1–12) into an RPG-style adventure. The player
 progresses through a world map, unlocking regions tied to school subjects as
-they advance through grade levels, guided by two companion characters:
-**Sindbad** (سندباد) and **Yasmina** (ياسمينة).
+they advance through grade levels, starring a hero the player picks —
+**Sindbad** (سندباد) or **Yasmina** (ياسمينة) — guided by **Hudhud** (هُدهُد) the wise hoopoe.
 
 Source doc: `docs/original-project-brief.pdf` (Arabic, the founding project
 brief — mission, audience, offline-first rationale, age progression, plugin
@@ -47,21 +47,34 @@ architecture, licensing, and call for contributors).
   - Language Arts (Arabic), Math, Science, Geography, Art & Culture, etc.
     (exact subject-to-region mapping is placeholder until validated against
     the real curriculum breakdown per grade).
-- A ship carries Sindbad and Yasmina across the map between regions —
+- A ship carries the chosen hero (and Hudhud) across the map between regions —
   this is the connective ambient animation tying the whole world together.
 - Finishing a level's full curriculum removes the "fog of war" for that
   grade's map.
 
-### Companions
-- **Sindbad**: the player-facing explorer/adventurer.
-- **Yasmina**: "ياسمينة العصفورة الحكيمة" — a wise messenger-bird guide/tutor
-  character. She gives hints (never spoils answers), explains, and
-  celebrates progress. She is the adaptive tutoring voice of the game.
+### Characters
+- The player **chooses their hero** at the start: **Sindbad** (سندباد, a boy)
+  or **Yasmina** (ياسمينة, a girl). Both are full playable heroes with the
+  same abilities; the choice is saved and shown on the ship and map.
+- Both heroes grow through the brief's four age stages (see "Audience &
+  tone"); each grade band gets its own version of the art.
+- **Hudhud** (هُدهُد) — the wise hoopoe, a messenger bird from Arab
+  heritage. He is the guide/tutor voice of the game: gives hints (never
+  spoils answers), explains, celebrates progress, and schedules reviews.
+  *(Decision 2026-09-27: the founding brief called the bird "ياسمينة
+  العصفورة الحكيمة", but also asked for Sindbad and Yasmina to be drawn at
+  four ages; the owner decided Yasmina is a girl hero and the bird is
+  Hudhud.)*
+
+### Current focus
+- The first playable world is **grade 6** (الصف السادس, "البحار الصغير"
+  stage): the owner's priority is teaching grade-6 students, and making the
+  game visually beautiful.
 
 ### Learning loop
 - Each curriculum topic is delivered as a short, focused mini-game/quiz
   ("plugin") rather than passive reading.
-- Difficulty and review are adaptive: Yasmina resurfaces topics the student
+- Difficulty and review are adaptive: Hudhud resurfaces topics the student
   struggled with, spaced over time, rather than one-shot testing.
 - Subjects lean on real subject content: Arabic language rules for
   historical/story puzzles, math for navigation/engineering puzzles,
@@ -125,7 +138,7 @@ right before anything else:
 1. World map for **one grade level** (recommend starting with grade 1 or 4
    — simplest art and content to validate the pipeline) with:
    - Fog-of-war regions that reveal on completion.
-   - Ship carrying Sindbad & Yasmina animating between regions.
+   - Ship carrying the chosen hero & Hudhud animating between regions.
    - At least 2 working subject plugins (e.g., one Arabic language
      activity, one math activity) using the plugin architecture.
 2. Progress saved locally and visible on the map (stars/badges per region).
