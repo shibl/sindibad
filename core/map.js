@@ -14,11 +14,15 @@ let el;             // the .map element
 let onOpenTopic;    // callback(topicId)
 let layout = null;  // { w, h, size, points: {id: {x, y}} }
 let sailing = false;
+let walkable = {};     // island id → walkable island data (worlds/grade6/*.js)
+let onEnterIsland;    // callback(id) to go ashore
 
-export function initMap(mapEl, worldDef, { openTopic }) {
+export function initMap(mapEl, worldDef, { openTopic, islands = {}, enterIsland }) {
   el = mapEl;
   world = worldDef;
   onOpenTopic = openTopic;
+  walkable = islands;
+  onEnterIsland = enterIsland;
   new ResizeObserver(() => { if (el.offsetParent) render(); }).observe(el);
   el.addEventListener('click', onClick);
   document.getElementById('sheet').addEventListener('click', e => {
@@ -341,7 +345,7 @@ function onClick(e) {
     return;
   }
   sfx.tap();
-  sailTo(id, () => openSheet(region));
+  sailTo(id, () => (walkable[id] ? onEnterIsland(id) : openSheet(region)));
 }
 
 let toastTimer;

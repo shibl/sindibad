@@ -87,6 +87,29 @@
     <div id="badge-modal" class="badge-modal" hidden></div>
   </section>
 
+  <section id="screen-island" class="screen screen--island">
+    <canvas id="island-canvas" class="island-canvas" aria-label="الجزيرة — تحرّك بالأسهم أو بالسحب، واضغط للتفاعل"></canvas>
+    <header class="topbar topbar--island">
+      <button class="btn btn--round" id="island-leave" aria-label="العودة إلى السفينة">⛵</button>
+      <h2 id="island-name"></h2>
+      <span class="hud-pill" title="الأحرف الذهبية"><span class="letter-slots" id="letter-slots"></span></span>
+      <span class="hud-pill" title="اللآلئ">🦪 <b id="pearl-count">٠</b></span>
+    </header>
+    <p class="island-hint" id="island-hint" hidden></p>
+    <div class="joy" id="joy" hidden aria-hidden="true"><div class="joy__knob"></div></div>
+    <button class="act-btn" id="act-btn" hidden><b>✋</b><span></span></button>
+    <div class="dialog" id="dialog" hidden role="dialog" aria-live="polite">
+      <div class="dialog__portrait"></div>
+      <div class="dialog__body">
+        <p class="dialog__name"></p>
+        <p class="dialog__text"></p>
+        <div class="dialog__choices"></div>
+      </div>
+      <span class="dialog__next" aria-hidden="true">▼</span>
+    </div>
+    <div class="item-popup" id="item-popup" hidden></div>
+  </section>
+
   <section id="screen-journey" class="screen screen--journey">
     <header class="topbar">
       <button class="btn btn--round" data-go="map" aria-label="رجوع إلى الخريطة">→</button>

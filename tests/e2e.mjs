@@ -1,7 +1,8 @@
 // End-to-end test in a headless browser (Playwright + Chromium):
-//   title → hero select → map → learn cards → a perfect lesson → stars
-//   saved → reload keeps progress → the app still loads with the network
-//   off → no console errors. Runs at phone and tablet sizes.
+//   title → hero select → map → go ashore on the Arabic island → walk →
+//   talk to the calligrapher → his quest's lesson, played perfectly → a
+//   golden letter → back to sea: the fog lifts → reload keeps progress →
+//   the app (and the island) still load with the network off → no errors. Runs at phone and tablet sizes.
 //
 //   npm install      (once, installs Playwright)
 //   npm test
@@ -76,13 +77,43 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   check(await p.locator('.isle--locked').count() === 4, 'four islands start under fog');
 
   await p.click('.isle[data-region=arabic]');
-  await p.waitForSelector('.sheet.is-open', { timeout: 5000 });
-  check(await p.locator('.topic-card').count() === 3, 'Arabic island lists 3 topics');
-  await p.click('[data-topic=arabic-fael-mafool]');
-  check(await p.locator('.learn').count() === 1, 'first play opens Hudhud\'s lesson');
+  await p.waitForSelector('#screen-island[data-active]', { timeout: 6000 });
+  check(true, 'sailing to the Arabic island goes ashore');
+  const pos = () => p.evaluate(() => window.__island());
+  const start = await pos();
+  await p.keyboard.down('ArrowUp'); await p.waitForTimeout(700); await p.keyboard.up('ArrowUp');
+  check((await pos()).y < start.y - 0.5, 'the hero walks with the arrow keys');
+  // Walk to the calligrapher by the gate and accept his quest.
+  async function walkTo(x, y) {
+    for (let i = 0; i < 120; i++) {
+      const s = await pos(); const dx = x - s.x, dy = y - s.y;
+      if (Math.hypot(dx, dy) < 0.4) return;
+      const keys = [];
+      if (Math.abs(dx) > 0.25) keys.push(dx > 0 ? 'ArrowRight' : 'ArrowLeft');
+      if (Math.abs(dy) > 0.25) keys.push(dy > 0 ? 'ArrowDown' : 'ArrowUp');
+      for (const k of keys) await p.keyboard.down(k);
+      await p.waitForTimeout(120);
+      for (const k of keys) await p.keyboard.up(k);
+    }
+  }
+  await walkTo(13.1, 19.6); await walkTo(13.1, 13.2); await walkTo(15.9, 12.5);
+  await p.keyboard.press('Space');
+  await p.waitForSelector('#dialog:not([hidden])', { timeout: 3000 });
+  check(true, 'talking to a villager opens a dialogue');
+  for (let i = 0; i < 6 && !(await p.locator('#dialog [data-choice]').count()); i++) { await p.keyboard.press('Space'); await p.waitForTimeout(200); }
+  await p.click('#dialog [data-choice="0"]');
+  await p.waitForSelector('#screen-activity[data-active]', { timeout: 3000 });
+  check(await p.locator('.learn').count() === 1, 'the quest opens Hudhud\'s lesson');
   check(await perfectLesson(p), 'lesson played to the end');
   check((await p.locator('.rstar.is-on').count()) === 3, 'perfect play earns 3 stars');
   await p.click('[data-result=map]');
+  await p.waitForSelector('#screen-island[data-active]', { timeout: 3000 });
+  await p.waitForSelector('#dialog:not([hidden])', { timeout: 3000 });
+  for (let i = 0; i < 6 && await p.isVisible('#dialog'); i++) { await p.keyboard.press('Space'); await p.waitForTimeout(250); }
+  check(await p.isVisible('#item-popup'), 'the villager hands over a golden letter');
+  check((await pos()).letters.includes('م'), 'the letter is saved (and opens the gate)');
+  await p.click('#item-popup');
+  await p.click('#island-leave');
   await p.waitForTimeout(4500);
   check(await p.locator('.isle[data-region=math]:not(.isle--locked)').count() === 1, '3 stars lift the fog from the maths island');
 
@@ -96,6 +127,9 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   check(await p.isVisible('.logo__big'), 'app loads with the network off');
   await p.click('#screen-title [data-go]');
   check(await p.locator('.isle').count() === 6, 'map works offline');
+  await p.click('.isle[data-region=arabic]');
+  await p.waitForSelector('#screen-island[data-active]', { timeout: 6000 });
+  check(true, 'the island works offline');
   check(errors.length === 0, `no console errors${errors.length ? `: ${errors.join(' | ')}` : ''}`);
   await ctx.close();
 }

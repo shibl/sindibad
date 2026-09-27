@@ -18,12 +18,12 @@
 //
 // Licence: CC-BY-SA (see README.md).
 
-const LINE = '#3b2414';
-const OUT = `stroke="${LINE}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"`;
-const OUT_THIN = `stroke="${LINE}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"`;
+export const LINE = '#3b2414';
+export const OUT = `stroke="${LINE}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"`;
+export const OUT_THIN = `stroke="${LINE}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"`;
 
 // A limb: a thick coloured stroke with a darker outline stroke under it.
-function limb(d, color, width = 14) {
+export function limb(d, color, width = 14) {
   return `<path d="${d}" fill="none" stroke="${LINE}" stroke-width="${width + 6}" stroke-linecap="round" stroke-linejoin="round"/>
           <path d="${d}" fill="none" stroke="${color}" stroke-width="${width}" stroke-linecap="round" stroke-linejoin="round"/>`;
 }
@@ -31,11 +31,9 @@ function limb(d, color, width = 14) {
 // ---------- Shared gradients ----------
 // Injected once into the page (see app.js). Kept out of the individual
 // pictures so hidden screens can't break them (Chrome won't paint a gradient
-// whose <defs> live inside a display:none subtree).
-export function defsSVG() {
-  return `
-<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
-  <defs>
+// whose <defs> live inside a display:none subtree). Also used raw by
+// art/sprites.js to make self-contained images for the canvas.
+export const DEFS = `
     <linearGradient id="g-wood" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#b06a36"/><stop offset=".55" stop-color="#8a4c24"/><stop offset="1" stop-color="#5e3214"/>
     </linearGradient>
@@ -63,8 +61,10 @@ export function defsSVG() {
     <linearGradient id="g-hudhud" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#f4ac6c"/><stop offset="1" stop-color="#d9824a"/>
     </linearGradient>
-  </defs>
-</svg>`;
+  `;
+
+export function defsSVG() {
+  return `<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>${DEFS}</defs></svg>`;
 }
 
 // ---------- Faces ----------
@@ -91,7 +91,7 @@ function face({ lashes = false } = {}) {
     <path d="M94 114.5 Q100 117.5 106 114.5 Q100 112.5 94 114.5Z" fill="#e0686b"/>`;
 }
 
-function head({ skin, lashes }) {
+export function head({ skin, lashes }) {
   return `
     <rect x="91" y="110" width="18" height="20" rx="6" fill="${skin}" ${OUT}/>
     <circle cx="61" cy="84" r="9" fill="${skin}" ${OUT}/>
@@ -242,7 +242,7 @@ export function heroSVG(id, cls = '') {
 // ---------- Hudhud (الهدهد) ----------
 // The wise hoopoe guide: salmon body, black-and-white barred wings, a crest
 // fan with black tips, long curved beak, and round reading glasses.
-function hudhudBody() {
+export function hudhudBody() {
   const feathers = [-62, -44, -26, -8, 10, 28].map((a, i) => `
     <g transform="rotate(${a} 60 40)">
       <path d="M60 40 Q54 22 60 ${6 - (i % 2) * 3} Q66 22 60 40Z" fill="#f2a45e" ${OUT_THIN}/>

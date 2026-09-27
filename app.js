@@ -9,6 +9,8 @@ import { defsSVG, shipSVG, palmSVG, gullSVG, cloudSVG, skylineSVG, shoreSVG, her
 import { save } from './core/save.js';
 import { initMap, enter as enterMap } from './core/map.js';
 import { renderJourney } from './core/journey.js';
+import { initOverworld, enterIsland, lessonReturned, debugState } from './core/overworld.js';
+import arabicIsland from './worlds/grade6/arabic.js';
 import { initLesson, startLesson } from './core/lesson.js';
 import { sfx, toggleMute } from './core/sound.js';
 import world from './worlds/grade6.js';
@@ -165,8 +167,24 @@ paintScene();
 paintShip(document.querySelector('.ship--title'), ['sindbad', 'yasmina']);
 wireNavigation();
 wireHeroSelect();
-initMap(document.getElementById('map'), world, { openTopic: startLesson });
-initLesson({ showScreen, onReturn: after => showScreen('map', after) });
+const ISLANDS = { arabic: arabicIsland };
+let lessonFromIsland = false;
+initMap(document.getElementById('map'), world, {
+  openTopic: startLesson,
+  islands: ISLANDS,
+  enterIsland: id => { showScreen('island'); enterIsland(ISLANDS[id]); },
+});
+initOverworld({
+  startLesson: id => { lessonFromIsland = true; startLesson(id); },
+  leave: after => showScreen('map', after),
+});
+initLesson({
+  showScreen,
+  onReturn: after => {
+    if (lessonFromIsland) { lessonFromIsland = false; showScreen('island'); lessonReturned(after); }
+    else showScreen('map', after);
+  },
+});
 registerServiceWorker();
 
 // Returning players skip straight past character select once they've chosen a hero.
@@ -176,3 +194,6 @@ if (save.get().hero) {
   start.textContent = 'تابِع الرحلة';
   document.getElementById('title-tag').textContent = `مرحباً بعودتك يا ${save.get().hero === 'yasmina' ? 'ياسمينة' : 'سندباد'}! ⛵`;
 }
+
+// Test hook: lets headless tests read the hero's position on an island.
+if (window.__SINDBAD_TEST__) window.__island = debugState;
