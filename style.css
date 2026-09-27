@@ -1746,3 +1746,20 @@ body.calm .isle__ring, body.calm .shop__stage::before, body.calm .result__rays, 
   details.p-subject > summary { list-style: none; }
   * { animation: none !important; transition: none !important; }
 }
+
+/* ================= V30: small screens ================= */
+/* The first-visit hint replaces the goal pill while it shows. */
+#screen-island:has(#island-hint:not([hidden])) .goal { opacity: 0; }
+.goal { transition: opacity .3s; }
+@media (max-height: 680px) {
+  .screen--activity { gap: 6px; }
+  .screen--activity > .coach { min-height: 64px; flex: 0 1 auto; }
+  .screen--activity > .coach .guide__bird { width: 64px; }
+  .screen--activity > .coach .coach__hero { width: 46px; }
+  .screen--activity > .coach .bubble { font-size: 14px; padding: 6px 10px; margin-bottom: 6px; }
+  .screen--activity > .activity { flex: 1 1 auto; max-height: none; padding: 10px; }
+  .round { gap: 10px; }
+  .round > .prompt:first-child { padding: 12px 10px 12px; font-size: clamp(18px, 5.4vw, 24px); }
+  .choices { gap: 10px; }
+  .choice { min-height: 58px; }
+}
