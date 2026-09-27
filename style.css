@@ -533,6 +533,10 @@ body[data-screen="map"] #scene, body[data-screen="activity"] #scene { visibility
 .coach[data-mood="think"] .hudhud, .coach[data-mood="oops"] .hudhud { animation: think 1.2s ease-in-out; transform-origin: 80px 130px; transform-box: view-box; }
 @keyframes think { 30%, 70% { transform: rotate(8deg); } }
 .coach[data-mood="think"] .bubble { background: #fff3d6; }
+.coach__hero { flex: 0 0 auto; width: clamp(58px, 15vw, 86px); margin-bottom: -6px; }
+.coach[data-mood="cheer"] .coach__hero .hero { animation: cheer .7s cubic-bezier(.2, .8, .3, 1.4); transform-origin: 100px 290px; transform-box: view-box; }
+.coach[data-mood="think"] .coach__hero .hero, .coach[data-mood="oops"] .coach__hero .hero { animation: puzzled 1s ease-in-out; transform-origin: 100px 290px; transform-box: view-box; }
+@keyframes puzzled { 30% { transform: rotate(-5deg) translateY(2%); } 70% { transform: rotate(4deg); } }
 
 /* ---------- Engines ---------- */
 
@@ -593,12 +597,15 @@ body[data-screen="map"] #scene, body[data-screen="activity"] #scene { visibility
 .nl__ripple { fill: none; stroke: #fff; stroke-width: 3; opacity: .7; }
 .nl__axis { stroke: var(--ink); stroke-width: 6; stroke-linecap: round; }
 .nl__tick { stroke: var(--ink); stroke-width: 4; stroke-linecap: round; }
-.nl__label { font: 800 40px "Baloo Bhaijaan 2", sans-serif; fill: var(--ink); text-anchor: middle; }
+.nl__badge { fill: #fff; stroke: var(--ink); stroke-width: 4; }
+.nl__label { font: 800 44px "Baloo Bhaijaan 2", sans-serif; fill: var(--ink); text-anchor: middle; }
+.nl__mast { stroke: var(--ink); stroke-width: 3; }
 .nl__boat { transition: transform .7s cubic-bezier(.3, .8, .3, 1.2); }
 .nl__hull { fill: #a0602e; stroke: var(--ink); stroke-width: 3; }
 .nl__sail { fill: #fff7e6; stroke: var(--ink); stroke-width: 3; stroke-linejoin: round; }
 .nl__pole { stroke: var(--ink); stroke-width: 4; }
 .nl__pennant { fill: #2f8a5f; stroke: var(--ink); stroke-width: 3; }
+.nl.is-right { background: none !important; }
 .nl.is-right .nl__water { fill: #b9f0b4; }
 .nl.is-wrong { animation: shake .45s; }
 .nl__help { margin: 0; color: var(--ink-soft); font-size: 15px; }

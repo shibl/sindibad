@@ -25,18 +25,22 @@ export function numberline({ items, count = 7, intro }) {
           tickMarks += `<line x1="${x}" x2="${x}" y1="${Y - 16}" y2="${Y + 16}" class="nl__tick"/>`;
         }
         const labels = (item.labels || [[min, ctx.num(min)], [max, ctx.num(max)]])
-          .map(([v, t]) => `<text x="${xOf(v)}" y="${Y + 56}" class="nl__label">${t}</text>`).join('');
+          .map(([v, t]) => `<g transform="translate(${xOf(v)} ${Y + 66})"><circle r="30" class="nl__badge"/><text y="14" class="nl__label">${t}</text></g>`).join('');
         const svg = h(`
           <div class="nl" dir="ltr">
-            <svg viewBox="0 0 ${W} 200" class="nl__svg">
+            <svg viewBox="0 -40 ${W} 260" class="nl__svg">
               <rect x="0" y="${Y - 44}" width="${W}" height="88" rx="44" class="nl__water"/>
               <path d="M20 ${Y - 20} q20 -10 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0" class="nl__ripple"/>
               <line x1="${PAD}" x2="${W - PAD}" y1="${Y}" y2="${Y}" class="nl__axis"/>
               ${tickMarks}${labels}
               <g class="nl__flag" style="display:none"><line y1="${Y}" y2="${Y - 70}" class="nl__pole"/><path d="M0 ${Y - 70} l34 12 l-34 12Z" class="nl__pennant"/></g>
               <g class="nl__boat" transform="translate(${xOf(min)} ${Y})">
-                <path d="M-26 -8 Q0 14 26 -8 L20 6 Q0 16 -20 6Z" class="nl__hull"/>
-                <path d="M0 -8 V-54 M0 -52 Q22 -30 2 -12Z" class="nl__sail"/>
+                <g transform="scale(1.9)">
+                  <path d="M-26 -8 Q0 14 26 -8 L20 6 Q0 16 -20 6Z" class="nl__hull"/>
+                  <path d="M0 -8 V-54" class="nl__mast"/>
+                  <path d="M2 -52 Q26 -30 2 -12Z" class="nl__sail"/>
+                  <path d="M0 -54 l14 4 l-14 4Z" class="nl__pennant"/>
+                </g>
               </g>
             </svg>
           </div>`);

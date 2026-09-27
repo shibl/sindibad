@@ -60,7 +60,7 @@ export function runRounds({ container, ctx, items, onComplete, renderRound, intr
         ctx.sfx.good();
         const praise = PRAISE[Math.floor(Math.random() * PRAISE.length)].replace('{name}', ctx.heroName);
         ctx.say(note ? `${praise} ${note}` : praise, 'cheer');
-        stage.classList.add('is-right');
+        stage.classList.add('is-solved');
         setTimeout(advance, note ? 1900 : 1100);
       },
       wrong(hint) {

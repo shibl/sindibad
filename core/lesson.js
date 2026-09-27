@@ -53,6 +53,7 @@ export function startLesson(topicId) {
   current = { topic, abort };
 
   const hero = save.get().hero || 'sindbad';
+  document.querySelector('.coach__hero').innerHTML = heroSVG(hero);
   const container = document.getElementById('activity');
   container.innerHTML = '';
   container.className = 'activity';
