@@ -8,6 +8,7 @@
 import { defsSVG, shipSVG, palmSVG, gullSVG, cloudSVG, skylineSVG, shoreSVG, heroSVG, hudhudSVG } from './art/art.js';
 import { save } from './core/save.js';
 import { initMap, enter as enterMap } from './core/map.js';
+import { renderJourney } from './core/journey.js';
 import { initLesson, startLesson } from './core/lesson.js';
 import { sfx, toggleMute } from './core/sound.js';
 import world from './worlds/grade6.js';
@@ -77,6 +78,7 @@ export function showScreen(name, detail) {
     document.getElementById('hero-btn').innerHTML = `<span class="hero-face">${heroSVG(hero)}</span>`;
     enterMap(detail);
   }
+  if (name === 'journey') renderJourney(document.getElementById('journey'), world, { showScreen });
 }
 
 function wireNavigation() {
@@ -142,6 +144,20 @@ function registerServiceWorker() {
     });
   });
 }
+
+// Lite mode for budget phones: ≤ 2 GB memory or ≤ 4 cores.
+// ?lite=1 / ?lite=0 force it on or off.
+{
+  const forced = new URLSearchParams(location.search).get('lite');
+  const weak = (navigator.deviceMemory && navigator.deviceMemory <= 2) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+  if (forced === '1' || (forced !== '0' && weak)) document.body.classList.add('lite');
+}
+
+// Pause every animation while the app is in the background (saves battery
+// on low-end phones).
+document.addEventListener('visibilitychange', () => {
+  document.body.classList.toggle('is-paused', document.hidden);
+});
 
 // ---------- Boot ----------
 

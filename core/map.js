@@ -114,10 +114,10 @@ export function render() {
     return `<path d="M${a.x} ${a.y} Q${mx} ${my} ${b.x} ${b.y}" class="route ${open ? 'route--open' : ''}"/>`;
   }).join('');
 
-  const isle = (r, kind, name, extra = '') => {
+  const isle = (r, kind, name, extra = '', aria = '') => {
     const p = points[r.id];
     return `
-    <button class="isle ${extra}" data-region="${r.id}"
+    <button class="isle ${extra}" data-region="${r.id}" aria-label="${aria}"
             style="left:${p.x}px;top:${p.y}px;width:${size}px">
       <span class="isle__art">${islandSVG(kind)}</span>
       <span class="isle__label">${name}</span>
@@ -138,7 +138,10 @@ export function render() {
         ${cloudSVG()}${cloudSVG()}${cloudSVG()}
         <span class="fog__lock">🔒</span>
       </span>`;
-    return isle(r, r.art, label, open ? '' : 'isle--locked').replace('</button>', `${fog}</button>`);
+    const aria = open && !pending
+      ? `${r.name}، ${r.subject}، ${num(stars)} من ${num(max)} نجوم${badge ? `، شارة ${r.badge.name}` : ''}`
+      : `${r.name}، يغطيها الضباب`;
+    return isle(r, r.art, label, open ? '' : 'isle--locked', aria).replace('</button>', `${fog}</button>`);
   }).join('');
 
   el.innerHTML = `
@@ -151,7 +154,7 @@ export function render() {
     <div class="map__fish" style="left:${layout.portrait ? 16 : 30}%;top:${layout.portrait ? 52 : 70}%"><span>🐟</span></div>
     <div class="map__fish map__fish--2" style="left:${layout.portrait ? 82 : 64}%;top:${layout.portrait ? 34 : 24}%"><span>🐠</span></div>
     <div class="map__gulls">${'<svg viewBox="0 0 24 12"><path d="M1 8 Q6 1 12 8 Q18 1 23 8" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>'.repeat(3)}</div>
-    ${isle({ id: 'home' }, world.home.art, `<b>${world.home.name}</b>`, 'isle--home')}
+    ${isle({ id: 'home' }, world.home.art, `<b>${world.home.name}</b>`, 'isle--home', world.home.name)}
     ${islands}
     <div class="map__ship" style="width:${size * 0.62}px">
       <div class="ship__wake"><i></i><i></i><i></i></div>
