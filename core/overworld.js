@@ -19,6 +19,7 @@ import { hudhudSVG } from '../art/art.js';
 const hudhudPortrait = () => hudhudSVG();
 import { HEROES, g, heroSVG } from '../art/art.js';
 import { shake } from './fx.js';
+import { setSeaLevel } from './ambience.js';
 import { save } from './save.js';
 import { sfx } from './sound.js';
 import { num } from './format.js';
@@ -31,6 +32,7 @@ const RADIUS = 0.28;        // player collision radius (tiles)
 const TALK_RANGE = 1.8;     // how close you must be to interact (tiles)
 const SOLID = new Set(['~', 'w', '#']);
 const WATER = new Set(['~', 'w']);
+const GROUND = { '.': 'grass', s: 'sand', '=': 'stone', '#': 'stone', d: 'wood' };
 
 let els;                    // DOM handles
 let ctx, dpr = 1, W = 0, H = 0, TILE = 48;
@@ -447,12 +449,21 @@ function update(dt) {
     if (!hits(player.x + mx, player.y)) player.x += mx;
     if (!hits(player.x, player.y + my)) player.y += my;
     if (Math.abs(dx) > 0.2) player.face = dx > 0 ? -1 : 1; // art faces the viewer; flip toward travel
+    const before = Math.floor(player.step / Math.PI);
     player.step += dt * 10;
+    if (Math.floor(player.step / Math.PI) !== before) sfx.step(GROUND[tileAt(player.x, player.y)]);
     if (target && Math.abs(mx) + Math.abs(my) < 1e-4) target = null; // stuck: give up
   }
   collectPearls();
   stepPuzzles();
-  if ((goalTimer -= dt) <= 0) { goalTimer = 0.5; updateGoal(); }
+  if ((goalTimer -= dt) <= 0) {
+    goalTimer = 0.5;
+    updateGoal();
+    // How much sea is around, for the loudness of the waves.
+    let water = 0;
+    for (let j = -3; j <= 3; j++) for (let i = -3; i <= 3; i++) if (WATER.has(tileAt(player.x + i * 1.6, player.y + j * 1.6))) water += 1;
+    setSeaLevel(water / 49 * 2);
+  }
   wander(dt);
   if (player.moving && (dustTimer -= dt) <= 0) { dustTimer = 0.16; dust.push({ x: player.x + (Math.random() - 0.5) * 0.2, y: player.y, t: 0 }); }
   dust = dust.filter(d => (d.t += dt) < 0.5);

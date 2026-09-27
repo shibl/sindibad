@@ -60,6 +60,11 @@ export const sfx = {
     [[523, 0], [659, 0.13], [784, 0.26], [1047, 0.39]].forEach(([f, at]) => tone(f, { at, dur: 0.14, type: 'square', vol: 0.07 }));
     [[1047, 0.6], [1319, 0.6], [1568, 0.6]].forEach(([f, at]) => tone(f, { at, dur: 0.7, type: 'triangle', vol: 0.1 }));
   },
+  // Footsteps: a short filtered noise tick, coloured by the ground.
+  step: kind => {
+    const k = { grass: [700, 0.035, 0.05], sand: [2200, 0.05, 0.035], stone: [1800, 0.028, 0.06], wood: [380, 0.05, 0.09] }[kind] || [900, 0.04, 0.04];
+    noise({ dur: k[1], vol: k[2] * (0.8 + Math.random() * 0.4), from: k[0], to: k[0] * 0.8 });
+  },
   sail: () => noise({ dur: 1.2, vol: 0.06, from: 300, to: 900 }),
 };
 

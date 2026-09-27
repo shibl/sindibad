@@ -6,6 +6,7 @@
 // so adding a topic never requires editing this file.
 
 import { wipe } from './core/fx.js';
+import { startAmbience, stopAmbience, refreshAmbience } from './core/ambience.js';
 import { defsSVG, shipSVG, palmSVG, gullSVG, cloudSVG, skylineSVG, shoreSVG, heroSVG, hudhudSVG } from './art/art.js';
 import { save } from './core/save.js';
 import { initMap, enter as enterMap } from './core/map.js';
@@ -87,6 +88,7 @@ export function showScreen(name, detail) {
     el.toggleAttribute('data-active', el.id === `screen-${name}`);
   });
   document.body.dataset.screen = name;
+  if (name === 'island') startAmbience(); else stopAmbience();
   if (name === 'title' || name === 'map') { place = name; playMusic(place); }
   if (name === 'map') {
     const hero = save.get().hero || 'sindbad';
@@ -112,7 +114,7 @@ function wireNavigation() {
   }));
   const mute = document.getElementById('mute-btn');
   const paintMute = () => { mute.textContent = save.get().muted ? '🔇' : '🔊'; };
-  mute.addEventListener('click', () => { toggleMute(); paintMute(); refreshMusicVolume(); sfx.tap(); });
+  mute.addEventListener('click', () => { toggleMute(); paintMute(); refreshMusicVolume(); refreshAmbience(); sfx.tap(); });
   paintMute();
 }
 
