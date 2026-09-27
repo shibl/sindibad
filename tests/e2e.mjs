@@ -73,7 +73,9 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   check(await p.isVisible('#screen-select'), 'start → character select');
   await p.click('[data-hero=yasmina]');
   await p.click('#select-go');
-  check(await p.isVisible('#screen-map'), 'hero chosen → map');
+  check(await p.isVisible('#story'), 'hero chosen → the opening story');
+  await p.click('[data-st=skip]');
+  check(await p.isVisible('#screen-map'), 'story skipped → map');
   check(await p.locator('.isle--locked').count() === 4, 'four islands start under fog');
 
   await p.click('.isle[data-region=arabic]');
