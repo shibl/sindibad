@@ -719,6 +719,50 @@ function wander(dt) {
     p.x = nx; p.y = ny; p.walking = true;
     if (Math.abs(dx) > 0.05) p.face = dx > 0 ? 1 : -1;
   }
+  emotes(dt);
+}
+
+// ---------- Villager life: look at the hero, wave hello, emotes ----------
+// Each villager turns toward the hero when near, waves 👋 the first time the
+// hero comes close, and now and then hums ♪, wonders 💭 or — once helped —
+// sends a little ♥.
+function emotes(dt) {
+  for (const p of people) {
+    const d = Math.hypot(p.x - player.x, p.y - player.y);
+    if (!p.walking && d < 3.5 && (!dialog || dialog.person === p)) p.face = player.x > p.x ? 1 : -1;
+    if (p.emote && (p.emote.t += dt) > 2) p.emote = null;
+    if (d < 2.6 && !p.greeted && !busy) {
+      p.greeted = true;
+      p.emote = { icon: '👋', t: 0 };
+      sfx.blip(hashPitch(p)); setTimeout(() => sfx.blip(hashPitch(p) * 1.25), 90);
+      continue;
+    }
+    if (d > 6) p.greeted = false;
+    p.emoteIn = (p.emoteIn ?? 4 + Math.random() * 8) - dt;
+    if (p.emoteIn <= 0 && !p.emote) {
+      p.emoteIn = 7 + Math.random() * 10;
+      const helped = p.quest && rewarded(p);
+      p.emote = { icon: helped ? (Math.random() < 0.5 ? '♥' : '♪') : ['♪', '💭', '…'][Math.floor(Math.random() * 3)], t: 0 };
+    }
+  }
+}
+const hashPitch = p => 380 + ([...p.id].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) >>> 0, 7) % 7) * 45;
+
+function drawEmote(p) {
+  if (!p.emote || lite()) return;
+  const t = p.emote.t;
+  const k = t < 0.2 ? t / 0.2 : t > 1.7 ? Math.max(0, (2 - t) / 0.3) : 1;
+  const pop = t < 0.25 ? 1 + Math.sin((t / 0.25) * Math.PI) * 0.25 : 1;
+  const x = sx(p.x) + TILE * 0.58 * (p.face > 0 ? 1 : -1), y = sy(p.y) - TILE * 1.3 - t * 4;
+  const r = TILE * 0.26 * k * pop;
+  if (r < 1) return;
+  ctx.fillStyle = '#fff'; ctx.strokeStyle = '#3b2414'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.arc(x - r * 0.7 * (p.face > 0 ? 1 : -1), y + r * 0.95, r * 0.18, 0, 7); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = p.emote.icon === '♥' ? '#e0457b' : p.emote.icon === '♪' ? '#2f7fd0' : '#3b2414';
+  ctx.font = `800 ${Math.round(r * 1.15)}px "Baloo Bhaijaan 2", sans-serif`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(p.emote.icon, x, y + 1);
 }
 
 function drawProp(o) {
@@ -776,7 +820,10 @@ function drawPerson(p) {
   const talking = dialog && dialog.person === p;
   const bob = talking ? Math.sin(time * 8) * 1.5 : p.walking ? -Math.abs(Math.sin(time * 9)) * TILE * 0.06 : Math.sin(time * 2 + p.at[0]) * 1;
   const breathe = p.walking ? 1 : 1 + Math.sin(time * 2.2 + p.at[0]) * 0.012;
-  drawSprite(p.sprite, p.x, p.y, 1.5, { flip: p.face > 0, bob, tilt: p.walking ? Math.sin(time * 9) * 0.04 : 0, sqy: breathe, sqx: 2 - breathe });
+  // A little hop when they wave hello.
+  const hop = p.emote?.icon === '👋' && p.emote.t < 0.5 ? -Math.sin((p.emote.t / 0.5) * Math.PI) * TILE * 0.18 : 0;
+  drawSprite(p.sprite, p.x, p.y, 1.5, { flip: p.face > 0, bob: bob + hop, tilt: p.walking ? Math.sin(time * 9) * 0.04 : 0, sqy: breathe, sqx: 2 - breathe });
+  drawEmote(p);
 }
 
 function drawPlayer() {
