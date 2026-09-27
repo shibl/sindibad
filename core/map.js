@@ -2,11 +2,12 @@
 // sea route, and the ship that sails the chosen hero between islands.
 // Tapping an unlocked island sails there and opens its panel of topics.
 
-import { islandSVG, shipSVG, compassSVG, whaleSVG, cloudSVG, hudhudSVG, medalSVG } from '../art/art.js';
+import { islandSVG, shipSVG, compassSVG, whaleSVG, cloudSVG, hudhudSVG, medalSVG, g } from '../art/art.js';
 import { save } from './save.js';
 import { topicsIn, getTopic } from './topics.js';
 import { sfx } from './sound.js';
 import { num } from './format.js';
+import { showFinale } from './finale.js';
 
 let world;          // the current grade world (worlds/grade6.js)
 let el;             // the .map element
@@ -190,6 +191,9 @@ export async function enter(after) {
     return b && (s.badges || {})[r.id] !== b;
   });
   for (const r of earned) { await showBadge(r, badgeState(r.id)); spoke = true; }
+  // Grade complete: the treasure island has at least one star.
+  const last = world.regions[world.regions.length - 1];
+  if (!s.finale && regionStars(last.id).stars > 0) { await showFinale(totalStars()); render(); return; }
   if (spoke) return;
   if (!s.greeted) {
     save.update(v => { v.greeted = true; });
@@ -265,7 +269,7 @@ function showBadge(region, state) {
         <p class="badge-modal__kicker">${gold ? 'شارة ذهبية!' : 'شارة جديدة!'}</p>
         <h3 id="badge-title">${region.badge.name}</h3>
         <p>${gold
-          ? `أتقنت كل دروس ${region.name} بثلاث نجوم. أنت بحّار أسطوري يا ${heroName()}!`
+          ? `أتقنت كل دروس ${region.name} بثلاث نجوم. أنت ${g(save.get().hero, 'بحّار أسطوري', 'بحّارة أسطورية')} يا ${heroName()}!`
           : `أنهيت كل دروس ${region.name}. اجمع ثلاث نجوم في كل درس لتصبح الشارة ذهبية!`}</p>
         <button class="btn btn--gold" data-close-badge>رائع!</button>
       </div>`;

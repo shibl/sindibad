@@ -875,6 +875,68 @@ body[data-screen="map"] #scene, body[data-screen="activity"] #scene { visibility
 
 .is-paused *, .is-paused *::before, .is-paused *::after { animation-play-state: paused !important; }
 
+/* ================= Finale & certificate ================= */
+
+.finale {
+  position: absolute; inset: 0; z-index: 60; display: grid; place-items: center; overflow: hidden;
+  background: radial-gradient(ellipse at 50% 60%, #2b3f86, #0b1638 70%);
+  opacity: 0; transition: opacity .5s;
+}
+.finale[hidden] { display: none; }
+.finale.is-open { opacity: 1; }
+.finale__sky { position: absolute; inset: 0; pointer-events: none; }
+.burst { position: absolute; width: 0; height: 0; }
+.burst i {
+  position: absolute; left: 0; top: 0; width: 6px; height: 22px; margin: -11px 0 0 -3px; border-radius: 3px;
+  background: var(--c); box-shadow: 0 0 10px var(--c);
+  transform: rotate(var(--a)) translateY(0) scaleY(.2); opacity: 0;
+  animation: burst 2.2s var(--d) ease-out infinite;
+}
+@keyframes burst {
+  0% { transform: rotate(var(--a)) translateY(0) scaleY(.2); opacity: 0; }
+  10% { opacity: 1; }
+  60% { transform: rotate(var(--a)) translateY(-70px) scaleY(1); opacity: 1; }
+  100% { transform: rotate(var(--a)) translateY(-90px) scaleY(.3); opacity: 0; }
+}
+.finale__stage { position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px; text-align: center; max-height: 100%; overflow: auto; }
+.finale__line {
+  margin: 0; font-size: clamp(36px, 11vw, 60px); font-weight: 800; color: #ffd23f;
+  paint-order: stroke fill; -webkit-text-stroke: 8px var(--ink);
+  animation: card-up .8s .3s cubic-bezier(.2, .8, .3, 1.4) both;
+}
+.finale__sub { margin: 0 0 10px; color: #fff; font-size: 18px; }
+.finale__chest { width: min(70vw, 300px); margin-top: 60px; }
+.chest-art .chest__lid { transform-origin: 40px 102px; transform-box: view-box; animation: lid 1s .8s cubic-bezier(.3, 1.6, .5, 1) both; }
+@keyframes lid { to { transform: rotate(-38deg) translate(-6px, -18px); } }
+.chest-art .chest__glow { opacity: 0; animation: chest-glow 1s 1s ease-out both; transform-origin: 120px 100px; transform-box: view-box; }
+@keyframes chest-glow { from { opacity: 0; transform: scaleY(.2); } to { opacity: 1; transform: scaleY(1); } }
+.chest-art .chest__coins { animation: coins 2s 1.2s ease-in-out infinite; transform-box: view-box; }
+@keyframes coins { 50% { transform: translateY(-6px); } }
+
+.finale__stage--cert { gap: 16px; width: 100%; max-width: 560px; }
+.cert {
+  width: 100%; padding: 10px; border-radius: 10px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cpath d='M20 2 L25 15 L38 20 L25 25 L20 38 L15 25 L2 20 L15 15Z' fill='%23f2c14e' stroke='%233b2414' stroke-width='1.5'/%3E%3C/svg%3E") 0 0 / 28px,
+    #1f6d78;
+  border: 3px solid var(--ink); box-shadow: 0 10px 40px rgba(0, 0, 0, .5);
+  animation: card-up .7s cubic-bezier(.2, .8, .3, 1.3);
+}
+.cert__inner {
+  padding: 16px 18px 12px; border-radius: 6px; border: 3px solid var(--ink);
+  background: radial-gradient(ellipse at 50% 30%, #fffaf0, #f3dfb0);
+}
+.cert__kicker { margin: 0; font-size: 13px; color: var(--ink-soft); font-weight: 800; }
+.cert__title { margin: 2px 0 8px; font-size: clamp(24px, 7vw, 32px); font-weight: 800; color: var(--red); }
+.cert__row { display: flex; align-items: center; gap: 10px; text-align: start; }
+.cert__hero { width: 90px; flex: 0 0 auto; }
+.cert__text p { margin: 2px 0; font-size: 15px; line-height: 1.6; }
+.cert__name { font-size: 34px !important; font-weight: 800; color: var(--teal); line-height: 1.1 !important; }
+.cert__stars { margin: 8px 0 4px; font-size: 20px; font-weight: 800; color: var(--gold-deep); }
+.cert__sign { display: flex; justify-content: space-between; align-items: flex-end; font-size: 13px; border-top: 2px dashed var(--gold-deep); padding-top: 6px; }
+.cert__bird { display: flex; align-items: center; gap: 4px; }
+.cert__bird svg { width: 54px; }
+
 /* Respect users (and low-power devices) that ask for less motion. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }

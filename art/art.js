@@ -227,9 +227,12 @@ function yasminaBody() {
 }
 
 export const HEROES = {
-  sindbad: { id: 'sindbad', name: 'سندباد', body: sindbadBody },
-  yasmina: { id: 'yasmina', name: 'ياسمينة', body: yasminaBody },
+  sindbad: { id: 'sindbad', name: 'سندباد', female: false, body: sindbadBody },
+  yasmina: { id: 'yasmina', name: 'ياسمينة', female: true, body: yasminaBody },
 };
+
+// Arabic is gendered: pick the masculine or feminine form for a hero.
+export const g = (heroId, m, f) => (HEROES[heroId]?.female ? f : m);
 
 // Full-body portrait of a hero. viewBox 200×300.
 export function heroSVG(id, cls = '') {
@@ -575,5 +578,29 @@ export function medalSVG(icon, { gold = false, color = '#d0507e' } = {}) {
   <circle cx="60" cy="98" r="31" fill="#fffaf0" ${OUT_THIN}/>
   <text x="60" y="112" text-anchor="middle" font-size="36">${icon}</text>
   <path d="M28 76 Q40 60 60 58" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".6"/>
+</svg>`;
+}
+
+// A big treasure chest whose lid (.chest__lid) can swing open. viewBox 240×200.
+export function chestSVG() {
+  return `
+<svg class="chest-art" viewBox="0 0 240 200" aria-hidden="true" overflow="visible">
+  <ellipse cx="120" cy="186" rx="96" ry="10" fill="#000" opacity=".2"/>
+  <g class="chest__glow"><path d="M60 100 L10 -120 L230 -120 L180 100Z" fill="url(#g-glow)" opacity=".9"/></g>
+  <g class="chest__coins" fill="#ffd23f" ${OUT_THIN}>
+    <ellipse cx="96" cy="98" rx="14" ry="6"/><ellipse cx="124" cy="94" rx="14" ry="6"/><ellipse cx="148" cy="100" rx="14" ry="6"/>
+    <path d="M112 86 l8 -14 l8 14Z" fill="#7fd6e0"/><circle cx="104" cy="84" r="7" fill="#d0507e"/>
+  </g>
+  <path d="M40 100 H200 V176 Q200 184 192 184 H48 Q40 184 40 176Z" fill="#a0602e" ${OUT}/>
+  <path d="M40 124 H200 M40 156 H200" stroke="#7a4520" stroke-width="3"/>
+  <path d="M66 100 V184 M174 100 V184" stroke="url(#g-brass)" stroke-width="10"/>
+  <path d="M66 100 V184 M174 100 V184" stroke="${LINE}" stroke-width="2" opacity=".4"/>
+  <rect x="108" y="112" width="24" height="28" rx="5" fill="url(#g-brass)" ${OUT_THIN}/>
+  <circle cx="120" cy="124" r="4" fill="${LINE}"/>
+  <g class="chest__lid">
+    <path d="M36 102 Q36 50 120 46 Q204 50 204 102Z" fill="#b8723a" ${OUT}/>
+    <path d="M66 100 Q66 58 70 54 M174 100 Q174 58 170 54" fill="none" stroke="url(#g-brass)" stroke-width="10"/>
+    <path d="M36 102 H204" ${OUT}/>
+  </g>
 </svg>`;
 }

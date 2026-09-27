@@ -1,11 +1,12 @@
 // "رحلتي" — the player's journey page: hero, stars, badge shelf, progress
 // per subject, change hero, and start over.
 
-import { heroSVG, medalSVG, HEROES } from '../art/art.js';
+import { heroSVG, medalSVG, HEROES, g } from '../art/art.js';
 import { save } from './save.js';
 import { regionStars, badgeState, totalStars } from './map.js';
 import { sfx } from './sound.js';
 import { num } from './format.js';
+import { showCertificate } from './finale.js';
 
 export function renderJourney(el, world, { showScreen }) {
   const s = save.get();
@@ -13,7 +14,10 @@ export function renderJourney(el, world, { showScreen }) {
   const { stars, max } = totalStars();
   const earned = world.regions.filter(r => badgeState(r.id)).length;
   const played = Object.values(s.topics).filter(t => t.plays).length;
-  const rank = stars >= max * 0.9 ? 'قائد الأسطول الصغير' : stars >= max * 0.6 ? 'ربّان ماهر' : stars >= max * 0.3 ? 'بحّار نشيط' : 'بحّار مبتدئ';
+  const rank = stars >= max * 0.9 ? g(hero, 'قائد الأسطول الصغير', 'قائدة الأسطول الصغيرة')
+    : stars >= max * 0.6 ? g(hero, 'ربّان ماهر', 'ربّانة ماهرة')
+    : stars >= max * 0.3 ? g(hero, 'بحّار نشيط', 'بحّارة نشيطة')
+    : g(hero, 'بحّار مبتدئ', 'بحّارة مبتدئة');
 
   el.innerHTML = `
     <div class="journey__hero">
@@ -51,6 +55,7 @@ export function renderJourney(el, world, { showScreen }) {
       }).join('')}
     </div>
     <div class="journey__actions">
+      ${s.finale ? '<button class="btn btn--gold" data-j="cert">📜 شهادتي</button>' : ''}
       <button class="btn btn--ghost" data-j="hero">🔄 تغيير البطل</button>
       <button class="btn btn--ghost btn--danger" data-j="reset">🗑️ ابدأ من جديد</button>
     </div>
@@ -61,6 +66,7 @@ export function renderJourney(el, world, { showScreen }) {
     if (!b) return;
     sfx.tap();
     if (b.dataset.j === 'hero') showScreen('select');
+    if (b.dataset.j === 'cert') showCertificate(totalStars());
     if (b.dataset.j === 'reset') {
       if (b.dataset.armed) {
         save.reset();

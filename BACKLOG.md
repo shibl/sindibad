@@ -9,7 +9,22 @@ Conventions:
 - Mark an item `[in progress]` when you start it and `[done]` with a one
   line result when you finish it — don't delete finished items, they're
   the project history.
-- Every session ends by appending a dated `## Playtest notes — <date>`
+- Every session ends by appending a dated `8. [ ] Educator review of all grade-6 content (Arabic grammar terms,
+   maths notation, science/geography facts) — everything is marked draft.
+   Collect corrections as issues; the content lives in `plugins/*/`.
+9. [ ] Gendered instructions: Hudhud's imperatives ("اضغط"، "فكّر") use
+   the generic form. Consider a player setting (not the hero choice) for
+   feminine forms ("اضغطي"، "فكّري").
+10. [ ] Real-device pass on a budget Android phone (2 GB RAM): check lite
+    mode kicks in, frame rate on the map, font rendering, install-to-home.
+11. [ ] More grade-6 topics per island (e.g. كان وأخواتها، الأعداد
+    الصحيحة، النسبة والتناسب، الضوء، الخلية) — each is one plugin file.
+12. [ ] Voice: optional recorded narration for Hudhud's lines (small,
+    compressed, CC-BY-SA) for weaker readers.
+13. [ ] Second world (e.g. grade 5) reusing the engines: needs a
+    `worlds/grade5.js`, a grade picker, and the younger art stage.
+
+## Playtest notes — <date>`
   section with what was tested, what broke, and 2-4 new proposed backlog
   items for next time.
 
@@ -23,26 +38,65 @@ Conventions:
    → App shell with title/map/activity screens, shared animated backdrop,
    ship + Sindbad + Yasmina art in `art/art.js`, PWA manifest + icons, and
    a precaching service worker; loads and reloads offline with no errors.
-2. [ ] Define and implement the plugin interface described in SPEC.md
+2. [done] Define and implement the plugin interface described in SPEC.md
    (`registerTopic({id, title, icon, render(container, onComplete)})`).
    Write it with clear comments since this is the contract every future
    subject module depends on.
-3. [ ] Build the grade-1 (or grade-4 — pick one) world map screen: regions
+   → `core/topics.js` + `plugins/README.md`; adds `region`, `learn` cards
+   and a `ctx` (Hudhud's voice, sounds, progress, digits, abort signal).
+3. [done] Build the grade-1 (or grade-4 — pick one) world map screen: regions
    with fog-of-war, ship + Sindbad + Yasmina sailing between them, tap to
    open a region.
-4. [ ] Build 2 real subject plugins for that grade level (one Arabic
+   → Owner chose **grade 6**. Five islands + home port, fog lifts as stars
+   are earned, the ship sails a curved route, portrait and landscape.
+4. [done] Build 2 real subject plugins for that grade level (one Arabic
    language activity, one math activity) to prove the plugin architecture
    end-to-end.
-5. [ ] Local save/progress system (localStorage): track per-region
+   → 13 topics on 5 reusable engines (quiz, tap-word, sort, number line,
+   match) across Arabic, maths, science, social studies + a mixed review.
+5. [done] Local save/progress system (localStorage): track per-region
    completion, show stars/badges on the map.
-6. [ ] PWA setup: manifest.json + service worker caching all assets so the
+   → `core/save.js`; stars, island badges (silver/gold), spaced review.
+6. [done] PWA setup: manifest.json + service worker caching all assets so the
    app works fully offline after first load. Verify by loading once, then
    testing with network disabled.
-7. [ ] Basic automated test pass: load the app in a headless browser,
+   → Generated cache list (`tools/update-shell.mjs`); offline reload tested.
+7. [done] Basic automated test pass: load the app in a headless browser,
    click through the map and one plugin, check for console errors, verify
    localStorage progress persists across a reload.
+   → `npm test`: cache-list check + 24 headless checks at phone and tablet.
+
+8. [ ] Educator review of all grade-6 content (Arabic grammar terms,
+   maths notation, science/geography facts) — everything is marked draft.
+   Collect corrections as issues; the content lives in `plugins/*/`.
+9. [ ] Gendered instructions: Hudhud's imperatives ("اضغط"، "فكّر") use
+   the generic form. Consider a player setting (not the hero choice) for
+   feminine forms ("اضغطي"، "فكّري").
+10. [ ] Real-device pass on a budget Android phone (2 GB RAM): check lite
+    mode kicks in, frame rate on the map, font rendering, install-to-home.
+11. [ ] More grade-6 topics per island (e.g. كان وأخواتها، الأعداد
+    الصحيحة، النسبة والتناسب، الضوء، الخلية) — each is one plugin file.
+12. [ ] Voice: optional recorded narration for Hudhud's lines (small,
+    compressed, CC-BY-SA) for weaker readers.
+13. [ ] Second world (e.g. grade 5) reusing the engines: needs a
+    `worlds/grade5.js`, a grade picker, and the younger art stage.
 
 ## Playtest notes
+
+8. [ ] Educator review of all grade-6 content (Arabic grammar terms,
+   maths notation, science/geography facts) — everything is marked draft.
+   Collect corrections as issues; the content lives in `plugins/*/`.
+9. [ ] Gendered instructions: Hudhud's imperatives ("اضغط"، "فكّر") use
+   the generic form. Consider a player setting (not the hero choice) for
+   feminine forms ("اضغطي"، "فكّري").
+10. [ ] Real-device pass on a budget Android phone (2 GB RAM): check lite
+    mode kicks in, frame rate on the map, font rendering, install-to-home.
+11. [ ] More grade-6 topics per island (e.g. كان وأخواتها، الأعداد
+    الصحيحة، النسبة والتناسب، الضوء، الخلية) — each is one plugin file.
+12. [ ] Voice: optional recorded narration for Hudhud's lines (small,
+    compressed, CC-BY-SA) for weaker readers.
+13. [ ] Second world (e.g. grade 5) reusing the engines: needs a
+    `worlds/grade5.js`, a grade picker, and the younger art stage.
 
 ## Playtest notes — 2026-09-27
 
@@ -88,3 +142,46 @@ not yet committed as a test, that's item 7):
 - Art pass: replace the blocky dashed wave strip with a softer SVG wave,
   and a first Levantine-motif pass (e.g. Damascene arch / mashrabiya frame
   for cards) per SPEC's visual identity.
+
+
+## Playtest notes — 2026-09-27 (second session: ten improvement rounds)
+
+The owner asked to: let the player choose a boy or girl hero, make the
+game far more beautiful yet cartoonish, focus on teaching **grade 6**, and
+do 10 test-and-improve rounds. Decisions: Yasmina is a girl hero; the
+guide bird is **Hudhud** (the hoopoe). SPEC.md updated.
+
+**Rounds** (each tested with headless Chromium screenshots at 390×844 and
+1024×768, console clean):
+1. Art overhaul — outlined cartoon style, grade-6 "young sailor" heroes,
+   Hudhud, a Levantine dhow, Damascus skyline, bundled Arabic font;
+   character-select screen. Fixed: logo gradient smudge, skyline cropped
+   on wide screens, white foam block under the ship.
+2. World map + plugin registry + lesson runner + 5 engines + 13 topics.
+   Test caught: the hidden island sheet still covered the map, so no
+   island could be tapped (`[hidden]` vs `display:flex`) — fixed.
+3. Every engine checked. Fixed: whole round turning green on success;
+   number-line labels looked like tick marks (Arabic ٠ is a dot) — now on
+   badges; hero added beside Hudhud, reacting to answers.
+4. Rewards — island badges with a medal moment, stars fly to the counter,
+   spaced-review reminders, question counter; map events play once in
+   order (resizes used to replay them).
+5. Teaching — Hudhud's illustrated mini-lessons before practice for all
+   12 subject topics (roles colour-coded, fraction bars, percent grid…).
+6. Living world — day / sunset / night sky from the device clock, stars,
+   moon, lit windows, ship lantern; fish, gulls, sparkles, ship wake.
+7. Offline you can trust — generated cache list + content-hash version,
+   committed e2e test (`npm test`), all 13 topics played to 3 stars and
+   all 5 gold badges earned in an automated run.
+8. "رحلتي" page — rank, badge shelf, subject progress, change hero,
+   two-tap reset; screen-reader labels on islands.
+9. Performance at 4× CPU throttle: map 43 → 54 fps (full effects), 60 fps
+   in lite mode (auto on ≤2 GB / ≤4 cores); animations pause in background.
+10. Finale — treasure chest opens with fireworks, then a personalised
+    certificate (reopenable from رحلتي). Fixed gender agreement for
+    Yasmina in certificate, ranks and badge text.
+
+**Size**: the whole app is under 0.5 MB (budget: 35 MB per grade).
+
+**Known gaps / next**: see items 8–13 above. Content is a draft pending
+educator review; not yet tried on a real low-end phone.
