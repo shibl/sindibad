@@ -142,8 +142,9 @@ export function enterIsland(def, region) {
   setupAmbient();
   setupPuzzles();
   dialog = null; busy = false; target = null; keys.clear();
+  ground = null;
   resize();
-  buildGround();
+  if (!ground) buildGround();
   updateHud();
   if (!running) { running = true; last = performance.now(); requestAnimationFrame(loop); }
   showBanner(def, region);
@@ -243,36 +244,29 @@ function buildGround() {
   const land = (x, y) => !WATER.has(tileAt(x + 0.5, y + 0.5));
   const at = (x, y) => tileAt(x + 0.5, y + 0.5);
 
-  // Two scratch canvases: a mask (the shape of a layer, drawn as soft blobs
-  // so coasts look organic) and a layer (the mask filled with colour and
-  // texture). Layers are stacked like a toy diorama: sea < sand < grass,
-  // each with a darker "lip" below it so the land looks raised.
-  const mk = () => { const k = document.createElement('canvas'); k.width = ground.width; k.height = ground.height; return k; };
-  const mask = mk(), layer = mk();
-  const mc = mask.getContext('2d'), lc = layer.getContext('2d');
-  const shape = (pred, r, square = false) => {
-    mc.globalCompositeOperation = 'source-over';
-    mc.clearRect(0, 0, mask.width, mask.height);
-    mc.fillStyle = '#fff';
+  // Each layer is one Path2D of soft blobs (so coasts look organic),
+  // filled once — overlapping blobs don't stack their transparency. Layers
+  // are stacked like a toy diorama: sea < sand < grass, each with a darker
+  // "lip" below it so the land looks raised.
+  let path;
+  const shape = (pred, r) => {
+    path = new Path2D();
     for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
       if (!pred(x, y)) continue;
-      if (square) { mc.fillRect(x * T - 0.5, y * T - 0.5, T + 1, T + 1); continue; }
-      mc.beginPath(); mc.arc((x + 0.5) * T, (y + 0.5) * T, r * T, 0, 7); mc.fill();
+      path.moveTo((x + 0.5 + r) * T, (y + 0.5) * T);
+      path.arc((x + 0.5) * T, (y + 0.5) * T, r * T, 0, 7);
     }
   };
-  // Paint the current mask onto the ground in a colour (optionally offset,
-  // optionally textured by paint(lc) clipped to the mask).
+  // Fill the current shape in a colour (optionally offset and textured by
+  // paint(c), clipped to the shape).
   const stamp = (color, { dy = 0, alpha = 1, paint = null } = {}) => {
-    lc.globalCompositeOperation = 'source-over';
-    lc.clearRect(0, 0, layer.width, layer.height);
-    lc.drawImage(mask, 0, 0);
-    lc.globalCompositeOperation = 'source-in';
-    lc.fillStyle = color;
-    lc.fillRect(0, 0, layer.width, layer.height);
-    if (paint) { lc.globalCompositeOperation = 'source-atop'; paint(lc); }
+    c.save();
     c.globalAlpha = alpha;
-    c.drawImage(layer, 0, dy * T);
-    c.globalAlpha = 1;
+    c.translate(0, dy * T);
+    c.fillStyle = color;
+    c.fill(path);
+    if (paint) { c.clip(path); paint(c); }
+    c.restore();
   };
   const blob = (g, x, y, r, color) => { g.fillStyle = color; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); };
 
@@ -285,11 +279,12 @@ function buildGround() {
     const x = rand(i, 1) * ground.width, y = rand(i, 2) * ground.height;
     blob(c, x, y, T * (0.8 + rand(i, 3) * 1.6), `rgba(15,70,130,${0.08 + rand(i, 4) * 0.08})`);
   }
-  shape(land, 2.6); stamp('#3aa6cf', { alpha: 0.55 });
-  shape(land, 1.8); stamp('#4dbad6', { alpha: 0.7 });
-  shape(land, 1.2); stamp('#74d3dc');
+  shape(land, 2.6); stamp('#3aa6cf', { alpha: 0.5 });
+  shape(land, 2); stamp('#44b2d4', { alpha: 0.6 });
+  shape(land, 1.5); stamp('#5cc4d9', { alpha: 0.8 });
+  shape(land, 1.15); stamp('#7ad6dd');
   // Ponds are bright and still, with lily pads.
-  shape((x, y) => at(x, y) === 'w', 0.6); stamp('#6fd0de');
+  if (island.tiles.some(r => r.includes('w'))) { shape((x, y) => at(x, y) === 'w', 0.6); stamp('#6fd0de'); }
   // Shadow of the island on the water, then white surf and wet sand.
   shape(land, 0.74); stamp('rgba(10,60,90,1)', { dy: 0.28, alpha: 0.28 });
   shape(land, 0.92); stamp('#ffffff', { alpha: 0.85 });
@@ -408,7 +403,6 @@ function buildGround() {
     c.fillStyle = g; c.fillRect(x - bw * T, y - bw * T, bw * T * 2, bw * T * 2);
     c.restore();
   }
-  mask.width = layer.width = 0; // free memory
 }
 
 // ---------- Loop ----------
