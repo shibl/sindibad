@@ -51,13 +51,14 @@ export function runRounds({ container, ctx, items, onComplete, renderRound, intr
   let i = 0;
   let correct = 0;
   let streak = 0;   // answers right first time in a row
+  let best = 0;
   const total = items.length;
   container.classList.add('engine');
   if (intro) ctx.say(intro, 'happy');
 
   function next() {
     if (ctx.signal.aborted) return;
-    if (i >= total) { onComplete({ correct, total }); return; }
+    if (i >= total) { combo(container, 0); onComplete({ correct, total, streak: best }); return; }
     ctx.progress(i, total);
     const item = items[i];
     let attempts = 0;
@@ -77,6 +78,7 @@ export function runRounds({ container, ctx, items, onComplete, renderRound, intr
         ctx.mark?.(item, attempts === 0);
         ctx.sfx.good();
         streak = attempts === 0 ? streak + 1 : 0;
+        best = Math.max(best, streak);
         const hit = stage.querySelector('.is-right');
         if (hit) burst(hit, attempts === 0 ? '+١' : '');
         combo(container, streak);

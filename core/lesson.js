@@ -8,6 +8,7 @@ import { getTopic, starsFor } from './topics.js';
 import { sfx } from './sound.js';
 import { num } from './format.js';
 import { shuffle, itemKey } from '../plugins/engines/kit.js';
+import { shake } from './fx.js';
 import { canSpeak, speak, stopSpeaking } from './voice.js';
 
 let show;        // showScreen from app.js
@@ -231,23 +232,36 @@ function showResult(topic, result, hero) {
   const el = document.getElementById('result');
   const confetti = stars >= 2 ? Array.from({ length: 36 }, (_, i) =>
     `<i style="--x:${(i * 37) % 100}%;--d:${(i % 7) * 0.12}s;--c:${['#f2c14e', '#d0507e', '#1f9aa0', '#2f8a5f', '#fff'][i % 5]};--r:${(i * 53) % 360}deg"></i>`).join('') : '';
+  const chip = (icon, value, label, d) => `<div class="rchip" style="--d:${d}s"><b>${icon} <span data-count="${value}">${num(0)}</span></b><small>${label}</small></div>`;
   el.innerHTML = `
     <div class="confetti" aria-hidden="true">${confetti}</div>
     <div class="result__card" role="dialog" aria-modal="true" aria-labelledby="result-title">
+      <div class="result__rays" aria-hidden="true"></div>
       <div class="result__hero">${heroSVG(hero)}</div>
-      <h3 id="result-title">${HEADLINES[stars]} يا ${HEROES[hero].name}!</h3>
+      <h3 id="result-title" class="result__ribbon"><span>${HEADLINES[stars]} يا ${HEROES[hero].name}!</span></h3>
       <div class="result__stars">
         ${[0, 1, 2].map(i => `<span class="rstar ${i < stars ? 'is-on' : ''}" style="--i:${i}">★</span>`).join('')}
       </div>
-      <p class="result__score">أجبت صحيحاً من المحاولة الأولى عن <b>${num(result.correct)}</b> من <b>${num(result.total)}</b></p>
+      <div class="result__chips">
+        ${chip('✔', result.correct, `صحيحة من ${num(result.total)}`, 1.3)}
+        ${result.streak >= 2 ? chip('🔥', result.streak, 'أفضل سلسلة', 1.45) : ''}
+        ${lastPearls ? chip('🦪', lastPearls, 'لؤلؤة للسوق', 1.6) : ''}
+      </div>
       <p class="result__line">${LINES[stars]}</p>
-      ${lastPearls ? `<p class="result__pearls">+${num(lastPearls)} 🦪 لؤلؤة للسوق</p>` : ''}
       ${goalHit ? `<p class="result__goal">🎯 أنجزت هدف اليوم: ${num(DAILY_GOAL)} دروس!<br><small>مكافأة ${num(GOAL_BONUS)} لآلئ 🦪 — 🔥 ${num(streak())} ${streak() > 1 ? 'أيام متتالية' : 'يوم'}</small></p>` : ''}
       <div class="actions">
         <button class="btn btn--ghost" data-result="again">مرة أخرى</button>
         <button class="btn btn--gold" data-result="map">إلى الخريطة</button>
       </div>
     </div>`;
+  // Count the numbers up once the stars have landed.
+  setTimeout(() => el.querySelectorAll('[data-count]').forEach(n => {
+    const to = +n.dataset.count, t0 = performance.now();
+    const tick = now => { const k = Math.min(1, (now - t0) / 600); n.textContent = num(Math.round(to * k)); if (k < 1) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  }), 1300);
+  // Each star lands with a thud.
+  for (let i = 0; i < stars; i++) setTimeout(() => shake(el.querySelector('.result__card'), 0.4), 780 + i * 280);
   el.hidden = false;
   el.classList.toggle('is-great', stars >= 2);
   say(LINES[stars], stars >= 2 ? 'cheer' : 'think');

@@ -1448,3 +1448,46 @@ body.lite .map__sea::after { animation: none; }
 .isle--locked .fog .cloud-art { width: 58%; }
 .isle--locked .isle__art { filter: brightness(0) invert(.42) sepia(.35) hue-rotate(165deg) opacity(.75); }
 .isle--locked .isle__label { z-index: 3; }
+
+/* ================= V16: lesson complete ================= */
+.result__card { overflow: visible; }
+.result__rays {
+  position: absolute; left: 50%; top: -30px; width: 420px; height: 420px; margin-left: -210px; z-index: -1; pointer-events: none;
+  background: repeating-conic-gradient(from 0deg, rgba(255, 230, 140, .55) 0 9deg, transparent 9deg 18deg);
+  -webkit-mask-image: radial-gradient(circle, #000 20%, transparent 65%); mask-image: radial-gradient(circle, #000 20%, transparent 65%);
+  animation: spin 24s linear infinite;
+}
+.result:not(.is-great) .result__rays { display: none; }
+/* Ribbon banner across the card. */
+.result__ribbon { position: relative; margin: 2px -30px 6px !important; }
+.result__ribbon span {
+  position: relative; z-index: 1; display: block; padding: 6px 20px 10px; color: #fff; font-size: clamp(22px, 6.4vw, 30px);
+  -webkit-text-stroke: 6px var(--ink); paint-order: stroke fill;
+  background: linear-gradient(#ff7aa8, var(--rose) 60%, #b23d67); border: 3px solid var(--ink); border-radius: 10px;
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, .4), 0 4px 0 var(--ink);
+}
+.result__ribbon::before, .result__ribbon::after {
+  content: ""; position: absolute; top: 14px; width: 34px; height: 100%; background: #9c3159; border: 3px solid var(--ink); z-index: 0;
+}
+.result__ribbon::before { left: -14px; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 40% 50%); }
+.result__ribbon::after { right: -14px; clip-path: polygon(0 0, 100% 0, 60% 50%, 100% 100%, 0 100%); }
+.result:not(.is-great) .result__ribbon span { background: linear-gradient(#7cc9e8, #3b8fc0 60%, #2c6f99); }
+.result:not(.is-great) .result__ribbon::before, .result:not(.is-great) .result__ribbon::after { background: #25607f; }
+/* Stars slam down. */
+.rstar { font-size: clamp(58px, 17vw, 80px); }
+.rstar.is-on { animation-name: star-slam; animation-duration: .45s; animation-timing-function: cubic-bezier(.5, 0, .7, 1.4); }
+.rstar:nth-child(2).is-on { animation-name: star-slam-mid; }
+@keyframes star-slam { from { transform: scale(3) rotate(-30deg); opacity: 0; } 70% { transform: scale(.85); opacity: 1; } }
+@keyframes star-slam-mid { from { transform: translateY(-12px) scale(3) rotate(-30deg); opacity: 0; } 70% { transform: translateY(-12px) scale(.85); opacity: 1; } to { transform: translateY(-12px); } }
+/* Stat chips. */
+.result__chips { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin: 6px 0 10px; }
+.rchip {
+  display: flex; flex-direction: column; align-items: center; min-width: 88px; padding: 4px 10px 6px; line-height: 1.2;
+  background: #fff; border: 3px solid var(--ink); border-radius: 16px; box-shadow: 0 4px 0 var(--ink);
+  animation: pop .45s var(--d) both cubic-bezier(.2, .8, .3, 1.6);
+}
+.rchip b { font-size: 24px; font-weight: 800; }
+.rchip small { font-size: 12px; font-weight: 800; color: var(--ink-soft); }
+.result__ribbon { margin: 2px -22px 6px !important; }
+.result__ribbon::before { left: -12px; width: 26px; }
+.result__ribbon::after { right: -12px; width: 26px; }
