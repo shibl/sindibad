@@ -379,8 +379,9 @@ body[data-time="night"] .logo__tag { background: rgba(10, 20, 60, .7); }
   paint-order: stroke fill; -webkit-text-stroke: 6px var(--ink);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 4px 6px;
 }
+.topbar--map h2 { font-size: clamp(17px, 4.8vw, 28px); text-overflow: clip; }
 .stars-badge {
-  display: inline-flex; align-items: center; gap: 4px; height: 44px; padding: 0 14px 4px;
+  display: inline-flex; align-items: center; gap: 4px; height: 44px; padding: 0 12px 4px; flex: 0 0 auto;
   background: var(--paper); border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 4px 0 var(--ink);
   font-weight: 800; font-size: 18px; color: var(--gold-deep); white-space: nowrap;
 }
