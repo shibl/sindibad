@@ -139,6 +139,7 @@ export function enterIsland(def, region) {
   people = def.people.map(p => ({ ...p, x: p.at[0], y: p.at[1], face: -1, sprite: villagerSprite(p.id, p.look), pause: Math.random() * 3 }));
   props = def.objects.map(o => ({ ...o, x: o.at[0], y: o.at[1], sprite: objectSprite(o.kind === 'gate' && gateOpen(o) ? 'gate' : o.kind) }));
   sessionGain = { gained: 0, topic: null };
+  setupAmbient();
   setupPuzzles();
   dialog = null; busy = false; target = null; keys.clear();
   resize();
@@ -240,70 +241,174 @@ function buildGround() {
   ground.height = Math.ceil(rows * T);
   const c = ground.getContext('2d');
   const land = (x, y) => !WATER.has(tileAt(x + 0.5, y + 0.5));
+  const at = (x, y) => tileAt(x + 0.5, y + 0.5);
 
-  // Sea: deep with a lighter shallow band near land.
-  c.fillStyle = '#2b8fbf';
-  c.fillRect(0, 0, ground.width, ground.height);
-  for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
-    if (land(x, y)) continue;
-    if (tileAt(x + 0.5, y + 0.5) === 'w') { c.fillStyle = '#5fcbe0'; c.fillRect(x * T, y * T, T + 1, T + 1); continue; }
-    let near = 0;
-    for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) if (land(x + dx, y + dy)) near = Math.max(near, 3 - Math.max(Math.abs(dx), Math.abs(dy)));
-    if (near) { c.fillStyle = near >= 2 ? '#5fcbe0' : '#3fa9d2'; c.fillRect(x * T, y * T, T + 1, T + 1); }
-  }
-  // Land, drawn as soft blobs so coasts look organic.
-  const colors = { s: '#f2d496', '.': '#8ccf6c', '=': '#e6d3a8', d: '#b98a5a', '#': '#d9c4a0' };
-  const order = ['s', '.', '=', 'd', '#'];
-  for (const kind of order) {
-    c.fillStyle = colors[kind];
+  // Two scratch canvases: a mask (the shape of a layer, drawn as soft blobs
+  // so coasts look organic) and a layer (the mask filled with colour and
+  // texture). Layers are stacked like a toy diorama: sea < sand < grass,
+  // each with a darker "lip" below it so the land looks raised.
+  const mk = () => { const k = document.createElement('canvas'); k.width = ground.width; k.height = ground.height; return k; };
+  const mask = mk(), layer = mk();
+  const mc = mask.getContext('2d'), lc = layer.getContext('2d');
+  const shape = (pred, r, square = false) => {
+    mc.globalCompositeOperation = 'source-over';
+    mc.clearRect(0, 0, mask.width, mask.height);
+    mc.fillStyle = '#fff';
     for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
-      const t = tileAt(x + 0.5, y + 0.5);
-      const draw = kind === 's' ? land(x, y) : t === kind;
-      if (!draw) continue;
-      if (kind === 's' || kind === '.') {
-        c.beginPath(); c.arc((x + 0.5) * T, (y + 0.5) * T, T * 0.72, 0, 7); c.fill();
-      } else c.fillRect(x * T, y * T, T + 1, T + 1);
+      if (!pred(x, y)) continue;
+      if (square) { mc.fillRect(x * T - 0.5, y * T - 0.5, T + 1, T + 1); continue; }
+      mc.beginPath(); mc.arc((x + 0.5) * T, (y + 0.5) * T, r * T, 0, 7); mc.fill();
     }
+  };
+  // Paint the current mask onto the ground in a colour (optionally offset,
+  // optionally textured by paint(lc) clipped to the mask).
+  const stamp = (color, { dy = 0, alpha = 1, paint = null } = {}) => {
+    lc.globalCompositeOperation = 'source-over';
+    lc.clearRect(0, 0, layer.width, layer.height);
+    lc.drawImage(mask, 0, 0);
+    lc.globalCompositeOperation = 'source-in';
+    lc.fillStyle = color;
+    lc.fillRect(0, 0, layer.width, layer.height);
+    if (paint) { lc.globalCompositeOperation = 'source-atop'; paint(lc); }
+    c.globalAlpha = alpha;
+    c.drawImage(layer, 0, dy * T);
+    c.globalAlpha = 1;
+  };
+  const blob = (g, x, y, r, color) => { g.fillStyle = color; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); };
+
+  // Sea: deep blue with darker patches, then shallow turquoise bands that
+  // fade out away from the coast.
+  const sea = c.createLinearGradient(0, 0, 0, ground.height);
+  sea.addColorStop(0, '#1f78b4'); sea.addColorStop(1, '#2a8cc0');
+  c.fillStyle = sea; c.fillRect(0, 0, ground.width, ground.height);
+  for (let i = 0; i < cols * rows / 6; i++) {
+    const x = rand(i, 1) * ground.width, y = rand(i, 2) * ground.height;
+    blob(c, x, y, T * (0.8 + rand(i, 3) * 1.6), `rgba(15,70,130,${0.08 + rand(i, 4) * 0.08})`);
   }
-  // Coastline outline + foam.
-  c.lineWidth = 2.5 * GROUND_RES;
-  for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
-    if (!land(x, y)) continue;
-    const edges = [[0, -1], [1, 0], [0, 1], [-1, 0]].filter(([dx, dy]) => !land(x + dx, y + dy));
-    for (const [dx, dy] of edges) {
-      const cx = (x + 0.5 + dx * 0.62) * T, cy = (y + 0.5 + dy * 0.62) * T;
-      c.strokeStyle = 'rgba(255,255,255,.55)';
-      c.beginPath(); c.arc(cx + dx * T * 0.12, cy + dy * T * 0.12, T * 0.28, 0, 7); c.stroke();
-    }
-  }
-  // Grass texture and sand specks.
-  for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
-    const t = tileAt(x + 0.5, y + 0.5);
-    if (t === '.') {
-      c.strokeStyle = '#6fb257'; c.lineWidth = 2 * GROUND_RES; c.lineCap = 'round';
-      for (let k = 0; k < 2; k++) {
-        if (rand(x, y, k) < 0.55) continue;
-        const px = (x + rand(x, y, k + 3)) * T, py = (y + rand(x, y, k + 5)) * T;
-        c.beginPath(); c.moveTo(px - 4 * GROUND_RES, py); c.quadraticCurveTo(px - 2, py - 7 * GROUND_RES, px, py); c.quadraticCurveTo(px + 2, py - 7 * GROUND_RES, px + 4 * GROUND_RES, py); c.stroke();
+  shape(land, 2.6); stamp('#3aa6cf', { alpha: 0.55 });
+  shape(land, 1.8); stamp('#4dbad6', { alpha: 0.7 });
+  shape(land, 1.2); stamp('#74d3dc');
+  // Ponds are bright and still, with lily pads.
+  shape((x, y) => at(x, y) === 'w', 0.6); stamp('#6fd0de');
+  // Shadow of the island on the water, then white surf and wet sand.
+  shape(land, 0.74); stamp('rgba(10,60,90,1)', { dy: 0.28, alpha: 0.28 });
+  shape(land, 0.92); stamp('#ffffff', { alpha: 0.85 });
+  shape(land, 0.8); stamp('#d7b374');
+
+  // Sand, with a short sandy bank below it and speckles.
+  shape(land, 0.72);
+  stamp('#c7934f', { dy: 0.16 });
+  stamp('#f3d69a', {
+    paint: g => {
+      for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+        if (!land(x, y)) continue;
+        for (let k = 0; k < 4; k++) if (rand(x, y, k) > 0.45) blob(g, (x + rand(x, y, k + 7)) * T, (y + rand(x, y, k + 9)) * T, (1 + rand(x, y, k) * 1.4) * GROUND_RES, k % 2 ? '#dcb877' : '#fff1c8');
+        if (rand(x, y, 30) > 0.93) { // a shell
+          g.fillStyle = '#ffd9d0'; g.beginPath(); g.ellipse((x + 0.5) * T, (y + 0.5) * T, 4 * GROUND_RES, 3 * GROUND_RES, rand(x, y) * 3, 0, 7); g.fill();
+        }
       }
-    } else if (t === 's') {
-      c.fillStyle = '#d9b070';
-      for (let k = 0; k < 3; k++) if (rand(x, y, k) > 0.5) { c.beginPath(); c.arc((x + rand(x, y, k + 7)) * T, (y + rand(x, y, k + 9)) * T, 1.6 * GROUND_RES, 0, 7); c.fill(); }
-    } else if (t === '=') {
-      c.strokeStyle = '#c9b184'; c.lineWidth = 2 * GROUND_RES;
-      c.strokeRect(x * T + 3, y * T + 3, T / 2 - 4, T / 2 - 4);
-      c.strokeRect(x * T + T / 2 + 1, y * T + T / 2 + 1, T / 2 - 4, T / 2 - 4);
-    } else if (t === 'd') {
-      c.strokeStyle = '#8a5a30'; c.lineWidth = 2 * GROUND_RES;
-      for (let k = 1; k < 4; k++) { c.beginPath(); c.moveTo(x * T, y * T + (k * T) / 4); c.lineTo((x + 1) * T, y * T + (k * T) / 4); c.stroke(); }
-    } else if (t === '#') {
-      // A low stone wall: lit top, shaded front face.
-      c.fillStyle = '#c4ab80'; c.fillRect(x * T, y * T + T * 0.55, T + 1, T * 0.45);
-      c.strokeStyle = '#3b2414'; c.lineWidth = 2 * GROUND_RES;
-      c.strokeRect(x * T, y * T + 1, T, T - 2);
-      c.beginPath(); c.moveTo(x * T, y * T + T * 0.55); c.lineTo((x + 1) * T, y * T + T * 0.55); c.stroke();
+    },
+  });
+
+  // Grass: raised with a dark lip, painted with light and dark patches,
+  // tufts and tiny flowers.
+  const grassy = (x, y) => '.=#'.includes(at(x, y)) || at(x, y) === 'd' && false;
+  shape((x, y) => at(x, y) === '.' || at(x, y) === '#', 0.68);
+  stamp('#4a8a3a', { dy: 0.2 });
+  stamp('#8fd16a', {
+    paint: g => {
+      for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+        if (!grassy(x, y)) continue;
+        if (rand(x, y, 11) > 0.6) blob(g, (x + rand(x, y, 12)) * T, (y + rand(x, y, 13)) * T, T * (0.6 + rand(x, y, 14)), 'rgba(170,225,110,.35)');
+        if (rand(x, y, 15) > 0.7) blob(g, (x + rand(x, y, 16)) * T, (y + rand(x, y, 17)) * T, T * (0.5 + rand(x, y, 18) * 0.8), 'rgba(60,130,50,.18)');
+      }
+      g.lineCap = 'round';
+      for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+        if (at(x, y) !== '.') continue;
+        for (let k = 0; k < 3; k++) {
+          if (rand(x, y, k + 20) < 0.5) continue;
+          const px = (x + rand(x, y, k + 3)) * T, py = (y + rand(x, y, k + 5)) * T, u = GROUND_RES;
+          g.strokeStyle = k % 2 ? '#5fa648' : '#6db552'; g.lineWidth = 2.2 * u;
+          g.beginPath();
+          g.moveTo(px, py); g.quadraticCurveTo(px - 3 * u, py - 5 * u, px - 5 * u, py - 9 * u);
+          g.moveTo(px, py); g.lineTo(px, py - 11 * u);
+          g.moveTo(px, py); g.quadraticCurveTo(px + 3 * u, py - 5 * u, px + 5 * u, py - 8 * u);
+          g.stroke();
+        }
+        if (rand(x, y, 40) > 0.9) {
+          const fx = (x + rand(x, y, 41)) * T, fy = (y + rand(x, y, 42)) * T, col = ['#fff', '#ffd23f', '#ff8fb1', '#b9a4ff'][Math.floor(rand(x, y, 43) * 4)];
+          for (let a = 0; a < 5; a++) blob(g, fx + Math.cos(a * 1.26) * 2.6 * GROUND_RES, fy + Math.sin(a * 1.26) * 2.6 * GROUND_RES, 2 * GROUND_RES, col);
+          blob(g, fx, fy, 1.6 * GROUND_RES, '#f59e0b');
+        }
+      }
+    },
+  });
+
+  // Paths: sunken cobbles with a soft darker rim.
+  shape((x, y) => at(x, y) === '=', 0.64);
+  stamp('rgba(90,70,40,1)', { dy: -0.05, alpha: 0.35 });
+  stamp('#dcc697', {
+    paint: g => {
+      for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+        if (at(x, y) !== '=') continue;
+        for (let j = 0; j < 3; j++) for (let i = 0; i < 3; i++) {
+          const k = j * 3 + i;
+          const cx = (x + (i + 0.5) / 3 + (rand(x, y, k) - 0.5) * 0.12) * T;
+          const cy = (y + (j + 0.5) / 3 + (rand(x, y, k + 9) - 0.5) * 0.12) * T;
+          const rx = T * (0.13 + rand(x, y, k + 18) * 0.04), ry = T * (0.11 + rand(x, y, k + 27) * 0.04);
+          g.fillStyle = 'rgba(120,95,55,.35)';
+          g.beginPath(); g.ellipse(cx, cy + 1.5 * GROUND_RES, rx, ry, 0, 0, 7); g.fill();
+          g.fillStyle = ['#efe0bb', '#e5d3a6', '#f5e9c9', '#e0caa0'][Math.floor(rand(x, y, k + 36) * 4)];
+          g.beginPath(); g.ellipse(cx, cy, rx, ry, 0, 0, 7); g.fill();
+        }
+      }
+    },
+  });
+
+  // Dock: planks with gaps, and posts standing in the water.
+  for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+    if (at(x, y) !== 'd') continue;
+    const u = GROUND_RES;
+    if (!land(x, y + 1) || at(x, y + 1) !== 'd') {
+      c.fillStyle = 'rgba(10,60,90,.3)'; c.fillRect(x * T, (y + 1) * T, T, T * 0.3);
+      c.fillStyle = '#6b4424'; c.fillRect(x * T + 3 * u, (y + 1) * T - 2, 7 * u, T * 0.28); c.fillRect((x + 1) * T - 10 * u, (y + 1) * T - 2, 7 * u, T * 0.28);
+    }
+    for (let k = 0; k < 4; k++) {
+      c.fillStyle = ['#c48f5c', '#b98352', '#cf9a66', '#b27a49'][Math.floor(rand(x, y, k) * 4)];
+      c.fillRect(x * T, y * T + (k * T) / 4, T + 1, T / 4 - 2 * u);
+      c.fillStyle = '#7a4d2a'; c.fillRect(x * T, y * T + ((k + 1) * T) / 4 - 2 * u, T + 1, 2 * u);
+      c.fillStyle = '#5a3a20'; blob(c, x * T + 5 * u, y * T + (k + 0.4) * T / 4, 1.3 * u, '#5a3a20'); blob(c, (x + 1) * T - 5 * u, y * T + (k + 0.4) * T / 4, 1.3 * u, '#5a3a20');
     }
   }
+  // Walls: a low stone wall with a lit top and shaded front face.
+  for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+    if (at(x, y) !== '#') continue;
+    c.fillStyle = '#e3cfa8'; c.fillRect(x * T, y * T, T + 1, T * 0.55);
+    c.fillStyle = '#b89a6b'; c.fillRect(x * T, y * T + T * 0.55, T + 1, T * 0.45);
+    c.strokeStyle = '#8f7449'; c.lineWidth = 1.5 * GROUND_RES;
+    for (let k = 0; k < 2; k++) { c.beginPath(); c.moveTo(x * T + (k + (y % 2) * 0.5) * T / 2, y * T + T * 0.55); c.lineTo(x * T + (k + (y % 2) * 0.5) * T / 2, y * T + T); c.stroke(); }
+    c.strokeStyle = '#3b2414'; c.lineWidth = 2 * GROUND_RES;
+    c.beginPath(); c.moveTo(x * T, y * T + T * 0.55); c.lineTo((x + 1) * T, y * T + T * 0.55); c.stroke();
+  }
+  // Lily pads on ponds.
+  for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+    if (at(x, y) !== 'w' || rand(x, y, 50) < 0.6) continue;
+    const px = (x + 0.3 + rand(x, y, 51) * 0.4) * T, py = (y + 0.3 + rand(x, y, 52) * 0.4) * T, r = T * 0.16;
+    c.fillStyle = '#4f9e45'; c.beginPath(); c.moveTo(px, py); c.arc(px, py, r, 0.4, Math.PI * 2 - 0.1); c.fill();
+    if (rand(x, y, 53) > 0.6) blob(c, px + r * 0.3, py - r * 0.2, r * 0.35, '#ff9ec4');
+  }
+  // Soft contact shadows under everything that stands on the ground.
+  for (const o of island.objects) {
+    if (!o.block) continue;
+    const [bw] = o.block;
+    const x = o.at[0] * T, y = o.at[1] * T;
+    const g = c.createRadialGradient(x, y, 0, x, y, bw * T * 0.75);
+    g.addColorStop(0, 'rgba(30,50,20,.28)'); g.addColorStop(1, 'rgba(30,50,20,0)');
+    c.save(); c.translate(x, y); c.scale(1, 0.45); c.translate(-x, -y);
+    c.fillStyle = g; c.fillRect(x - bw * T, y - bw * T, bw * T * 2, bw * T * 2);
+    c.restore();
+  }
+  mask.width = layer.width = 0; // free memory
 }
 
 // ---------- Loop ----------
@@ -353,6 +458,7 @@ function update(dt) {
   if (player.moving && (dustTimer -= dt) <= 0) { dustTimer = 0.16; dust.push({ x: player.x + (Math.random() - 0.5) * 0.2, y: player.y, t: 0 }); }
   dust = dust.filter(d => (d.t += dt) < 0.5);
   splashes = splashes.filter(sp => (sp.t += dt) < 0.9);
+  updateAmbient(dt);
   // Hudhud flutters behind the hero.
   const bx = player.x + player.face * 0.9, by = player.y - 0.5;
   bird.x += (bx - bird.x) * Math.min(1, dt * 3);
@@ -372,7 +478,7 @@ function update(dt) {
 const sx = x => (x - cam.x) * TILE + W / 2;
 const sy = y => (y - cam.y) * TILE + H / 2;
 
-function drawSprite(sp, x, y, height, { flip = false, bob = 0, tilt = 0, alpha = 1 } = {}) {
+function drawSprite(sp, x, y, height, { flip = false, bob = 0, tilt = 0, alpha = 1, sqx = 1, sqy = 1 } = {}) {
   if (!sp.img.complete || !sp.img.naturalWidth) return;
   const h = height * TILE, w = (h * sp.w) / sp.h;
   const px = sx(x), py = sy(y) + bob;
@@ -381,6 +487,7 @@ function drawSprite(sp, x, y, height, { flip = false, bob = 0, tilt = 0, alpha =
   ctx.translate(px, py);
   if (tilt) ctx.rotate(tilt);
   if (flip) ctx.scale(-1, 1);
+  if (sqx !== 1 || sqy !== 1) ctx.scale(sqx, sqy);
   ctx.drawImage(sp.img, (-sp.ax / sp.w) * w, (-sp.ay / sp.h) * h, w, h);
   ctx.restore();
 }
@@ -434,6 +541,8 @@ function draw() {
   for (const p of people) drawables.push({ y: p.y, draw: () => drawPerson(p) });
   drawables.push({ y: player.y, draw: drawPlayer });
   drawables.sort((a, b) => a.y - b.y).forEach(d => d.draw());
+
+  drawAmbient();
 
   // Hudhud flies above everything, with a shadow on the ground.
   ctx.fillStyle = 'rgba(0,0,0,.15)';
@@ -492,6 +601,110 @@ function drawLighting() {
   ctx.globalCompositeOperation = 'source-over';
 }
 
+// ---------- Ambient life ----------
+// Butterflies (fireflies at night) over the grass, petals on the breeze,
+// fish leaping from the sea and the shadow of a passing gull. Purely
+// decorative; skipped in lite mode.
+
+let critters = [], petals = [], fish = null, gull = null, fishTimer = 3, gullTimer = 6;
+const lite = () => document.body.classList.contains('lite');
+const night = () => document.body.dataset.time === 'night';
+
+function setupAmbient() {
+  critters = []; petals = []; fish = null; gull = null;
+  if (lite()) return;
+  const grass = [];
+  island.tiles.forEach((row, y) => [...row].forEach((t, x) => { if (t === '.') grass.push([x + 0.5, y + 0.5]); }));
+  const n = night() ? 14 : 6;
+  for (let i = 0; i < n && grass.length; i++) {
+    const [x, y] = grass[Math.floor(Math.random() * grass.length)];
+    critters.push({ hx: x, hy: y, x, y, ph: Math.random() * 9, hue: [45, 330, 200, 280, 20][i % 5] });
+  }
+  for (let i = 0; i < 10; i++) petals.push({ x: Math.random(), y: Math.random(), v: 0.4 + Math.random() * 0.5, ph: Math.random() * 9, c: ['#ffc2d6', '#fff', '#ffe08a'][i % 3] });
+}
+
+function updateAmbient(dt) {
+  if (lite()) return;
+  for (const b of critters) {
+    b.ph += dt;
+    b.x = b.hx + Math.sin(b.ph * 0.5) * 1.6 + Math.sin(b.ph * 1.3) * 0.5;
+    b.y = b.hy + Math.cos(b.ph * 0.4) * 1.1 + Math.sin(b.ph * 1.7) * 0.3;
+    // Scatter from the hero.
+    if (Math.hypot(b.x - player.x, b.y - player.y) < 1.2) { b.hx += (b.x - player.x) * dt * 3; b.hy += (b.y - player.y) * dt * 3; }
+  }
+  for (const p of petals) {
+    p.x -= p.v * dt * 0.08; p.y += dt * 0.03 + Math.sin(p.ph + time) * dt * 0.02;
+    if (p.x < -0.05) { p.x = 1.05; p.y = Math.random(); }
+    if (p.y > 1.05) p.y = -0.05;
+  }
+  if ((fishTimer -= dt) <= 0) {
+    fishTimer = 2.5 + Math.random() * 4;
+    for (let tries = 0; tries < 12; tries++) {
+      const x = cam.x + (Math.random() - 0.5) * W / TILE, y = cam.y + (Math.random() - 0.5) * H / TILE;
+      if (tileAt(x, y) === '~' && tileAt(x + 1.5, y) === '~' && tileAt(x - 1.5, y) === '~') { fish = { x, y, t: 0, dir: Math.random() < 0.5 ? -1 : 1 }; break; }
+    }
+  }
+  if (fish && (fish.t += dt) > 1.6) fish = null;
+  if ((gullTimer -= dt) <= 0 && !night()) { gullTimer = 9 + Math.random() * 8; gull = { t: 0, y: cam.y + (Math.random() - 0.5) * 6 }; }
+  if (gull && (gull.t += dt) > 5) gull = null;
+}
+
+function drawAmbient() {
+  if (lite()) return;
+  // Fish: a silver arc out of the water, with splashes where it leaves and lands.
+  if (fish) {
+    const k = Math.min(1, fish.t / 1.1);
+    const x = sx(fish.x + fish.dir * (k - 0.5) * 1.8), y = sy(fish.y) - Math.sin(k * Math.PI) * TILE * 1.1;
+    if (fish.t < 1.1) {
+      ctx.save(); ctx.translate(x, y); ctx.rotate(fish.dir * (k - 0.5) * 2.2); ctx.scale(fish.dir, 1);
+      ctx.fillStyle = '#c9e4f2'; ctx.strokeStyle = '#2d4b63'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.ellipse(0, 0, TILE * 0.22, TILE * 0.09, 0, 0, 7); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-TILE * 0.2, 0); ctx.lineTo(-TILE * 0.34, -TILE * 0.09); ctx.lineTo(-TILE * 0.34, TILE * 0.09); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.restore();
+    }
+    for (const [off, t0] of [[-0.9, 0], [0.9, 1.05]]) {
+      const tt = fish.t - t0;
+      if (tt < 0 || tt > 0.5) continue;
+      ctx.strokeStyle = `rgba(255,255,255,${1 - tt * 2})`; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.ellipse(sx(fish.x + fish.dir * off), sy(fish.y), TILE * (0.15 + tt * 0.8), TILE * (0.05 + tt * 0.25), 0, 0, 7); ctx.stroke();
+    }
+  }
+  // Butterflies by day, fireflies by night.
+  for (const b of critters) {
+    const x = sx(b.x), y = sy(b.y) - TILE * 0.8;
+    if (x < -20 || y < -20 || x > W + 20 || y > H + 20) continue;
+    if (night()) {
+      const a = 0.5 + 0.5 * Math.sin(b.ph * 3);
+      const g = ctx.createRadialGradient(x, y, 0, x, y, TILE * 0.25);
+      g.addColorStop(0, `rgba(255,245,150,${a})`); g.addColorStop(1, 'rgba(255,245,150,0)');
+      ctx.fillStyle = g; ctx.fillRect(x - TILE * 0.25, y - TILE * 0.25, TILE * 0.5, TILE * 0.5);
+      continue;
+    }
+    const flap = Math.abs(Math.sin(b.ph * 14));
+    ctx.fillStyle = `hsl(${b.hue} 90% 65%)`; ctx.strokeStyle = '#3a2a1a'; ctx.lineWidth = 1.2;
+    for (const side of [-1, 1]) {
+      ctx.beginPath(); ctx.ellipse(x + side * TILE * 0.08 * flap, y, TILE * 0.09 * flap + 1, TILE * 0.07, side * 0.5, 0, 7); ctx.fill(); ctx.stroke();
+    }
+    ctx.fillStyle = '#3a2a1a'; ctx.fillRect(x - 1, y - TILE * 0.05, 2, TILE * 0.1);
+  }
+  // Petals drifting on the breeze (screen space).
+  ctx.globalAlpha = 0.8;
+  for (const p of petals) {
+    const r = Math.sin(time * 2 + p.ph);
+    ctx.fillStyle = p.c;
+    ctx.beginPath(); ctx.ellipse(p.x * W, p.y * H, 4, 2 + Math.abs(r) * 2, r, 0, 7); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  // A gull's shadow glides over the island.
+  if (gull) {
+    const x = W + 80 - (gull.t / 5) * (W + 160), y = sy(gull.y), f = Math.sin(time * 6) * 0.3;
+    ctx.fillStyle = 'rgba(0,30,40,.14)';
+    ctx.beginPath();
+    ctx.moveTo(x, y); ctx.quadraticCurveTo(x + 18, y - 10 - f * 10, x + 38, y - 4 - f * 16); ctx.quadraticCurveTo(x + 18, y + 2, x, y + 6);
+    ctx.quadraticCurveTo(x - 18, y + 2, x - 38, y - 4 - f * 16); ctx.quadraticCurveTo(x - 18, y - 10 - f * 10, x, y); ctx.fill();
+  }
+}
+
 // Villagers with \`wander\` stroll around their home spot.
 function wander(dt) {
   for (const p of people) {
@@ -526,7 +739,9 @@ function drawProp(o) {
     ctx.beginPath(); ctx.arc(sx(o.x), sy(o.y) - TILE, TILE * 1.4, 0, 7); ctx.fill(); ctx.globalAlpha = 1;
     return;
   }
-  drawSprite(o.sprite, o.x, o.y, HEIGHTS[o.kind]);
+  // Plants lean in the sea breeze.
+  const sway = SWAY[o.kind] ? Math.sin(time * 1.4 + o.x * 0.7) * SWAY[o.kind] + Math.sin(time * 3.1 + o.y) * SWAY[o.kind] * 0.3 : 0;
+  drawSprite(o.sprite, o.x, o.y, HEIGHTS[o.kind], { tilt: sway });
   if (o.kind === 'monument' || o.kind === 'compass' || o.kind === 'crystal') {
     // The token slots light up as golden tokens are placed.
     const letters = tokens();
@@ -553,10 +768,15 @@ function drawProp(o) {
   }
 }
 
+const SWAY = { palm: 0.035, bush: 0.03, flowers: 0.06, lamp: 0 };
+
 function drawPerson(p) {
+  ctx.fillStyle = 'rgba(0,0,0,.16)';
+  ctx.beginPath(); ctx.ellipse(sx(p.x), sy(p.y), TILE * 0.3, TILE * 0.1, 0, 0, 7); ctx.fill();
   const talking = dialog && dialog.person === p;
   const bob = talking ? Math.sin(time * 8) * 1.5 : p.walking ? -Math.abs(Math.sin(time * 9)) * TILE * 0.06 : Math.sin(time * 2 + p.at[0]) * 1;
-  drawSprite(p.sprite, p.x, p.y, 1.5, { flip: p.face > 0, bob, tilt: p.walking ? Math.sin(time * 9) * 0.04 : 0 });
+  const breathe = p.walking ? 1 : 1 + Math.sin(time * 2.2 + p.at[0]) * 0.012;
+  drawSprite(p.sprite, p.x, p.y, 1.5, { flip: p.face > 0, bob, tilt: p.walking ? Math.sin(time * 9) * 0.04 : 0, sqy: breathe, sqx: 2 - breathe });
 }
 
 function drawPlayer() {
@@ -564,7 +784,9 @@ function drawPlayer() {
   ctx.beginPath(); ctx.ellipse(sx(player.x), sy(player.y), TILE * 0.3, TILE * 0.1, 0, 0, 7); ctx.fill();
   const bob = player.moving ? -Math.abs(Math.sin(player.step)) * TILE * 0.08 : Math.sin(time * 2) * 1;
   const tilt = player.moving ? Math.sin(player.step) * 0.05 : 0;
-  drawSprite(player.sprite, player.x, player.y, 1.55, { flip: player.face < 0, bob, tilt });
+  // Squash and stretch: a little bounce on each step, breathing when idle.
+  const sq = player.moving ? 1 + Math.sin(player.step * 2) * 0.035 : 1 + Math.sin(time * 2.4) * 0.015;
+  drawSprite(player.sprite, player.x, player.y, 1.55, { flip: player.face < 0, bob, tilt, sqy: sq, sqx: 2 - sq });
 }
 
 // "!" over villagers with a quest to offer; "✔" once it's done.
