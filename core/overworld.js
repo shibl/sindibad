@@ -536,6 +536,7 @@ function drawPrompts() {
   for (const p of people) {
     let mark = null;
     if (p.quest) mark = questDone(p.quest) ? (state.letters.includes(p.quest.letter) ? '✔' : '!') : '!';
+    else if (p.riddles) mark = '🧩';
     else if (!state.met.includes(p.id)) mark = '…';
     if (!mark) continue;
     const x = sx(p.x), y = sy(p.y) - TILE * 1.75 + Math.sin(time * 4) * 3;
@@ -620,6 +621,13 @@ function talkTo(p) {
   p.face = player.x > p.x ? -1 : 1;
   if (!state.met.includes(p.id)) { state.met.push(p.id); persist(); }
   const q = p.quest;
+  if (!q && p.riddles) {
+    say({ person: p, lines: p.talk, choices: [
+      { label: 'اسألني لغزاً! 🧩', go: () => askRiddle(p) },
+      { label: 'وداعاً 👋', go: () => {} },
+    ] });
+    return;
+  }
   if (!q) { say({ person: p, lines: p.talk }); return; }
   if (questDone(q) && !state.letters.includes(q.letter)) { rewardQuest(p); return; }
   if (q.fetch) {
@@ -639,9 +647,9 @@ function talkTo(p) {
   ] });
 }
 
-function say({ person = null, bird = false, name, lines, choices = null, then = null }) {
+function say({ person = null, bird = false, name, lines, choices = null, then = null, plain = false }) {
   busy = true;
-  dialog = { person, lines: lines.map(fill), i: 0, choices, then, name: name || person?.name };
+  dialog = { person, lines: lines.map(fill), i: 0, choices, then, plain, name: name || person?.name };
   els.dlg.hidden = false;
   els.dlg.querySelector('.dialog__portrait').innerHTML = person ? portraitSVG(person.look) : bird ? hudhudPortrait() : '';
   els.dlg.querySelector('.dialog__portrait').hidden = !person && !bird;
@@ -657,7 +665,7 @@ function showLine() {
   text.classList.remove('typing'); void text.offsetWidth; text.classList.add('typing');
   const box = els.dlg.querySelector('.dialog__choices');
   box.innerHTML = last && dialog.choices
-    ? dialog.choices.map((c, k) => `<button class="btn ${k === 0 ? 'btn--gold' : 'btn--ghost'}" data-choice="${k}">${c.label}</button>`).join('')
+    ? dialog.choices.map((c, k) => `<button class="btn ${k === 0 && !dialog.plain ? 'btn--gold' : 'btn--ghost'}" data-choice="${k}">${c.label}</button>`).join('')
     : '';
   els.dlg.querySelector('.dialog__next').hidden = last && !!dialog.choices;
   sfx.tap();
@@ -688,6 +696,34 @@ function closeDialog() {
   dialog = null;
   els.dlg.hidden = true;
   busy = !els.popup.hidden;
+}
+
+// ---------- Riddles ----------
+// Some villagers ask a quick question from their island's subject, right in
+// the conversation. Right answers earn pearls (up to 10 riddles per island).
+
+function askRiddle(p) {
+  const r = p.riddles();
+  const opts = shuffled(r.options.map((html, k) => ({ html, ok: k === r.answer })));
+  say({ person: p, plain: true, lines: [`🧩 ${r.q}`], choices: opts.map(o => ({
+    label: o.html,
+    go: () => {
+      if (o.ok) {
+        const paid = (state.riddles || 0) < 10;
+        state.riddles = (state.riddles || 0) + 1; persist();
+        if (paid) { save.update(s => { s.pearls = (s.pearls || 0) + 2; }); updateHud(); }
+        sfx.good();
+        say({ person: p, lines: [paid ? 'صحيح! أحسنت 👏 خذ لؤلؤتين 🦪🦪' : 'صحيح! أنت بارع في الألغاز.'], choices: [
+          { label: 'لغز آخر!', go: () => askRiddle(p) }, { label: 'يكفي الآن', go: () => {} },
+        ] });
+      } else {
+        sfx.bad();
+        say({ person: p, lines: [`ليس تماماً… ${r.explain || r.hint || ''}`], choices: [
+          { label: 'لغز آخر!', go: () => askRiddle(p) }, { label: 'يكفي الآن', go: () => {} },
+        ] });
+      }
+    },
+  })) });
 }
 
 // ---------- Quests ----------

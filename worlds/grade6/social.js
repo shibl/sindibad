@@ -8,6 +8,8 @@
 // Same format as worlds/grade6/arabic.js. Draft content, pending review by
 // Syrian educators. CC-BY-SA.
 
+import { riddle } from '../../plugins/review/pools.js';
+
 export default {
   id: 'social',
   name: 'جزيرة القلعة',
@@ -119,7 +121,7 @@ export default {
 
   people: [
     {
-      id: 'soc-greeter', name: 'العم نزار', at: [10.4, 29.9],
+      riddles: () => riddle('social'), id: 'soc-greeter', name: 'العم نزار', at: [10.4, 29.9],
       look: { skin: '#c98e60', robe: '#6b8fa8', sash: '#c7373f', hat: 'kufiya', beard: 'white', prop: 'staff' },
       talk: [
         'أهلاً بك في <b>جزيرة القلعة</b> يا {name}! هنا تسكن حكايات بلادنا.',

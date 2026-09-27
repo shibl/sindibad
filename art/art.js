@@ -19,6 +19,12 @@
 // Licence: CC-BY-SA (see README.md).
 
 export const LINE = '#3b2414';
+
+// Cosmetic choices bought with pearls (see core/shop.js). The art functions
+// below read these; call setStyle() when the player changes them.
+export const STYLE = { sail: null, flag: null, outfit: null, hat: null };
+export function setStyle(s = {}) { Object.assign(STYLE, { sail: null, flag: null, outfit: null, hat: null }, s); }
+export const styleKey = () => `${STYLE.sail}|${STYLE.flag}|${STYLE.outfit}|${STYLE.hat}`;
 export const OUT = `stroke="${LINE}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"`;
 export const OUT_THIN = `stroke="${LINE}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"`;
 
@@ -125,8 +131,8 @@ function sindbadBody() {
   <circle cx="60" cy="195" r="7.5" fill="${skin}" ${OUT}/>
   <!-- torso -->
   <path d="M70 130 Q100 121 130 130 Q139 162 133 200 L67 200 Q61 162 70 130Z" fill="#fbf1dc" ${OUT}/>
-  <path d="M70 130 Q82 125 91 127 Q88 164 92 200 L67 200 Q61 162 70 130Z" fill="#b3303a" ${OUT}/>
-  <path d="M130 130 Q118 125 109 127 Q112 164 108 200 L133 200 Q139 162 130 130Z" fill="#b3303a" ${OUT}/>
+  <path d="M70 130 Q82 125 91 127 Q88 164 92 200 L67 200 Q61 162 70 130Z" fill="${STYLE.outfit || '#b3303a'}" ${OUT}/>
+  <path d="M130 130 Q118 125 109 127 Q112 164 108 200 L133 200 Q139 162 130 130Z" fill="${STYLE.outfit || '#b3303a'}" ${OUT}/>
   <path d="M88 132 Q86 164 89 196 M112 132 Q114 164 111 196" fill="none" stroke="#f2c14e" stroke-width="2.5" stroke-dasharray="1 5" stroke-linecap="round"/>
   <path d="M78 150 l5 6 l-5 6 l-5 -6Z M122 150 l5 6 l-5 6 l-5 -6Z" fill="#f2c14e" ${OUT_THIN}/>
   <!-- belt + pouch -->
@@ -178,7 +184,7 @@ function yasminaBody() {
   <path d="M78 270 Q66 287 86 286 L98 285 Q100 277 97 270Z" fill="#b8373a" ${OUT}/>
   <path d="M122 270 Q134 287 114 286 L102 285 Q100 277 103 270Z" fill="#b8373a" ${OUT}/>
   <!-- left arm with spyglass -->
-  ${limb('M71 138 Q60 160 60 184', '#d0507e', 15)}
+  ${limb('M71 138 Q60 160 60 184', (STYLE.outfit || '#d0507e'), 15)}
   ${limb('M60 184 L60 192', skin, 12)}
   <g transform="rotate(24 60 198)">
     <rect x="40" y="191" width="44" height="12" rx="3" fill="url(#g-brass)" ${OUT_THIN}/>
@@ -187,7 +193,7 @@ function yasminaBody() {
   </g>
   <circle cx="60" cy="196" r="7.5" fill="${skin}" ${OUT}/>
   <!-- tunic -->
-  <path d="M70 130 Q100 121 130 130 Q142 180 144 236 L56 236 Q58 180 70 130Z" fill="#d0507e" ${OUT}/>
+  <path d="M70 130 Q100 121 130 130 Q142 180 144 236 L56 236 Q58 180 70 130Z" fill="${STYLE.outfit || '#d0507e'}" ${OUT}/>
   <path d="M60 222 L140 222 L142 236 L58 236Z" fill="#fbf1dc" ${OUT_THIN}/>
   ${[66, 80, 94, 108, 122, 136].map(x => stitch(x, 229)).join('')}
   <path d="M86 130 L114 130 L111 172 L89 172Z" fill="#fbf1dc" ${OUT_THIN}/>
@@ -207,7 +213,7 @@ function yasminaBody() {
   </g>
   <!-- waving arm -->
   <g class="wave-arm">
-    ${limb('M129 137 Q146 128 152 110', '#d0507e', 15)}
+    ${limb('M129 137 Q146 128 152 110', (STYLE.outfit || '#d0507e'), 15)}
     ${limb('M152 110 L155 100', skin, 12)}
     <path d="M150 99 Q148 84 155 84 Q157 76 162 80 Q167 78 167 86 Q172 88 167 98 Q160 104 150 99Z" fill="${skin}" ${OUT}/>
   </g>
@@ -242,6 +248,16 @@ export function heroSVG(id, cls = '') {
 // ---------- Hudhud (الهدهد) ----------
 // The wise hoopoe guide: salmon body, black-and-white barred wings, a crest
 // fan with black tips, long curved beak, and round reading glasses.
+function hudhudHat() {
+  switch (STYLE.hat) {
+    case 'crown': return `<path d="M36 40 L40 22 L48 32 L56 18 L62 32 L70 22 L72 40Z" fill="url(#g-brass)" ${OUT_THIN}/><circle cx="56" cy="30" r="3" fill="#d0507e"/>`;
+    case 'fez': return `<path d="M40 38 L44 18 Q56 12 66 18 L70 38 Q56 32 40 38Z" fill="#b3303a" ${OUT_THIN}/><path d="M56 13 Q64 14 66 28" fill="none" stroke="#1b0f08" stroke-width="2"/>`;
+    case 'flower': return `<g transform="translate(40 34)">${[0, 72, 144, 216, 288].map(a => `<ellipse cx="0" cy="-6" rx="4" ry="6" fill="#fff" ${OUT_THIN} transform="rotate(${a})"/>`).join('')}<circle r="3" fill="#f2c14e"/></g>`;
+    case 'grad': return `<path d="M34 30 L56 20 L80 30 L56 40Z" fill="#1b2a4a" ${OUT_THIN}/><path d="M44 34 V42 Q56 48 68 42 V34" fill="#1b2a4a" ${OUT_THIN}/><path d="M78 30 V42" stroke="#f2c14e" stroke-width="2.5"/><circle cx="78" cy="44" r="3" fill="#f2c14e"/>`;
+    default: return '';
+  }
+}
+
 export function hudhudBody() {
   const feathers = [-62, -44, -26, -8, 10, 28].map((a, i) => `
     <g transform="rotate(${a} 60 40)">
@@ -270,6 +286,7 @@ export function hudhudBody() {
     <circle cx="45" cy="53" r="1.8" fill="#fff"/>
   </g>
   <circle cx="48" cy="54" r="11" fill="#fff" fill-opacity=".12" stroke="#6b4a1a" stroke-width="2.5"/>
+  ${hudhudHat()}
   <path d="M59 52 L72 48" stroke="#6b4a1a" stroke-width="2.5" stroke-linecap="round"/>`;
 }
 
@@ -297,13 +314,14 @@ export function shipSVG({ crew = ['sindbad', 'yasmina'], hudhud = true } = {}) {
   <path d="M214 196 L199 8" stroke="#7a4520" stroke-width="6" stroke-linecap="round"/>
   <!-- lateen sail -->
   <g class="sail">
-    <path d="M62 92 Q176 34 300 22 Q262 110 222 178 Q148 128 62 92Z" fill="url(#g-sail)" ${OUT}/>
+    <path d="M62 92 Q176 34 300 22 Q262 110 222 178 Q148 128 62 92Z" fill="${STYLE.sail && STYLE.sail !== 'stripes' ? STYLE.sail : 'url(#g-sail)'}" ${OUT}/>
+    ${STYLE.sail === 'stripes' ? '<path d="M100 72 Q170 64 214 120 M140 54 Q196 60 220 150 M180 40 Q220 60 222 170" fill="none" stroke="#c7373f" stroke-width="12" opacity=".75"/>' : ''}
     <path d="M110 70 Q156 110 178 150 M160 50 Q186 100 200 164 M214 36 Q222 90 222 172 M258 28 Q248 90 232 160" fill="none" stroke="#d8bf8e" stroke-width="2"/>
     <path d="M150 96 l18 -6 l6 16 l-18 6Z" fill="#e8d3a6" ${OUT_THIN}/>
     <path d="M62 92 Q176 34 300 22" fill="none" stroke="${LINE}" stroke-width="9" stroke-linecap="round"/>
     <path d="M62 92 Q176 34 300 22" fill="none" stroke="#8a4c24" stroke-width="5" stroke-linecap="round"/>
   </g>
-  <g class="flag"><path d="M199 4 Q224 0 250 10 Q226 12 200 20Z" fill="#d0507e" ${OUT_THIN}/></g>
+  <g class="flag"><path d="M199 4 Q224 0 250 10 Q226 12 200 20Z" fill="${STYLE.flag || '#d0507e'}" ${OUT_THIN}/></g>
   <circle cx="199" cy="6" r="4" fill="url(#g-brass)" ${OUT_THIN}/>
   <!-- crew -->
   ${heroes}

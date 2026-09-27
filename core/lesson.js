@@ -145,10 +145,15 @@ function practice(topic, container, ctx, abort) {
   }
 }
 
+let lastPearls = 0;
+
 function record(topic, { correct, total }) {
   const stars = starsFor({ correct, total });
   save.update(s => {
     const prev = s.topics[topic.id] || { stars: 0, best: 0, plays: 0 };
+    // Every new star is worth 5 pearls for the shop.
+    lastPearls = Math.max(0, stars - prev.stars) * 5;
+    s.pearls = (s.pearls || 0) + lastPearls;
     s.topics[topic.id] = {
       stars: Math.max(prev.stars, stars),
       best: Math.max(prev.best, total ? correct / total : 0),
@@ -185,6 +190,7 @@ function showResult(topic, result, hero) {
       </div>
       <p class="result__score">أجبت صحيحاً من المحاولة الأولى عن <b>${num(result.correct)}</b> من <b>${num(result.total)}</b></p>
       <p class="result__line">${LINES[stars]}</p>
+      ${lastPearls ? `<p class="result__pearls">+${num(lastPearls)} 🦪 لؤلؤة للسوق</p>` : ''}
       <div class="actions">
         <button class="btn btn--ghost" data-result="again">مرة أخرى</button>
         <button class="btn btn--gold" data-result="map">إلى الخريطة</button>

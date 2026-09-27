@@ -39,6 +39,8 @@
 
   <!-- Screens. Exactly one has [data-active] at a time (see showScreen in app.js). -->
 
+  <div id="story" class="story" hidden></div>
+
   <section id="screen-title" class="screen" data-active>
     <header class="logo">
       <span class="logo__small">رحلات</span>
@@ -77,6 +79,7 @@
       <button class="btn btn--round" data-go="journey" aria-label="رحلتي" id="hero-btn"></button>
       <h2>الصف السادس</h2>
       <span class="stars-badge" title="النجوم">★ <span id="stars-total">٠</span></span>
+      <button class="stars-badge pearl-btn" id="pearl-btn" title="سوق الميناء">🦪 <span id="pearl-total">٠</span></button>
       <button class="btn btn--round" id="mute-btn" aria-label="الصوت">🔊</button>
     </header>
     <div id="map" class="map"></div>
@@ -85,6 +88,7 @@
     </div>
     <div id="sheet" class="sheet" hidden></div>
     <div id="badge-modal" class="badge-modal" hidden></div>
+    <div id="shop" class="shop" hidden></div>
   </section>
 
   <section id="screen-island" class="screen screen--island">

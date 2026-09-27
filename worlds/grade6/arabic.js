@@ -14,6 +14,8 @@
 //
 // Draft content, pending review by Syrian educators. CC-BY-SA.
 
+import { riddle } from '../../plugins/review/pools.js';
+
 export default {
   id: 'arabic',
   name: 'جزيرة الحروف',
@@ -138,7 +140,7 @@ export default {
       ],
     },
     {
-      wander: 1.8, id: 'kid', name: 'رامي', at: [6.4, 21.5],
+      wander: 1.8, riddles: () => riddle('arabic'), id: 'kid', name: 'رامي', at: [6.4, 21.5],
       look: { skin: '#eab38a', robe: '#e0a93a', sash: '#1f9aa0', hat: 'none', hair: '#4a2c1a' },
       talk: [
         'هل تعرف سرّاً؟ الكلمة التي في آخرها <b>ـُـ</b> (ضمة) تكون غالباً <b>مرفوعة</b>!',

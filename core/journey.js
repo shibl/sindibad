@@ -7,6 +7,7 @@ import { regionStars, badgeState, totalStars } from './map.js';
 import { sfx } from './sound.js';
 import { num } from './format.js';
 import { showCertificate } from './finale.js';
+import { showStory } from './story.js';
 
 export function renderJourney(el, world, { showScreen }) {
   const s = save.get();
@@ -56,6 +57,7 @@ export function renderJourney(el, world, { showScreen }) {
     </div>
     <div class="journey__actions">
       ${s.finale ? '<button class="btn btn--gold" data-j="cert">📜 شهادتي</button>' : ''}
+      <button class="btn btn--ghost" data-j="story">📖 الحكاية</button>
       <button class="btn btn--ghost" data-j="hero">🔄 تغيير البطل</button>
       <button class="btn btn--ghost btn--danger" data-j="reset">🗑️ ابدأ من جديد</button>
     </div>
@@ -67,6 +69,7 @@ export function renderJourney(el, world, { showScreen }) {
     sfx.tap();
     if (b.dataset.j === 'hero') showScreen('select');
     if (b.dataset.j === 'cert') showCertificate(totalStars());
+    if (b.dataset.j === 'story') showStory();
     if (b.dataset.j === 'reset') {
       if (b.dataset.armed) {
         save.reset();

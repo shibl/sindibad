@@ -219,6 +219,8 @@ function updateStarsBadge() {
   const { stars, max } = totalStars();
   const badge = document.getElementById('stars-total');
   if (badge) badge.textContent = `${num(stars)} / ${num(max)}`;
+  const pearlEl = document.getElementById('pearl-total');
+  if (pearlEl) pearlEl.textContent = num(save.get().pearls || 0);
 }
 
 // Lift the fog from a newly unlocked island.

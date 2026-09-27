@@ -9,6 +9,8 @@ import { defsSVG, shipSVG, palmSVG, gullSVG, cloudSVG, skylineSVG, shoreSVG, her
 import { save } from './core/save.js';
 import { initMap, enter as enterMap } from './core/map.js';
 import { renderJourney } from './core/journey.js';
+import { openShop, applyStyle } from './core/shop.js';
+import { showStory } from './core/story.js';
 import { initOverworld, enterIsland, lessonReturned, debugState, debugBlocked, debugPlace } from './core/overworld.js';
 import arabicIsland from './worlds/grade6/arabic.js';
 import mathIsland from './worlds/grade6/math.js';
@@ -92,6 +94,13 @@ function wireNavigation() {
     const target = e.target.closest('[data-go]');
     if (target) { sfx.tap(); showScreen(target.dataset.go); }
   });
+  document.getElementById('pearl-btn').addEventListener('click', () => openShop({
+    changed: () => {
+      paintShip(document.querySelector('.ship--title'), ['sindbad', 'yasmina']);
+      document.getElementById('hero-btn').innerHTML = `<span class="hero-face">${heroSVG(save.get().hero || 'sindbad')}</span>`;
+      enterMap();
+    },
+  }));
   const mute = document.getElementById('mute-btn');
   const paintMute = () => { mute.textContent = save.get().muted ? '🔇' : '🔊'; };
   mute.addEventListener('click', () => { toggleMute(); paintMute(); sfx.tap(); });
@@ -130,7 +139,9 @@ function wireHeroSelect() {
     const chosen = cards.find(c => c.getAttribute('aria-checked') === 'true');
     if (!chosen) return;
     save.update(s => { s.hero = chosen.dataset.hero; });
-    showScreen('map');
+    applyStyle();
+    if (save.get().storySeen) showScreen('map');
+    else showStory(() => showScreen('map'));
   });
 
   const saved = save.get().hero;
@@ -167,6 +178,7 @@ document.addEventListener('visibilitychange', () => {
 
 // ---------- Boot ----------
 
+applyStyle();
 paintScene();
 paintShip(document.querySelector('.ship--title'), ['sindbad', 'yasmina']);
 wireNavigation();

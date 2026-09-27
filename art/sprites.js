@@ -4,7 +4,7 @@
 //
 // Licence: CC-BY-SA (see README.md).
 
-import { DEFS, LINE, OUT, OUT_THIN, limb, head, hudhudBody, HEROES, palmSVG, chestSVG } from './art.js';
+import { DEFS, LINE, OUT, OUT_THIN, limb, head, hudhudBody, HEROES, palmSVG, chestSVG, styleKey } from './art.js';
 
 // ---------- Rasterising ----------
 
@@ -311,12 +311,12 @@ export function villagerSprite(id, look) {
 }
 
 export function heroSprite(id) {
-  const e = svgImage(`hero:${id}`, HEROES[id].body(), 200, 300, 0.6);
+  const e = svgImage(`hero:${id}:${styleKey()}`, HEROES[id].body(), 200, 300, 0.6);
   return { ...e, ax: 100, ay: 290 };
 }
 
 export function hudhudSprite() {
-  const e = svgImage('hudhud', hudhudBody(), 160, 140, 0.8);
+  const e = svgImage(`hudhud:${styleKey()}`, hudhudBody(), 160, 140, 0.8);
   return { ...e, ax: 86, ay: 128 };
 }
 
