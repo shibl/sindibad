@@ -23,6 +23,8 @@ import { sfx } from './sound.js';
 import { num } from './format.js';
 import { canSpeak, speak, stopSpeaking } from './voice.js';
 
+const TEST = typeof window !== 'undefined' && !!window.__SINDBAD_TEST__;
+
 const SPEED = 4.2;          // tiles per second
 const RADIUS = 0.28;        // player collision radius (tiles)
 const TALK_RANGE = 1.8;     // how close you must be to interact (tiles)
@@ -915,19 +917,55 @@ function showLine() {
   const text = els.dlg.querySelector('.dialog__text');
   const last = dialog.i === dialog.lines.length - 1;
   text.innerHTML = line;
-  text.classList.remove('typing'); void text.offsetWidth; text.classList.add('typing');
   const box = els.dlg.querySelector('.dialog__choices');
-  box.innerHTML = last && dialog.choices
-    ? dialog.choices.map((c, k) => `<button class="btn ${k === 0 && !dialog.plain ? 'btn--gold' : 'btn--ghost'}" data-choice="${k}">${c.label}</button>`).join('')
-    : '';
-  els.dlg.querySelector('.dialog__next').hidden = last && !!dialog.choices;
+  box.innerHTML = '';
+  els.dlg.querySelector('.dialog__next').hidden = true;
   els.dlg.querySelector('.dialog__say').hidden = !canSpeak();
   stopSpeaking();
-  sfx.tap();
+  const done = () => {
+    dialog.typing = null;
+    box.innerHTML = last && dialog.choices
+      ? dialog.choices.map((c, k) => `<button class="btn ${k === 0 && !dialog.plain ? 'btn--gold' : 'btn--ghost'}" data-choice="${k}">${c.label}</button>`).join('')
+      : '';
+    els.dlg.querySelector('.dialog__next').hidden = last && !!dialog.choices;
+  };
+  typewrite(text, done);
 }
+
+// Reveal the line letter by letter with little voice blips, RPG-style.
+// Tapping while it types shows the whole line at once.
+function typewrite(el, done) {
+  const nodes = [];
+  const walk = n => n.nodeType === 3 ? nodes.push([n, n.nodeValue]) : n.childNodes.forEach(walk);
+  walk(el);
+  const total = nodes.reduce((a, [, t]) => a + t.length, 0);
+  if (TEST || lite() || !total) { done(); return; }
+  nodes.forEach(([n]) => { n.nodeValue = ''; });
+  const pitch = dialog.person ? 380 + (hash(dialog.person.id) % 7) * 45 : 760;
+  let shown = 0, raf;
+  const start = performance.now();
+  const finish = () => { cancelAnimationFrame(raf); nodes.forEach(([n, t]) => { n.nodeValue = t; }); done(); };
+  const step = now => {
+    if (!dialog) return;
+    const want = Math.min(total, Math.floor(((now - start) / 1000) * 55));
+    if (want > shown) {
+      if (Math.floor(want / 3) > Math.floor(shown / 3)) sfx.blip(pitch);
+      shown = want;
+      let left = shown;
+      for (const [n, t] of nodes) { n.nodeValue = t.slice(0, Math.max(0, left)); left -= t.length; }
+    }
+    if (shown >= total) { dialog.typing = null; done(); return; }
+    raf = requestAnimationFrame(step);
+  };
+  dialog.typing = finish;
+  dialog.stopTyping = () => cancelAnimationFrame(raf);
+  raf = requestAnimationFrame(step);
+}
+const hash = str => [...str].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) >>> 0, 7);
 
 function advance() {
   if (!dialog) return;
+  if (dialog.typing) { dialog.typing(); return; }
   if (dialog.i < dialog.lines.length - 1) { dialog.i += 1; showLine(); return; }
   if (dialog.choices) return; // must pick one
   const then = dialog.then;
@@ -950,6 +988,7 @@ function onDialogClick(e) {
 
 function closeDialog() {
   stopSpeaking();
+  dialog?.stopTyping?.();
   dialog = null;
   els.dlg.hidden = true;
   busy = !els.popup.hidden;

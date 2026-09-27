@@ -50,6 +50,7 @@ const PRAISE = [
 export function runRounds({ container, ctx, items, onComplete, renderRound, intro }) {
   let i = 0;
   let correct = 0;
+  let streak = 0;   // answers right first time in a row
   const total = items.length;
   container.classList.add('engine');
   if (intro) ctx.say(intro, 'happy');
@@ -75,6 +76,11 @@ export function runRounds({ container, ctx, items, onComplete, renderRound, intr
         if (attempts === 0) correct += 1;
         ctx.mark?.(item, attempts === 0);
         ctx.sfx.good();
+        streak = attempts === 0 ? streak + 1 : 0;
+        const hit = stage.querySelector('.is-right');
+        if (hit) burst(hit, attempts === 0 ? '+١' : '');
+        combo(container, streak);
+        if (streak >= 3) setTimeout(() => ctx.sfx.star(Math.min(streak - 3, 4)), 250);
         const praise = PRAISE[Math.floor(Math.random() * PRAISE.length)].replace('{name}', ctx.heroName);
         ctx.say(note ? `${praise} ${note}` : praise, 'cheer');
         stage.classList.add('is-solved');
@@ -84,6 +90,8 @@ export function runRounds({ container, ctx, items, onComplete, renderRound, intr
         if (done) return;
         attempts += 1;
         ctx.sfx.bad();
+        streak = 0;
+        combo(container, 0);
         if (attempts < 2) {
           ctx.say(`ليس تماماً… ${hint || 'فكّر مرة أخرى!'}`, 'think');
           return;
@@ -110,4 +118,43 @@ export function h(html) {
   const t = document.createElement('template');
   t.innerHTML = html.trim();
   return t.content.firstElementChild;
+}
+
+// ---------- Juice ----------
+
+// A burst of little stars from an element, and a floating "+1".
+export function burst(el, label = '') {
+  if (!el?.getBoundingClientRect || document.body.classList.contains('lite')) return;
+  const r = el.getBoundingClientRect();
+  const x = r.left + r.width / 2, y = r.top + r.height / 2;
+  const colors = ['#ffd23f', '#ff8fb1', '#7ee0c3', '#fff', '#9fd4ff'];
+  for (let k = 0; k < 12; k++) {
+    const a = (k / 12) * Math.PI * 2 + Math.random() * 0.4, d = 50 + Math.random() * 50;
+    const sp = document.createElement('i');
+    sp.className = 'spark';
+    sp.textContent = k % 3 ? '★' : '✦';
+    sp.style.cssText = `left:${x}px;top:${y}px;--dx:${Math.cos(a) * d}px;--dy:${Math.sin(a) * d}px;color:${colors[k % colors.length]};--rot:${Math.random() * 360}deg`;
+    document.body.append(sp);
+    sp.addEventListener('animationend', () => sp.remove(), { once: true });
+  }
+  if (label) {
+    const f = document.createElement('b');
+    f.className = 'float-plus';
+    f.textContent = `${label} ⭐`;
+    f.style.cssText = `left:${x}px;top:${r.top}px`;
+    document.body.append(f);
+    f.addEventListener('animationend', () => f.remove(), { once: true });
+  }
+}
+
+// "🔥 ×3" combo badge for answers right first time in a row.
+const COMBO_WORDS = ['', '', 'رائع!', 'مذهل!', 'لا يُوقَف!', 'أسطوري!'];
+function combo(container, n) {
+  const host = container.closest('.screen') || container.parentElement;
+  let el = host.querySelector('.combo');
+  if (n < 2) { el?.classList.remove('is-on'); return; }
+  if (!el) { el = document.createElement('div'); el.className = 'combo'; el.setAttribute('aria-hidden', 'true'); host.append(el); }
+  el.innerHTML = `<b>🔥 ×${'٠١٢٣٤٥٦٧٨٩'[n] || n}</b><small>${COMBO_WORDS[Math.min(n, 5)]}</small>`;
+  el.classList.remove('is-on'); void el.offsetWidth; el.classList.add('is-on');
+  el.dataset.level = Math.min(n, 5);
 }

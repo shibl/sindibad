@@ -74,6 +74,8 @@ export function startLesson(topicId, opts = {}) {
   container.innerHTML = '';
   container.className = 'activity';
   document.getElementById('activity-title').textContent = `${topic.icon} ${topic.title}`;
+  document.getElementById('screen-activity').dataset.subject = topic.region;
+  document.querySelector('#screen-activity .combo')?.classList.remove('is-on');
   document.getElementById('result').hidden = true;
   progress(0, 1);
   show('activity');

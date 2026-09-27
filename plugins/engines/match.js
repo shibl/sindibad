@@ -5,7 +5,7 @@
 // match({ pairs, boards, perBoard, intro, left, right })
 // pairs: [{ a: html, b: html, hint }]   (a shown in the right column in RTL)
 
-import { shuffle, draw, h, TEST } from './kit.js';
+import { shuffle, draw, burst, h, TEST } from './kit.js';
 
 export function match({ pairs, boards = 2, perBoard = 4, intro, headA = '', headB = '' }) {
   return (container, onComplete, ctx) => {
@@ -48,6 +48,7 @@ export function match({ pairs, boards = 2, perBoard = 4, intro, headA = '', head
             const hue = (set.length - left) * 67;
             [sel, b].forEach(x => { x.classList.remove('is-sel'); x.classList.add('is-done'); x.style.setProperty('--hue', hue); });
             if (!missed.has(p)) correct += 1;
+            burst(b, missed.has(p) ? '' : '+١');
             ctx.mark?.(p, !missed.has(p));
             left -= 1;
             ctx.sfx.good();

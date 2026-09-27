@@ -1221,3 +1221,141 @@ body[data-screen="island"] #scene, body[data-screen="journey"] #scene { visibili
 .island-lens::before { top: 0; -webkit-mask-image: linear-gradient(#000, transparent); mask-image: linear-gradient(#000, transparent); }
 .island-lens::after { bottom: 0; -webkit-mask-image: linear-gradient(transparent, #000); mask-image: linear-gradient(transparent, #000); }
 body.lite .island-lens::before, body.lite .island-lens::after { display: none; }
+
+/* ================= V13: juicy lessons ================= */
+
+/* Each subject tints the lesson stage. */
+.screen--activity { --subj: #1f9aa0; --subj-2: #7fd3d6; }
+.screen--activity[data-subject="arabic"] { --subj: #d0507e; --subj-2: #f7b3cb; }
+.screen--activity[data-subject="math"] { --subj: #c7373f; --subj-2: #f5b2a6; }
+.screen--activity[data-subject="science"] { --subj: #2f8a5f; --subj-2: #a9e3b9; }
+.screen--activity[data-subject="social"] { --subj: #c98d1c; --subj-2: #f6d894; }
+.screen--activity[data-subject="review"], .screen--activity[data-subject="treasure"] { --subj: #7a4fc9; --subj-2: #d2bff5; }
+.screen--activity {
+  background:
+    radial-gradient(ellipse at 50% -10%, rgba(255, 255, 255, .65), transparent 55%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M30 4 L36 24 L56 30 L36 36 L30 56 L24 36 L4 30 L24 24Z' fill='none' stroke='%23fff' stroke-opacity='.22' stroke-width='2'/%3E%3C/svg%3E"),
+    linear-gradient(to bottom, var(--subj-2), var(--subj));
+}
+
+/* The lesson card: lighter frame, no dashed inner border. */
+.activity { background: linear-gradient(to bottom, rgba(255, 252, 244, .97), rgba(253, 243, 222, .97)); border-radius: 28px; }
+.activity::before { display: none; }
+.round { gap: 18px; justify-content: space-between; min-height: 100%; margin: 0; }
+
+/* The question gets its own banner card. */
+.round > .prompt:first-child {
+  width: 100%; padding: 16px 14px 18px; margin-top: 2px;
+  background: #fff; border: 3px solid var(--ink); border-radius: 22px; box-shadow: 0 5px 0 var(--subj);
+  font-size: clamp(22px, 6.2vw, 30px); position: relative;
+}
+.round > .prompt:first-child::before {
+  content: "؟"; position: absolute; top: -16px; inset-inline-start: 14px; width: 34px; height: 34px;
+  display: grid; place-items: center; font-size: 20px; color: #fff; line-height: 1;
+  background: var(--subj); border: 3px solid var(--ink); border-radius: 50%;
+}
+
+/* Answer tiles: four candy colours, glossy, with a thick pressable base. */
+.choices { gap: 14px; margin-top: auto; }
+.choice {
+  --c: #4fb3e8; --c-deep: #1f6f9c; --c-soft: #dff2fc;
+  min-height: 76px; border-radius: 20px;
+  background: linear-gradient(to bottom, #fff 0 45%, var(--c-soft));
+  border: 3px solid var(--ink);
+  box-shadow: inset 0 -6px 0 var(--c), 0 6px 0 var(--ink);
+  padding-bottom: 14px; position: relative; overflow: hidden;
+}
+.choice::after { content: ""; position: absolute; inset: 5px 10px auto; height: 30%; border-radius: 14px; background: linear-gradient(rgba(255, 255, 255, .9), rgba(255, 255, 255, 0)); pointer-events: none; }
+.choices > .choice:nth-child(4n+2) { --c: #f06a93; --c-soft: #fde2ea; }
+.choices > .choice:nth-child(4n+3) { --c: #f5b82e; --c-soft: #fff1cc; }
+.choices > .choice:nth-child(4n+4) { --c: #8a6ae0; --c-soft: #ebe4fd; }
+.choice:not(:disabled):hover { transform: translateY(-2px); }
+.choice:active, .word:active, .bin:active, .match__item:active { transform: translateY(5px) scale(.98); box-shadow: inset 0 -3px 0 var(--c, #ccc), 0 1px 0 var(--ink); }
+.choice.is-right { background: linear-gradient(#e8ffe4, #aef0a6) !important; --c: #36a852; }
+.choice.is-wrong { background: linear-gradient(#fff0f0, #ffc4c4) !important; --c: #d9434f; }
+.is-right::before { content: "✔"; position: absolute; top: 4px; inset-inline-end: 8px; font-size: 18px; color: #24803d; }
+
+/* Other tiles get the same glossy base. */
+.word, .bin, .match__item { box-shadow: inset 0 -5px 0 rgba(0, 0, 0, .08), 0 5px 0 var(--ink); background: linear-gradient(to bottom, #fff 50%, #f4efe4); }
+.sentence { background: #fff6e0; border: 3px solid var(--ink); border-style: solid; box-shadow: 0 5px 0 var(--subj); }
+
+/* Chunky striped progress bar. */
+.progress { height: 22px; background: rgba(255, 255, 255, .7); box-shadow: inset 0 3px 0 rgba(0, 0, 0, .12); }
+.progress__fill {
+  background:
+    repeating-linear-gradient(-45deg, rgba(255, 255, 255, .35) 0 8px, transparent 8px 16px),
+    linear-gradient(to bottom, #ffe58a, var(--gold) 60%, #e39a1c);
+  background-size: 22.6px 100%, 100% 100%;
+  animation: stripes 1s linear infinite;
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, .6);
+}
+@keyframes stripes { to { background-position: 22.6px 0, 0 0; } }
+.progress__ship { top: -16px; }
+.q-count { background: #fff; box-shadow: 0 3px 0 var(--ink); }
+
+/* Glossy buttons everywhere. */
+.btn--round, .btn--ghost {
+  background: linear-gradient(to bottom, #fff 0 45%, #f6e7c4);
+  box-shadow: inset 0 -4px 0 rgba(160, 110, 40, .25), 0 4px 0 var(--ink);
+}
+.btn--round:active, .btn--ghost:active { transform: translateY(3px) scale(.96); box-shadow: inset 0 -2px 0 rgba(160, 110, 40, .25), 0 1px 0 var(--ink); }
+.btn--gold { background: linear-gradient(to bottom, #fff2b0 0, #ffd84f 38%, #f2b52a 62%, #e39a1c); box-shadow: inset 0 -5px 0 rgba(170, 90, 0, .35), 0 6px 0 var(--ink), 0 12px 20px rgba(40, 20, 5, .3); text-shadow: 0 2px 0 rgba(255, 255, 255, .5); }
+.btn--gold:not(:disabled):active { transform: translateY(5px) scale(.97); box-shadow: inset 0 -3px 0 rgba(170, 90, 0, .35), 0 1px 0 var(--ink); }
+
+/* Sparks and "+1" floating up from a right answer. */
+.spark {
+  position: fixed; z-index: 60; pointer-events: none; font-style: normal; font-size: 18px; line-height: 1;
+  margin: -9px 0 0 -9px; text-shadow: 0 0 0 var(--ink), 0 1px 2px rgba(0, 0, 0, .35);
+  animation: spark .7s cubic-bezier(.1, .7, .3, 1) forwards;
+}
+@keyframes spark { from { transform: translate(0, 0) scale(.4) rotate(0); opacity: 1; } to { transform: translate(var(--dx), var(--dy)) scale(1.1) rotate(var(--rot)); opacity: 0; } }
+.float-plus {
+  position: fixed; z-index: 61; pointer-events: none; transform: translate(-50%, -50%);
+  font-size: 26px; font-weight: 800; color: #fff; -webkit-text-stroke: 6px var(--ink); paint-order: stroke fill;
+  animation: float-up 1s cubic-bezier(.2, .8, .3, 1) forwards;
+}
+@keyframes float-up { from { opacity: 0; transform: translate(-50%, 0) scale(.5); } 20% { opacity: 1; transform: translate(-50%, -20px) scale(1.2); } to { opacity: 0; transform: translate(-50%, -80px) scale(1); } }
+
+/* Combo badge. */
+.combo {
+  position: absolute; z-index: 8; top: calc(118px + var(--safe-top)); inset-inline-end: 14px;
+  display: flex; flex-direction: column; align-items: center; pointer-events: none;
+  padding: 4px 14px 6px; border-radius: 18px; transform: rotate(6deg) scale(0); opacity: 0;
+  background: linear-gradient(#ffb347, #ff6a2b); border: 3px solid var(--ink); box-shadow: 0 4px 0 var(--ink);
+  color: #fff; transition: transform .3s, opacity .3s;
+}
+.combo b { font-size: 24px; line-height: 1.1; -webkit-text-stroke: 5px var(--ink); paint-order: stroke fill; }
+.combo small { font-size: 13px; font-weight: 800; }
+.combo.is-on { opacity: 1; transform: rotate(6deg) scale(1); animation: combo-pop .45s cubic-bezier(.2, .8, .3, 1.6); }
+.combo[data-level="4"], .combo[data-level="5"] { background: linear-gradient(#ffe066, #ff3d7f); }
+@keyframes combo-pop { from { transform: rotate(-8deg) scale(1.6); } }
+
+/* Duolingo-style stage: coach in the middle, question + answers docked at
+   the bottom within thumb reach. */
+.screen--activity > .coach { order: 1; flex: 1 1 auto; min-height: 90px; align-items: flex-end; }
+.screen--activity > .activity { order: 2; flex: 0 1 auto; max-height: 72%; }
+.screen--activity > .result { order: 3; }
+.screen--activity .round { min-height: 0; }
+.screen--activity .choices { margin-top: 0; }
+.screen--activity .learn { min-height: 0; }
+.screen--activity > .coach .guide__bird { width: clamp(96px, 28vw, 170px); }
+.screen--activity > .coach .coach__hero { width: clamp(72px, 21vw, 130px); }
+.screen--activity > .coach .bubble { font-size: clamp(16px, 4.5vw, 21px); }
+@media (max-height: 700px) {
+  .screen--activity > .coach .guide__bird { width: clamp(70px, 20vw, 110px); }
+  .screen--activity > .coach .coach__hero { width: clamp(52px, 15vw, 86px); }
+}
+.btn:focus-visible { outline: 3px solid rgba(59, 36, 20, .35); outline-offset: 3px; }
+.screen--activity > .coach .bubble { flex: 1 1 auto; max-width: 440px; }
+
+/* Dialogue: name on a coloured tab above the box (RPG style). */
+.dialog { margin-top: 18px; padding-top: 16px; }
+.dialog__name {
+  position: absolute; top: -17px; inset-inline-start: 100px; padding: 1px 14px 4px;
+  color: #fff; background: linear-gradient(#e2679a, var(--rose)); border: 3px solid var(--ink); border-radius: 12px;
+  box-shadow: 0 3px 0 var(--ink); font-size: 16px; line-height: 1.3;
+}
+.dialog__name:empty { display: none; }
+.dialog__text.typing { animation: none; }
+.dialog__portrait { box-shadow: 0 3px 0 var(--ink); background: radial-gradient(circle at 50% 40%, #e3f7fd, #9fd8ea); }
+.dialog__portrait[hidden] + .dialog__body .dialog__name { inset-inline-start: 16px; }

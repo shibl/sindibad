@@ -53,6 +53,8 @@ export const sfx = {
   reveal: () => [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, { at: i * 0.08, dur: 0.3, type: 'sine', vol: 0.12 })),
   win: () => [523, 659, 784, 1047, 784, 1047, 1319].forEach((f, i) => tone(f, { at: i * 0.11, dur: 0.24, type: 'triangle', vol: 0.15 })),
   star: (i = 0) => tone(880 * (1 + i * 0.25), { dur: 0.25, type: 'sine', vol: 0.16 }),
+  // A soft "voice" blip for dialogue text; each speaker has their own pitch.
+  blip: (f = 520) => tone(f * (0.92 + Math.random() * 0.16), { dur: 0.045, type: 'square', vol: 0.025 }),
   sail: () => noise({ dur: 1.2, vol: 0.06, from: 300, to: 900 }),
 };
 
