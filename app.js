@@ -12,6 +12,7 @@ import { renderJourney } from './core/journey.js';
 import { openShop, applyStyle } from './core/shop.js';
 import { showStory } from './core/story.js';
 import { initFamily, renderWho, renderParentGate } from './core/family.js';
+import { playMusic, refreshMusicVolume } from './core/music.js';
 import { profileList, addPlayTime } from './core/save.js';
 import { initOverworld, enterIsland, lessonReturned, debugState, debugBlocked, debugPlace } from './core/overworld.js';
 import arabicIsland from './worlds/grade6/arabic.js';
@@ -78,11 +79,14 @@ function paintShip(el, crew) {
 // ---------- Screens ----------
 
 // Show one screen by name ("title", "select", "map", "activity"); hides the rest.
+let place = 'title';   // which music theme is playing
+
 export function showScreen(name, detail) {
   document.querySelectorAll('.screen').forEach(el => {
     el.toggleAttribute('data-active', el.id === `screen-${name}`);
   });
   document.body.dataset.screen = name;
+  if (name === 'title' || name === 'map') { place = name; playMusic(place); }
   if (name === 'map') {
     const hero = save.get().hero || 'sindbad';
     document.getElementById('hero-btn').innerHTML = `<span class="hero-face">${heroSVG(hero)}</span>`;
@@ -107,7 +111,7 @@ function wireNavigation() {
   }));
   const mute = document.getElementById('mute-btn');
   const paintMute = () => { mute.textContent = save.get().muted ? '🔇' : '🔊'; };
-  mute.addEventListener('click', () => { toggleMute(); paintMute(); sfx.tap(); });
+  mute.addEventListener('click', () => { toggleMute(); paintMute(); refreshMusicVolume(); sfx.tap(); });
   paintMute();
 }
 
@@ -174,6 +178,10 @@ function registerServiceWorker() {
   if (forced === '1' || (forced !== '0' && weak)) document.body.classList.add('lite');
 }
 
+// Browsers only allow sound after the first tap: start the music then.
+window.addEventListener('pointerdown', () => playMusic(place), { once: true });
+window.addEventListener('keydown', () => playMusic(place), { once: true });
+
 // Pause every animation while the app is in the background (saves battery
 // on low-end phones).
 document.addEventListener('visibilitychange', () => {
@@ -192,7 +200,7 @@ let lessonFromIsland = false;
 initMap(document.getElementById('map'), world, {
   openTopic: startLesson,
   islands: ISLANDS,
-  enterIsland: id => { showScreen('island'); enterIsland(ISLANDS[id]); },
+  enterIsland: id => { showScreen('island'); enterIsland(ISLANDS[id]); place = id; playMusic(id); },
 });
 initOverworld({
   startLesson: (id, host) => { lessonFromIsland = true; startLesson(id, { host }); },

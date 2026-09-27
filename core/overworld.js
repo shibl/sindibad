@@ -21,6 +21,7 @@ import { HEROES, g } from '../art/art.js';
 import { save } from './save.js';
 import { sfx } from './sound.js';
 import { num } from './format.js';
+import { canSpeak, speak, stopSpeaking } from './voice.js';
 
 const SPEED = 4.2;          // tiles per second
 const RADIUS = 0.28;        // player collision radius (tiles)
@@ -668,6 +669,8 @@ function showLine() {
     ? dialog.choices.map((c, k) => `<button class="btn ${k === 0 && !dialog.plain ? 'btn--gold' : 'btn--ghost'}" data-choice="${k}">${c.label}</button>`).join('')
     : '';
   els.dlg.querySelector('.dialog__next').hidden = last && !!dialog.choices;
+  els.dlg.querySelector('.dialog__say').hidden = !canSpeak();
+  stopSpeaking();
   sfx.tap();
 }
 
@@ -681,6 +684,7 @@ function advance() {
 }
 
 function onDialogClick(e) {
+  if (e.target.closest('.dialog__say')) { e.stopPropagation(); speak(dialog.lines[dialog.i]); return; }
   const c = e.target.closest('[data-choice]');
   if (c) {
     const choice = dialog.choices[+c.dataset.choice];
@@ -693,6 +697,7 @@ function onDialogClick(e) {
 }
 
 function closeDialog() {
+  stopSpeaking();
   dialog = null;
   els.dlg.hidden = true;
   busy = !els.popup.hidden;

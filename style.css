@@ -936,6 +936,9 @@ body[data-screen="island"] #scene, body[data-screen="journey"] #scene { visibili
 .dialog__choices { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 .dialog__choices:empty { display: none; }
 .dialog__choices .btn { min-height: 46px; font-size: 17px; padding: 6px 18px 9px; }
+.dialog__say, .say-btn { font: inherit; font-size: 20px; width: 44px; height: 44px; flex: 0 0 auto; cursor: pointer; border-radius: 50%; background: #fff; border: 2.5px solid var(--ink); box-shadow: 0 3px 0 var(--ink); }
+.dialog__say { position: absolute; top: -18px; inset-inline-end: 14px; }
+.say-btn { align-self: center; }
 .dialog__next { position: absolute; inset-inline-end: 16px; bottom: 8px; font-size: 14px; animation: nudge-down 1s ease-in-out infinite; }
 @keyframes nudge-down { 50% { transform: translateY(4px); } }
 

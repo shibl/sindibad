@@ -7,6 +7,7 @@ import { save } from './save.js';
 import { getTopic, starsFor } from './topics.js';
 import { sfx } from './sound.js';
 import { num } from './format.js';
+import { canSpeak, speak, stopSpeaking } from './voice.js';
 
 let show;        // showScreen from app.js
 let current;     // { topic, abort, before }
@@ -18,6 +19,11 @@ const REVIEW_DAYS = [1, 3, 7, 14, 30];
 const DAY = 24 * 60 * 60 * 1000;
 
 export function initLesson({ showScreen, onReturn }) {
+  document.getElementById('coach-say').addEventListener('click', () => {
+    // Read the bubble, plus the question or lesson card on screen.
+    const card = document.querySelector('#activity .learn__body, #activity .prompt');
+    speak(`${document.getElementById('coach-bubble').innerHTML}. ${card ? card.innerHTML : ''}`);
+  });
   show = showScreen;
   onDone = onReturn;
   document.querySelector('#screen-activity .guide__bird').innerHTML = hudhudSVG();
@@ -32,6 +38,8 @@ export function initLesson({ showScreen, onReturn }) {
 }
 
 function say(html, mood = 'happy') {
+  stopSpeaking();
+  document.getElementById('coach-say').hidden = !canSpeak();
   const bubble = document.getElementById('coach-bubble');
   const coach = bubble.closest('.coach');
   bubble.innerHTML = html;

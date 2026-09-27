@@ -4,7 +4,7 @@
 import { save } from './save.js';
 
 let ctx;
-function ac() {
+export function ac() {
   if (!ctx) {
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return null;
