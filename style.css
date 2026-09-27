@@ -1492,3 +1492,18 @@ body.lite .map__sea::after { animation: none; }
 .result__ribbon::before { left: -12px; width: 26px; }
 .result__ribbon::after { right: -12px; width: 26px; }
 .rstar, .result__rays, .rchip { pointer-events: none; }
+
+/* ================= V17: objective tracker ================= */
+.goal {
+  position: absolute; z-index: 3; top: calc(72px + var(--safe-top)); inset-inline-start: 12px; max-width: min(78%, 420px);
+  display: flex; align-items: center; gap: 8px; padding: 4px 12px 6px 14px; pointer-events: none;
+  background: rgba(26, 35, 50, .78); color: #fff; border: 2px solid rgba(255, 255, 255, .5); border-radius: 14px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, .25); font-size: 15px; line-height: 1.35;
+}
+.goal:empty { display: none; }
+.goal p { margin: 0; }
+.goal b { color: #ffd23f; }
+.goal span { font-size: 18px; }
+.goal.is-new { animation: goal-new .7s cubic-bezier(.2, .8, .3, 1.4); }
+@keyframes goal-new { 0% { transform: translateX(30px); opacity: 0; } 60% { background: rgba(242, 160, 30, .95); } }
+.island-hint { top: calc(118px + var(--safe-top)); }

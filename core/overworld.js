@@ -72,6 +72,7 @@ export function initOverworld({ startLesson, leave }) {
     popup: document.getElementById('item-popup'),
     hint: document.getElementById('island-hint'),
     banner: document.getElementById('isle-banner'),
+    goal: document.getElementById('goal'),
     tut: document.getElementById('walk-tut'),
   };
   ctx = els.canvas.getContext('2d');
@@ -451,6 +452,7 @@ function update(dt) {
   }
   collectPearls();
   stepPuzzles();
+  if ((goalTimer -= dt) <= 0) { goalTimer = 0.5; updateGoal(); }
   wander(dt);
   if (player.moving && (dustTimer -= dt) <= 0) { dustTimer = 0.16; dust.push({ x: player.x + (Math.random() - 0.5) * 0.2, y: player.y, t: 0 }); }
   dust = dust.filter(d => (d.t += dt) < 0.5);
@@ -603,6 +605,7 @@ function drawLighting() {
 // fish leaping from the sea and the shadow of a passing gull. Purely
 // decorative; skipped in lite mode.
 
+let goalTimer = 0;
 let critters = [], petals = [], fish = null, gull = null, fishTimer = 3, gullTimer = 6;
 const lite = () => document.body.classList.contains('lite');
 const night = () => document.body.dataset.time === 'night';
@@ -787,7 +790,67 @@ function drawPlayer() {
 }
 
 // "!" over villagers with a quest to offer; "✔" once it's done.
+// ---------- Objective ----------
+// What should the child do next on this island? Shown as a pill under the
+// top bar, with an arrow at the screen edge when the target is off-screen.
+function currentGoal() {
+  const quests = island.people.filter(p => p.quest);
+  const ready = quests.find(p => questDone(p.quest) && !rewarded(p));
+  if (ready) return { text: `عُد إلى <b>${ready.name}</b> لتأخذ مكافأتك`, at: ready };
+  const m = props.find(o => o.id === 'monument');
+  if (!state.monument && state.letters.length >= tokens().length && m) return { text: `ضع ${island.tokenName} على <b>${island.monument.name}</b>`, at: m };
+  const todo = quests.find(p => !rewarded(p));
+  if (todo) {
+    if (todo.quest.fetch && state.met.includes(todo.id)) {
+      const f = (island.finds || []).find(x => x.id === todo.quest.fetch);
+      return { text: `ابحث عن <b>${f ? f.name : 'الشيء الضائع'}</b> لـ${todo.name}`, at: null };
+    }
+    return { text: `${state.met.includes(todo.id) ? 'ساعد' : 'تحدّث إلى'} <b>${todo.name}</b>`, at: todo };
+  }
+  if (!state.monument && m) return { text: `اجمع ${island.tokenName} وضعها على <b>${island.monument.name}</b>`, at: m };
+  const left = island.pearls.length - state.pearls.length;
+  if (left > 0) return { text: `أكملت الجزيرة! 🦪 بقيت ${num(left)} لآلئ مخبّأة`, at: null };
+  return { text: 'أكملت كل شيء هنا! ⛵ أبحر إلى جزيرة أخرى', at: null };
+}
+
+let goal = null, goalText = '';
+function updateGoal() {
+  goal = currentGoal();
+  if (goal.at && goal.at.x === undefined) goal.at = people.find(p => p.id === goal.at.id) || null;
+  if (goal.text !== goalText) {
+    goalText = goal.text;
+    els.goal.innerHTML = `<span>🎯</span><p>${goal.text}</p>`;
+    els.goal.classList.remove('is-new'); void els.goal.offsetWidth; els.goal.classList.add('is-new');
+  }
+}
+
+// A bobbing golden arrow at the screen edge pointing to an off-screen goal.
+function drawGoalArrow() {
+  if (!goal?.at || busy) return;
+  const tx = sx(goal.at.x), ty = sy(goal.at.y) - TILE * 0.8;
+  const m = 50, top = 140, bottom = H - 120;
+  if (tx > m && tx < W - m && ty > top && ty < bottom) return;
+  const cx = W / 2, cy = (top + bottom) / 2;
+  const a = Math.atan2(ty - cy, tx - cx);
+  const k = Math.min((W / 2 - m) / Math.abs(Math.cos(a) || 1e-6), ((bottom - top) / 2) / Math.abs(Math.sin(a) || 1e-6));
+  const bob = Math.sin(time * 6) * 4;
+  const x = cx + Math.cos(a) * (k + bob), y = cy + Math.sin(a) * (k + bob);
+  // A round "!" badge with a pointer sticking out toward the goal.
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = '#ffd23f'; ctx.strokeStyle = '#3b2414'; ctx.lineWidth = 3; ctx.lineJoin = 'round';
+  ctx.save(); ctx.rotate(a);
+  ctx.beginPath(); ctx.moveTo(30, 0); ctx.lineTo(10, -11); ctx.lineTo(10, 11); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.restore();
+  ctx.beginPath(); ctx.arc(0, 0, 16, 0, 7); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#3b2414';
+  ctx.font = `800 20px "Baloo Bhaijaan 2", sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('!', 0, 2);
+  ctx.restore();
+}
+
 function drawPrompts() {
+  drawGoalArrow();
   const near = nearest();
   for (const p of people) {
     let mark = null;
@@ -1232,6 +1295,8 @@ function toggleLog(force) {
 // ---------- HUD ----------
 
 function updateHud() {
+  goalText = '';
+  updateGoal();
   els.pearls.textContent = num(save.get().pearls || 0);
   els.letters.innerHTML = tokens().map(l => `<span class="${state.letters.includes(l) ? 'on' : ''}">${l}</span>`).join('');
 }
