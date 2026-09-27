@@ -1491,3 +1491,4 @@ body.lite .map__sea::after { animation: none; }
 .result__ribbon { margin: 2px -22px 6px !important; }
 .result__ribbon::before { left: -12px; width: 26px; }
 .result__ribbon::after { right: -12px; width: 26px; }
+.rstar, .result__rays, .rchip { pointer-events: none; }
