@@ -2,9 +2,9 @@
 // sea route, and the ship that sails the chosen hero between islands.
 // Tapping an unlocked island sails there and opens its panel of topics.
 
-import { islandSVG, shipSVG, compassSVG, whaleSVG, cloudSVG, hudhudSVG } from '../art/art.js';
+import { islandSVG, shipSVG, compassSVG, whaleSVG, cloudSVG, hudhudSVG, medalSVG } from '../art/art.js';
 import { save } from './save.js';
-import { topicsIn } from './topics.js';
+import { topicsIn, getTopic } from './topics.js';
 import { sfx } from './sound.js';
 import { num } from './format.js';
 
@@ -46,6 +46,26 @@ export function totalStars() {
     const s = regionStars(r.id);
     return { stars: a.stars + s.stars, max: a.max + s.max };
   }, { stars: 0, max: 0 });
+}
+
+// null (not yet) | 'silver' (every topic has a star) | 'gold' (all three stars).
+export function badgeState(regionId) {
+  const list = topicsIn(regionId);
+  if (!list.length) return null;
+  const topics = save.get().topics;
+  const stars = list.map(t => topics[t.id]?.stars || 0);
+  if (stars.every(n => n >= 3)) return 'gold';
+  if (stars.every(n => n >= 1)) return 'silver';
+  return null;
+}
+
+// Topics whose spaced-review date has come (only ones already played).
+export function dueReviews(now = Date.now()) {
+  const s = save.get();
+  return Object.entries(s.review || {})
+    .filter(([id, r]) => r.due <= now && getTopic(id))
+    .sort((a, b) => a[1].due - b[1].due)
+    .map(([id]) => getTopic(id));
 }
 
 const starRow = (n, max = 3) => '★'.repeat(n) + '☆'.repeat(Math.max(0, max - n));
@@ -102,13 +122,16 @@ export function render() {
     </button>`;
   };
 
-  const newlyRevealed = [];
+  const due = new Set(dueReviews().map(t => t.region));
   const islands = world.regions.map(r => {
     const open = isUnlocked(r);
-    if (open && r.unlock && !(s.revealed || []).includes(r.id)) newlyRevealed.push(r.id);
+    const pending = open && pendingReveal(r);
     const { stars, max } = regionStars(r.id);
-    const label = `<b>${r.name}</b>${open ? `<span class="isle__stars">${starRow(Math.round((stars / (max || 1)) * 3))}</span>` : ''}`;
-    const fog = open && !newlyRevealed.includes(r.id) ? '' : `
+    const badge = badgeState(r.id);
+    const label = `<b>${r.name}</b>${open ? `<span class="isle__stars">${starRow(Math.round((stars / (max || 1)) * 3))}</span>` : ''}`
+      + (badge && !pending ? `<span class="isle__badge isle__badge--${badge}" title="${r.badge.name}">${r.badge.icon}</span>` : '')
+      + (open && !pending && due.has(r.id) ? '<span class="isle__review" title="حان وقت المراجعة">🔁</span>' : '');
+    const fog = open && !pending ? '' : `
       <span class="fog" aria-hidden="true">
         ${cloudSVG()}${cloudSVG()}${cloudSVG()}
         <span class="fog__lock">🔒</span>
@@ -129,11 +152,45 @@ export function render() {
 `;
   placeShip(berth(here));
   updateStarsBadge();
+}
 
-  if (newlyRevealed.length) revealIslands(newlyRevealed);
-  else if (!s.greeted) {
+const pendingReveal = r => r.unlock && isUnlocked(r) && !(save.get().revealed || []).includes(r.id);
+const wait = ms => new Promise(res => setTimeout(res, ms));
+let reviewNagged = false;
+
+// Show the map and play whatever happened since last time, in order:
+// stars just earned → fog lifting → new badges → review reminder / greeting.
+// `after` = { topicId, stars } when returning from a lesson.
+export async function enter(after) {
+  render();
+  const s = save.get();
+  let spoke = false;
+  if (after && after.gained > 0) {
+    await wait(350);
+    flyStars(after.topic.region, after.gained);
+    toast(`حصلت على ${'★'.repeat(after.gained)} ${after.gained === 1 ? 'نجمة جديدة' : 'نجوم جديدة'} في «${after.topic.title}»!`, 4200);
+    spoke = true;
+    await wait(1600);
+  }
+  const reveals = world.regions.filter(pendingReveal);
+  for (const r of reveals) { await revealIsland(r); spoke = true; await wait(1700); }
+  const earned = world.regions.filter(r => {
+    const b = badgeState(r.id);
+    return b && (s.badges || {})[r.id] !== b;
+  });
+  for (const r of earned) { await showBadge(r, badgeState(r.id)); spoke = true; }
+  if (spoke) return;
+  if (!s.greeted) {
     save.update(v => { v.greeted = true; });
+    await wait(500);
     toast(`مرحباً يا <b>${heroName()}</b>! هذه خريطة بحر الصف السادس. الضباب يخفي الجزر… ابدأ بـ<b>جزيرة الحروف</b>!`, 7000);
+    return;
+  }
+  const due = dueReviews();
+  if (due.length && !reviewNagged) {
+    reviewNagged = true;
+    await wait(600);
+    toast(`🔁 حان وقت مراجعة «<b>${due[0].title}</b>». المراجعة بعد أيام تثبّت ما تعلّمته في الذاكرة!`, 6000);
   }
 }
 
@@ -145,21 +202,67 @@ function updateStarsBadge() {
   if (badge) badge.textContent = `${num(stars)} / ${num(max)}`;
 }
 
-// Lift the fog from newly unlocked islands, one after another.
-function revealIslands(ids) {
-  ids.forEach((id, i) => {
-    setTimeout(() => {
-      const isleEl = el.querySelector(`.isle[data-region="${id}"]`);
-      const fog = isleEl?.querySelector('.fog');
-      if (!fog) return;
-      sfx.reveal();
-      fog.classList.add('fog--lifting');
-      isleEl.classList.add('isle--revealed');
-      fog.addEventListener('animationend', () => fog.remove(), { once: true });
-      const r = world.regions.find(x => x.id === id);
-      toast(`انقشع الضباب! ظهرت <b>${r.name}</b> — جزيرة ${r.subject}. هيّا نُبحر إليها!`, 6000);
-      save.update(v => { v.revealed = [...new Set([...(v.revealed || []), id])]; });
-    }, 700 + i * 1600);
+// Lift the fog from a newly unlocked island.
+async function revealIsland(r) {
+  await wait(500);
+  save.update(v => { v.revealed = [...new Set([...(v.revealed || []), r.id])]; });
+  const isleEl = el.querySelector(`.isle[data-region="${r.id}"]`);
+  const fog = isleEl?.querySelector('.fog');
+  if (!fog) return;
+  sfx.reveal();
+  fog.classList.add('fog--lifting');
+  isleEl.classList.remove('isle--locked');
+  isleEl.classList.add('isle--revealed');
+  fog.addEventListener('animationend', () => { fog.remove(); render(); }, { once: true });
+  toast(`انقشع الضباب! ظهرت <b>${r.name}</b> — جزيرة ${r.subject}. هيّا نُبحر إليها!`, 6000);
+}
+
+// Little stars shoot from the island up to the stars counter.
+function flyStars(regionId, n) {
+  const from = el.querySelector(`.isle[data-region="${regionId}"]`)?.getBoundingClientRect();
+  const to = document.querySelector('.stars-badge')?.getBoundingClientRect();
+  if (!from || !to) return;
+  for (let i = 0; i < n; i++) {
+    const star = document.createElement('span');
+    star.className = 'fly-star';
+    star.textContent = '★';
+    star.style.left = `${from.left + from.width / 2}px`;
+    star.style.top = `${from.top + from.height / 3}px`;
+    star.style.setProperty('--tx', `${to.left + to.width / 2 - (from.left + from.width / 2)}px`);
+    star.style.setProperty('--ty', `${to.top + to.height / 2 - (from.top + from.height / 3)}px`);
+    star.style.animationDelay = `${i * 0.18}s`;
+    document.body.append(star);
+    setTimeout(() => sfx.star(i), 700 + i * 180);
+    star.addEventListener('animationend', () => {
+      star.remove();
+      const b = document.querySelector('.stars-badge');
+      b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump');
+    });
+  }
+}
+
+// Award an island badge with a full-screen moment.
+function showBadge(region, state) {
+  return new Promise(resolve => {
+    save.update(v => { v.badges = { ...(v.badges || {}), [region.id]: state }; });
+    const modal = document.getElementById('badge-modal');
+    const gold = state === 'gold';
+    modal.innerHTML = `
+      <div class="badge-modal__rays"></div>
+      <div class="badge-modal__card" role="dialog" aria-modal="true" aria-labelledby="badge-title">
+        <div class="badge-modal__medal">${medalSVG(region.badge.icon, { gold, color: region.color })}</div>
+        <p class="badge-modal__kicker">${gold ? 'شارة ذهبية!' : 'شارة جديدة!'}</p>
+        <h3 id="badge-title">${region.badge.name}</h3>
+        <p>${gold
+          ? `أتقنت كل دروس ${region.name} بثلاث نجوم. أنت بحّار أسطوري يا ${heroName()}!`
+          : `أنهيت كل دروس ${region.name}. اجمع ثلاث نجوم في كل درس لتصبح الشارة ذهبية!`}</p>
+        <button class="btn btn--gold" data-close-badge>رائع!</button>
+      </div>`;
+    modal.hidden = false;
+    sfx.win();
+    const btn = modal.querySelector('[data-close-badge]');
+    btn.focus({ preventScroll: true });
+    btn.addEventListener('click', () => { sfx.tap(); modal.hidden = true; render(); resolve(); }, { once: true });
   });
 }
 
@@ -244,6 +347,7 @@ function openSheet(region) {
   const topics = topicsIn(region.id);
   const saved = save.get().topics;
   const { stars, max } = regionStars(region.id);
+  const due = new Set(dueReviews().map(t => t.id));
   sheet.innerHTML = `
     <div class="sheet__card" role="dialog" aria-modal="true" aria-labelledby="sheet-title" style="--region:${region.color}">
       <button class="btn btn--round sheet__close" data-close aria-label="إغلاق">✕</button>
@@ -264,7 +368,7 @@ function openSheet(region) {
           return `<li style="--i:${i}">
             <button class="topic-card" data-topic="${t.id}">
               <span class="topic-card__icon">${t.icon}</span>
-              <span class="topic-card__text"><b>${t.title}</b><small>${t.blurb}</small></span>
+              <span class="topic-card__text"><b>${t.title}</b><small>${t.blurb}</small>${due.has(t.id) ? '<em class="tag-review">🔁 وقت المراجعة</em>' : ''}</span>
               <span class="topic-card__stars" aria-label="${num(st)} من ٣ نجوم">${starRow(st)}</span>
             </button>
           </li>`;

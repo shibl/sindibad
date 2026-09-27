@@ -5,7 +5,7 @@
 // items: [{ words: ['كتبَ', 'الطالبُ', 'الدرسَ'], ask: 'الفاعل', answer: 1,
 //           hint, explain }]
 
-import { runRounds, pick, h } from './kit.js';
+import { runRounds, pick, h, TEST } from './kit.js';
 
 export function tapword({ items, count = 8, intro }) {
   return (container, onComplete, ctx) => {
@@ -16,6 +16,7 @@ export function tapword({ items, count = 8, intro }) {
         const line = h('<div class="sentence" dir="rtl"></div>');
         item.words.forEach((w, idx) => {
           const b = h(`<button class="word">${w}</button>`);
+          if (TEST && idx === item.answer) b.dataset.ok = '';
           b.addEventListener('click', () => {
             if (idx === item.answer) { b.classList.add('is-right'); line.classList.add('is-locked'); round.right(item.note); }
             else { b.classList.add('is-wrong'); setTimeout(() => b.classList.remove('is-wrong'), 600); round.wrong(item.hint); }

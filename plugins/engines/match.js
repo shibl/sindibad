@@ -5,7 +5,7 @@
 // match({ pairs, boards, perBoard, intro, left, right })
 // pairs: [{ a: html, b: html, hint }]   (a shown in the right column in RTL)
 
-import { shuffle, pick, h } from './kit.js';
+import { shuffle, pick, h, TEST } from './kit.js';
 
 export function match({ pairs, boards = 2, perBoard = 4, intro, headA = '', headB = '' }) {
   return (container, onComplete, ctx) => {
@@ -35,6 +35,7 @@ export function match({ pairs, boards = 2, perBoard = 4, intro, headA = '', head
       const mk = (p, side) => {
         const b = h(`<button class="match__item" data-side="${side}">${side === 'a' ? p.a : p.b}</button>`);
         b._pair = p;
+        if (TEST) b.dataset.pair = String(set.indexOf(p));
         b.addEventListener('click', () => {
           if (b.classList.contains('is-done')) return;
           ctx.sfx.tap();

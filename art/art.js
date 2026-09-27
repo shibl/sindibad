@@ -550,3 +550,22 @@ export function whaleSVG() {
   <ellipse cx="44" cy="50" rx="6" ry="3.5" fill="url(#g-cheek)"/>
 </svg>`;
 }
+
+// A medal for island badges: ribbon, rim and an emoji face. viewBox 120×150.
+export function medalSVG(icon, { gold = false, color = '#d0507e' } = {}) {
+  const rim = gold ? 'url(#g-brass)' : '#dfe6ee';
+  return `
+<svg class="medal-art ${gold ? 'medal-art--gold' : ''}" viewBox="0 0 120 150" aria-hidden="true" overflow="visible">
+  <path d="M34 0 L58 56 L42 64 L18 8Z" fill="${color}" ${OUT_THIN}/>
+  <path d="M86 0 L62 56 L78 64 L102 8Z" fill="${color}" ${OUT_THIN}/>
+  <path d="M40 4 L56 42 M80 4 L64 42" stroke="#fff" stroke-width="3" opacity=".5"/>
+  <circle cx="60" cy="98" r="44" fill="${rim}" ${OUT}/>
+  ${Array.from({ length: 16 }, (_, i) => {
+    const a = (i / 16) * Math.PI * 2;
+    return `<circle cx="${60 + Math.cos(a) * 38}" cy="${98 + Math.sin(a) * 38}" r="2.2" fill="${gold ? '#fff3b0' : '#fff'}"/>`;
+  }).join('')}
+  <circle cx="60" cy="98" r="31" fill="#fffaf0" ${OUT_THIN}/>
+  <text x="60" y="112" text-anchor="middle" font-size="36">${icon}</text>
+  <path d="M28 76 Q40 60 60 58" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".6"/>
+</svg>`;
+}

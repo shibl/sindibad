@@ -2,6 +2,11 @@
 // mechanic (multiple choice, tap-the-word, sorting, number line, matching);
 // a topic plugin feeds it content. See plugins/README.md.
 
+// Automated tests set window.__SINDBAD_TEST__ before the app loads; engines
+// then tag the right answer with data-ok so a headless browser can play a
+// perfect round. Normal play never sets it.
+export const TEST = typeof window !== 'undefined' && !!window.__SINDBAD_TEST__;
+
 export function shuffle(list) {
   const a = [...list];
   for (let i = a.length - 1; i > 0; i--) {

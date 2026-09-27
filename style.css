@@ -446,6 +446,58 @@ body[data-screen="map"] #scene, body[data-screen="activity"] #scene { visibility
 .map__toast .guide__bird { width: clamp(70px, 20vw, 100px); }
 .map__toast .bubble { margin-bottom: 18px; font-size: clamp(15px, 4.2vw, 19px); }
 
+.isle__badge {
+  position: absolute; top: -18px; inset-inline-end: -18px; width: 34px; height: 34px;
+  display: grid; place-items: center; font-size: 18px;
+  background: #e6edf5; border: 2.5px solid var(--ink); border-radius: 50%; box-shadow: 0 2px 0 var(--ink);
+}
+.isle__badge--gold { background: linear-gradient(#fff3b0, #f2c14e); animation: shine 2.4s ease-in-out infinite; }
+@keyframes shine { 50% { box-shadow: 0 2px 0 var(--ink), 0 0 16px 4px rgba(255, 215, 90, .9); } }
+.isle__review {
+  position: absolute; top: -16px; inset-inline-start: -16px; width: 30px; height: 30px;
+  display: grid; place-items: center; font-size: 15px;
+  background: #fff; border: 2.5px solid var(--ink); border-radius: 50%;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+@keyframes pulse { 50% { transform: scale(1.15); } }
+.tag-review { font-style: normal; font-size: 13px; font-weight: 800; color: var(--teal); }
+
+.fly-star {
+  position: fixed; z-index: 50; font-size: 34px; color: var(--gold); -webkit-text-stroke: 2px var(--ink);
+  pointer-events: none; transform: translate(-50%, -50%);
+  animation: fly-star .9s cubic-bezier(.5, -.4, .6, 1) both;
+}
+@keyframes fly-star {
+  0% { transform: translate(-50%, -50%) scale(.3); opacity: 0; }
+  20% { transform: translate(-50%, -120%) scale(1.3); opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(.6); opacity: .9; }
+}
+.stars-badge.bump { animation: bump .35s cubic-bezier(.2, .8, .3, 1.6); }
+@keyframes bump { 50% { transform: scale(1.25); } }
+
+.badge-modal {
+  position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; padding: 16px;
+  background: rgba(15, 40, 60, .6); animation: fade .3s; overflow: hidden;
+}
+.badge-modal[hidden] { display: none; }
+.badge-modal__rays {
+  position: absolute; left: 50%; top: 40%; width: 160vmax; height: 160vmax; margin: -80vmax 0 0 -80vmax;
+  background: repeating-conic-gradient(rgba(255, 230, 150, .22) 0 10deg, transparent 10deg 20deg);
+  animation: spin 30s linear infinite;
+}
+.badge-modal__card {
+  position: relative; width: 100%; max-width: 380px; text-align: center; padding: 10px 20px 22px;
+  background: linear-gradient(to bottom, #fffaf0, #f7dfae);
+  border: 3px solid var(--ink); border-radius: 30px; box-shadow: 0 8px 0 var(--ink), 0 20px 40px rgba(0, 0, 0, .35);
+  animation: card-up .6s cubic-bezier(.2, .8, .3, 1.3);
+}
+.badge-modal__medal { width: 150px; margin: -90px auto 0; animation: medal-in .9s .2s cubic-bezier(.2, .8, .3, 1.4) both; }
+@keyframes medal-in { from { transform: translateY(-60px) rotate(-30deg) scale(.4); opacity: 0; } }
+.medal-art--gold { filter: drop-shadow(0 0 18px rgba(255, 210, 80, .9)); }
+.badge-modal__kicker { margin: 4px 0 0; font-weight: 800; color: var(--rose); font-size: 18px; }
+.badge-modal__card h3 { margin: 0; font-size: clamp(28px, 8vw, 36px); font-weight: 800; }
+.badge-modal__card p { font-size: 17px; line-height: 1.5; }
+
 /* ---------- Island panel (bottom sheet) ---------- */
 
 .sheet {
@@ -508,8 +560,14 @@ body[data-screen="map"] #scene, body[data-screen="activity"] #scene { visibility
   gap: 10px;
 }
 
+.progress-row { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 760px; flex: 0 0 auto; }
+.q-count {
+  flex: 0 0 auto; min-width: 64px; text-align: center; padding: 0 10px 3px; font-weight: 800; font-size: 17px;
+  background: var(--paper); border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 3px 0 var(--ink);
+}
+.q-count:empty { display: none; }
 .progress {
-  position: relative; width: 100%; max-width: 760px; height: 16px; flex: 0 0 auto;
+  position: relative; flex: 1; height: 16px;
   background: rgba(255, 255, 255, .55); border: 3px solid var(--ink); border-radius: 999px;
 }
 .progress__fill { height: 100%; width: 0; border-radius: 999px; background: linear-gradient(to bottom, #ffe58a, var(--gold)); transition: width .5s cubic-bezier(.2, .8, .3, 1.2); }

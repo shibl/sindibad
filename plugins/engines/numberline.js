@@ -7,7 +7,7 @@
 //           labels: [[0,'٠'], [1,'١']], hint, explain }]
 // A tap counts if it lands within half a tick of the value.
 
-import { runRounds, pick, h } from './kit.js';
+import { runRounds, pick, h, TEST } from './kit.js';
 
 export function numberline({ items, count = 7, intro }) {
   return (container, onComplete, ctx) => {
@@ -44,6 +44,7 @@ export function numberline({ items, count = 7, intro }) {
               </g>
             </svg>
           </div>`);
+        if (TEST) svg.dataset.ok = String((item.value - min) / (max - min));
         const boat = svg.querySelector('.nl__boat');
         const flag = svg.querySelector('.nl__flag');
         let locked = false;

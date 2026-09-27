@@ -83,6 +83,7 @@
       <div class="guide__bird"></div><p class="bubble" aria-live="polite"></p>
     </div>
     <div id="sheet" class="sheet" hidden></div>
+    <div id="badge-modal" class="badge-modal" hidden></div>
   </section>
 
   <section id="screen-activity" class="screen screen--activity">
@@ -90,9 +91,12 @@
       <button class="btn btn--round" id="lesson-quit" aria-label="رجوع إلى الخريطة">→</button>
       <h2 id="activity-title"></h2>
     </header>
-    <div class="progress" aria-hidden="true">
-      <div class="progress__fill"></div>
-      <div class="progress__ship">⛵</div>
+    <div class="progress-row">
+      <span class="q-count" id="q-count" aria-live="polite"></span>
+      <div class="progress" aria-hidden="true">
+        <div class="progress__fill"></div>
+        <div class="progress__ship">⛵</div>
+      </div>
     </div>
     <!-- A topic plugin renders its activity into this container. -->
     <div id="activity" class="activity"></div>

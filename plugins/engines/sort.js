@@ -5,7 +5,7 @@
 // bins:  [{ id, label, icon }]
 // items: [{ text, bin, hint, explain }]
 
-import { runRounds, pick, h } from './kit.js';
+import { runRounds, pick, h, TEST } from './kit.js';
 
 export function sort({ bins, items, count = 9, intro, prompt = 'إلى أي سلّة تنتمي هذه الكلمة؟' }) {
   return (container, onComplete, ctx) => {
@@ -23,6 +23,7 @@ export function sort({ bins, items, count = 9, intro, prompt = 'إلى أي سل
               <span class="bin__label">${bin.label}</span>
               <span class="bin__count">${ctx.num(tally[bin.id])}</span>
             </button>`);
+          if (TEST && bin.id === item.bin) b.dataset.ok = '';
           b.addEventListener('click', () => {
             if (bin.id === item.bin) {
               tally[bin.id] += 1;

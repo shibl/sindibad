@@ -9,7 +9,7 @@ import { sfx } from './sound.js';
 import { num } from './format.js';
 
 let show;        // showScreen from app.js
-let current;     // { topic, abort }
+let current;     // { topic, abort, before }
 let onDone;      // called when the student returns to the map
 
 // Spaced review: after each play the topic comes back for review after
@@ -26,7 +26,7 @@ export function initLesson({ showScreen, onReturn }) {
     const b = e.target.closest('[data-result]');
     if (!b) return;
     sfx.tap();
-    if (b.dataset.result === 'again') startLesson(current.topic.id);
+    if (b.dataset.result === 'again') { const before = current.before; startLesson(current.topic.id); current.before = before; }
     else finish();
   });
 }
@@ -43,6 +43,7 @@ function progress(i, n) {
   const pct = n ? Math.min(100, (i / n) * 100) : 0;
   document.querySelector('.progress__fill').style.width = `${pct}%`;
   document.querySelector('.progress__ship').style.insetInlineStart = `calc(${pct}% - 18px)`;
+  document.getElementById('q-count').textContent = n > 1 ? `${num(Math.min(i + 1, n))} / ${num(n)}` : '';
 }
 
 export function startLesson(topicId) {
@@ -50,7 +51,7 @@ export function startLesson(topicId) {
   if (!topic) return;
   current?.abort.abort();
   const abort = new AbortController();
-  current = { topic, abort };
+  current = { topic, abort, before: save.get().topics[topicId]?.stars || 0 };
 
   const hero = save.get().hero || 'sindbad';
   document.querySelector('.coach__hero').innerHTML = heroSVG(hero);
@@ -150,5 +151,7 @@ function quit() {
 function finish() {
   document.getElementById('result').hidden = true;
   document.getElementById('activity').innerHTML = '';
-  onDone();
+  const { topic, before } = current;
+  const gained = (save.get().topics[topic.id]?.stars || 0) - before;
+  onDone({ topic, gained });
 }

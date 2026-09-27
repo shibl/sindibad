@@ -7,7 +7,7 @@
 
 import { defsSVG, shipSVG, palmSVG, gullSVG, cloudSVG, skylineSVG, shoreSVG, heroSVG, hudhudSVG } from './art/art.js';
 import { save } from './core/save.js';
-import { initMap, render as renderMap } from './core/map.js';
+import { initMap, enter as enterMap } from './core/map.js';
 import { initLesson, startLesson } from './core/lesson.js';
 import { sfx, toggleMute } from './core/sound.js';
 import world from './worlds/grade6.js';
@@ -53,7 +53,7 @@ function paintShip(el, crew) {
 // ---------- Screens ----------
 
 // Show one screen by name ("title", "select", "map", "activity"); hides the rest.
-export function showScreen(name) {
+export function showScreen(name, detail) {
   document.querySelectorAll('.screen').forEach(el => {
     el.toggleAttribute('data-active', el.id === `screen-${name}`);
   });
@@ -61,7 +61,7 @@ export function showScreen(name) {
   if (name === 'map') {
     const hero = save.get().hero || 'sindbad';
     document.getElementById('hero-btn').innerHTML = `<span class="hero-face">${heroSVG(hero)}</span>`;
-    renderMap();
+    enterMap(detail);
   }
 }
 
@@ -136,7 +136,7 @@ paintShip(document.querySelector('.ship--title'), ['sindbad', 'yasmina']);
 wireNavigation();
 wireHeroSelect();
 initMap(document.getElementById('map'), world, { openTopic: startLesson });
-initLesson({ showScreen, onReturn: () => showScreen('map') });
+initLesson({ showScreen, onReturn: after => showScreen('map', after) });
 registerServiceWorker();
 
 // Returning players skip straight past the title once they've chosen a hero.

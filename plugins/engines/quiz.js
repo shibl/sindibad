@@ -5,7 +5,7 @@
 //               hint: html, explain: html }]
 // Options are shuffled; `count` questions are drawn at random.
 
-import { runRounds, pick, shuffle, h } from './kit.js';
+import { runRounds, pick, shuffle, h, TEST } from './kit.js';
 
 export function quiz({ questions, count = 8, intro }) {
   return (container, onComplete, ctx) => {
@@ -18,6 +18,7 @@ export function quiz({ questions, count = 8, intro }) {
         const grid = h(`<div class="choices ${opts.some(o => o.html.replace(/<[^>]*>/g, '').length > 22) ? 'choices--wide' : ''}"></div>`);
         opts.forEach(o => {
           const b = h(`<button class="choice">${o.html}</button>`);
+          if (TEST && o.ok) b.dataset.ok = '';
           b.addEventListener('click', () => {
             if (o.ok) { b.classList.add('is-right'); grid.classList.add('is-locked'); round.right(); }
             else { b.classList.add('is-wrong'); b.disabled = true; round.wrong(item.hint); }
