@@ -5,6 +5,7 @@
 // it lives in plugins/ and talks to the core through the plugin interface,
 // so adding a topic never requires editing this file.
 
+import { wipe } from './core/fx.js';
 import { defsSVG, shipSVG, palmSVG, gullSVG, cloudSVG, skylineSVG, shoreSVG, heroSVG, hudhudSVG } from './art/art.js';
 import { save } from './core/save.js';
 import { initMap, enter as enterMap } from './core/map.js';
@@ -200,16 +201,16 @@ let lessonFromIsland = false;
 initMap(document.getElementById('map'), world, {
   openTopic: startLesson,
   islands: ISLANDS,
-  enterIsland: id => { showScreen('island'); enterIsland(ISLANDS[id], world.regions.find(r => r.id === id)); place = id; playMusic(id); },
+  enterIsland: id => wipe(() => { showScreen('island'); enterIsland(ISLANDS[id], world.regions.find(r => r.id === id)); place = id; playMusic(id); }),
 });
 initOverworld({
-  startLesson: (id, host) => { lessonFromIsland = true; startLesson(id, { host }); },
-  leave: after => showScreen('map', after),
+  startLesson: (id, host) => { lessonFromIsland = true; wipe(() => startLesson(id, { host })); },
+  leave: after => wipe(() => showScreen('map', after)),
 });
 initLesson({
   showScreen,
   onReturn: after => {
-    if (lessonFromIsland) { lessonFromIsland = false; showScreen('island'); lessonReturned(after); }
+    if (lessonFromIsland) { lessonFromIsland = false; wipe(() => { showScreen('island'); lessonReturned(after); }); }
     else showScreen('map', after);
   },
 });

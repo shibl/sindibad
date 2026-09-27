@@ -55,6 +55,11 @@ export const sfx = {
   star: (i = 0) => tone(880 * (1 + i * 0.25), { dur: 0.25, type: 'sine', vol: 0.16 }),
   // A soft "voice" blip for dialogue text; each speaker has their own pitch.
   blip: (f = 520) => tone(f * (0.92 + Math.random() * 0.16), { dur: 0.045, type: 'square', vol: 0.025 }),
+  // "You got it!" — a rising fanfare for golden tokens and big rewards.
+  fanfare: () => {
+    [[523, 0], [659, 0.13], [784, 0.26], [1047, 0.39]].forEach(([f, at]) => tone(f, { at, dur: 0.14, type: 'square', vol: 0.07 }));
+    [[1047, 0.6], [1319, 0.6], [1568, 0.6]].forEach(([f, at]) => tone(f, { at, dur: 0.7, type: 'triangle', vol: 0.1 }));
+  },
   sail: () => noise({ dur: 1.2, vol: 0.06, from: 300, to: 900 }),
 };
 

@@ -17,7 +17,8 @@
 import { objectSprite, villagerSprite, heroSprite, hudhudSprite, portraitSVG, drawPearl } from '../art/sprites.js';
 import { hudhudSVG } from '../art/art.js';
 const hudhudPortrait = () => hudhudSVG();
-import { HEROES, g } from '../art/art.js';
+import { HEROES, g, heroSVG } from '../art/art.js';
+import { shake } from './fx.js';
 import { save } from './save.js';
 import { sfx } from './sound.js';
 import { num } from './format.js';
@@ -1059,6 +1060,7 @@ function rewardQuest(p) {
     updateHud();
     const gate = props.find(o => o.kind === 'gate' && o.opens === p.id);
     itemPopup({
+      hold: true, fly: q.letter,
       icon: `<span class="golden-letter">${q.letter}</span>`,
       title: `${island.tokenName || 'الحرف الذهبي'} «${q.letter}»`,
       text: gate ? (island.gateText || 'انفتحت البوابة الكبيرة في الشمال!') : `معك ${num(state.letters.length)} من ${num(tokens().length)}. ${island.tokenHint || ''}`,
@@ -1073,8 +1075,8 @@ function useMonument() {
   if (n < need) { say({ name: m.name, lines: [m.partial.replace('{n}', num(n)), m.hint] }); return; }
   say({ name: m.name, lines: m.place, then: () => {
     state.monument = true; persist();
-    sfx.win();
-    itemPopup(m.reward);
+    shake(els.screen, 1.2);
+    itemPopup({ ...m.reward, hold: true });
   } });
 }
 
@@ -1083,6 +1085,7 @@ function openChest(c) {
   const before = state.pearls.length;
   persist();
   sfx.reveal();
+  shake(els.screen, 0.5);
   save.update(s => { s.pearls = (s.pearls || 0) + c.pearls; });
   updateHud();
   itemPopup({ icon: '🦪', title: `${num(c.pearls)} لؤلؤات!`, text: 'كنز صغير مخبّأ! اللآلئ تُزيّن سفينتك.' });
@@ -1233,17 +1236,46 @@ function updateHud() {
   els.letters.innerHTML = tokens().map(l => `<span class="${state.letters.includes(l) ? 'on' : ''}">${l}</span>`).join('');
 }
 
-function itemPopup({ icon, title, text }) {
+// A reward card. With `hold`, the hero lifts the item overhead in a burst
+// of light ("you got it!"); `fly` sends a golden token into its HUD slot
+// when the card closes.
+let flyToken = null;
+function itemPopup({ icon, title, text, hold = false, fly = null }) {
   busy = true;
-  els.popup.innerHTML = `<div class="item-popup__card"><div class="item-popup__rays"></div><div class="item-popup__icon">${icon}</div><h3>${title}</h3><p>${text}</p><button class="btn btn--gold">رائع!</button></div>`;
+  flyToken = fly;
+  els.popup.innerHTML = `<div class="item-popup__card ${hold ? 'is-hold' : ''}"><div class="item-popup__rays"></div>
+    ${hold ? `<div class="item-get"><div class="item-get__item">${icon}</div><div class="item-get__hero">${heroSVG(heroId())}</div></div>` : `<div class="item-popup__icon">${icon}</div>`}
+    <h3>${title}</h3><p>${text}</p><button class="btn btn--gold">رائع!</button></div>`;
   els.popup.hidden = false;
-  sfx.win();
+  if (hold) { sfx.fanfare(); shake(els.popup.querySelector('.item-popup__card'), 0.6); } else sfx.win();
 }
 
 function closePopup() {
+  const from = els.popup.querySelector('.golden-letter')?.getBoundingClientRect();
   els.popup.hidden = true;
   busy = !!dialog;
   sfx.tap();
+  if (flyToken && from) flyToSlot(flyToken, from);
+  flyToken = null;
+}
+
+// The golden token flies from the card into its slot in the top bar.
+function flyToSlot(token, from) {
+  const slot = [...els.letters.children].find(sp => sp.textContent === token);
+  if (!slot || lite()) return;
+  const to = slot.getBoundingClientRect();
+  const f = document.createElement('span');
+  f.className = 'golden-letter token-fly';
+  f.textContent = token;
+  f.style.cssText = `left:${from.left}px;top:${from.top}px;width:${from.width}px;height:${from.height}px;--dx:${to.left + to.width / 2 - (from.left + from.width / 2)}px;--dy:${to.top + to.height / 2 - (from.top + from.height / 2)}px;--s:${to.width / from.width}`;
+  document.body.append(f);
+  slot.style.visibility = 'hidden';
+  f.addEventListener('animationend', () => {
+    f.remove();
+    slot.style.visibility = '';
+    slot.classList.add('pop');
+    sfx.star(3);
+  }, { once: true });
 }
 
 let hintTimer;
