@@ -43,7 +43,9 @@ jobs:
         with:
           node-version: 22
       - run: npm install --no-audit --no-fund
+        working-directory: Web
       - run: npx playwright install --with-deps chromium
+        working-directory: Web
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -51,4 +53,4 @@ jobs:
           include_comments_by_actor: shibl,sam-a1a
           claude_args: |
             --max-turns 60
-            --allowedTools "Bash(npm test),Bash(node tools/update-shell.mjs),Bash(node tests/check-shell.mjs),Bash(node tests/e2e.mjs)"
+            --allowedTools "Bash(npm --prefix Web test),Bash(node Web/tools/update-shell.mjs),Bash(node Web/tests/check-shell.mjs),Bash(node Web/tests/e2e.mjs)"

@@ -6,13 +6,17 @@ Syrian national curriculum (grades 1–12) into an RPG-style adventure.
 - **Project spec**: see [`SPEC.md`](./SPEC.md) — read this first.
 - **Work queue**: see [`BACKLOG.md`](./BACKLOG.md) — the living backlog and
   playtest log; pick the top open item, implement, test, and append notes.
+- **How to add or change things**: [`WORKFLOW.md`](./WORKFLOW.md).
+- **Play it**: <https://shibl.github.io/sindibad/>
 - **About the project** (Arabic, for developers and founders): the
-  project brief as a long-form web page — [`about.html`](./about.html), live at
-  <https://shibl.github.io/sindibad/about.html> (also linked as «ℹ️ عن
+  project brief as a long-form web page — [`Web/about.html`](./Web/about.html), live at
+  <https://shibl.github.io/sindibad/Web/about.html> (also linked as «ℹ️ عن
   المشروع» on the game's title screen).
-- **Original project brief** (Arabic): [`docs/original-project-brief.pdf`](./docs/original-project-brief.pdf)
+- **Original project brief** (Arabic): [`docs/original-project-brief.md`](./docs/original-project-brief.md)
+  (text, with a list of where the game stands) and the original
+  [PDF](./docs/original-project-brief.pdf).
 - **Concept demos** (throwaway animation sketches, not production code):
-  [`demos/`](./demos/)
+  [`Web/demos/`](./Web/demos/)
 
 ## What's playable now
 
@@ -23,10 +27,9 @@ and Syrian geography — each starting with an illustrated mini-lesson.
 Lessons are played in different ways: multiple choice, sorting, sailing
 a number line, steering the ship by an angle, paying at the market,
 filling a waterwheel's buckets, and building sentences from word blocks.
-Stars
-lift the fog, islands award badges, finished topics come back for spaced
-review, and the treasure island ends with a certificate. Works fully
-offline after the first visit; progress stays on the device.
+Stars lift the fog, islands award badges, finished topics come back for
+spaced review, and the treasure island ends with a certificate. Works
+fully offline after the first visit; progress stays on the device.
 
 ## Running locally
 
@@ -34,10 +37,10 @@ No build step. Serve the repo root over http and open it in a browser:
 
 ```sh
 python3 -m http.server 8000
-# then open http://localhost:8000/
+# then open http://localhost:8000/  (it forwards to the game in Web/)
 ```
 
-(Opening `index.html` directly from disk won't work: the app uses ES
+(Opening `Web/index.html` directly from disk won't work: the app uses ES
 modules and a service worker, which both need http(s) or localhost.)
 
 Handy URL switches: `?time=day|sunset|night` (sky), `?lite=1|0` (force
@@ -46,14 +49,25 @@ low-end mode on/off).
 ## Tests
 
 ```sh
+cd Web
 npm install   # once — installs Playwright for the headless tests
 npm test      # offline cache-list check + end-to-end play-through
 ```
 
-After adding or changing any file, run `node tools/update-shell.mjs` so
-the service worker caches it for offline play (the test fails otherwise).
+After adding or changing any file, run `node tools/update-shell.mjs` (in
+`Web/`) so the service worker caches it for offline play (the test fails
+otherwise).
 
 ## Layout
+
+- `Web/` — the game (a web app that also installs to the home screen).
+  Everything below lives in it.
+- `Android/`, `iOS/` — reserved for future native apps; not started.
+- `docs/` — the original brief (PDF and Markdown) and screenshots.
+- `index.html`, `service-worker.js` (top level) — only forward the live
+  site to `Web/` and clear old offline copies from before the move.
+
+Inside `Web/`:
 
 - `index.html`, `style.css`, `app.js` — app shell: screens, backdrop, boot.
 - `about.html` — the project brief as a long-form page for developers and
@@ -63,7 +77,7 @@ the service worker caches it for offline play (the test fails otherwise).
   sounds, journey page, finale. Never changes when content is added.
 - `worlds/grade6.js` — the grade-6 islands, positions, unlock rules, badges.
 - `plugins/` — topics and reusable game engines. **Adding a lesson:** see
-  [`plugins/README.md`](./plugins/README.md).
+  [`Web/plugins/README.md`](./Web/plugins/README.md).
 - `art/art.js` — all art as inline SVG (heroes, Hudhud, dhow, islands…).
 - `fonts/` — Baloo Bhaijaan 2 (SIL OFL), bundled for offline use.
 - `manifest.json`, `service-worker.js`, `icons/` — PWA / offline support.

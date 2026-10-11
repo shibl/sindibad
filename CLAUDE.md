@@ -6,9 +6,11 @@ lesson or fix: check the brief, build, test, update the docs.
 
 ## Before every commit
 
+The game lives in `Web/`.
+
 - After adding or changing any file the game loads, run
-  `node tools/update-shell.mjs` so it is cached for offline play.
-- `npm test` passes.
+  `node Web/tools/update-shell.mjs` so it is cached for offline play.
+- `npm --prefix Web test` passes.
 
 ## Feedback is evidence
 
@@ -43,8 +45,8 @@ you (by adding the `agent-ready` label or mentioning @claude).
 
 Lesson content is what children learn from: questions, answers, hints,
 explanations, mini-lessons, facts. It lives in the topic folders under
-`plugins/` (`arabic/`, `math/`, `science/`, `social/`, `review/`), in
-`worlds/`, and in the facts in `core/stickers.js`. A teacher must approve
+`Web/plugins/` (`arabic/`, `math/`, `science/`, `social/`, `review/`), in
+`Web/worlds/`, and in the facts in `Web/core/stickers.js`. A teacher must approve
 every lesson-content change before it goes live (`.github/CODEOWNERS`).
 
 ## Working from a GitHub issue

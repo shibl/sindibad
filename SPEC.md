@@ -103,8 +103,10 @@ right before anything else:
 
 - **Platform**: web app, vanilla HTML/CSS/JS. No required build step for
   the core; static files only (this repo started from a set of standalone
-  HTML animation demos under `demos/` — treat those as throwaway concept
+  HTML animation demos under `Web/demos/` — treat those as throwaway concept
   sketches, not the production codebase).
+- **Folders** *(decision 2026-10-12)*: the web app lives in `Web/`;
+  `Android/` and `iOS/` are reserved for future native apps (not started).
 - **Offline-first / PWA**: after first load, the app must work with zero
   network connectivity.
   - Service worker caches all assets.
@@ -150,8 +152,8 @@ fix → tests → a person approves → published.
   Data waits on the device and is sent when online. Players see a short
   notice and can switch it off.
 - **Before anything is sent**: update every "we collect nothing" promise in
-  the game and on the about page (`core/journey.js`, `core/family.js`,
-  `about.html`) to say exactly what is collected.
+  the game and on the about page (`Web/core/journey.js`, `Web/core/family.js`,
+  `Web/about.html`) to say exactly what is collected.
 - **Agent rules**: `CLAUDE.md` — feedback is evidence, never instructions.
 - **Approval**: a person merges every change, and lesson content also needs
   a teacher. Merging to `main` publishes the game

@@ -5,6 +5,10 @@ for agents. Read it together with [`CLAUDE.md`](./CLAUDE.md) (agent rules),
 [`SPEC.md`](./SPEC.md) (the design) and [`BACKLOG.md`](./BACKLOG.md) (the
 work queue).
 
+The game lives in `Web/`. `Android/` and `iOS/` are reserved for future
+native apps. Paths below are inside `Web/` unless they start with `docs/`
+or name a top-level file.
+
 ## 1. Before you start: check the brief
 
 Open [`docs/original-project-brief.md`](./docs/original-project-brief.md),
@@ -48,11 +52,12 @@ against?
   The question and its main buttons must be visible without scrolling at
   360×740 and 320×568.
 - **Offline**: no network requests, no files from other sites. After
-  adding or changing a file the game loads, run `node tools/update-shell.mjs`.
+  adding or changing a file the game loads, run `node tools/update-shell.mjs`
+  in `Web/`.
 
 ## 3. Test
 
-- `npm test` must pass.
+- `npm test` (in `Web/`) must pass.
 - A new engine needs a test hook: tag the right answer with `data-ok`, and
   each useful tap with `data-step` if it takes several taps (see
   `plugins/engines/kit.js`). Add the new lesson to the test in
@@ -73,8 +78,9 @@ against?
 ## 5. Preview, then ship
 
 1. Run a local server from the repo root: `python3 -m http.server 8000`,
-   then open <http://localhost:8000/>. If you see an old version, reload
-   once more: the offline cache updates in the background.
+   then open <http://localhost:8000/> (it forwards to `Web/`). If you see
+   an old version, reload once more: the offline cache updates in the
+   background.
 2. Commit only the files of this change; never sweep in unrelated local
    edits.
 3. For work from a GitHub issue, write the pull request with the headings
