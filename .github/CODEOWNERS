@@ -1,0 +1,14 @@
+# Who must approve changes before they go live.
+# Lesson content (what children learn from) also needs a teacher: add the
+# reviewing teacher's GitHub username to the lesson lines below.
+
+*                   @shibl @sam-a1a
+
+# Lesson content
+/plugins/arabic/    @shibl @sam-a1a
+/plugins/math/      @shibl @sam-a1a
+/plugins/science/   @shibl @sam-a1a
+/plugins/social/    @shibl @sam-a1a
+/plugins/review/    @shibl @sam-a1a
+/worlds/            @shibl @sam-a1a
+/core/stickers.js   @shibl @sam-a1a

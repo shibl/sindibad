@@ -65,11 +65,23 @@ the service worker caches it for offline play (the test fails otherwise).
 - `manifest.json`, `service-worker.js`, `icons/` — PWA / offline support.
 - `tools/`, `tests/` — maintainer scripts and tests (not shipped logic).
 
+## Feedback and the improvement agent
+
+- **Report a problem or idea**: open an issue and pick a form — bug, lesson
+  mistake, or idea (Arabic and English).
+- **Let the agent fix it**: a maintainer adds the `agent-ready` label. Claude
+  works on it in a new branch, runs the tests, and replies with a link to
+  open a pull request. Mention `@claude` in a comment to ask for changes.
+  Its rules are in [`CLAUDE.md`](./CLAUDE.md).
+- **Approve**: merging a pull request into `main` publishes the game, after
+  the tests pass. Lesson changes also need a teacher's approval
+  ([`.github/CODEOWNERS`](./.github/CODEOWNERS)).
+
 ## License
 
 - Code: MIT or GPL (open source).
 - Educational content & art: CC-BY-SA.
-- No ads, no data collection, no monetization — ever.
+- No ads, no personal data, no monetization — ever.
 
 ## Status
 

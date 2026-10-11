@@ -1,0 +1,19 @@
+name: "💡 فكرة · Idea"
+description: "اقتراح لتحسين اللعبة · A suggestion to improve the game"
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        شكراً لمساعدتك! هذه الصفحة **عامة** يراها الجميع: لا تكتب اسم أي طفل أو مدرسة أو مدينة.
+        Thank you! This page is **public**: please don't include any child's name, school or town.
+  - type: textarea
+    id: idea
+    attributes:
+      label: "ما فكرتك؟ · What's your idea?"
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: "كيف تساعد الطلاب؟ · How would it help students?"

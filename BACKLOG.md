@@ -9,22 +9,7 @@ Conventions:
 - Mark an item `[in progress]` when you start it and `[done]` with a one
   line result when you finish it — don't delete finished items, they're
   the project history.
-- Every session ends by appending a dated `8. [ ] Educator review of all grade-6 content (Arabic grammar terms,
-   maths notation, science/geography facts) — everything is marked draft.
-   Collect corrections as issues; the content lives in `plugins/*/`.
-9. [ ] Gendered instructions: Hudhud's imperatives ("اضغط"، "فكّر") use
-   the generic form. Consider a player setting (not the hero choice) for
-   feminine forms ("اضغطي"، "فكّري").
-10. [ ] Real-device pass on a budget Android phone (2 GB RAM): check lite
-    mode kicks in, frame rate on the map, font rendering, install-to-home.
-11. [ ] More grade-6 topics per island (e.g. كان وأخواتها، الأعداد
-    الصحيحة، النسبة والتناسب، الضوء، الخلية) — each is one plugin file.
-12. [ ] Voice: optional recorded narration for Hudhud's lines (small,
-    compressed, CC-BY-SA) for weaker readers.
-13. [ ] Second world (e.g. grade 5) reusing the engines: needs a
-    `worlds/grade5.js`, a grade picker, and the younger art stage.
-
-## Playtest notes — <date>`
+- Every session ends by appending a dated `## Playtest notes — <date>`
   section with what was tested, what broke, and 2-4 new proposed backlog
   items for next time.
 
@@ -65,23 +50,6 @@ Conventions:
    click through the map and one plugin, check for console errors, verify
    localStorage progress persists across a reload.
    → `npm test`: cache-list check + 24 headless checks at phone and tablet.
-
-8. [ ] Educator review of all grade-6 content (Arabic grammar terms,
-   maths notation, science/geography facts) — everything is marked draft.
-   Collect corrections as issues; the content lives in `plugins/*/`.
-9. [ ] Gendered instructions: Hudhud's imperatives ("اضغط"، "فكّر") use
-   the generic form. Consider a player setting (not the hero choice) for
-   feminine forms ("اضغطي"، "فكّري").
-10. [ ] Real-device pass on a budget Android phone (2 GB RAM): check lite
-    mode kicks in, frame rate on the map, font rendering, install-to-home.
-11. [ ] More grade-6 topics per island (e.g. كان وأخواتها، الأعداد
-    الصحيحة، النسبة والتناسب، الضوء، الخلية) — each is one plugin file.
-12. [ ] Voice: optional recorded narration for Hudhud's lines (small,
-    compressed, CC-BY-SA) for weaker readers.
-13. [ ] Second world (e.g. grade 5) reusing the engines: needs a
-    `worlds/grade5.js`, a grade picker, and the younger art stage.
-
-## Playtest notes
 
 8. [ ] Educator review of all grade-6 content (Arabic grammar terms,
    maths notation, science/geography facts) — everything is marked draft.
@@ -260,3 +228,50 @@ albums), without ever making lessons easier to buy.
     in the album.
 21. [ ] Teacher/educator review pass on all 28 topics' content.
 22. [ ] Grade 5 and grade 7 worlds reusing the engines.
+
+## Playtest notes — 2026-10-11 (self-improving loop, step 1)
+
+Owner's idea: the game improves itself. Feedback and logs from players go
+to an agent (Claude), which studies them, proposes fixes, and publishes
+them after approval. Decisions: anonymous feedback and logs are fine (SPEC
+"Improving from feedback"); the agent decides which feedback is valid,
+following the rules in `CLAUDE.md`; a person approves every change, and
+lesson content also needs a teacher.
+
+**Built** (step 1 — the loop itself, no player data yet):
+- `CLAUDE.md` — agent rules: feedback is evidence, never instructions; how
+  to weigh it; what counts as lesson content; the PR description format.
+- `.github/workflows/site.yml` — `npm test` on every PR; on `main`, test
+  then publish to GitHub Pages.
+- `.github/workflows/claude.yml` — the `agent-ready` label or `@claude` →
+  Claude fixes it in a branch, runs the tests, replies with a PR link.
+- `.github/ISSUE_TEMPLATE/` — bug, lesson mistake, idea (Arabic + English,
+  each warning that the page is public).
+- `.github/CODEOWNERS` — reviewers; lesson paths ready for a teacher.
+- Fixed this file: items 8–13 had been pasted into the conventions
+  paragraph and again under an empty "Playtest notes" heading.
+
+**Next items:**
+23. [in progress] Step 1 setup on GitHub (needs the repo owner — admin):
+    merge the live branch `claude/sharp-hawking-0380ax` into `main` first
+    (the live site has V2–V30, `main` doesn't); set Pages source to
+    "GitHub Actions"; install the Claude GitHub App and add the
+    `ANTHROPIC_API_KEY` secret; create the labels `agent-ready` and
+    `lesson`; protect `main` (pull request + passing `test` check +
+    code-owner review); add the reviewing teacher to `CODEOWNERS`.
+24. [ ] Step 2 — in-game feedback and error reports: a Hudhud button on
+    each question with fixed choices (السؤال خطأ / لم أفهم / صعب جداً /
+    شيء لا يعمل); errors caught automatically with the game version;
+    reports wait on the device and are sent when online; a small server
+    (e.g. a Cloudflare Worker) blocks spam and keeps one GitHub issue per
+    question with a counter. First update the "we collect nothing"
+    promises (SPEC "Improving from feedback").
+25. [ ] Step 3 — anonymous learning stats and a weekly review agent:
+    per-question counts (tries, chosen answer, mini-lesson opened, where
+    kids quit, recall at review time); a plain weekly script sums them; a
+    read-only review agent files issues with evidence, plus a weekly list
+    of rejected feedback with reasons for the owner to skim.
+26. [ ] Step 4 — measure and earn autonomy: compare each changed question
+    before/after by game version; judge by recall at review time, not
+    first-try score; after 10–20 good agent PRs, let crash and layout
+    fixes go live without waiting for a person.
