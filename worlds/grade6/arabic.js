@@ -42,7 +42,7 @@ export default {
     '~~swwwwww............s~~',
     '~~s.........==.......s~~',
     '~~s.........==.......s~~',
-    '~~s#########==#######s~~',
+    '~~##########==########~~',
     '~~s.........==.......s~~',
     '~~s.........==.......s~~',
     '~ss.........==.......ss~',
@@ -76,7 +76,7 @@ export default {
     { kind: 'gate', id: 'gate', at: [13, 11], block: [2, 1], opens: 'calligrapher' },
     { kind: 'fountain', at: [13, 17.4], block: [3, 1.4] },
     { kind: 'stall', at: [19.5, 15.6], block: [3, 1] },
-    { kind: 'house', at: [4.5, 13.6], block: [4, 2.2] },
+    { kind: 'house', at: [4.5, 13.6], block: [4, 2.6] }, // reaches the wall: no squeezing behind it
     { kind: 'house', at: [19.5, 12.4], block: [4, 2.2] },
     { kind: 'house', at: [5, 25.2], block: [4, 2.2] },
     { kind: 'house', at: [18.5, 24.6], block: [4, 2.2] },

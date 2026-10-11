@@ -224,14 +224,17 @@ function propAt(x, y) {
   return false;
 }
 
-function blocked(x, y) {
+function blocked(x, y, withPeople = true) {
   const t = tileAt(x, y);
   if (SOLID.has(t) && !(WATER.has(t) && onStone(x, y))) return true;
   if (propAt(x, y)) return true;
-  for (const p of people) if (Math.hypot(p.x - x, p.y - 0.15 - y) < 0.42) return true;
+  if (withPeople) for (const p of people) if (Math.hypot(p.x - x, p.y - 0.15 - y) < 0.42) return true;
   return false;
 }
-const hits = (x, y) => [[0, 0], [RADIUS, 0], [-RADIUS, 0], [0, -RADIUS * 0.6], [0, RADIUS * 0.4]].some(([dx, dy]) => blocked(x + dx, y + dy));
+// The hero's footprint: a few points around the feet. `pad` grows it — tests
+// use that to find gaps the hero only just squeezes through.
+const hits = (x, y, pad = 0, withPeople = true) => [[0, 0], [RADIUS + pad, 0], [-RADIUS - pad, 0], [0, -RADIUS * 0.6 - pad], [0, RADIUS * 0.4 + pad]]
+  .some(([dx, dy]) => blocked(x + dx, y + dy, withPeople));
 
 // ---------- Ground ----------
 
@@ -1482,6 +1485,8 @@ function onPointerUp(e) {
 // For tests: what blocks a spot, and teleporting the hero.
 export function debugBlocked(x, y) { return blocked(x, y); }
 export function debugPlace(x, y) { player.x = x; player.y = y; }
+// Could the hero stand at (x, y)? Villagers are ignored (they wander).
+export function debugFits(x, y, pad = 0) { return !hits(x, y, pad, false); }
 
 // For tests: current position and state.
 export function debugState() {

@@ -140,6 +140,63 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   check(errors.length === 0, `no console errors${errors.length ? `: ${errors.join(' | ')}` : ''}`);
   await ctx.close();
 }
+
+// Every island's map: a closed gate really keeps the hero out, and there is
+// no area the hero can only reach by squeezing through a gap barely wider
+// than itself (it gets stuck there). Explores every spot the hero can stand
+// on a fine grid, with the engine's own collision.
+{
+  console.log('— island maps');
+  const ctx = await browser.newContext({ viewport: { width: 1024, height: 768 } });
+  await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
+  const p = await ctx.newPage();
+  await p.goto(URL_);
+  await p.click('text=ابدأ الرحلة');
+  await p.fill('#child-name', 'سارة');
+  await p.click('#who-form [type=submit]');
+  await p.waitForSelector('#screen-select[data-active]', { timeout: 5000 });
+  await p.click('[data-hero=sindbad]');
+  await p.click('#select-go');
+  await p.click('[data-st=skip]');
+  await p.click('.isle[data-region=arabic]');
+  await p.waitForSelector('#screen-island[data-active]', { timeout: 6000 });
+  const maps = await p.evaluate(async () => {
+    const STEP = 0.05;  // grid spacing, in tiles
+    const PAD = 0.1;    // a gap must leave this much room on each side
+    const SMALL = 0.1;  // squeeze-only nooks up to this area (tiles²) can't trap anyone
+    const { enterIsland, debugFits } = await import('/core/overworld.js');
+    const world = (await import('/worlds/grade6.js')).default;
+    const out = [];
+    for (const { id } of world.regions) {
+      const def = (await import(`/worlds/grade6/${id}.js`)).default;
+      enterIsland(def, world.regions.find(r => r.id === id));
+      const nx = Math.round(def.tiles[0].length / STEP), ny = Math.round(def.tiles.length / STEP);
+      const cell = (x, y) => Math.floor(y / STEP) * nx + Math.floor(x / STEP);
+      const free = pad => Uint8Array.from({ length: nx * ny }, (_, k) => debugFits((k % nx + 0.5) * STEP, (Math.floor(k / nx) + 0.5) * STEP, pad));
+      const reach = (ok, from) => {
+        const seen = new Uint8Array(nx * ny), todo = ok[from] ? [from] : [];
+        if (todo.length) seen[from] = 1;
+        while (todo.length) {
+          const k = todo.pop(), i = k % nx;
+          for (const n of [i > 0 && k - 1, i < nx - 1 && k + 1, k - nx, k + nx]) if (n !== false && ok[n] && !seen[n]) { seen[n] = 1; todo.push(n); }
+        }
+        return seen;
+      };
+      const roomy = free(PAD), anywhere = reach(free(0), cell(...def.spawn)), comfortably = reach(roomy, cell(...def.spawn));
+      const gates = def.objects.filter(o => o.kind === 'gate')
+        .map(o => ({ at: o.at.join(','), passable: !!anywhere[cell(o.at[0], o.at[1] - o.block[1] - 0.6)] }));
+      let squeezed = 0, near = null;
+      for (let k = 0; k < nx * ny; k++) if (anywhere[k] && roomy[k] && !comfortably[k]) { squeezed += 1; near ??= `${((k % nx) * STEP).toFixed(1)},${(Math.floor(k / nx) * STEP).toFixed(1)}`; }
+      out.push({ id, gates, squeezedArea: squeezed * STEP * STEP, near, small: SMALL });
+    }
+    return out;
+  });
+  for (const m of maps) {
+    for (const g of m.gates) check(!g.passable, `${m.id}: the closed gate at ${g.at} keeps the hero out`);
+    check(m.squeezedArea <= m.small, `${m.id}: nowhere the hero can only squeeze into${m.squeezedArea > m.small ? ` (${m.squeezedArea.toFixed(2)} tiles², e.g. near ${m.near})` : ''}`);
+  }
+  await ctx.close();
+}
 await browser.close();
 server.close();
 if (failures) { console.error(`\n${failures} check(s) failed`); process.exit(1); }
