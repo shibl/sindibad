@@ -78,10 +78,14 @@ Pick a mechanic and feed it content — no game code needed:
 | `sort` | classify into 2–3 baskets | `bins: [{id,label,icon}]`, items `{ text, bin, hint }` |
 | `numberline` | fractions, decimals, negatives | `{ value, label, min, max, ticks, hint }` |
 | `match` | pairs: landmark ↔ city, word ↔ meaning | `{ a, b, hint }` |
+| `helm` | angles: steer the ship to an angle | `{ q, angle, hint }` or `{ q, range: [min, max], show, hint }` |
+| `market` | money and weights: pay or weigh an exact amount | `{ q, target, hint }`; options `pieces`, `kind: 'coin'\|'weight'`, `unit` |
+| `fill` | equivalent fractions, decimals, percent: fill a bucket | `{ q, parts, answer, hint }` (answer = parts to fill) |
+| `blocks` | grammar: build a sentence from word blocks | `{ words, slots: [[label, role]], extra, hint }` |
 
 `engines/visuals.js` has helpers for learn cards: colour-coded sentence
 roles, fraction bars, a 100-square percent grid, mini number lines,
-plural tables, icon cards, planets.
+plural tables, icon cards, planets, angles.
 
 ## Content rules
 

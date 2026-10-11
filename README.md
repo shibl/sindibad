@@ -17,9 +17,13 @@ Syrian national curriculum (grades 1–12) into an RPG-style adventure.
 ## What's playable now
 
 **Grade 6** (الصف السادس): pick Sindbad or Yasmina, sail a fog-covered
-archipelago guided by Hudhud the hoopoe, and learn through 28 short
-lessons — Arabic grammar, fractions/decimals/percent, science, and
-Syrian geography — each starting with an illustrated mini-lesson. Stars
+archipelago guided by Hudhud the hoopoe, and learn through 32 short
+lessons — Arabic grammar, fractions/decimals/percent, angles, science,
+and Syrian geography — each starting with an illustrated mini-lesson.
+Lessons are played in different ways: multiple choice, sorting, sailing
+a number line, steering the ship by an angle, paying at the market,
+filling a waterwheel's buckets, and building sentences from word blocks.
+Stars
 lift the fog, islands award badges, finished topics come back for spaced
 review, and the treasure island ends with a certificate. Works fully
 offline after the first visit; progress stays on the device.

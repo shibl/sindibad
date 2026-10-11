@@ -3,6 +3,8 @@
 //   talk to the calligrapher → his quest's lesson, played perfectly → a
 //   golden letter → back to sea: the fog lifts → reload keeps progress →
 //   the app (and the island) still load with the network off → no errors. Runs at phone and tablet sizes.
+//   Then: every island map is walkable, and the newer kinds of play (steer,
+//   pay, fill, build) can be played to three stars and fit a phone screen.
 //
 //   npm install      (once, installs Playwright)
 //   npm test
@@ -33,11 +35,14 @@ let failures = 0;
 const check = (ok, msg) => { console.log(`${ok ? '✓' : '✗'} ${msg}`); if (!ok) failures += 1; };
 
 async function perfectLesson(p) {
-  for (let step = 0; step < 150; step++) {
+  for (let step = 0; step < 800; step++) {   // the helm can take ~36 small turns a question
     if (await p.isVisible('#result:not([hidden])')) return true;
     if (await p.locator('[data-learn=next]').count()) { await p.click('[data-learn=next]'); continue; }
     const ok = p.locator('#activity .round:not(.is-solved) button[data-ok]');
     if (await ok.count()) { await ok.first().click(); await p.waitForTimeout(1250); continue; }
+    // Engines played in several taps (turn the helm, add a coin…) mark each step.
+    const st = p.locator('#activity .round:not(.is-solved) [data-step]');
+    if (await st.count()) { await st.first().click(); await p.waitForTimeout(30); continue; }
     const nl = p.locator('.round:not(.is-solved) .nl[data-ok]');
     if (await nl.count()) {
       const f = Number(await nl.getAttribute('data-ok'));
@@ -195,6 +200,51 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
     for (const g of m.gates) check(!g.passable, `${m.id}: the closed gate at ${g.at} keeps the hero out`);
     check(m.squeezedArea <= m.small, `${m.id}: nowhere the hero can only squeeze into${m.squeezedArea > m.small ? ` (${m.squeezedArea.toFixed(2)} tiles², e.g. near ${m.near})` : ''}`);
   }
+  await ctx.close();
+}
+// The newer kinds of play: every answer can be reached with the controls the
+// engine offers, each lesson can be played to three stars, and the first
+// round fits a phone screen without scrolling.
+{
+  console.log('— new kinds of play');
+  const { ITEMS: ANGLES } = await import('../plugins/math/angles.js');
+  const { ITEMS: MARKET } = await import('../plugins/math/market.js');
+  const { ITEMS: FILL } = await import('../plugins/math/equivalent.js');
+  const { ITEMS: BUILD } = await import('../plugins/arabic/build.js');
+  const { change } = await import('../plugins/engines/market.js');
+  const on5 = a => Number.isInteger(a / 5) && a >= 0 && a <= 180;
+  check(ANGLES.every(it => (it.range ? on5(it.show) && it.show >= it.range[0] && it.show <= it.range[1] : on5(it.angle))), 'angles: every answer is on the helm (0–180, steps of 5)');
+  check(MARKET.every(it => it.target > 0 && change(it.target, [100, 50, 20, 10, 5, 1])), 'market: every price can be paid exactly');
+  check(FILL.every(it => Number.isInteger(it.answer) && it.answer > 0 && it.answer <= it.parts), 'equivalent fractions: every answer fits its bucket');
+  check(BUILD.every(it => it.words.length === it.slots.length && it.extra.every(x => !it.words.includes(x))), 'build: one slot per word, look-alikes differ from the words');
+
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
+  const p = await ctx.newPage();
+  const errors = [];
+  p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+  p.on('pageerror', e => errors.push(e.message));
+  await p.goto(URL_);
+  await p.click('text=ابدأ الرحلة');
+  await p.fill('#child-name', 'سارة');
+  await p.click('#who-form [type=submit]');
+  await p.waitForSelector('#screen-select[data-active]', { timeout: 5000 });
+  await p.click('[data-hero=yasmina]');
+  await p.click('#select-go');
+  await p.click('[data-st=skip]');
+  for (const id of ['math-angles', 'math-market', 'math-equivalent', 'arabic-build']) {
+    await p.evaluate(id => import('/core/lesson.js').then(m => m.startLesson(id)), id);
+    await p.waitForSelector('#screen-activity[data-active]', { timeout: 5000 });
+    while (await p.locator('[data-learn=next]').count()) await p.click('[data-learn=next]');
+    await p.waitForSelector('#activity .round', { timeout: 5000 });
+    await p.waitForTimeout(500);
+    const fits = await p.evaluate(() => { const a = document.getElementById('activity'); return a.scrollHeight <= a.clientHeight + 2; });
+    check(fits, `${id}: the first round fits a phone screen`);
+    const played = await perfectLesson(p);
+    check(played && (await p.locator('.rstar.is-on').count()) === 3, `${id}: played perfectly → 3 stars`);
+    await p.click('[data-result=map]');
+  }
+  check(errors.length === 0, `no console errors${errors.length ? `: ${errors.join(' | ')}` : ''}`);
   await ctx.close();
 }
 await browser.close();

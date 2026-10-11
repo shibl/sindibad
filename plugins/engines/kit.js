@@ -1,10 +1,13 @@
 // Shared helpers for activity engines. An engine is a reusable game
-// mechanic (multiple choice, tap-the-word, sorting, number line, matching);
-// a topic plugin feeds it content. See plugins/README.md.
+// mechanic (multiple choice, tap-the-word, sorting, number line, matching,
+// steering, paying, filling, building); a topic plugin feeds it content.
+// See plugins/README.md.
 
 // Automated tests set window.__SINDBAD_TEST__ before the app loads; engines
 // then tag the right answer with data-ok so a headless browser can play a
-// perfect round. Normal play never sets it.
+// perfect round. Engines answered in several taps (turn the helm, add a
+// coin …) also tag the next useful tap with data-step. Normal play never
+// sets it.
 export const TEST = typeof window !== 'undefined' && !!window.__SINDBAD_TEST__;
 
 export function shuffle(list) {
@@ -21,7 +24,7 @@ export const pick = (list, n) => shuffle(list).slice(0, n);
 // A stable key for a content item, so the lesson runner can remember which
 // ones a child got wrong and bring them back next time.
 export function itemKey(it) {
-  const raw = it.q || it.text || it.label || it.a || (it.words ? it.words.join(' ') + (it.ask || '') : '') || JSON.stringify(it);
+  const raw = (it.words ? it.words.join(' ') + (it.ask || '') : '') || it.q || it.text || it.label || it.a || JSON.stringify(it);
   return String(raw).replace(/<[^>]*>/g, '').slice(0, 80);
 }
 

@@ -76,3 +76,20 @@ export function planets() {
   return `<div class="viz viz--planets"><svg viewBox="-40 0 ${x + 40} 120" dir="ltr">
     <circle cx="-14" cy="60" r="44" fill="#ffd23f" stroke="#3b2414" stroke-width="3"/>${g}</svg></div>`;
 }
+
+// An angle: a fixed side pointing right, a second side at `deg` degrees, and
+// the arc between them. caption: html shown under it.
+export function angle(deg, caption = '', color = '#c7373f') {
+  const r = d => (d * Math.PI) / 180;
+  const X = 80, Y = 78, L = 66, A = 26;
+  const [x2, y2] = [X + Math.cos(r(deg)) * L, Y - Math.sin(r(deg)) * L];
+  const [ax, ay] = [X + Math.cos(r(deg)) * A, Y - Math.sin(r(deg)) * A];
+  const arc = deg === 90
+    ? `<path d="M${X + 16} ${Y} V${Y - 16} H${X}" fill="none" stroke="${color}" stroke-width="4"/>`
+    : `<path d="M${X} ${Y} L${X + A} ${Y} A${A} ${A} 0 0 0 ${ax} ${ay}Z" fill="${color}" fill-opacity=".25" stroke="${color}" stroke-width="3"/>`;
+  return `<div class="viz viz--angle"><svg viewBox="0 0 160 92" dir="ltr">${arc}
+    <path d="M${X} ${Y} H${X + L}" stroke="#3b2414" stroke-width="5" stroke-linecap="round"/>
+    <path d="M${X} ${Y} L${x2} ${y2}" stroke="#3b2414" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="${X}" cy="${Y}" r="5" fill="#f2c14e" stroke="#3b2414" stroke-width="2.5"/></svg>
+    ${caption ? `<span class="viz__cap viz__cap--small">${caption}</span>` : ''}</div>`;
+}

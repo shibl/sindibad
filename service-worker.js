@@ -5,7 +5,7 @@
 // file run `node tools/update-shell.mjs` (tests/check-shell.mjs fails if you
 // forget). A new version makes clients download the new files once.
 
-const CACHE_VERSION = 'ef2a8a0279';
+const CACHE_VERSION = '3afb30068c';
 const CACHE_NAME = `sindbad-${CACHE_VERSION}`;
 
 const APP_SHELL = [
@@ -38,6 +38,7 @@ const APP_SHELL = [
   'core/story.js',
   'core/topics.js',
   'core/voice.js',
+  'plugins/arabic/build.js',
   'plugins/arabic/fael-mafool.js',
   'plugins/arabic/five-verbs.js',
   'plugins/arabic/inna.js',
@@ -45,7 +46,11 @@ const APP_SHELL = [
   'plugins/arabic/mubtada-khabar.js',
   'plugins/arabic/plurals.js',
   'plugins/arabic/tenses.js',
+  'plugins/engines/blocks.js',
+  'plugins/engines/fill.js',
+  'plugins/engines/helm.js',
   'plugins/engines/kit.js',
+  'plugins/engines/market.js',
   'plugins/engines/match.js',
   'plugins/engines/numberline.js',
   'plugins/engines/quiz.js',
@@ -53,12 +58,15 @@ const APP_SHELL = [
   'plugins/engines/tapword.js',
   'plugins/engines/visuals.js',
   'plugins/index.js',
+  'plugins/math/angles.js',
   'plugins/math/area.js',
   'plugins/math/decimals.js',
   'plugins/math/divisibility.js',
+  'plugins/math/equivalent.js',
   'plugins/math/fraction-ops.js',
   'plugins/math/fractions-line.js',
   'plugins/math/integers.js',
+  'plugins/math/market.js',
   'plugins/math/percent.js',
   'plugins/math/ratio.js',
   'plugins/review/pools.js',

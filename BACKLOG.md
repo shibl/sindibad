@@ -275,3 +275,55 @@ lesson content also needs a teacher.
     before/after by game version; judge by recall at review time, not
     first-try score; after 10–20 good agent PRs, let crash and layout
     fixes go live without waiting for a person.
+
+## Playtest notes — 2026-10-12 (new kinds of play)
+
+Owner's pick from a brainstorm on keeping kids playing: "more kinds of
+play". Most lessons were "tap the answer"; the brief asks for building,
+strategy and simulation mini-games. Left out for now (owner's choice):
+anything online or time-based.
+
+**Built** — four new engines, each with a lesson and a villager who hosts it:
+- `helm` — steer the ship by an angle (drag the dial, − / +, arrow keys).
+  Lesson «الزوايا» (22 questions: types, measures, complementary and
+  supplementary, triangles, clock hands) — القبطانة سعاد on the lighthouse hill.
+- `market` — pay an exact price in coins and notes (or weigh it out).
+  Lesson «الحسم والزيادة» (17 questions) — التاجرة سلوى by the market.
+- `fill` — fill a bucket split into parts, pour it into a noria. Lesson
+  «الكسور المتكافئة» (24 questions: equivalent, simplified, decimal,
+  percent) — الطحّان أبو نعيم by a new noria on the creek.
+- `blocks` — build a sentence from word blocks, with look-alikes that have
+  the wrong ending. Lesson «بناء الجملة» (20 sentences taken from the other
+  grammar topics) — الطبّاع جميل in the Arabic island's square.
+- Lessons 28 → 32. Engines played in several taps mark the next tap with
+  `data-step` in test mode. `npm test` checks every answer is reachable,
+  plays each new lesson to 3 stars, and checks its first round fits a phone.
+- All new content is draft and needs a teacher's review.
+
+**Tested**: headless Chromium at 390×844, 360×740, 360×660, 320×568 and
+1024×768. Every question of the four lessons, shown as a first round, fits
+without scrolling at all four phone sizes. Each lesson played once with a
+wrong answer, then perfectly. Each villager offers the quest and opens the
+lesson. No console errors.
+
+**Found**:
+- On 360-px-wide phones Hudhud's speech bubble is only ~100 px wide (the
+  bird, the hero and the 🔈 button take the rest), so a long hint stacks
+  into 8–10 short lines and pushes the answers down. This affects every
+  lesson, not only the new ones; the new lessons got short intros to fit.
+- The maths island has two villagers with the id `keeper` (lighthouse
+  keeper, divisibility keeper): sprites are cached by id, so the second is
+  drawn with the first one's look, and they share "met" state.
+- The treasure review and the villagers' riddles don't use the four new
+  lessons yet (their questions aren't multiple choice).
+
+**Next items**:
+27. [ ] Wider speech bubble on narrow phones (smaller bird and hero, or the
+    🔈 button inside the bubble); check every lesson at 360×740.
+28. [ ] Give the divisibility keeper its own id (existing saves store
+    `keeper` in `met` / `rewarded` — keep them working).
+29. [ ] Teacher review of the four new lessons. «الزوايا» is new ground:
+    confirm grade 6 covers complementary/supplementary angles and the
+    angle sum of a triangle.
+30. [ ] Reuse the new engines: `market` with weights for decimals (fish
+    seller), `blocks` for الأفعال الخمسة, `helm` for compass directions.

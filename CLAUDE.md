@@ -1,7 +1,8 @@
 # Agent guide
 
 Read SPEC.md (the design) and BACKLOG.md (the work queue and project
-history) before starting work.
+history) before starting work. Follow WORKFLOW.md for every new feature,
+lesson or fix: check the brief, build, test, update the docs.
 
 ## Before every commit
 
