@@ -10,7 +10,9 @@ import { openSettings, applySettings } from './core/settings.js';
 import { startAmbience, stopAmbience } from './core/ambience.js';
 import { defsSVG, shipSVG, palmSVG, gullSVG, cloudSVG, skylineSVG, shoreSVG, heroSVG, hudhudSVG } from './art/art.js';
 import { save } from './core/save.js';
-import { initMap, enter as enterMap, totalStars } from './core/map.js';
+import { initMap, enter as enterMap, totalStars, badgeState } from './core/map.js';
+import { renderChapters } from './core/chapters.js';
+import { STAGES, CHAPTERS } from './worlds/chapters.js';
 import { renderJourney } from './core/journey.js';
 import { openShop, applyStyle } from './core/shop.js';
 import { showStory } from './core/story.js';
@@ -82,7 +84,7 @@ function paintShip(el, crew) {
 
 // ---------- Screens ----------
 
-// Show one screen by name ("title", "select", "map", "activity"); hides the rest.
+// Show one screen by name ("title", "select", "chapters", "map", "activity" …); hides the rest.
 let place = 'title';   // which music theme is playing
 
 export function showScreen(name, detail) {
@@ -91,7 +93,16 @@ export function showScreen(name, detail) {
   });
   document.body.dataset.screen = name;
   if (name === 'island') startAmbience(); else stopAmbience();
-  if (name === 'title' || name === 'map') { place = name; playMusic(place); }
+  if (name === 'title' || name === 'map' || name === 'chapters') { place = name === 'chapters' ? 'map' : name; playMusic(place); }
+  if (name === 'chapters') {
+    renderChapters(document.getElementById('chapters'), {
+      stages: STAGES,
+      chapters: CHAPTERS,
+      // Only voyage 6 is open: its world is worlds/grade6.js.
+      progress: () => ({ ...totalStars(), badges: world.regions.filter(r => badgeState(r.id)).length, badgeMax: world.regions.length }),
+      open: () => wipe(() => showScreen('map')),
+    });
+  }
   if (name === 'map') {
     const hero = save.get().hero || 'sindbad';
     document.getElementById('hero-btn').innerHTML = `<span class="hero-face">${heroSVG(hero)}</span>`;
@@ -151,8 +162,8 @@ function wireHeroSelect() {
     if (!chosen) return;
     save.update(s => { s.hero = chosen.dataset.hero; });
     applyStyle();
-    if (save.get().storySeen) showScreen('map');
-    else showStory(() => showScreen('map'));
+    if (save.get().storySeen) showScreen('chapters');
+    else showStory(() => showScreen('chapters'));
   });
 
   const saved = save.get().hero;
@@ -228,7 +239,7 @@ try {
 setInterval(() => { if (!document.hidden && document.body.dataset.screen !== 'title') addPlayTime(15); }, 15000);
 
 // Start button: several children → "who is playing?"; a new device → ask
-// the child's name; one returning child → straight back to the map.
+// the child's name; one returning child → straight back to the voyages.
 {
   const start = document.querySelector('#screen-title [data-go]');
   const list = profileList();
@@ -237,7 +248,7 @@ setInterval(() => { if (!document.hidden && document.body.dataset.screen !== 'ti
 }
 if (save.get().hero && profileList().length <= 1) {
   const start = document.querySelector('#screen-title [data-go]');
-  start.dataset.go = 'map';
+  start.dataset.go = 'chapters';
   start.textContent = 'تابِع الرحلة';
   document.getElementById('title-tag').textContent = `مرحباً بعودتك يا ${save.get().hero === 'yasmina' ? 'ياسمينة' : 'سندباد'}! ⛵`;
   // A "welcome back" card: face, name, stars and the day streak.

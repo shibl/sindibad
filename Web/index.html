@@ -88,6 +88,14 @@
     </div>
   </section>
 
+  <section id="screen-chapters" class="screen screen--chapters">
+    <header class="topbar">
+      <button class="btn btn--round" data-go="title" aria-label="رجوع">→</button>
+      <h2>خريطة الرحلات</h2>
+    </header>
+    <div class="chapters" id="chapters"></div>
+  </section>
+
   <section id="screen-map" class="screen screen--map">
     <header class="topbar topbar--map">
       <button class="btn btn--round" data-go="journey" aria-label="رحلتي" id="hero-btn"></button>
@@ -97,6 +105,7 @@
       <button class="stars-badge pearl-btn" id="pearl-btn" title="سوق الميناء">🦪 <span id="pearl-total">٠</span></button>
       <button class="btn btn--round" id="mute-btn" aria-label="الإعدادات">⚙️</button>
     </header>
+    <button class="map-voyages" data-go="chapters">🗺️ كل الرحلات</button>
     <div id="map" class="map"></div>
     <div id="map-toast" class="map__toast" hidden>
       <div class="guide__bird"></div><p class="bubble" aria-live="polite"></p>

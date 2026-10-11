@@ -20,6 +20,10 @@ Syrian national curriculum (grades 1–12) into an RPG-style adventure.
 
 ## What's playable now
 
+**Twelve voyages, one per school grade** («خريطة الرحلات»), grouped by the
+brief's four age stages. Voyage 6 is open; the other eleven are locked
+until their worlds are built.
+
 **Grade 6** (الصف السادس): pick Sindbad or Yasmina, sail a fog-covered
 archipelago guided by Hudhud the hoopoe, and learn through 32 short
 lessons — Arabic grammar, fractions/decimals/percent, angles, science,
@@ -75,6 +79,8 @@ Inside `Web/`:
   fallback offline).
 - `core/` — the engine: map, lesson runner, topic registry, save data,
   sounds, journey page, finale. Never changes when content is added.
+- `worlds/chapters.js` — the twelve voyages (one per grade) and the four
+  age stages; `core/chapters.js` draws the voyages chart.
 - `worlds/grade6.js` — the grade-6 islands, positions, unlock rules, badges.
 - `plugins/` — topics and reusable game engines. **Adding a lesson:** see
   [`Web/plugins/README.md`](./Web/plugins/README.md).

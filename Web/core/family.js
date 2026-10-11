@@ -52,7 +52,7 @@ export function renderWho(el) {
       return;
     }
     switchProfile(b.dataset.who);
-    bootInto(profileSave(b.dataset.who).hero ? 'map' : 'select');
+    bootInto(profileSave(b.dataset.who).hero ? 'chapters' : 'select');
   };
   el.querySelector('#who-form').onsubmit = e => {
     e.preventDefault();

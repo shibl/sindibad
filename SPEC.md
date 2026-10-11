@@ -40,6 +40,14 @@ architecture, licensing, and call for contributors).
 
 ## Core structure
 
+### Voyages chart (the meta map)
+*(Decision 2026-10-12.)* Above the sea maps sits a chart of twelve
+**voyages** («الرحلات»), one per school grade, grouped by the brief's four
+age stages. Each voyage is a chapter that holds one grade's sea map and
+islands. A voyage opens when its world exists; today only voyage 6 (grade 6)
+is open. In Arabic they are called «الرحلة» rather than «الفصل», which can
+also mean a school term. Content: `Web/worlds/chapters.js`.
+
 ### World map (per grade level)
 - Each grade level is a "world" the student unlocks step by step — the map
   starts shrouded in fog; regions reveal as the student clears them.

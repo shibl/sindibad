@@ -85,7 +85,18 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   await p.click('#select-go');
   check(await p.isVisible('#story'), 'hero chosen → the opening story');
   await p.click('[data-st=skip]');
-  check(await p.isVisible('#screen-map'), 'story skipped → map');
+  check(await p.isVisible('#screen-chapters'), 'story skipped → the voyages chart');
+  check(await p.locator('.voyage').count() === 12 && await p.locator('.voyage--locked').count() === 11, '12 voyages (one per grade); only grade 6 is open');
+  await p.click('.voyage[data-grade="3"]');
+  check(await p.isVisible('.chart__note:not([hidden])') && await p.isVisible('#screen-chapters'), 'a locked voyage says "coming soon" and stays put');
+  await p.click('.voyage--open');
+  await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
+  check(true, 'voyage 6 → the grade-6 sea map');
+  await p.click('.map-voyages');
+  await p.waitForSelector('#screen-chapters[data-active]', { timeout: 5000 });
+  await p.click('.voyage--open');
+  await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
+  check(true, 'the sea map leads back up to the voyages chart');
   check(await p.locator('.isle--locked').count() === 4, 'four islands start under fog');
 
   await p.click('.isle[data-region=arabic]');
@@ -138,6 +149,8 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   await p.waitForTimeout(600);
   check(await p.isVisible('.logo__big'), 'app loads with the network off');
   await p.click('#screen-title [data-go]');
+  await p.click('.voyage--open');
+  await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
   check(await p.locator('.isle').count() === 6, 'map works offline');
   await p.click('.isle[data-region=arabic]');
   await p.waitForSelector('#screen-island[data-active]', { timeout: 6000 });
@@ -163,6 +176,8 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   await p.click('[data-hero=sindbad]');
   await p.click('#select-go');
   await p.click('[data-st=skip]');
+  await p.click('.voyage--open');
+  await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
   await p.click('.isle[data-region=arabic]');
   await p.waitForSelector('#screen-island[data-active]', { timeout: 6000 });
   const maps = await p.evaluate(async () => {

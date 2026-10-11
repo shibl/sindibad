@@ -327,3 +327,16 @@ lesson. No console errors.
     angle sum of a triangle.
 30. [ ] Reuse the new engines: `market` with weights for decimals (fish
     seller), `blocks` for الأفعال الخمسة, `helm` for compass directions.
+
+**Later the same day (owner's requests):**
+- The web game moved into `Web/` (with its tests and tools); `Android/` and
+  `iOS/` are reserved for native apps. The live site still builds from the
+  repository's top folder, so a top-level `index.html` forwards to `Web/`
+  and a top-level `service-worker.js` clears the old offline copy on
+  devices that played before (tested: a returning player lands in `Web/`
+  with progress kept).
+- **Voyages chart** — the meta game: twelve voyages, one per grade, in the
+  brief's four age stages. Voyage 6 holds today's islands; 1–5 and 7–12
+  are locked ("coming soon"). Start and "continue" now lead to the chart;
+  "🗺️ كل الرحلات" on the sea map leads back up.
+31. [ ] Voyage 5 or 7: the next world, reusing the engines (was item 13).
