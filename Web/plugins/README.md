@@ -9,9 +9,10 @@ mini-game architecture" in [`SPEC.md`](../SPEC.md).
 plugins/
   index.js            ← the list of topics to load (one import per topic)
   engines/            ← reusable game mechanics (quiz, sort, number line …)
-  arabic/ math/ science/ social/ review/   ← the grade-6 topics
+  arabic/ math/ social/ review/   ← the grade-6 topics
   agriculture/        ← quick reviews of the farm island's quests
   music/              ← quick reviews of the music island's quests
+  science/            ← quick reviews of the science island's quests
 ```
 
 ## Add a topic in 4 steps
@@ -122,3 +123,8 @@ The music island (`core/tunes/`) works the same way: its quests are in
 music game in `core/tunes/games.js`: keys, staff, rhythm, drum, measure,
 fill, glasses…), and `plugins/music/reviews.js` registers one review topic
 per quest, built from the quest's own questions (`reviewOf()`).
+
+So does the science island (`core/lab/`): quests in `worlds/grade6/lab/`
+(one file per unit of the book), steps from `core/learn/` (explore first,
+then choice, twoway, sort, order, match, tf, number, label), pictures in
+`core/lab/views.js`, and `plugins/science/reviews.js` for the reviews.

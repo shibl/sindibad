@@ -55,6 +55,24 @@ every step; each quest hangs a golden note on the rainbow gate, and ten
 notes play the «sky song». Between quests the piano, the darbuka, the
 metronome and (once made) the glasses can be played freely.
 
+**The science island** («جزيرة العلوم»), after the numbers island: a 3D
+island where the grade-6 science book, semester 1 (العلوم، الفصل الأول),
+is experimented with rather than read. Ten places in four districts, one
+per unit: the forest of life and the pond (relationships, food chains and
+webs, ecosystems, people and the environment); the forces arena with its
+giant spring scale, the three friction slopes and the farm yard (forces,
+friction, work); the glass body dome and the skin pavilion (excretion,
+kidney health, vertebrates, the skin); the builders' ramp, the machines
+square with its noria and قلعة الحصن on the hill (simple machines).
+Seventeen quests, one per lesson. Every quest teaches first («أتعلّم»): the
+book's experiments as pictures you play (pins and a magnet, the spring
+scale, two balls racing, folded paper falling, the kidney as a filter,
+fingerprint detective, marbles pulling a car up a ramp, a flag rising on a
+pulley…), then asks, in the book's own formats (its «أستنتج» sentences,
+sorting, matching, true/false with the fix, sums). The helper «شرارة», a
+little lab robot, explains every step; each quest lights a crystal in the
+lighthouse, and seventeen light its beam.
+
 All numbers in the game are written with the digits 1 2 3 (owner decision
 2026-10-12).
 Lessons are played in different ways: multiple choice, sorting, sailing
@@ -129,10 +147,17 @@ Inside `Web/`:
 - `core/sea/` — the 3D sea map, a preview on the staging copy (`sea.js` the
   sea, ship, fog and camera; `models.js` the islands' landmarks, made in
   code). `core/map.js` picks it or the flat map; both share the island labels.
-- `core/learn/explore.js` — «أتعلّم», the teaching step every 3D island
-  quest opens with: a picture with glowing spots, each tap opens one idea;
-  the questions come when every spot is found. Islands give it their own
-  pictures (the music island's are in `core/tunes/games.js`).
+- `core/learn/` — what every 3D island quest is made of: `explore.js`,
+  «أتعلّم», the teaching step every quest opens with (a picture with glowing
+  spots; each tap opens one idea; the questions come when every spot is
+  found), and `steps.js`, the questions any island can use (choice, the
+  book's «أستنتج» sentences, sort, order, match, true/false, a sum, tap the
+  part). Islands give them their own pictures.
+- `core/lab/` — the 3D science island (`lab.js` game, `games.js` its steps,
+  `views.js` and `views-machines.js` the book's experiments drawn in SVG,
+  `models.js` every model, made in code); its content (stations, seventeen
+  quests) is `worlds/grade6/lab.js` and `worlds/grade6/lab/` (one file per
+  unit), its quick reviews `plugins/science/reviews.js`.
 - `core/tunes/` — the 3D music island (`tunes.js` game, `games.js` the
   little games each quest step is played with, `synth.js` the instruments,
   made with Web Audio, `models.js` every model, made in code); its content

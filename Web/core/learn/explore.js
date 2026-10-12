@@ -24,6 +24,23 @@
 const TEST = typeof window !== 'undefined' && !!window.__SINDBAD_TEST__;
 const bump = (el, cls) => { if (!el) return; el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); };
 
+// A spot drawn in SVG glows (and is tapped) through its .lx-hit rectangle;
+// grow that rectangle to cover everything the spot draws, so a tap anywhere
+// on the part opens it.
+export function fitHits(root) {
+  for (const g of root.querySelectorAll('svg g[data-spot]')) {
+    const hit = g.querySelector(':scope > .lx-hit');
+    if (!hit || !g.getBBox) continue;
+    try {
+      const b = g.getBBox(), pad = 3;
+      const x0 = Math.min(b.x - pad, +hit.getAttribute('x')), y0 = Math.min(b.y - pad, +hit.getAttribute('y'));
+      const x1 = Math.max(b.x + b.width + pad, +hit.getAttribute('x') + +hit.getAttribute('width'));
+      const y1 = Math.max(b.y + b.height + pad, +hit.getAttribute('y') + +hit.getAttribute('height'));
+      hit.setAttribute('x', x0); hit.setAttribute('y', y0); hit.setAttribute('width', x1 - x0); hit.setAttribute('height', y1 - y0);
+    } catch { /* not laid out: keep the drawn rectangle */ }
+  }
+}
+
 function cardHTML(s, art) {
   const pic = s.art && art[s.art] ? `<span class="lx-card__art">${art[s.art]}</span>` : s.icon ? `<span class="lx-card__icon">${s.icon}</span>` : '';
   return `<button class="lx-card" data-spot="${s.id}">${pic}<span class="lx-card__label">${s.label ?? s.title}</span><i class="lx-tick" aria-hidden="true">✓</i></button>`;
@@ -73,8 +90,11 @@ export function explore(step, host, ctx, resolve, { views = {}, onSpot = null, a
     const picHTML = s.art && art[s.art] ? `<span class="lx-note__art">${art[s.art]}</span>` : s.icon ? `<span class="lx-note__icon">${s.icon}</span>` : '';
     note.innerHTML = `<div class="lx-note__card">${picHTML}<div><b class="lx-note__t">${s.title}</b><p>${s.text}</p></div></div>`;
     bump(note.firstElementChild, 'is-pop');
+    // A part of the picture shows its name once found: its label, or a
+    // short title.
     const label = el.querySelector('.lx-label');
-    if (label && s.label != null) label.textContent = s.label;
+    const name = s.label ?? (s.title.length <= 16 ? s.title : null);
+    if (label && name != null) label.textContent = name;
     onSpot?.(s, el, host);
     if (s.say) ctx.say(s.say);
   };
@@ -114,6 +134,7 @@ export function explore(step, host, ctx, resolve, { views = {}, onSpot = null, a
     if (el && el.tagName !== 'BUTTON' && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); tap(el); }
   });
   mount?.(host, step, tap);
+  fitHits(host);
   if (step.say) ctx.say(step.say);
   mark();
 }

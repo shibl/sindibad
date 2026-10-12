@@ -133,6 +133,51 @@ light.
   a short message instead.
 - Content: `Web/worlds/grade6/tunes.js`; engine: `Web/core/tunes/`.
 
+### The science island (3D)
+*(Decision 2026-10-13.)* The science island («جزيرة العلوم», after the
+numbers island) is no longer walkable: it is a 3D island where the grade-6
+science book, semester 1 («العلوم»، الفصل الأول، 2025–2026), is played. The
+owner asked for it to be "creative and great", with a high-end design, and
+that children are taught before they are asked.
+- **Look:** a bright morning island of white Syrian limestone terraces
+  stepping up to قلعة الحصن on its hill, in a turquoise sea; each place on a
+  white plinth trimmed in its unit's colour (green: living things, orange:
+  forces, rose: my body, blue: simple machines). A lighthouse at the
+  harbour holds one crystal per quest.
+- **Ten places, seventeen quests (one per lesson):** the forest of life and
+  the pond (relationships between living things; food chains and webs; the
+  ecosystem and people); the forces arena, the friction slopes and the farm
+  yard (forces, the spring scale and resultant, friction, work); the body
+  dome and the skin pavilion (excretion and the urinary system, its health,
+  vertebrates; the skin and its health); the builders' ramp, the machines
+  square with a turning noria, and قلعة الحصن (inclined plane, wedge, screw;
+  levers; pulleys; wheel and axle; compound machines).
+- **Taught first:** every quest opens with «أتعلّم», and every new idea is
+  taught before it is asked: the book's own experiments drawn as pictures
+  the child plays (core/lab/views.js) — pins and a magnet, a toy car on a
+  table with its action and reaction arrows, the spring scale, the force
+  arrow, two balls racing, a cube on glass, wood and felt, folded paper
+  falling, the kidney as a filter, the kidney cut, fingerprint detective,
+  the skin block, marbles pulling a car up a ramp, a wedge splitting a
+  rock, a ruler lifting a book, a flag on a pulley, pulleys with spring
+  scales, a door knob… Then the book's own question formats
+  (core/learn/steps.js): its «أستنتج» sentences (two words to choose from),
+  sorting, ordering, matching, true/false with the fix, a typed sum
+  (W = F × d), tapping the named part of a diagram.
+- **Helper and rewards:** «شرارة», a little lab robot, explains every step
+  and hints; after two misses the answer glows. A finished quest records
+  stars for its topic (`plugins/science/reviews.js`: the quick reviews) and
+  lights a crystal; seventeen light the lighthouse's beam. Six stickers
+  (Newton, Joule, the kidney hospital, fingerprints, the Sumerian wheel,
+  قلعة الحصن). Between quests the seesaw, the crane and the noria move when
+  tapped.
+- **The old walkable science island** (matter, planets, the body, light,
+  plants, electricity, machines; Ibn al-Nafis and the astronomer Maryam)
+  was retired with this decision; it is in the git history if semester 2
+  needs any of it.
+- Content: `Web/worlds/grade6/lab.js` and `Web/worlds/grade6/lab/`; engine:
+  `Web/core/lab/`, `Web/core/learn/`.
+
 ### Numbers: the digits 1 2 3
 *(Decision 2026-10-12.)* The game writes every number with the digits
 0123456789 («الأرقام العربية»), not ٠١٢٣٤٥٦٧٨٩, with a dot for decimals —
