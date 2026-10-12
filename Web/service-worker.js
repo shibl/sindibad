@@ -5,7 +5,7 @@
 // file run `node tools/update-shell.mjs` (tests/check-shell.mjs fails if you
 // forget). A new version makes clients download the new files once.
 
-const CACHE_VERSION = 'b1f56d7548';
+const CACHE_VERSION = 'f313b1079e';
 // The staging copy (under /staging/, see core/env.js) keeps its own offline
 // copy, so it never clears the live game's, nor the live game its.
 const CACHE_PREFIX = /\/staging\//.test(self.location.pathname) ? 'sindbad-staging-' : 'sindbad-web-';
@@ -26,6 +26,9 @@ const APP_SHELL = [
   'core/chapters.js',
   'core/env.js',
   'core/family.js',
+  'core/farm/farm.js',
+  'core/farm/models.js',
+  'core/farm/scene.js',
   'core/finale.js',
   'core/format.js',
   'core/fx.js',
@@ -36,13 +39,26 @@ const APP_SHELL = [
   'core/overworld.js',
   'core/ranks.js',
   'core/save.js',
+  'core/sea/models.js',
+  'core/sea/sea.js',
   'core/settings.js',
   'core/shop.js',
   'core/sound.js',
   'core/stickers.js',
   'core/story.js',
   'core/topics.js',
+  'core/tunes/games.js',
+  'core/tunes/models.js',
+  'core/tunes/synth.js',
+  'core/tunes/tunes.js',
   'core/voice.js',
+  'plugins/agriculture/bees.js',
+  'plugins/agriculture/beet.js',
+  'plugins/agriculture/cheese.js',
+  'plugins/agriculture/cotton.js',
+  'plugins/agriculture/cow.js',
+  'plugins/agriculture/potato.js',
+  'plugins/agriculture/tomato.js',
   'plugins/arabic/build.js',
   'plugins/arabic/fael-mafool.js',
   'plugins/arabic/five-verbs.js',
@@ -74,6 +90,7 @@ const APP_SHELL = [
   'plugins/math/market.js',
   'plugins/math/percent.js',
   'plugins/math/ratio.js',
+  'plugins/music/reviews.js',
   'plugins/review/pools.js',
   'plugins/review/treasure.js',
   'plugins/science/body.js',
@@ -91,10 +108,13 @@ const APP_SHELL = [
   'worlds/chapters.js',
   'worlds/grade6.js',
   'worlds/grade6/arabic.js',
+  'worlds/grade6/farm.js',
   'worlds/grade6/math.js',
   'worlds/grade6/science.js',
   'worlds/grade6/social.js',
   'worlds/grade6/treasure.js',
+  'worlds/grade6/tunes.js',
+  'vendor/three/three.module.min.js',
   'fonts/baloo-bhaijaan-2-arabic-500-normal.woff2',
   'fonts/baloo-bhaijaan-2-arabic-800-normal.woff2',
   'fonts/baloo-bhaijaan-2-latin-500-normal.woff2',
@@ -108,7 +128,9 @@ const APP_SHELL = [
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(APP_SHELL))
+      // Straight from the server: the browser's own short-lived cache could
+      // still hold the previous version's files.
+      .then(cache => cache.addAll(APP_SHELL.map(url => new Request(url, { cache: 'reload' }))))
       .then(() => self.skipWaiting())
   );
 });

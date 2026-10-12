@@ -1,7 +1,9 @@
 // The sticker album (ألبوم الملصقات): six collectible stickers per island,
 // each with a short true fact. Stickers come from helping villagers,
 // chests, stepping-stone puzzles and monuments on each island; the treasure
-// island's come from its quest, its monument and the four subject badges.
+// island's come from its quest, its monument and the four subject badges;
+// the farm's and the music island's from their quests (core/farm/farm.js,
+// core/tunes/tunes.js).
 
 import { save } from './save.js';
 import { sfx } from './sound.js';
@@ -39,6 +41,22 @@ export const STICKERS = {
     ['horse', '🐎', 'الحصان العربي', 'من أقدم سلالات الخيل وأجملها، يشتهر بالسرعة والصبر.'],
     ['umayyad', '🕌', 'الجامع الأموي', 'في قلب دمشق القديمة، بُني قبل أكثر من ألف وثلاثمئة سنة.'],
   ],
+  farm: [
+    ['damask-rose', '🌹', 'الوردة الشامية', 'الزهرة الوطنية للجمهورية العربية السورية، ومنها يُستخرج زيت الورد العطري.'],
+    ['shami-cow', '🐄', 'البقرة الشامية', 'سلالة سورية قديمة من أبقار الحليب، تعطي 3000–4000 لتر من الحليب في الموسم.'],
+    ['honeybee', '🐝', 'نحلة العسل', 'لتصنع نصف كيلو من العسل يزور النحل نحو مليوني زهرة!'],
+    ['cotton', '☁️', 'القطن', 'يُسمّى «الذهب الأبيض»، وهو من أهم المحاصيل النقدية في سورية.'],
+    ['sugar-beet', '🍬', 'الشوندر السكري', 'يُزرع في سورية في ثلاث عروات، فتعمل معامل السكر طوال السنة.'],
+    ['silkworm', '🐛', 'دودة القزّ', 'لا تأكل إلا ورق التوت، وتغزل شرنقتها من خيط حرير طوله 800–1500 متر!'],
+  ],
+  music: [
+    ['qabbani', '🎭', 'أبو خليل القبّاني', 'من أوائل من أنشؤوا المسرح العربي التمثيلي، وكان له أثر في إنشاء مسرح تمثيلي في دمشق.'],
+    ['guido', '📜', 'غيدو الآريزي', 'سمّى درجات السلّم من أول حرفين في أشطر أنشودة قديمة: Ut Re Mi Fa Sol La.'],
+    ['glasses', '🥛', 'آلة الأكواب', 'نصنعها من 8 أكواب فيها ماء بنسب مختلفة: كلما قلّ الماء في الكوب ارتفع صوته.'],
+    ['sunbati', '🎶', 'رياض السنباطي', 'ملحّن مصري تميّز بتلحين القصيدة العربية، وبلغت مؤلفاته الغنائية 539 عملاً.'],
+    ['panflute', '🪈', 'البان فلوت', 'آلة تطوّرت عن الناي، فيها من 20 إلى 30 قصبة متلاصقة.'],
+    ['mendelssohn', '🎹', 'مندلسون', 'بدأ العزف على البيانو في السادسة، وقاد أوركسترا في العشرين.'],
+  ],
   treasure: [
     ['turtle', '🐢', 'السلحفاة البحرية', 'تعود السلحفاة البحرية إلى الشاطئ الذي وُلدت فيه لتضع بيضها.'],
     ['coral', '🪸', 'المرجان', 'المرجان حيوانات صغيرة تبني بيوتاً صلبة تصير شِعاباً ملوّنة.'],
@@ -53,11 +71,11 @@ export const TOTAL = Object.values(STICKERS).reduce((a, l) => a + l.length, 0);
 export const owned = () => save.get().stickers || [];
 
 // Give the next sticker from an island's set (if any are left) and show a
-// little toast. Returns the sticker or null.
-export function awardSticker(islandId) {
+// little toast — or, with `id`, that sticker. Returns the sticker or null.
+export function awardSticker(islandId, id = null) {
   const pool = STICKERS[islandId] || [];
   const have = owned();
-  const next = pool.find(([id]) => !have.includes(id));
+  const next = pool.find(([sid]) => !have.includes(sid) && (!id || sid === id));
   if (!next) return null;
   save.update(s => { s.stickers = [...(s.stickers || []), next[0]]; });
   toast(next);
@@ -116,4 +134,4 @@ export function openAlbum(regions) {
     }
   };
 }
-const num = n => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+const num = n => String(n);

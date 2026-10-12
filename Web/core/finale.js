@@ -29,7 +29,7 @@ function fireworks(n = 7) {
 export function certificateHTML({ stars, max }) {
   const s = save.get();
   const hero = s.hero || 'sindbad';
-  const date = new Date(s.finale?.at || Date.now()).toLocaleDateString('ar-SY', { year: 'numeric', month: 'long', day: 'numeric' });
+  const date = new Date(s.finale?.at || Date.now()).toLocaleDateString('ar-SY-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' });
   return `
     <div class="cert" role="document">
       <div class="cert__inner">

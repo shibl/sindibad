@@ -10,6 +10,8 @@ plugins/
   index.js            ← the list of topics to load (one import per topic)
   engines/            ← reusable game mechanics (quiz, sort, number line …)
   arabic/ math/ science/ social/ review/   ← the grade-6 topics
+  agriculture/        ← quick reviews of the farm island's quests
+  music/              ← quick reviews of the music island's quests
 ```
 
 ## Add a topic in 4 steps
@@ -64,7 +66,7 @@ the island's badge, unlocks the next island, and joins spaced review.
 | `say(html, mood)` | Hudhud speaks; mood `happy` · `think` · `cheer` · `oops` |
 | `progress(i, n)` | move the progress rope |
 | `sfx.tap/good/bad/win()` | built-in sound effects (no files needed) |
-| `num(n)` | Arabic-Indic digits: `num(3.5)` → `٣٫٥` |
+| `num(n)` | a number for display, digits 1 2 3: `num(-3.5)` → `−3.5` |
 | `signal` | an `AbortSignal` fired if the student leaves mid-lesson |
 
 ## Engines you can reuse
@@ -91,8 +93,32 @@ plural tables, icon cards, planets, angles.
 
 - **Hints never give the answer away.** They point to the rule or a
   question to ask yourself. After two tries Hudhud shows and explains it.
-- Use the Syrian curriculum's terms and Arabic-Indic digits (`num()`).
+- Use the Syrian curriculum's terms, and the digits 1 2 3 (`num()`).
 - Keep everything local: no network fetches, small emoji/SVG instead of
   big images. The whole grade must stay well under 35 MB.
 - Mark new content as draft until a Syrian educator has reviewed it.
 - Licences: code MIT/GPL; educational content and art CC-BY-SA.
+
+## Quests played outside the lesson screen (the farm, the music island)
+
+The farm island (`core/farm/`) is a 3D game, not a lesson screen. Each of
+its quests is still a topic (`plugins/agriculture/`, region `farm`), so it
+earns stars, counts toward the island's badge and joins spaced review.
+When a quest ends, the farm records the result itself:
+
+```js
+import { recordResult } from '../core/lesson.js';
+recordResult('farm-potato', { correct, total });   // → { stars, pearls }
+```
+
+(`correct` = jobs done right the first time, `total` = all jobs.) The
+topic's own `render` is a short quiz or sort: the review that comes back
+days later. Adding a farm quest: a crop or task in
+`worlds/grade6/farm.js` (steps, choices, the book's facts), a quest in
+`QUESTS`, and its review topic here.
+
+The music island (`core/tunes/`) works the same way: its quests are in
+`worlds/grade6/tunes.js` (a list of steps per quest, each drawn by a small
+music game in `core/tunes/games.js`: keys, staff, rhythm, drum, measure,
+fill, glasses…), and `plugins/music/reviews.js` registers one review topic
+per quest, built from the quest's own questions (`reviewOf()`).

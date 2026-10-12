@@ -83,7 +83,7 @@ export function runRounds({ container, ctx, items, onComplete, renderRound, intr
         streak = attempts === 0 ? streak + 1 : 0;
         best = Math.max(best, streak);
         const hit = stage.querySelector('.is-right');
-        if (hit) burst(hit, attempts === 0 ? '+١' : '');
+        if (hit) burst(hit, attempts === 0 ? '+1' : '');
         combo(container, streak);
         if (streak >= 3) setTimeout(() => ctx.sfx.star(Math.min(streak - 3, 4)), 250);
         const praise = PRAISE[Math.floor(Math.random() * PRAISE.length)].replace('{name}', ctx.heroName);
@@ -159,7 +159,7 @@ function combo(container, n) {
   let el = host.querySelector('.combo');
   if (n < 2) { el?.classList.remove('is-on'); return; }
   if (!el) { el = document.createElement('div'); el.className = 'combo'; el.setAttribute('aria-hidden', 'true'); host.append(el); }
-  el.innerHTML = `<b>🔥 ×${'٠١٢٣٤٥٦٧٨٩'[n] || n}</b><small>${COMBO_WORDS[Math.min(n, 5)]}</small>`;
+  el.innerHTML = `<b>🔥 ×${n}</b><small>${COMBO_WORDS[Math.min(n, 5)]}</small>`;
   el.classList.remove('is-on'); void el.offsetWidth; el.classList.add('is-on');
   el.dataset.level = Math.min(n, 5);
 }

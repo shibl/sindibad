@@ -29,7 +29,7 @@
 //   ctx.say(html, mood?)   Hudhud speaks; mood: 'happy' | 'think' | 'cheer' | 'oops'
 //   ctx.progress(i, n)     update the progress bar (i of n done)
 //   ctx.sfx.tap() / good() / bad() / win()
-//   ctx.num(n)             format a number with Arabic-Indic digits (٣٫٥)
+//   ctx.num(n)             format a number for display (−3.5)
 //   ctx.signal             AbortSignal fired when the student leaves early —
 //                          pass it to addEventListener / clear timers on it.
 

@@ -60,6 +60,95 @@ also mean a school term. Content: `Web/worlds/chapters.js`.
 - Finishing a level's full curriculum removes the "fog of war" for that
   grade's map.
 
+### The farm island (3D)
+*(Decision 2026-10-12.)* Next to the home port sits «مزرعتي السعيدة», a
+farm in the spirit of Hay Day where the grade-6 agriculture book
+(«التربية الزراعية») is played instead of read. It is open from the start
+and has its own badge. Each quest is one lesson of the book: the tool tray
+is the question (the right job, in the book's order: plough, manure, plant,
+water, hoe, hill up, stake, thin, stop watering, harvest, top…), small
+choices check the book's facts (the potato piece with two buds, 85 °C then
+42 °C for cheese, a balanced meal, the queen bee), and the helper explains
+every step. A finished quest records stars for its topic like a lesson.
+- **Helpers:** the child picks a companion: a bee, a cow, a puppy or a
+  kitty. Each gives hints in its own voice and has its own special moments
+  tied to the book (the bee pollinates flowers, the kitty chases field
+  mice: biological pest control…). No helper locks or unlocks content.
+- **No real-time waiting** (owner decision on time-based features): plants
+  grow when they have been cared for, and the weeks in the book pass in a
+  short day–night time-lapse that names the real duration.
+- **Economy:** harvests go to the barn and are sold by ship (orders from
+  islanders, from the book's lesson on marketing products). Coins buy
+  decorations only (the Damask rose, the jasmine arch…), never answers.
+- **Technology:** three.js (MIT, kept in `Web/vendor/three/`, loaded only
+  when a child sails to the farm); every model is made in code. Light
+  enough for budget phones: merged meshes, no shadows in lite mode. Phones
+  without WebGL see a short message instead.
+- Content: `Web/worlds/grade6/farm.js`; engine: `Web/core/farm/`.
+
+### The music island (3D)
+*(Decision 2026-10-12.)* Off the letters island, open from the start, sits
+«جزيرة الأنغام», where the grade-6 music book («التربية الموسيقية»،
+2025–2026) is played with real sound instead of read. The owner asked for
+it to be creative, artistic and engaging, and allowed a different vibe from
+the rest of the game: a tall **toy diorama** island (inspired by the look of
+city-builder board games: each landmark on its own raised base, terraces, a
+winding path, puffy trees, tiny people, festival bunting) in warm sunset
+light.
+- **Eight places, ten quests:** the giant grand piano (the major scale;
+  sharps, flats and key signatures), the theatre after Bosra's (musical
+  theatre, Abu Khalil al-Qabbani, the monologue, the voice and the choir;
+  the Longa, the fugue, Mendelssohn, Western forms), the drum circle (the
+  rhythm circle, note values, measures, complete measures), the metronome
+  tower (tempo terms, with the book's note-car racing at the tempo), the
+  cloud over the grand staff (raining notes onto the staff), the music
+  library (Guido's note names, the letters A–G, the card game), the glass
+  pavilion (project 2: tune eight glasses by the book's fractions, then
+  play them) and the harbour (folk instruments of the world, our heritage).
+  Together they cover the book's twenty lessons and its projects.
+- **Played, not read:** each quest is a few steps drawn by small music
+  games — play notes on a keyboard, mark whole and half tones, tap a
+  note's place on the staff, hear a rhythm and pick its card or tap it on
+  the drum, fill a measure, fill a glass to a fraction, sort forms. Every
+  sound is made live with Web Audio (no sound files). The helper «نغمة», a
+  purple note, explains every step and gives hints; after two misses the
+  answer glows. A finished quest records stars for its topic like a lesson
+  (`plugins/music/`: the quick reviews spaced repetition brings back).
+- **Rewards:** each quest hangs a golden note on the rainbow-staff gate;
+  ten notes play the «sky song». Six stickers come from the quests. Between
+  quests the island is a toy: the piano, the darbuka, the metronome and
+  (once made) the glasses can be played freely. No coins, no waiting.
+- **Technology:** like the farm (three.js, every model in code, the farm's
+  camera and light in `core/farm/scene.js`); merged meshes, about 80 draw
+  calls, no shadows and fewer trees in lite mode. Phones without WebGL see
+  a short message instead.
+- Content: `Web/worlds/grade6/tunes.js`; engine: `Web/core/tunes/`.
+
+### Numbers: the digits 1 2 3
+*(Decision 2026-10-12.)* The game writes every number with the digits
+0123456789 («الأرقام العربية»), not ٠١٢٣٤٥٦٧٨٩, with a dot for decimals —
+as the new grade-6 music book does. `num()` in `Web/core/format.js` is the
+one place that formats numbers; content files write 1 2 3 directly.
+
+### The 3D sea map (preview)
+*(Decision 2026-10-12: a preview to compare, not yet decided.)* The owner
+asked whether grade 6 needs a new theme. Recommendation taken: keep the sea
+voyage story (Sindbad, Yasmina, Hudhud, the islands) and update the look,
+starting with the sea map in 3D, in the same style as the farm.
+- **Where:** on the staging copy only, the sea map is drawn in 3D by default,
+  with a "2D / 3D" button to compare it with the flat map. The live game
+  keeps the flat map until the developers decide. `?map=3d` or `?map=2d`
+  picks one on any copy.
+- **Same map, same rules:** the same islands, routes, fog, beacon, ship and
+  labels as the flat map; each island's landmark is the flat map's drawing
+  made in 3D (Arwad's fort, the striped Damascene gate, the lighthouse, the
+  volcano, the Citadel of Aleppo, the farm, the treasure). Day, sunset and
+  night follow the device clock. The islands' names stay HTML labels on top,
+  so they stay crisp and screen readers find them.
+- **Fallbacks:** phones without WebGL, or if the 3D sea fails to load, get
+  the flat map. Lite mode: no shadows, about 30 frames a second.
+- Engine: `Web/core/sea/`; switching: `Web/core/map.js`.
+
 ### Characters
 - The player **chooses their hero** at the start: **Sindbad** (سندباد, a boy)
   or **Yasmina** (ياسمينة, a girl). Both are full playable heroes with the

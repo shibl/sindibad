@@ -29,7 +29,7 @@ export function grid100(p, color = '#1f9aa0') {
     const x = (i % 10) * 20, y = Math.floor(i / 10) * 20;
     cells += `<rect x="${x}" y="${y}" width="20" height="20" fill="${i < p ? color : '#fff'}" stroke="#3b2414" stroke-width="1.5"/>`;
   }
-  return `<div class="viz viz--grid"><svg viewBox="-2 -2 204 204" dir="ltr">${cells}<rect x="0" y="0" width="200" height="200" fill="none" stroke="#3b2414" stroke-width="4"/></svg><span class="viz__cap">${num(p)}٪</span></div>`;
+  return `<div class="viz viz--grid"><svg viewBox="-2 -2 204 204" dir="ltr">${cells}<rect x="0" y="0" width="200" height="200" fill="none" stroke="#3b2414" stroke-width="4"/></svg><span class="viz__cap">${num(p)}%</span></div>`;
 }
 
 // A mini number line from 0 to max with `ticks` steps and a flag at value.

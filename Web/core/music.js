@@ -27,6 +27,8 @@ const THEMES = {
   science: { maqam: 'nahawand', tonic: 220, bpm: 100 },
   social: { maqam: 'hijaz', tonic: 196, bpm: 92 },
   treasure: { maqam: 'saba', tonic: 208, bpm: 80 },
+  farm: { maqam: 'ajam', tonic: 220, bpm: 96 },
+  music: { maqam: 'ajam', tonic: 262, bpm: 88 },   // عجم on C: in tune with the island's piano
 };
 
 // Maqsum: dum tak - tak dum - tak -  (8 eighth notes)

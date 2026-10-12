@@ -44,9 +44,10 @@ against?
   review by Syrian educators" at the top of the file. Teacher review comes
   later; for now the developers decide what goes live.
 - **Match the game.** Same cartoon style, the colour tokens in `style.css`,
-  the bundled font, Arabic-Indic digits through `num()`, right-to-left.
+  the bundled font, the digits 1 2 3 through `num()` (owner decision
+  2026-10-12), right-to-left.
 - **Arabic text**: check that the counted noun agrees with the number
-  (٣ دراهم، ١٥ درهماً، ٢٠٠ درهم). Use the generic imperative (اضغط، فكّر).
+  (3 دراهم، 15 درهماً، 200 درهم). Use the generic imperative (اضغط، فكّر).
   Hints point to the rule; they never give the answer away.
 - **Small phones first.** Most players have 360-px-wide Android phones.
   The question and its main buttons must be visible without scrolling at
@@ -78,9 +79,10 @@ against?
 ## 5. Preview, then ship
 
 1. Run a local server from the repo root: `python3 -m http.server 8000`,
-   then open <http://localhost:8000/> (it forwards to `Web/`). If you see
-   an old version, reload once more: the offline cache updates in the
-   background.
+   then open <http://localhost:8000/> (it forwards to `Web/`). The game
+   shows its offline copy first and fetches a new version in the
+   background; it then reloads by itself on the title screen or the maps
+   (never mid-lesson). Elsewhere, reload once more to see it.
 2. Commit only the files of this change; never sweep in unrelated local
    edits.
 3. **Staging**: push to the `staging` branch. GitHub runs the tests; if

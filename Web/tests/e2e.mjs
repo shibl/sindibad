@@ -5,6 +5,15 @@
 //   the app (and the island) still load with the network off → no errors. Runs at phone and tablet sizes.
 //   Then: every island map is walkable, and the newer kinds of play (steer,
 //   pay, fill, build) can be played to three stars and fit a phone screen.
+//   The farm island (3D): choose a helper, play the potato quest to three
+//   stars, sell to the ship, keep it all after a reload, and play offline.
+//   The music island (3D): its quests are well formed, the piano lesson and
+//   the rhythm lesson (with the drum) play to the end, golden notes, reload,
+//   offline.
+//   The 3D sea map (a staging preview): fog, labels, the flat/3D button,
+//   sailing ashore, the fog lifting, offline; the live game keeps the flat map.
+//   A new version shows up by itself for players who already have the game,
+//   and the game falls silent in another tab.
 //   And the staging copy (under /staging/) keeps its own saves and offline copy.
 //
 //   npm install      (once, installs Playwright)
@@ -21,12 +30,15 @@ import { chromium } from 'playwright';
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.woff2': 'font/woff2' };
 
+let nextVersion = null;
 const server = createServer(async (req, res) => {
   // /staging/… serves the same files, like the staging copy on the website.
   const path = normalize(decodeURIComponent(new URL(req.url, 'http://x').pathname)).replace(/^([/\\])+/, '').replace(/^staging[/\\]/, '');
   const file = path || 'index.html';
   try {
-    const body = await readFile(join(ROOT, file));
+    let body = await readFile(join(ROOT, file));
+    // Tests can publish a "new version": same files, another version number.
+    if (file === 'service-worker.js' && nextVersion) body = String(body).replace(/const CACHE_VERSION = '[^']*';/, `const CACHE_VERSION = '${nextVersion}';`);
     res.writeHead(200, { 'content-type': TYPES[extname(file)] || 'application/octet-stream' });
     res.end(body);
   } catch { res.writeHead(404); res.end(); }
@@ -153,7 +165,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   await p.click('#screen-title [data-go]');
   await p.click('.voyage--open');
   await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
-  check(await p.locator('.isle').count() === 6, 'map works offline');
+  check(await p.locator('.isle').count() === (await import('../worlds/grade6.js')).default.regions.length + 1, 'map works offline');
   await p.click('.isle[data-region=arabic]');
   await p.waitForSelector('#screen-island[data-active]', { timeout: 6000 });
   check(true, 'the island works offline');
@@ -189,7 +201,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
     const { enterIsland, debugFits } = await import('/core/overworld.js');
     const world = (await import('/worlds/grade6.js')).default;
     const out = [];
-    for (const { id } of world.regions) {
+    for (const { id } of world.regions.filter(r => !r.kind)) {
       const def = (await import(`/worlds/grade6/${id}.js`)).default;
       enterIsland(def, world.regions.find(r => r.id === id));
       const nx = Math.round(def.tiles[0].length / STEP), ny = Math.round(def.tiles.length / STEP);
@@ -249,7 +261,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   await p.click('[data-hero=yasmina]');
   await p.click('#select-go');
   await p.click('[data-st=skip]');
-  for (const id of ['math-angles', 'math-market', 'math-equivalent', 'arabic-build']) {
+  for (const id of ['math-angles', 'math-market', 'math-equivalent', 'arabic-build', 'farm-cow', 'farm-cheese']) {
     await p.evaluate(id => import('/core/lesson.js').then(m => m.startLesson(id)), id);
     await p.waitForSelector('#screen-activity[data-active]', { timeout: 5000 });
     while (await p.locator('[data-learn=next]').count()) await p.click('[data-learn=next]');
@@ -262,6 +274,323 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
     await p.click('[data-result=map]');
   }
   check(errors.length === 0, `no console errors${errors.length ? `: ${errors.join(' | ')}` : ''}`);
+  await ctx.close();
+}
+
+// The farm island: a 3D farm where the agriculture book is played.
+{
+  console.log('— farm island');
+  const { CROPS, TASKS, QUESTS } = await import('../worlds/grade6/farm.js');
+  const tools = Object.keys((await import('../worlds/grade6/farm.js')).TOOLS);
+  const all = [...Object.values(CROPS), ...Object.values(TASKS)];
+  check(all.every(d => d.steps.every(st => [].concat(st.do).every(t => tools.includes(t) && d.tools.includes(t)))), 'farm: every step\'s job is in its tool tray');
+  check(all.every(d => d.steps.every(st => !st.pick || (st.pick.type === 'dial' ? st.pick.target >= st.pick.min && st.pick.target <= st.pick.max : st.pick.type === 'order' || st.pick.type === 'oneEach' || st.pick.options.some(o => o.ok)))), 'farm: every choice has a right answer');
+  check(QUESTS.every(q => (q.crop ? CROPS[q.crop] : TASKS[q.task])), 'farm: every quest has its crop or task');
+
+  // The farm needs WebGL. On a machine without a graphics card (like the
+  // test server) Chromium may draw it in software only if allowed to.
+  const gl = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  const ctx = await gl.newContext({ viewport: { width: 390, height: 844 } });
+  await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
+  const p = await ctx.newPage();
+  const errors = [];
+  p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+  p.on('pageerror', e => errors.push(e.message));
+  await p.goto(URL_);
+  await p.evaluate(() => navigator.serviceWorker.ready);
+  await p.click('text=ابدأ الرحلة');
+  await p.fill('#child-name', 'سارة');
+  await p.click('#who-form [type=submit]');
+  await p.waitForSelector('#screen-select[data-active]', { timeout: 5000 });
+  await p.click('[data-hero=yasmina]');
+  await p.click('#select-go');
+  await p.click('[data-st=skip]');
+  await p.click('.voyage--open');
+  await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
+  check(await p.locator('.isle[data-region=farm]:not(.isle--locked)').count() === 1, 'the farm island is open from the start');
+  await p.click('.isle[data-region=farm]');
+  await p.waitForSelector('#screen-farm[data-active]', { timeout: 20000 });
+  check(await p.locator('#farm-stage canvas').count() === 1, 'sailing to the farm opens the 3D farm');
+  await p.waitForSelector('#farm-modal [data-helper]', { timeout: 10000 });
+  check(await p.locator('#farm-modal [data-helper]').count() === 4, 'four helpers to choose from');
+  await p.click('#farm-modal [data-helper][data-ok]');
+  const farm = () => p.evaluate(() => window.__farm());
+  check((await farm()).F.helper === 'kitty', 'the chosen helper is saved');
+  const place = id => p.locator(`#farm-places [data-place="${id}"]`).dispatchEvent('click');
+  await place((await farm()).place);
+  await p.waitForSelector('#farm-tray:not([hidden]) [data-tool]', { timeout: 5000 });
+  await p.click('#farm-tray [data-tool=harvest]');
+  let s = await farm();
+  const plot = s.F.plots.find(x => x.run);
+  check(plot?.run.step === 0 && (await p.textContent('#farm-say .bubble')).length > 10, 'a wrong job: the helper explains, the field waits');
+  const fits = await p.evaluate(() => {
+    const b = document.querySelector('#farm-say .bubble').getBoundingClientRect(), t = document.getElementById('farm-tray').getBoundingClientRect();
+    return b.bottom <= t.top + 1 && t.bottom <= innerHeight + 1;
+  });
+  check(fits, 'the tool tray and the helper\'s words fit a phone screen');
+  // Play on: the right job, the right choice. One wrong job was made, so two stars.
+  let done = false;
+  for (let i = 0; i < 300 && !done; i++) {
+    if (await p.isVisible('#farm-modal .fm-done')) { done = true; break; }
+    const ok = p.locator('#farm-pick:not([hidden]) [data-ok], #farm-pick:not([hidden]) [data-step]');
+    if (await ok.count()) { await ok.first().click({ timeout: 2000 }).catch(() => {}); await p.waitForTimeout(60); continue; }
+    const tool = p.locator('#farm-tray:not([hidden]):not(.is-busy) [data-tool][data-ok]');
+    if (await tool.count()) { await tool.first().click({ timeout: 2000 }).catch(() => {}); await p.waitForTimeout(80); continue; }
+    await p.waitForTimeout(120);
+  }
+  check(done, 'the potato quest can be played to the end');
+  const stars = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')).topics['farm-potato']?.stars);
+  check(stars === 2, `one wrong job, then all right: 2 stars (got ${stars})`);
+  await p.click('#farm-modal [data-close]');
+  s = await farm();
+  check(s.quest === 'tomato' && s.F.inv.potato >= 6, 'harvest in the barn; the next quest opens');
+  await p.click('[data-bar=orders]');
+  const before = s.F.coins;
+  await p.click('#farm-modal [data-deliver]:not([disabled])');
+  s = await farm();
+  check(s.F.coins > before && s.F.inv.potato < 6, 'an order sold by ship earns coins');
+  await p.reload();
+  await p.waitForTimeout(500);
+  const kept = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')).world.farm);
+  check(kept.helper === 'kitty' && kept.quest === 1, 'the farm survives a reload');
+  await ctx.setOffline(true);
+  await p.reload();
+  await p.waitForTimeout(600);
+  await p.click('#screen-title [data-go]');
+  await p.click('.voyage--open');
+  await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
+  await p.click('.isle[data-region=farm]');
+  await p.waitForSelector('#screen-farm[data-active]', { timeout: 20000 });
+  check(await p.locator('#farm-stage canvas').count() === 1 && !(await p.isVisible('#farm-modal [data-helper]')), 'the farm works offline, with its helper');
+  check(errors.length === 0, `no console errors${errors.length ? `: ${errors.join(' | ')}` : ''}`);
+  await ctx.close();
+  await gl.close();
+}
+
+// The music island: a 3D toy island where the music book is played.
+{
+  console.log('— music island');
+  const { QUESTS, STATIONS, GLASSES, reviewOf } = await import('../worlds/grade6/tunes.js');
+  const glassIds = GLASSES.map(g => g.id);
+  const piano = n => /^(C|C#|D|D#|E|F|F#|G|G#|A|A#|B)4$|^C5$/.test(n);
+  const okStep = s => ({
+    learn: () => !!s.title && !!s.html,
+    choice: () => s.options.length >= 2 && new Set(s.options).size === s.options.length && (!s.art || s.art.length === s.options.length),
+    keys: () => s.play.length > 0 && s.play.every(piano),
+    gaps: () => true, pattern: () => true,
+    staff: () => s.drops.every(([n]) => /^[A-G][2-5]$/.test(n)),
+    name: () => /^[A-G][2-5]$/.test(s.note) && s.options.length >= 2,
+    order: () => s.items.length >= 3 && new Set(s.items).size === s.items.length && (!s.sound || s.sound.length === s.items.length),
+    rhythm: () => !s.others.includes(s.pattern), drum: () => !!s.pattern,
+    measure: () => s.given.reduce((b, t) => b + ({ w: 4, h: 2 }[t] || 1), 0) < s.beats,
+    sort: () => s.items.every(([, b]) => s.bins.some(x => x.id === b)),
+    fill: () => glassIds.includes(s.glass) && s.n > 0 && s.n <= s.d,
+    glasses: () => s.play.every(g => glassIds.includes(g)),
+  }[s.kind]?.() && (s.kind === 'learn' || !!s.hint));
+  check(QUESTS.every(q => STATIONS[q.station] && q.steps.every(okStep)), 'music: every step is well formed (notes on the piano, a right answer, a hint)');
+  check(QUESTS.every(q => reviewOf(q.id).length >= 6) && new Set(QUESTS.map(q => q.topic)).size === QUESTS.length, 'music: every quest has a review quiz of 6+ questions');
+
+  const gl = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  const ctx = await gl.newContext({ viewport: { width: 390, height: 844 } });
+  await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
+  const p = await ctx.newPage();
+  const errors = [];
+  p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+  p.on('pageerror', e => errors.push(e.message));
+  await p.goto(URL_);
+  await p.evaluate(() => navigator.serviceWorker.ready);
+  await p.click('text=ابدأ الرحلة');
+  await p.fill('#child-name', 'سارة');
+  await p.click('#who-form [type=submit]');
+  await p.waitForSelector('#screen-select[data-active]', { timeout: 5000 });
+  await p.click('[data-hero=yasmina]');
+  await p.click('#select-go');
+  await p.click('[data-st=skip]');
+  await p.click('.voyage--open');
+  await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
+  check(await p.locator('.isle[data-region=music]:not(.isle--locked)').count() === 1, 'the music island is open from the start');
+  await p.click('.isle[data-region=music]');
+  await p.waitForSelector('#screen-tunes[data-active]', { timeout: 20000 });
+  check(await p.locator('#tunes-stage canvas').count() === 1, 'sailing there opens the 3D music island');
+  await p.waitForTimeout(800);
+  const tunes = () => p.evaluate(() => window.__tunes());
+  let s = await tunes();
+  check(s.places.length === 8 && s.next === 'scale' && (await p.textContent('#tunes-say .bubble')).includes('نغمة'), 'eight places; the helper «نغمة» says hello; the piano lesson comes first');
+  check(await p.locator('.tn-tag:not([hidden])').count() >= 2, 'name tags float over the places');
+  await p.locator('#tunes-places [data-place=piano]').dispatchEvent('click');
+  check(await p.locator('#tunes-modal [data-start]').count() === 2, 'the giant piano holds two lessons');
+  await p.click('#tunes-modal [data-start="scale"]');
+  await p.waitForSelector('#tunes-panel:not([hidden]) .tn-step', { timeout: 5000 });
+  await p.click('#tunes-panel [data-next]');
+  // A wrong key: the helper explains, the step waits.
+  await p.click('#tunes-panel .tn-key[data-note="G4"]');
+  s = await tunes();
+  check(s.step === 1 && (await p.textContent('#tunes-say .bubble')).includes('ابدأ من دو'), 'a wrong key: the helper gives a hint, the step waits');
+  const fits = await p.evaluate(() => { const r = document.querySelector('.tn-sheet').getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight + 1; });
+  check(fits, 'the lesson card fits a phone screen');
+  const play = async () => {
+    for (let guard = 0; guard < 400; guard++) {
+      if (await p.isVisible('#tunes-modal .fm-done')) return true;
+      const next = p.locator('#tunes-panel [data-next]');
+      if (await next.count()) { await next.first().click(); continue; }
+      const turn = p.locator('#tunes-panel [data-turn]:not([disabled])');
+      if (await turn.count() && await p.locator('#tunes-panel .tn-drum[disabled]').count()) { await turn.click(); await p.waitForTimeout(100); continue; }
+      const drum = p.locator('#tunes-panel .tn-drum:not([disabled])');
+      if (await drum.count()) { const n = +(await drum.getAttribute('data-taps')); for (let i = 0; i < n && await drum.count(); i++) { await drum.click({ timeout: 5000 }); await p.waitForTimeout(70); } await p.waitForTimeout(150); continue; }
+      const ok = p.locator('#tunes-panel [data-ok]');
+      if (await ok.count()) { await ok.first().click(); continue; }
+      await p.waitForTimeout(80);
+    }
+    return false;
+  };
+  check(await play(), 'the scale lesson can be played to the end');
+  const stars = id => p.evaluate(t => JSON.parse(localStorage.getItem('sindbad.save.v1')).topics[t]?.stars, id);
+  check(await stars('music-scale') === 2, `one wrong key, then all right: 2 stars (got ${await stars('music-scale')})`);
+  await p.click('#tunes-modal [data-close]');
+  s = await tunes();
+  check(s.T.done.scale && s.next === 'stage' && (await p.textContent('#tunes-notes')) === '1', 'a golden note for the rainbow gate; the theatre is next');
+  // The drum circle: hear a rhythm, pick its card, tap it back on the drum.
+  await p.evaluate(() => window.__tunesDo('debugStart', 'rhythm'));
+  await p.waitForSelector('#tunes-panel:not([hidden]) .tn-step', { timeout: 5000 });
+  check(await play() && await stars('music-rhythm') === 3, 'the rhythm lesson (cards, the drum, measures) played perfectly: 3 stars');
+  await p.click('#tunes-modal [data-close]');
+  await p.reload();
+  await p.waitForTimeout(500);
+  const kept = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')).world.tunes);
+  check(kept.done.scale && kept.done.rhythm, 'the island survives a reload');
+  await ctx.setOffline(true);
+  await p.reload();
+  await p.waitForTimeout(600);
+  await p.click('#screen-title [data-go]');
+  await p.click('.voyage--open');
+  await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
+  await p.click('.isle[data-region=music]');
+  await p.waitForSelector('#screen-tunes[data-active]', { timeout: 20000 });
+  check(await p.locator('#tunes-stage canvas').count() === 1 && (await p.textContent('#tunes-notes')) === '2', 'the music island works offline, with its golden notes');
+  check(errors.length === 0, `no console errors${errors.length ? `: ${errors.join(' | ')}` : ''}`);
+  await ctx.close();
+  await gl.close();
+}
+
+// The 3D sea map: a preview on the staging copy (?map=3d shows it here too).
+// The live game keeps the flat map.
+{
+  console.log('— 3D sea map');
+  const gl = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  const ctx = await gl.newContext({ viewport: { width: 390, height: 844 } });
+  await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
+  const p = await ctx.newPage();
+  const errors = [];
+  p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+  p.on('pageerror', e => errors.push(e.message));
+  const toMap = async () => {
+    await p.click('#screen-title [data-go]');
+    await p.click('.voyage--open');
+    await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
+    await p.waitForSelector('#map .sea-canvas', { timeout: 15000 });
+    await p.waitForTimeout(600);
+  };
+  await p.goto(`${URL_}?map=3d`);
+  await p.evaluate(() => navigator.serviceWorker.ready);
+  await p.click('text=ابدأ الرحلة');
+  await p.fill('#child-name', 'سارة');
+  await p.click('#who-form [type=submit]');
+  await p.waitForSelector('#screen-select[data-active]', { timeout: 5000 });
+  await p.click('[data-hero=sindbad]');
+  await p.click('#select-go');
+  await p.click('[data-st=skip]');
+  await p.click('.voyage--open');
+  await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
+  await p.waitForSelector('#map .sea-canvas', { timeout: 15000 });
+  await p.waitForTimeout(600);
+  const sea = () => p.evaluate(() => window.__sea());
+  let s = await sea();
+  check(s?.fog.length === 4 && s.next === 'arabic', 'the 3D sea: fog over the four locked islands, the letters island first');
+  const boxes = await p.evaluate(() => {
+    const m = document.getElementById('map').getBoundingClientRect();
+    return [...document.querySelectorAll('#map .isle')].map(b => { const r = b.getBoundingClientRect(); return r.width > 40 && r.left >= m.left - 1 && r.right <= m.right + 1 && r.top >= m.top - 1 && r.bottom <= m.bottom + 1; });
+  });
+  const ISLES = (await import('../worlds/grade6.js')).default.regions.length + 1;
+  check(boxes.length === ISLES && boxes.every(Boolean), 'every island has its label and tap area on screen');
+  await p.click('#map-view');
+  check(await p.locator('#map .sea-canvas').count() === 0 && await p.locator('#map .isle__art').count() === ISLES, 'the button switches to the flat map…');
+  await p.click('#map-view');
+  await p.waitForSelector('#map .sea-canvas', { timeout: 5000 });
+  check(await p.locator('#map .isle__art').count() === 0, '…and back to the 3D sea');
+  await p.click('.isle[data-region=math]');
+  await p.waitForTimeout(400);
+  check(await p.isVisible('#map-toast') && (await sea()).at === 'home', 'a foggy island explains how to open it; the ship stays');
+  await p.click('.isle[data-region=arabic]');
+  await p.waitForSelector('#screen-island[data-active]', { timeout: 10000 });
+  check(true, 'tapping an island sails there and goes ashore');
+  await p.click('#island-leave');
+  await p.waitForSelector('#map .sea-canvas', { timeout: 10000 });
+  check((await sea()).at === 'arabic', 'back at sea, the ship waits by the letters island');
+  // Stars on the letters island: the fog lifts from the numbers island.
+  await p.evaluate(async () => {
+    const { save } = await import('./core/save.js');
+    const { topicsIn } = await import('./core/topics.js');
+    save.update(v => { v.topics[topicsIn('arabic')[0].id] = { stars: 3, best: 1, plays: 1 }; });
+  });
+  await p.click('.map-voyages');
+  await p.click('.voyage--open');
+  await p.waitForTimeout(4500);
+  s = await sea();
+  check(!s.fog.includes('math') && await p.locator('.isle[data-region=math]:not(.isle--locked)').count() === 1, 'stars earned: the fog lifts from the numbers island');
+  await ctx.setOffline(true);
+  await p.reload();
+  await p.waitForTimeout(600);
+  await toMap();
+  check((await sea())?.fog.length === 3, 'the 3D sea works offline and remembers the open islands');
+  await ctx.setOffline(false);
+  await p.goto(URL_);
+  await p.waitForTimeout(600);
+  await p.click('#screen-title [data-go]');
+  await p.click('.voyage--open');
+  await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
+  await p.waitForTimeout(1200);
+  check(await p.locator('#map .sea-canvas').count() === 0 && await p.isHidden('#map-view'), 'the live game keeps the flat map (no 3D button)');
+  check(errors.length === 0, `no console errors${errors.length ? `: ${errors.join(' | ')}` : ''}`);
+  await ctx.close();
+  await gl.close();
+}
+
+// A new version reaches players who already have the game: it shows up by
+// itself (a reload between activities), not only after closing the tab.
+// And the game falls silent in the background.
+console.log('— updates and background');
+{
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const p = await ctx.newPage();
+  const errors = [];
+  p.on('pageerror', e => errors.push(e.message));
+  await p.goto(URL_);
+  await p.evaluate(() => navigator.serviceWorker.ready);
+  await p.reload();
+  await p.waitForFunction(() => !!navigator.serviceWorker.controller);
+  const oldCaches = await p.evaluate(() => caches.keys());
+  nextVersion = 'next-version';   // the website now has a new version
+  await p.evaluate(() => { window.__before = true; });
+  const reloaded = p.waitForEvent('load', { timeout: 15000 }).then(() => true, () => false);
+  await p.evaluate(() => navigator.serviceWorker.getRegistration().then(r => r.update()));
+  check(await reloaded && !(await p.evaluate(() => window.__before)), 'a new version reloads the title screen by itself');
+  const now = await p.evaluate(() => caches.keys());
+  check(now.length === 1 && now[0].endsWith('next-version') && !oldCaches.includes(now[0]), 'the old offline copy is replaced by the new one');
+  nextVersion = null;
+
+  // Background: pretend the child switched to another tab.
+  await p.click('text=ابدأ الرحلة');   // a tap allows sound
+  const state = () => p.evaluate(() => import('/core/sound.js').then(m => m.ac()?.state));
+  const setHidden = h => p.evaluate(h => { Object.defineProperty(document, 'hidden', { value: h, configurable: true }); document.dispatchEvent(new Event('visibilitychange')); }, h);
+  await p.waitForTimeout(300);
+  check(await state() === 'running', 'sound plays while the game is in front');
+  await setHidden(true);
+  await p.waitForTimeout(600);   // the music keeps ticking in the background
+  check(await state() === 'suspended', 'switching tabs silences the game');
+  await setHidden(false);
+  await p.waitForTimeout(300);
+  check(await state() === 'running', 'coming back brings the sound back');
+  check(errors.length === 0, `no page errors${errors.length ? `: ${errors.join(' | ')}` : ''}`);
   await ctx.close();
 }
 

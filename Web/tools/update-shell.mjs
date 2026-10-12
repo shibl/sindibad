@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const TOP = ['index.html', 'about.html', 'style.css', 'app.js', 'manifest.json'];
-const DIRS = { art: /\.js$/, core: /\.js$/, plugins: /\.js$/, worlds: /\.js$/, fonts: /\.woff2$/, icons: /\.(png|svg)$/ };
+const DIRS = { art: /\.js$/, core: /\.js$/, plugins: /\.js$/, worlds: /\.js$/, vendor: /\.js$/, fonts: /\.woff2$/, icons: /\.(png|svg)$/ };
 
 function walk(dir, re) {
   return readdirSync(join(ROOT, dir)).flatMap(name => {

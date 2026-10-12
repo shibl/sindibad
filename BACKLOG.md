@@ -383,3 +383,168 @@ minutes and fails if the build fails). Checked on GitHub: the workflow's
 own push does start the Pages rebuild. Required checks on `main` and a
 locked website branch still need the owner (item 23).
 
+## Playtest notes — 2026-10-12 (the farm island)
+
+Owner's request: a new island, «مزرعتي السعيدة», "like Hay Day", 3D and
+high quality, mapped to the grade-6 agriculture book (159 pages, read in
+full first; its four units summarised in the session), in Arabic, with a
+helper the child chooses (a bee, a cow, a puppy, a kitty). "The kids must
+understand the book away from boring reading: by playing."
+
+**Built:**
+- `core/farm/` — a 3D farm in three.js (r170, kept in `vendor/three/`,
+  loaded only when the child sails there): an island with a beach and a
+  shader sea, six fields, a red barn and silo, the Shami cow's pen, a
+  dairy, beehives in a meadow, a windmill, an orders board and a trading
+  dhow at the dock. Every model is made in code, merged into one mesh each.
+  Drag to look around, pinch or wheel to zoom, tap to choose.
+- Seven quests from the book, in order: potato, tomato (`أزرع خضرواتي`),
+  the cow (`مزرعتي الصغيرة`), village cheese (`أصنع الجبن البلدي`), the
+  beehive (`مصنع العسل` ١ and ٢), cotton (`الذهب الأبيض`), sugar beet
+  (`الجذر العجيب`). The tool tray is the question; small choices check the
+  book's facts (two-bud potato piece, planting depth and season, the
+  thermometer at 85 °C then 42 °C, a balanced meal with one feed of each
+  kind, find the queen, order the bee's life cycle, pick only red
+  tomatoes). Weeks pass in a day–night time-lapse naming the book's
+  durations; cotton is picked in three rounds, bottom bolls first.
+- Helpers: chosen on the first visit (changeable from 📜). Tap the helper
+  for a hint; after two wrong jobs it names the right one. Special moments:
+  the bee pollinates tomato and cotton flowers (+2), the kitty chases a
+  field mouse at the potato and beet harvests (+1), the puppy sniffs out
+  weeds (+15 ⭐), the cow helper makes the Shami cow happy (+1 milk).
+- Stars: each quest is a topic in `plugins/agriculture/` (region `farm`);
+  the farm calls `recordResult()` (new in `core/lesson.js`). The topic's
+  own lesson is a short quiz or sort that spaced review brings back.
+- Barn, orders sold by ship (coins and farm levels), decorations bought
+  with coins (Damask rose, jasmine arch, scarecrow, fountain, lanterns —
+  each with a fact from the book), six farm stickers in the album.
+- The sea map: the farm sits by the home port with its own short route
+  (`from: 'home'` in `worlds/grade6.js`).
+
+**Tested:** `npm test` has a farm section: data checks (every job is in
+its tray, every choice has a right answer), choose a helper, a wrong job
+explained, the tray and the helper's words fit a phone, the potato quest
+played to the end (one wrong job → 2 stars), the next quest opens, an
+order sold, a reload keeps the farm, and the farm loads offline. All seven
+quests were also played automatically to three stars, and screenshots were
+checked at 320×568, 360×740, 390×844 and 1024×768. The farm's test uses a
+second Chromium allowed to draw WebGL in software (the test server has no
+graphics card); the other tests keep the normal browser.
+
+**Found / decided:**
+- Size: the whole game is now about 1.6 MB (three.js is 0.66 MB, 0.17 MB
+  zipped); the target is under 35 MB.
+- In software-drawn WebGL the farm runs at ~10 fps; real phones draw with
+  their graphics chip. Not yet tried on a real budget phone (item 10).
+- The book has a few mistakes to avoid when more quests are added: it says
+  amber comes from beehives; the roof rainwater numbers (p.45) don't add
+  up; the Damask rose's planting months read "December and February".
+
+**Next items:**
+32. [ ] More farm quests from the book: the silage pit (feeds the cow),
+    water harvesting (a rain tank for the fields), biogas (dung → gas for
+    the dairy and fertiliser), the Damask rose and jasmine from cuttings,
+    the greenhouse, apples and citrus, silkworms, apple vinegar, the plant
+    doctor (pests and natural enemies), soil, propagation, organic farming,
+    the ecological footprint. Each: a crop or task, a quest, a review topic.
+33. [ ] Real-device check of the farm on a 2 GB Android phone: frame rate,
+    memory, lite mode (no shadows), time to first load.
+34. [ ] Give every helper a special moment in every quest (today the cow
+    helper only shines in the cow quest).
+35. [on hold — teacher review comes later] Teacher review of the farm's
+    content (`worlds/grade6/farm.js`, `plugins/agriculture/`).
+
+**Later the same day (owner's report):** on staging the farm didn't show:
+the browser kept showing the old offline copy. Two fixes:
+- A new version now replaces the old one by itself: the service worker
+  downloads the new files straight from the server (`cache: 'reload'`; the
+  browser's own 10-minute cache could hand it the previous version's
+  files), and the page reloads when the new version takes over — only on
+  the title screen, the voyages chart or the sea map, never mid-lesson
+  (`app.js`). Players who still run an older copy see the new one after one
+  more reload; from then on it is automatic.
+- Sound kept playing in another tab: all game sound (music, sea, effects)
+  now pauses when the game is in the background and resumes on return
+  (`core/sound.js`), and read-aloud stops.
+`npm test` checks both: a new version reloads the title screen and
+replaces the old offline copy; switching tabs silences the game.
+
+## Playtest notes — 2026-10-12 (a 3D sea map, to compare)
+
+The owner asked whether grade 6 needs a new theme. Recommendation: keep
+the sea voyage story and update the look, starting with the sea map. A 3D
+sea map is now on the staging copy (SPEC: "The 3D sea map (preview)"), with
+a "2D / 3D" button to compare it with the flat map; the live game is
+unchanged.
+
+**What it is:** a turquoise sea with shallows, foam and little wave marks;
+seven islands with their landmarks made in 3D (the farm reuses the farm
+island's models); dotted routes; clouds and misty silhouettes over locked
+islands, which part when the fog lifts; the dhow with the hero and Hudhud
+on deck (their usual drawings) and a wake when it sails; a golden ring on
+the island to try next; a whale, gulls, the lighthouse beam, volcano smoke,
+the windmill. Day, sunset and night. Drag to tilt the view; it eases back.
+
+**Checked:** screenshots at 360×640, 390×844 and 1024×768, day, sunset and
+night; sailing ashore and back; the fog lifting; every island open; offline.
+`npm test` covers it (with `?map=3d`) and checks the live game keeps the
+flat map. About 100 draw calls; not yet tried on a real budget phone.
+
+**Next items:**
+36. [ ] Decide: 3D sea or flat map for the live game (owner, after trying
+    staging on a phone). If 3D: make it the default, keep the flat map as
+    the fallback, and check item 37 first.
+37. [ ] Real-device check of the 3D sea on a 2 GB Android phone (with item
+    33): frame rate, battery, memory with the farm open too.
+38. [ ] If 3D stays: bring the walkable islands' look closer to it (they
+    are drawn in 2D today), one island at a time.
+
+
+## Playtest notes — 2026-10-12 (the music island, and the digits 1 2 3)
+
+The owner asked for a music island made from the grade-6 music book
+(«التربية الموسيقية»، 72 pages, read in full), "very creative, engaging and
+artistic", allowed a different vibe, and showed a toy-diorama city-builder
+board as the look to aim for. Built: «جزيرة الأنغام» (SPEC: "The music
+island (3D)"), open from the start, a side trip from the letters island.
+The owner also asked that all numbers be written 1 2 3, not ١ ٢ ٣: done in
+the whole game (SPEC: "Numbers: the digits 1 2 3").
+
+**What it is:** a tall toy island in sunset light: terraces, a winding path
+with note lanterns and bunting, puffy trees, people walking, and eight
+places on raised bases — the giant grand piano (its keys play), the glass
+pavilion, the drum circle round a fire with a big darbuka, the metronome
+tower with the book's orange note-car racing round its track, the cloud
+raining onto a grand-staff sculpture with red and yellow clefs, the
+Damascene music library, the black-basalt theatre with its audience and
+spotlights, and the harbour of world instruments. Ten quests (all twenty
+lessons and the projects), played with small music games and real sounds
+made in code: keys, whole/half tones, the staff, rhythm cards, the drum,
+measures, sorting forms, filling glasses by fractions and playing them.
+The helper «نغمة» explains every step. Golden notes on a rainbow gate; ten
+make the «sky song». Six stickers, one per matching quest.
+
+**Digits:** `num()` now writes 1 2 3 (and a dot for decimals); every
+hard-coded ١٢٣ in the game's code and content was rewritten (417 places:
+the maths and farm lessons, the about page, dates via `ar-SY-u-nu-latn`,
+`٪` → `%`). The parents' gate still accepts either kind of typed digit.
+The questions themselves did not change, only how their numbers look.
+
+**Checked:** read every page of the book; screenshots of every kind of step
+at 390×844 and the island at 1024×768; all ten quests played to three
+stars by script with no console errors; the flat map and the 3D sea show
+the new island. `npm test` has a music-island section (well-formed quests,
+the piano lesson with a wrong key → 2 stars, the rhythm lesson with the
+drum → 3 stars, golden notes, reload, offline). About 80 draw calls
+(70 in lite mode); not yet tried on a real budget phone.
+
+**Next items:**
+39. [ ] Real-device check of the music island on a 2 GB Android phone (with
+    items 33 and 37): frame rate, sound timing of the drum step.
+40. [ ] Sing along: the book's songs could get their melodies on the piano
+    (their lyrics belong to their poets: ask the developers before adding
+    any words).
+41. [ ] A free-play «concert» mode: record a short tune on the piano or the
+    glasses and play it back on the theatre stage.
+42. [on hold — teacher review comes later] Teacher review of the music
+    island's content (draft, from the book).

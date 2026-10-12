@@ -1,8 +1,12 @@
 // The world map: islands (one per subject), fog over locked ones, a dotted
 // sea route, and the ship that sails the chosen hero between islands.
 // Tapping an unlocked island sails there and opens its panel of topics.
+//
+// Two ways to draw it: the flat map (SVG, below) and the 3D sea (core/sea/),
+// a preview on the staging copy. Both share the island buttons, so labels,
+// taps, stars and badges work the same.
 
-import { islandSVG, shipSVG, compassSVG, whaleSVG, cloudSVG, hudhudSVG, medalSVG, g } from '../art/art.js';
+import { islandSVG, shipSVG, compassSVG, whaleSVG, cloudSVG, hudhudSVG, medalSVG, g, STYLE, styleKey } from '../art/art.js';
 import { streak, todayLessons, DAILY_GOAL } from './lesson.js';
 import { save } from './save.js';
 import { topicsIn, getTopic } from './topics.js';
@@ -11,6 +15,7 @@ import { num } from './format.js';
 import { showFinale } from './finale.js';
 import { awardSticker } from './stickers.js';
 import { rankInfo } from './ranks.js';
+import { STAGING, storeKey } from './env.js';
 
 let world;          // the current grade world (worlds/grade6.js)
 let el;             // the .map element
@@ -28,6 +33,7 @@ export function initMap(mapEl, worldDef, { openTopic, islands = {}, enterIsland 
   onEnterIsland = enterIsland;
   new ResizeObserver(() => { if (el.offsetParent) render(); }).observe(el);
   el.addEventListener('click', onClick);
+  initViewToggle();
   document.getElementById('sheet').addEventListener('click', e => {
     if (e.target.id === 'sheet' || e.target.closest('[data-close]')) closeSheet();
     const t = e.target.closest('[data-topic]');
@@ -78,6 +84,115 @@ export function dueReviews(now = Date.now()) {
 
 const starRow = (n, max = 3) => '★'.repeat(n) + '☆'.repeat(Math.max(0, max - n));
 
+// ---------- The 3D sea (a preview on the staging copy) ----------
+// Staging shows the sea map in 3D by default, with a button to compare it
+// with the flat map; the live game keeps the flat map until the developers
+// decide. ?map=3d or ?map=2d picks one on any copy. Phones without WebGL,
+// or if the 3D sea fails to load, get the flat map.
+
+const forcedView = new URLSearchParams(location.search).get('map');
+let viewChoice = '2d';
+let view = null;        // the 3D sea (core/sea/sea.js), once loaded
+let viewLoad = null;
+let viewFailed = false;
+let webgl;
+
+function hasWebGL() {
+  if (webgl === undefined) {
+    try {
+      const gl = document.createElement('canvas').getContext('webgl2');
+      webgl = !!gl;
+      gl?.getExtension('WEBGL_lose_context')?.loseContext();
+    } catch { webgl = false; }
+  }
+  return webgl;
+}
+const want3D = () => viewChoice === '3d' && !viewFailed && hasWebGL();
+const is3D = () => !!view && el.classList.contains('map--3d');
+
+function initViewToggle() {
+  let stored = null;
+  try { stored = localStorage.getItem(storeKey('mapView')); } catch { /* private mode */ }
+  viewChoice = ['2d', '3d'].includes(forcedView) ? forcedView : STAGING ? stored || '3d' : '2d';
+  const btn = document.getElementById('map-view');
+  if (!btn || !(STAGING || forcedView)) return;
+  btn.hidden = false;
+  btn.addEventListener('click', () => {
+    if (sailing) return;
+    sfx.tap();
+    viewChoice = viewChoice === '3d' ? '2d' : '3d';
+    try { localStorage.setItem(storeKey('mapView'), viewChoice); } catch { /* private mode */ }
+    if (viewChoice === '3d' && !hasWebGL()) toast('هذا الجهاز لا يرسم الأشكال ثلاثية الأبعاد، فبقيت الخريطة المسطّحة.');
+    render();
+  });
+}
+
+function paintToggle() {
+  const btn = document.getElementById('map-view');
+  if (!btn || btn.hidden) return;
+  const on = viewChoice === '3d';
+  btn.textContent = on ? '🗺️ 2D' : '🧊 3D';
+  btn.setAttribute('aria-label', on ? 'الخريطة المسطّحة' : 'الخريطة ثلاثية الأبعاد');
+}
+
+// Load the 3D sea early (app.js calls this after start-up), so it is ready
+// when the child reaches the map. three.js comes from the offline copy.
+export function preloadMapView() {
+  if (!want3D()) return Promise.resolve(null);
+  return (viewLoad ||= import('./sea/sea.js').then(m => {
+    view = m.createSea(world, { lite: document.body.classList.contains('lite') });
+    view.onLayout(placeLabels);
+    return view;
+  }).catch(err => {
+    console.warn('The 3D sea failed to load', err);
+    viewFailed = true;
+    return null;
+  }));
+}
+
+// Keep each island's button (its hit area and label) over the island.
+function placeLabels(rects) {
+  const W = el.clientWidth;
+  for (const b of el.querySelectorAll('.map__labels .isle')) {
+    const r = rects[b.dataset.region];
+    if (!r) continue;
+    b.style.left = `${r.x}px`; b.style.top = `${r.y}px`;
+    b.style.width = `${r.w}px`; b.style.height = `${r.h}px`;
+    // keep the label on screen near the edges
+    const label = b.querySelector('.isle__label');
+    if (!label) continue;
+    b._lw ||= label.offsetWidth;
+    const cx = r.x + r.w / 2, half = b._lw / 2 + 6;
+    label.style.setProperty('--dx', `${Math.max(half - cx, Math.min(0, W - half - cx))}px`);
+  }
+}
+
+function render3D() {
+  const s = save.get();
+  if (!el.classList.contains('map--3d') || !el.querySelector('.map3d')) {
+    el.classList.add('map--3d');
+    el.innerHTML = `<div class="map3d"></div><div class="map__labels"></div><div class="map__compass">${compassSVG()}</div>`;
+  }
+  view.mount(el.querySelector('.map3d'));
+  const due = new Set(dueReviews().map(t => t.region));
+  const next = nextIsland(due);
+  el.querySelector('.map__labels').innerHTML = isleButton(world.home, 'isle--home', `<b>${world.home.name}</b>`, world.home.name)
+    + world.regions.map(r => islandButton(r, due, next)).join('');
+  const nextRegion = world.regions.find(r => r.id === next);
+  view.update({
+    time: document.body.dataset.time || 'day',
+    regions: world.regions.map(r => ({ id: r.id, open: isUnlocked(r), fog: !isUnlocked(r) || pendingReveal(r) })),
+    next: nextRegion && !pendingReveal(nextRegion) ? next : null,
+    at: s.at || 'home',
+    hero: s.hero || 'sindbad',
+    styleKey: styleKey(),
+    style: { sail: STYLE.sail, flag: STYLE.flag },
+  });
+  view.relayout();
+  updateStarsBadge();
+  paintToggle();
+}
+
 // ---------- Layout ----------
 
 function computeLayout() {
@@ -109,50 +224,68 @@ function berth(id) {
 // ---------- Render ----------
 
 export function render() {
+  if (want3D()) {
+    if (view) { render3D(); return; }
+    // Not loaded yet: show the flat map, and switch when the 3D sea is ready.
+    preloadMapView().then(v => { if (v && el.offsetParent && !sailing) render(); });
+  }
+  if (el.classList.contains('map--3d')) { view?.stop(); el.classList.remove('map--3d'); }
+  render2D();
+  paintToggle();
+}
+
+// An island's button: its label (name and stars, or what opens it), badge,
+// review sign and the "here next" beacon. `inner` adds the flat map's art.
+function isleButton(r, cls, label, aria, { style = '', inner = '' } = {}) {
+  return `
+    <button class="isle ${cls}" data-region="${r.id}" aria-label="${aria}"${style ? ` style="${style}"` : ''}>
+      ${inner}
+      <span class="isle__label">${label}</span>
+    </button>`;
+}
+
+function islandButton(r, due, next, flat = null) {
+  const open = isUnlocked(r);
+  const pending = open && pendingReveal(r);
+  const { stars, max } = regionStars(r.id);
+  const badge = badgeState(r.id);
+  const prev = r.unlock && world.regions.find(x => x.id === r.unlock.region);
+  const label = `<b>${r.name}</b>${open ? `<span class="isle__stars">${starRow(Math.round((stars / (max || 1)) * 3))}</span>` : `<span class="isle__need">🔒 ${num(r.unlock.stars)}★ في ${prev.name}</span>`}`
+    + (badge && !pending ? `<span class="isle__badge isle__badge--${badge}" title="${r.badge.name}">${r.badge.icon}</span>` : '')
+    + (open && !pending && due.has(r.id) ? '<span class="isle__review" title="حان وقت المراجعة">🔁</span>' : '');
+  const aria = open && !pending
+    ? `${r.name}، ${r.subject}، ${num(stars)} من ${num(max)} نجوم${badge ? `، شارة ${r.badge.name}` : ''}`
+    : `${r.name}، يغطيها الضباب`;
+  const beacon = r.id === next && !pending ? '<span class="isle__beacon" aria-hidden="true"><i>هنا!</i></span><span class="isle__ring" aria-hidden="true"></span>' : '';
+  const fog = !flat || (open && !pending) ? '' : `
+      <span class="fog" aria-hidden="true">
+        ${cloudSVG()}${cloudSVG()}${cloudSVG()}
+      </span>`;
+  return isleButton(r, `${open ? '' : 'isle--locked'} ${beacon ? 'isle--next' : ''}`, label, aria, flat ? { ...flat, inner: `<span class="isle__art">${islandSVG(r.art)}</span>` } : {})
+    .replace('</button>', `${fog}${beacon}</button>`);
+}
+
+function render2D() {
   layout = computeLayout();
   const { w, h, size, points } = layout;
   const s = save.get();
   const here = s.at && points[s.at] ? s.at : 'home';
 
-  const stops = ['home', ...world.regions.map(r => r.id)];
-  const routes = stops.slice(1).map((id, i) => {
-    const a = points[stops[i]], b = points[id];
+  // Each island's route comes from the one before it, or from `from` for a
+  // side trip (worlds/grade6.js).
+  let prev = 'home';
+  const routes = world.regions.map(r => {
+    const a = points[r.from || prev], b = points[r.id];
+    if (!r.from) prev = r.id;
     const mx = (a.x + b.x) / 2 + (b.y - a.y) * 0.18, my = (a.y + b.y) / 2 - (b.x - a.x) * 0.18;
-    const open = isUnlocked(world.regions[i]);
+    const open = isUnlocked(r);
     return `<path d="M${a.x} ${a.y} Q${mx} ${my} ${b.x} ${b.y}" class="route ${open ? 'route--open' : ''}"/>`;
   }).join('');
 
-  const isle = (r, kind, name, extra = '', aria = '') => {
-    const p = points[r.id];
-    return `
-    <button class="isle ${extra}" data-region="${r.id}" aria-label="${aria}"
-            style="left:${p.x}px;top:${p.y}px;width:${size}px">
-      <span class="isle__art">${islandSVG(kind)}</span>
-      <span class="isle__label">${name}</span>
-    </button>`;
-  };
-
+  const place = r => ({ style: `left:${points[r.id].x}px;top:${points[r.id].y}px;width:${size}px` });
   const due = new Set(dueReviews().map(t => t.region));
   const next = nextIsland(due);
-  const islands = world.regions.map(r => {
-    const open = isUnlocked(r);
-    const pending = open && pendingReveal(r);
-    const { stars, max } = regionStars(r.id);
-    const badge = badgeState(r.id);
-    const prev = r.unlock && world.regions.find(x => x.id === r.unlock.region);
-    const label = `<b>${r.name}</b>${open ? `<span class="isle__stars">${starRow(Math.round((stars / (max || 1)) * 3))}</span>` : `<span class="isle__need">🔒 ${num(r.unlock.stars)}★ في ${prev.name}</span>`}`
-      + (badge && !pending ? `<span class="isle__badge isle__badge--${badge}" title="${r.badge.name}">${r.badge.icon}</span>` : '')
-      + (open && !pending && due.has(r.id) ? '<span class="isle__review" title="حان وقت المراجعة">🔁</span>' : '');
-    const fog = open && !pending ? '' : `
-      <span class="fog" aria-hidden="true">
-        ${cloudSVG()}${cloudSVG()}${cloudSVG()}
-      </span>`;
-    const aria = open && !pending
-      ? `${r.name}، ${r.subject}، ${num(stars)} من ${num(max)} نجوم${badge ? `، شارة ${r.badge.name}` : ''}`
-      : `${r.name}، يغطيها الضباب`;
-    const beacon = r.id === next && !pending ? '<span class="isle__beacon" aria-hidden="true"><i>هنا!</i></span><span class="isle__ring" aria-hidden="true"></span>' : '';
-    return isle(r, r.art, label, `${open ? '' : 'isle--locked'} ${beacon ? 'isle--next' : ''}`, aria).replace('</button>', `${fog}${beacon}</button>`);
-  }).join('');
+  const islands = world.regions.map(r => islandButton(r, due, next, place(r))).join('');
 
   el.innerHTML = `
     <div class="map__sea"></div>
@@ -164,7 +297,7 @@ export function render() {
     <div class="map__fish" style="left:${layout.portrait ? 16 : 30}%;top:${layout.portrait ? 52 : 70}%"><span>🐟</span></div>
     <div class="map__fish map__fish--2" style="left:${layout.portrait ? 82 : 64}%;top:${layout.portrait ? 34 : 24}%"><span>🐠</span></div>
     <div class="map__gulls">${'<svg viewBox="0 0 24 12"><path d="M1 8 Q6 1 12 8 Q18 1 23 8" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>'.repeat(3)}</div>
-    ${isle({ id: 'home' }, world.home.art, `<b>${world.home.name}</b>`, 'isle--home', world.home.name)}
+    ${isleButton(world.home, 'isle--home', `<b>${world.home.name}</b>`, world.home.name, { ...place(world.home), inner: `<span class="isle__art">${islandSVG(world.home.art)}</span>` })}
     ${islands}
     <div class="map__ship" style="width:${size * 0.62}px">
       <div class="ship__wake"><i></i><i></i><i></i></div>
@@ -260,6 +393,14 @@ async function revealIsland(r) {
   await wait(500);
   save.update(v => { v.revealed = [...new Set([...(v.revealed || []), r.id])]; });
   const isleEl = el.querySelector(`.isle[data-region="${r.id}"]`);
+  if (is3D()) {
+    sfx.reveal();
+    isleEl?.classList.remove('isle--locked');
+    toast(`انقشع الضباب! ظهرت <b>${r.name}</b> — جزيرة ${r.subject}. هيّا نُبحر إليها!`, 6000);
+    await view.reveal(r.id);
+    render();
+    return;
+  }
   const fog = isleEl?.querySelector('.fog');
   if (!fog) return;
   sfx.reveal();
@@ -321,7 +462,7 @@ function showBadge(region, state) {
   return new Promise(resolve => {
     const first = !(save.get().badges || {})[region.id];
     save.update(v => { v.badges = { ...(v.badges || {}), [region.id]: state }; });
-    if (first && region.id !== 'treasure') setTimeout(() => awardSticker('treasure'), 900);
+    if (first && region.id !== 'treasure' && !region.kind) setTimeout(() => awardSticker('treasure'), 900);
     const modal = document.getElementById('badge-modal');
     const gold = state === 'gold';
     modal.innerHTML = `
@@ -352,6 +493,14 @@ function placeShip({ x, y }) {
 
 function sailTo(id, then) {
   const s = save.get();
+  if (is3D()) {
+    const fromId = s.at && (s.at === 'home' || world.regions.some(r => r.id === s.at)) ? s.at : 'home';
+    if (fromId === id) { then(); return; }
+    sailing = true;
+    sfx.sail();
+    view.sail(fromId, id).then(() => { sailing = false; save.update(v => { v.at = id; }); then(); });
+    return;
+  }
   const fromId = s.at && layout.points[s.at] ? s.at : 'home';
   if (fromId === id) { then(); return; }
   const a = berth(fromId), b = berth(id);
@@ -446,7 +595,7 @@ function openSheet(region) {
             <button class="topic-card" data-topic="${t.id}">
               <span class="topic-card__icon">${t.icon}</span>
               <span class="topic-card__text"><b>${t.title}</b><small>${t.blurb}</small>${due.has(t.id) ? '<em class="tag-review">🔁 وقت المراجعة</em>' : ''}</span>
-              <span class="topic-card__stars" aria-label="${num(st)} من ٣ نجوم">${starRow(st)}</span>
+              <span class="topic-card__stars" aria-label="${num(st)} من 3 نجوم">${starRow(st)}</span>
             </button>
           </li>`;
         }).join('') || '<li class="topic-list__empty">الدروس في الطريق…</li>'}
@@ -456,6 +605,10 @@ function openSheet(region) {
   requestAnimationFrame(() => sheet.classList.add('is-open'));
   sheet.querySelector('.topic-card')?.focus({ preventScroll: true });
 }
+
+// Test hook (tests/e2e.mjs): the 3D sea's state, or null on the flat map.
+export const debugSea = () => (is3D() ? view.debug() : null);
+export const debugSeaLook = (...a) => view?.look(...a);
 
 export function closeSheet() {
   const sheet = document.getElementById('sheet');
