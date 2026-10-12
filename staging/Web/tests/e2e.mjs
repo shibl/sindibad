@@ -374,7 +374,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   const glassIds = GLASSES.map(g => g.id);
   const piano = n => /^(C|C#|D|D#|E|F|F#|G|G#|A|A#|B)4$|^C5$/.test(n);
   const okStep = s => ({
-    learn: () => !!s.title && !!s.html,
+    explore: () => !!s.title && s.spots.length >= 2 && new Set(s.spots.map(x => x.id)).size === s.spots.length && s.spots.every(x => x.title && typeof x.text === 'string'),
     choice: () => s.options.length >= 2 && new Set(s.options).size === s.options.length && (!s.art || s.art.length === s.options.length),
     keys: () => s.play.length > 0 && s.play.every(piano),
     gaps: () => true, pattern: () => true,
@@ -386,8 +386,9 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
     sort: () => s.items.every(([, b]) => s.bins.some(x => x.id === b)),
     fill: () => glassIds.includes(s.glass) && s.n > 0 && s.n <= s.d,
     glasses: () => s.play.every(g => glassIds.includes(g)),
-  }[s.kind]?.() && (s.kind === 'learn' || !!s.hint));
+  }[s.kind]?.() && (s.kind === 'explore' || !!s.hint));
   check(QUESTS.every(q => STATIONS[q.station] && q.steps.every(okStep)), 'music: every step is well formed (notes on the piano, a right answer, a hint)');
+  check(QUESTS.every(q => q.steps[0].kind === 'explore'), 'music: every lesson teaches first (أتعلّم) before it asks anything');
   check(QUESTS.every(q => reviewOf(q.id).length >= 6) && new Set(QUESTS.map(q => q.topic)).size === QUESTS.length, 'music: every quest has a review quiz of 6+ questions');
 
   const gl = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
@@ -421,6 +422,13 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   check(await p.locator('#tunes-modal [data-start]').count() === 2, 'the giant piano holds two lessons');
   await p.click('#tunes-modal [data-start="scale"]');
   await p.waitForSelector('#tunes-panel:not([hidden]) .tn-step', { timeout: 5000 });
+  // «أتعلّم» first: the giant piano shows its keys before any question.
+  check(await p.locator('#tunes-panel .lx').count() === 1 && await p.locator('#tunes-panel [data-next]').count() === 0, 'the lesson starts by teaching (أتعلّم): no question, and no skipping ahead');
+  await p.click('#tunes-panel .tn-key[data-note="E4"]');
+  check(await p.locator('#tunes-panel .lx-spot.is-found').count() === 0, 'the tour opens one glowing key at a time, in order');
+  for (let i = 0; i < 8; i++) await p.click('#tunes-panel [data-ok]');
+  await p.waitForSelector('#tunes-panel [data-next]', { timeout: 3000 });
+  check((await p.textContent('#tunes-panel .lx-note')).includes('دو العالية') && await p.locator('#tunes-panel .tn-key.is-found').count() === 8, 'each glowing key tells its name; with all eight found, «فهمت» appears');
   await p.click('#tunes-panel [data-next]');
   // A wrong key: the helper explains, the step waits.
   await p.click('#tunes-panel .tn-key[data-note="G4"]');

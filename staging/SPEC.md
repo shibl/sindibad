@@ -106,6 +106,15 @@ light.
   pavilion (project 2: tune eight glasses by the book's fractions, then
   play them) and the harbour (folk instruments of the world, our heritage).
   Together they cover the book's twenty lessons and its projects.
+- **Taught first («أتعلّم»):** *(decision 2026-10-13, after the owner
+  saw quests jump straight to questions.)* Every quest opens by teaching,
+  and every new idea is taught before it is asked: a picture with glowing
+  spots (the piano's keys, the staff's lines, the glasses, cards for
+  people, instruments and words). Each tap opens one short idea, plays it
+  and ticks it off; guided tours open one spot at a time, in order. Only
+  when every spot is found does «فهمت» lead on to the questions. These steps
+  are never scored. The engine is shared (`core/learn/explore.js`), so other
+  islands teach the same way.
 - **Played, not read:** each quest is a few steps drawn by small music
   games — play notes on a keyboard, mark whole and half tones, tap a
   note's place on the staff, hear a rhythm and pick its card or tap it on

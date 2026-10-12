@@ -633,7 +633,7 @@ async function runQuest(def) {
   const steps = def.steps;
   els.panel.innerHTML = `<div class="tn-sheet" role="dialog" aria-label="${def.title}">
     <header class="tn-head"><span class="tn-head__icon">${def.icon}</span><b>${def.title}</b>
-      <span class="tn-dots">${steps.map(() => '<i></i>').join('')}</span>
+      <span class="tn-dots">${steps.map(x => `<i${x.kind === 'explore' ? ' class="is-learn"' : ''}></i>`).join('')}</span>
       <button class="tn-x" data-quit aria-label="إغلاق الدرس">✕</button></header>
     <div class="tn-body"></div></div>`;
   els.panel.querySelector('[data-quit]').addEventListener('click', () => { sfx.tap(); closeQuest(); sayHelper('لا بأس! نكمل الدرس متى شئت. 🎵'); });
@@ -653,7 +653,7 @@ async function runQuest(def) {
     host.className = 'tn-step';
     body.replaceChildren(host);
     body.scrollTop = 0;
-    if (steps[i].kind !== 'learn' && !steps[i].say) els.say.classList.add('is-small');
+    if (steps[i].kind !== 'explore' && !steps[i].say) els.say.classList.add('is-small');
     const res = await Promise.race([runStep(steps[i], host, ctx), stopped]);
     if (!res || abort.signal.aborted) return;
     ok += res.ok; total += res.total;
