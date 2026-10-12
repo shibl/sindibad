@@ -7,6 +7,7 @@ import { save, profileList, activeProfile, profileSave, createProfile, switchPro
 import { allTopics } from './topics.js';
 import { sfx } from './sound.js';
 import { num } from './format.js';
+import { storeKey } from './env.js';
 import { streak, todayLessons, DAILY_GOAL } from './lesson.js';
 
 let world, show;
@@ -88,7 +89,7 @@ function renderFirstName(el) {
 
 // Reload into a given screen (switching child reloads the whole game).
 function bootInto(screen) {
-  try { sessionStorage.setItem('sindbad.boot', screen); } catch { /* ignore */ }
+  try { sessionStorage.setItem(storeKey('boot'), screen); } catch { /* ignore */ }
   location.reload();
 }
 

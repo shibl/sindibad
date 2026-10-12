@@ -29,6 +29,7 @@ import { initLesson, startLesson, streak } from './core/lesson.js';
 import { sfx } from './core/sound.js';
 import world from './worlds/grade6.js';
 import { num } from './core/format.js';
+import { STAGING, storeKey } from './core/env.js';
 import './plugins/index.js';
 
 // ---------- Backdrop ----------
@@ -227,12 +228,18 @@ initLesson({
     else showScreen('map', after);
   },
 });
+
+// The staging copy wears a ribbon, so nobody mistakes it for the live game.
+if (STAGING) {
+  document.documentElement.dataset.env = 'staging';
+  document.title = `🧪 ${document.title}`;
+}
 registerServiceWorker();
 
 initFamily({ worldDef: world, showScreen });
 try {
-  const boot = sessionStorage.getItem('sindbad.boot');
-  if (boot) { sessionStorage.removeItem('sindbad.boot'); showScreen(boot); }
+  const boot = sessionStorage.getItem(storeKey('boot'));
+  if (boot) { sessionStorage.removeItem(storeKey('boot')); showScreen(boot); }
 } catch { /* ignore */ }
 
 // Count play time for the parents' page (only while the game is visible).

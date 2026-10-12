@@ -12,6 +12,13 @@ The game lives in `Web/`.
   `node Web/tools/update-shell.mjs` so it is cached for offline play.
 - `npm --prefix Web test` passes.
 
+## Publishing
+
+Push only when the developers ask. Push to `staging` first (tests, then
+the staging copy at `/staging/`); merging into `main` publishes the live
+game. Never push to the website branch `claude/sharp-hawking-0380ax`: the
+workflow writes it (WORKFLOW.md step 5).
+
 ## Feedback comes from the dev team only
 
 For now *(decision 2026-10-12)* there is no outside feedback: no player

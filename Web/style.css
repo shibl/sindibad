@@ -1977,3 +1977,14 @@ body.calm .isle__ring, body.calm .shop__stage::before, body.calm .result__rays, 
   background: var(--paper); border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 3px 0 var(--ink);
 }
 .map-voyages:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+
+/* ================= Staging copy (developers only; core/env.js) ================= */
+/* A ribbon, so the staging copy is never mistaken for the live game. */
+html[data-env="staging"] body::after {
+  content: 'نسخة تجريبية';
+  position: fixed; z-index: 1000; pointer-events: none;
+  bottom: calc(var(--safe-bottom) + 4px); left: 4px;
+  padding: 1px 10px; border-radius: 999px;
+  background: var(--rose); color: #fff; border: 2px solid var(--ink);
+  font-size: 12px; font-weight: 800; opacity: .9;
+}
