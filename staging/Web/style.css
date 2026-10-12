@@ -2661,3 +2661,288 @@ svg .lx-spot.is-next::before { content: none; }
 }
 .tn-dots i.is-learn { border-radius: 3px; background: #cfe3f7; }
 .tn-dots i.is-learn.is-on { background: #3f8fd6; }
+
+/* ---------- Question steps any island can use (core/learn/steps.js) ---------- */
+.lq { display: flex; flex-direction: column; gap: 8px; }
+.lq-ask { margin: 0; font-size: clamp(16px, 4.4vw, 19px); font-weight: 800; line-height: 1.45; }
+.lq-ask b { color: var(--unit, var(--rose)); }
+.lq-pic { display: flex; justify-content: center; }
+.lq-pic .sv { width: min(100%, 360px); }
+.lq-opts { display: grid; gap: 8px; grid-template-columns: 1fr; }
+.lq-opts--two { grid-template-columns: 1fr 1fr; }
+.lq-opts--grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+.lq-opt {
+  display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 48px; padding: 6px 10px;
+  font: inherit; font-size: 16px; font-weight: 800; line-height: 1.35; color: var(--ink); text-align: center; cursor: pointer;
+  background: #fff; border: 3px solid var(--ink); border-radius: 16px; box-shadow: 0 4px 0 var(--ink);
+}
+.lq-opt:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--ink); }
+.lq-opt:disabled { opacity: .45; }
+.lq-opt.is-right { background: #dff3d2; border-color: var(--green); }
+.lq-opt.is-used { opacity: .35; }
+.lq-opt__icon { font-size: 22px; }
+.lq-opt--yes { background: #effae6; } .lq-opt--no { background: #fff0ef; }
+.tn-step .lq .is-reveal { animation: reveal-glow 1s ease-in-out infinite; }
+.lq-foot { display: flex; justify-content: center; margin-top: 6px; animation: pop .3s; }
+.lq-next { font-size: 19px; min-width: 160px; }
+.lq-left { text-align: center; font-weight: 800; color: #8a7a5a; }
+/* the book's «أستنتج» sentences */
+.lq-lines { margin: 0; padding-inline-start: 22px; display: flex; flex-direction: column; gap: 6px; }
+.lq-lines li { font-size: 16px; line-height: 1.6; padding: 2px 6px; border-radius: 10px; color: #8a7a5a; }
+.lq-lines li.is-now { color: var(--ink); background: #fff6d6; font-weight: 700; }
+.lq-lines li.is-done { color: var(--ink); }
+.lq-slot { display: inline-block; min-width: 3.5em; padding: 0 6px; text-align: center; border-bottom: 2.5px dashed #c9a96a; font-weight: 800; }
+.lq-slot.is-filled { border-bottom-color: var(--green); color: #2f7a3f; background: #e9f7df; border-radius: 6px 6px 0 0; animation: lx-open .35s; }
+/* sort: one card at a time, into a bin */
+.lq-tray { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.lq-item { display: flex; align-items: center; gap: 8px; padding: 10px 16px; font-size: 17px; background: #fff; border: 3px solid var(--ink); border-radius: 16px; box-shadow: 0 4px 0 var(--ink); }
+.lq-item.is-pop { animation: lx-note .35s; }
+.lq-item__icon { font-size: 30px; }
+.lq-bins { display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: 8px; }
+.lq-bins[style*="--n:4"] { grid-template-columns: repeat(2, 1fr); }
+.lq-bin { display: flex; flex-direction: column; align-items: stretch; gap: 4px; min-height: 86px; padding: 6px; font: inherit; font-weight: 800; font-size: 15px; color: var(--ink); background: #fffaf0; border: 3px dashed #c9a96a; border-radius: 16px; cursor: pointer; }
+.lq-bin__head { padding: 2px 4px 4px; border-bottom: 2px solid #ead9b4; }
+.lq-bin__in { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; font-size: 18px; }
+.lq-bin__in i { font-style: normal; animation: lx-open .3s; }
+.lq-bin.is-got { animation: lx-nudge .4s; }
+/* order */
+.lq-seq { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 4px; }
+.lq-seq__slot { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 54px; min-height: 54px; padding: 2px 4px; background: #f3ead6; border: 2.5px dashed #c9a96a; border-radius: 12px; }
+.lq-seq__slot.is-filled { background: #e9f7df; border: 2.5px solid var(--green); animation: lx-open .35s; }
+.lq-seq__slot b { font-size: 22px; line-height: 1.1; } .lq-seq__slot small { font-size: 11px; font-weight: 800; }
+.lq-seq__arrow { font-style: normal; font-weight: 800; color: #c9a96a; }
+/* match */
+.lq-match { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: start; }
+.lq-match__l { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.lq-match__l li { padding: 8px 10px; font-weight: 800; font-size: 15px; line-height: 1.35; background: #fff; border: 2.5px solid #ddd0b8; border-radius: 12px; }
+.lq-match__l li.is-now { border-color: var(--ink); background: #fff6d6; box-shadow: 0 3px 0 var(--ink); }
+.lq-match__l li.is-done { border-color: var(--green); background: #f0f9ea; }
+.lq-match__got { display: block; margin-top: 2px; color: #2f7a3f; font-size: 14px; }
+.lq-match__r { display: flex; flex-direction: column; gap: 6px; }
+.lq-match__r .lq-opt { min-height: 42px; font-size: 14px; }
+.lq-match:has(.lq-match__l li.is-done):not(:has(.lq-match__r)) { grid-template-columns: 1fr; }
+/* true / false */
+.lq-tf { padding: 12px 14px; background: #fff; border: 3px solid var(--ink); border-radius: 16px; box-shadow: 0 3px 0 var(--ink); }
+.lq-tf.is-pop { animation: lx-note .35s; }
+.lq-tf__s { margin: 0; font-size: 17px; font-weight: 800; line-height: 1.5; }
+.lq-tf__fix { margin: 6px 0 0; padding: 6px 10px; font-weight: 700; color: #2a6fb0; background: #eef7ff; border-radius: 10px; animation: lx-note .35s; }
+/* number keypad */
+.lq-num { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.lq-num__out { min-width: 120px; padding: 4px 14px; font: 800 30px/1.2 "Baloo Bhaijaan 2", sans-serif; text-align: center; background: #fff; border: 3px solid var(--ink); border-radius: 14px; }
+.lq-num__out.is-right { background: #dff3d2; border-color: var(--green); }
+.lq-num__out.is-reveal::after { content: " → " attr(data-want); color: #2a6fb0; }
+.lq-num__unit { font-size: 24px; }
+.lq-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; max-width: 280px; margin: 0 auto; width: 100%; }
+.lq-key { min-height: 46px; font: 800 22px "Baloo Bhaijaan 2", sans-serif; color: var(--ink); background: #fff; border: 2.5px solid var(--ink); border-radius: 12px; box-shadow: 0 3px 0 var(--ink); cursor: pointer; }
+.lq-key:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.lq-key--go { background: var(--gold); }
+/* label: tap the named part */
+.lq-find { margin: 0; text-align: center; font-size: 18px; font-weight: 800; }
+.lq-find b { display: inline-block; padding: 1px 12px 3px; color: #fff; background: var(--unit, var(--rose)); border-radius: 999px; }
+.lq-find b.is-pop { animation: lx-open .35s; }
+.lq-hit { cursor: pointer; }
+.lq-hit.is-shake { animation: shake .45s; }
+svg .lq-hit .lx-hit { fill: rgba(63, 143, 214, .08); stroke: rgba(63, 143, 214, .45); stroke-width: 1.5; stroke-dasharray: 4 3; }
+svg .lq-hit.is-found .lx-hit { fill: rgba(79, 191, 90, .16); stroke: var(--green); stroke-dasharray: none; }
+svg .lq-hit.is-reveal .lx-hit { fill: rgba(255, 210, 63, .35); stroke: #e0a400; animation: none; }
+svg .lq-hit.is-reveal { animation: none; }
+
+/* ---------- The science island (core/lab/) ---------- */
+.screen--lab { background: #cdeeff; }
+.lb-tag { border-color: var(--unit, var(--ink)); }
+.lb-tag b { color: var(--ink); }
+.lb-tag span { background: var(--unit); border-radius: 50%; width: 1.6em; height: 1.6em; display: inline-grid; place-items: center; }
+.lb-unit { display: inline-block; padding: 1px 12px 3px; color: #fff; background: var(--unit); border-radius: 999px; font-weight: 800; }
+.lb-sheet .tn-head { border-bottom-color: var(--unit); }
+.lb-sheet .lx { --lx-accent: color-mix(in srgb, var(--unit) 70%, #3b2414); }
+#lab-places:focus-within { position: absolute !important; z-index: 9; width: auto; height: auto; margin: 0; clip: auto; overflow: visible; white-space: normal; inset-inline: 10px; top: calc(118px + var(--safe-top)); display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; background: rgba(240, 250, 255, .96); border: 3px solid var(--ink); border-radius: 16px; }
+#lab-places button { font: inherit; font-weight: 800; padding: 4px 10px; background: #fff; border: 2px solid var(--ink); border-radius: 999px; }
+
+/* ---------- Science pictures (core/lab/views.js, views-machines.js) ----------
+   Drawn in SVG; a spot that opens adds `st-<id>` (kept) and data-st (the
+   latest) to the picture, and these rules play the experiment. */
+.sv { width: min(100%, 380px); height: auto; display: block; overflow: visible; font-family: "Baloo Bhaijaan 2", sans-serif; }
+.sv * { transform-box: fill-box; }
+.sv-emo { text-anchor: middle; dominant-baseline: central; }
+.sv-t { font-size: 12px; font-weight: 800; fill: var(--ink); text-anchor: middle; }
+.sv-t--red { fill: #c7373f; } .sv-small { font-size: 10px; }
+.sv-lab { font-size: 13px; font-weight: 800; fill: #6a3fb0; text-anchor: middle; paint-order: stroke; stroke: #fff; stroke-width: 3px; }
+.sv-lab--side { text-anchor: middle; }
+.sv-ar line { stroke: var(--ink); stroke-width: 3.5; stroke-linecap: round; }
+.sv-ar path { fill: var(--ink); }
+.sv-ar--r line { stroke: #e8453c; } .sv-ar--r path { fill: #e8453c; }
+.sv-ar--g line { stroke: #2f9a4a; } .sv-ar--g path { fill: #2f9a4a; }
+.sv-ar--y line { stroke: #e0a400; } .sv-ar--y path { fill: #e0a400; }
+.sv-ar--b line { stroke: #3f8fd6; } .sv-ar--b path { fill: #3f8fd6; }
+.sv-node { fill: #fff; stroke: var(--ink); stroke-width: 2.5; }
+.sv-panel { fill: #fff; stroke: #d9c7a6; stroke-width: 2; }
+.sv-card { fill: #fff; stroke: var(--ink); stroke-width: 2; }
+.sv-table { fill: #c99863; stroke: var(--ink); stroke-width: 2; } .sv-table-leg { fill: #a8703f; }
+.sv-spring { fill: none; stroke: #7a858d; stroke-width: 2.5; stroke-linejoin: round; }
+.sv-scale__case { fill: #3f8fd6; stroke: var(--ink); stroke-width: 2.5; }
+.sv-scale__ring { fill: none; stroke: var(--ink); stroke-width: 2.5; }
+.sv-scale__ptr { fill: #e8453c; } .sv-scale__hook { stroke: var(--ink); stroke-width: 2.5; }
+.sv-read { font-size: 15px; font-weight: 800; fill: #e8453c; paint-order: stroke; stroke: #fff; stroke-width: 3px; }
+.sv-wt path { fill: #3b3640; stroke: var(--ink); stroke-width: 2; } .sv-wt__ring { fill: none; stroke: var(--ink); stroke-width: 2.5; }
+.sv-wt__t { font-size: 11px; font-weight: 800; fill: #fff; text-anchor: middle; }
+.sv-dash { stroke: var(--ink); stroke-width: 2.5; stroke-dasharray: 8 6; }
+.sv-mag { stroke: #3f8fd6; stroke-width: 4; stroke-linecap: round; }
+.sv-ring { fill: none; stroke: #e8453c; stroke-width: 2; stroke-dasharray: 4 3; }
+.sv-drop { fill: #7fd0ff; stroke: #3f8fd6; stroke-width: 1.2; } .sv-drop--y { fill: #ffe066; stroke: #e0a400; }
+.sv-bub { fill: #eef7ff; stroke: #9aa5ad; stroke-width: 1.5; }
+.sv-lens { fill: rgba(255, 255, 255, .8); stroke: var(--ink); stroke-width: 2.5; }
+.sv-worm { fill: none; stroke: #d97a6a; stroke-width: 4; stroke-linecap: round; }
+.sv-fp { fill: none; stroke: #6a3fb0; stroke-width: 1.8; }
+.sv-bracket { fill: none; stroke: #e8453c; stroke-width: 2.5; } .sv-bracket--g { stroke: #2f9a4a; }
+.sv-smoke { fill: #c9cfd4; opacity: .85; }
+.sv-meter { fill: #fff; stroke: var(--ink); stroke-width: 2; }
+.sv-meter__fill { fill: #e8453c; transition: width .9s ease; }
+.sv [data-spot] .lx-label:empty { display: none; }
+.sv .sv-specks, .sv .car-w, .sv .car-r, .sv .car-b, .sv .bk-f, .sv .pp-first, .sv .ps-zero, .sv .bl-flags, .sv .wd-f, .sv .fl-drops, .sv .pr-print, .sv .ex-breath, .sv .ex-sweat, .sv .ex-urine, .sv .lv-arms, .sv .lv-e { opacity: 0; transition: opacity .5s; }
+/* chain and web: arrows appear as the energy travels */
+.sv-chain .sv-ar { opacity: .15; transition: opacity .5s; }
+.sv-chain.st-hopper .ar-1, .sv-chain.st-frog .ar-2, .sv-chain.st-snake .ar-3, .sv-chain.st-hawk .ar-4 { opacity: 1; }
+.sv-energy { fill: #e0a400; }
+.sv-web .sv-ar { opacity: .15; transition: opacity .5s; }
+.sv-web.st-c1 .w-1 { opacity: 1; } .sv-web.st-c1 .w-1 line { stroke: #e8453c; } .sv-web.st-c1 .w-1 path { fill: #e8453c; }
+.sv-web.st-c2 .w-2 { opacity: 1; } .sv-web.st-c3 .w-3 { opacity: 1; } .sv-web.st-c3 .w-3 line { stroke: #3f8fd6; } .sv-web.st-c3 .w-3 path { fill: #3f8fd6; }
+.sv-dust .st-window .sv-specks, .sv-dust.st-window [data-spot="window"] .sv-specks, .sv-dust.st-stairs [data-spot="stairs"] .sv-specks, .sv-dust.st-board [data-spot="board"] .sv-specks, .sv-dust.st-yard [data-spot="yard"] .sv-specks { opacity: 1; }
+.sv-jelly { fill: #fff6c8; stroke: #e8d48a; } .sv-specks circle { fill: #8a7a5a; }
+/* pins: the ruler pushes only what it touches; the magnet pulls from afar */
+.sv-ruler, .pins-a, .pins-b, .sv-magnet { transition: transform 1s cubic-bezier(.3, .7, .3, 1); }
+.sv-pins.st-ruler .sv-ruler { transform: translateX(-38px); }
+.sv-pins.st-ruler .pins-a { transform: translateX(-26px); }
+.sv-pins.st-magnet .sv-magnet { transform: translateX(14px); }
+.sv-pins.st-magnet .pins-b { transform: translate(-22px, -16px); transition-delay: .5s; }
+/* the car: action, reaction, balanced, then the magnet moves it */
+.sv-car.st-weight .car-w, .sv-car.st-reaction .car-r, .sv-car.st-balanced .car-b { opacity: 1; }
+.sv-car .sv-car, .sv-car .sv-hand { transition: transform 1.2s ease; }
+.sv-car.st-magnet .sv-car { transform: translateX(46px); transition-delay: .5s; }
+.sv-car.st-magnet .sv-hand { transform: translateX(-16px); }
+.sv-car .sv-hand { opacity: .55; } .sv-car.st-magnet .sv-hand { opacity: 1; }
+/* the spring scale lifts the weight */
+.sc-tool, .sc-wt { transition: transform 1s ease; }
+.sv-scale.st-pull .sc-tool { transform: translateY(-6px); }
+.sv-scale.st-pull .sc-wt { transform: translateY(-22px); }
+.sv-scale.st-pull .sv-spring { transform: scaleY(1.25); transform-origin: top; }
+.sc-thread { stroke: #e8453c; stroke-width: 2; }
+.sv-scale.st-pull .sc-thread { transform: translateY(-22px); transition: transform 1s ease; }
+/* the resultant: hang w₁, add w₂, swap for w */
+.rs-w1, .rs-w2, .rs-w { opacity: 0; transition: opacity .5s; }
+.sv-resultant[data-st="w1"] .rs-w1, .sv-resultant[data-st="w2"] .rs-w1, .sv-resultant[data-st="w2"] .rs-w2, .sv-resultant[data-st="w"] .rs-w { opacity: 1; }
+.sv-resultant .sv-spring { transition: transform .8s ease; transform-origin: top; }
+.sv-resultant[data-st="w1"] .sv-spring { transform: scaleY(1.4); }
+.sv-resultant[data-st="w2"] .sv-spring, .sv-resultant[data-st="w"] .sv-spring { transform: scaleY(2); }
+/* the book between two palms */
+.bk-book, .bk-l, .bk-r { transition: transform 1.4s ease; }
+.sv-book.st-pull .bk-book { transform: translateY(10px); }
+.sv-book.st-pull .bk-f { opacity: 1; }
+.sv-book.st-press .bk-l { transform: translateX(6px); } .sv-book.st-press .bk-r { transform: translateX(-6px); }
+.sv-book.st-press .bk-f line { stroke-width: 6; }
+/* two balls, the glass one rolls farther */
+.bl-red, .bl-blue, .bl-ruler { transition: transform 2s cubic-bezier(.2, .8, .3, 1); }
+.sv-balls.st-push .bl-ruler { transform: translateX(-14px); transition-duration: .4s; }
+.sv-balls.st-push .bl-red { transform: translateX(-90px); }
+.sv-balls.st-push .bl-blue { transform: translateX(-210px); transition-duration: 2.6s; }
+.sv-balls.st-push .bl-flags { opacity: 1; transition-delay: 2.4s; }
+/* three surfaces: the meter fills more on rougher ground */
+.sf-cube { transition: transform 1.4s ease; }
+.sv-surfaces.st-glass .sf-glass, .sv-surfaces.st-wood .sf-wood, .sv-surfaces.st-felt .sf-felt { transform: translateX(-150px); }
+.sv-surfaces.st-glass .mt-glass { width: 12px; } .sv-surfaces.st-wood .mt-wood { width: 26px; } .sv-surfaces.st-felt .mt-felt { width: 44px; }
+/* two sheets fall: the folded one first */
+.pp-fold, .pp-flat { transition: transform 1s ease-in; }
+.sv-paper.st-drop .pp-fold { transform: translateY(136px); transition-duration: .7s; }
+.sv-paper.st-drop .pp-flat { transform: translateY(142px) rotate(4deg); transition: transform 2.4s cubic-bezier(.4, .1, .6, 1); }
+.sv-paper.st-drop .pp-first { opacity: 1; transition-delay: .8s; }
+/* work: the horse and the chair move, the rock does not */
+.ps-horse, .ps-chair { transition: transform 1.6s ease; }
+.sv-push.st-horse .ps-horse { transform: translateX(-26px); }
+.sv-push.st-chair .ps-chair { transform: translateX(-34px); }
+.sv-push.st-rock .ps-rock { animation: shake .5s 3; } .sv-push.st-rock .ps-zero { opacity: 1; }
+/* the wheelbarrow's work bars grow */
+.br-bar { fill: #f2c14e; stroke: var(--ink); stroke-width: 2; transform: scaleY(0); transform-origin: bottom; transition: transform .8s cubic-bezier(.2, .9, .3, 1.3); }
+.sv-barrow.st-light .br-light, .sv-barrow.st-heavy .br-heavy, .sv-barrow.st-short .br-short, .sv-barrow.st-long .br-long { transform: scaleY(1); }
+.br-heavy, .br-long { fill: #f28c3a; }
+/* W = F × d */
+.jl-box { fill: #fff; stroke: var(--ink); stroke-width: 2.5; } .jl-box--w { fill: #fff6c8; }
+.jl-big { font-size: 20px; } .jl-op { font-size: 26px; } .jl-law { font-size: 22px; fill: #6a3fb0; }
+.sv-joule .jl-ans { opacity: 0; transition: opacity .5s; } .sv-joule.st-w .jl-ans { opacity: 1; }
+/* the body's three exits */
+.sv-exits.st-lungs .ex-breath, .sv-exits.st-skin .ex-sweat, .sv-exits.st-kidney .ex-urine { opacity: 1; }
+.sv-exits.st-lungs .ex-breath { animation: rise 2s ease-in-out infinite; }
+@keyframes rise { 50% { transform: translateY(-5px); } }
+/* the urinary system */
+.ur-kid { fill: #b33a3a; stroke: var(--ink); stroke-width: 2.5; }
+.ur-tube { fill: none; stroke: #f2d16a; stroke-width: 7; stroke-linecap: round; }
+.ur-out { fill: #f2d16a; stroke: none; }
+.ur-blad { fill: #f29ac0; stroke: var(--ink); stroke-width: 2.5; }
+/* the filter experiment */
+.fl-cup { fill: rgba(220, 240, 255, .6); stroke: var(--ink); stroke-width: 2.5; }
+.fl-murky { fill: #b89a6a; opacity: .75; transition: opacity 1s; }
+.fl-clear { fill: #8fd8ff; opacity: 0; transition: opacity 1.2s 1.2s; }
+.fl-funnel { fill: #e8f4ff; stroke: var(--ink); stroke-width: 2.5; } .fl-paper { fill: #fff; stroke: #c9b48a; stroke-width: 1.5; }
+.fl-sand { opacity: 0; transition: opacity .6s .6s; }
+.sv-filter.st-pour .fl-murky { opacity: .2; } .sv-filter.st-pour .fl-clear { opacity: .9; } .sv-filter.st-pour .fl-sand { opacity: 1; }
+.sv-filter.st-pour .fl-drops { opacity: 1; animation: drip 1s linear infinite; }
+@keyframes drip { from { transform: translateY(-6px); } to { transform: translateY(8px); } }
+/* fingerprints */
+.pr-glass { fill: rgba(220, 240, 255, .6); stroke: var(--ink); stroke-width: 2.5; }
+.sv-prints.st-glass .pr-print { opacity: 1; }
+.sv-prints.st-glass .pr-brush { animation: lx-nudge .5s 2; }
+.sv-prints.st-match .pr-match .sv-card { stroke: var(--green); stroke-width: 4; fill: #effae6; }
+/* machines: the ramp's three set-ups */
+.lx-pick { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; }
+.lx-pick__row { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.lx-pill { font: inherit; font-weight: 800; font-size: 14px; padding: 4px 12px 6px; color: var(--ink); background: #fff; border: 2.5px solid var(--ink); border-radius: 999px; box-shadow: 0 3px 0 var(--ink); }
+.lx-pill.is-found { background: #dff3d2; }
+.rp-cfg { opacity: 0; transition: opacity .5s; }
+.lx-pick:not([data-st]) .rp-low, .lx-pick[data-st="low"] .rp-low, .lx-pick[data-st="steep"] .rp-steep, .lx-pick[data-st="lift"] .rp-lift { opacity: 1; }
+/* the wedge splits the rock */
+.wd-hammer, .wd-l, .wd-r, .wd-wedge { transition: transform .6s ease; }
+.sv-wedge.st-hit .wd-hammer { transform: translate(-46px, 18px) rotate(-30deg); }
+.sv-wedge.st-hit .wd-wedge { transform: translateY(10px); }
+.sv-wedge.st-hit .wd-f { opacity: 1; transition-delay: .3s; }
+.sv-wedge.st-split .wd-l { transform: translateX(-12px) rotate(-4deg); } .sv-wedge.st-split .wd-r { transform: translateX(12px) rotate(4deg); }
+/* the screw turns in */
+.sc-pencil { transition: transform 1.4s ease; } .sv-screw.st-groove .sc-pencil { transform: translate(-30px, 40px) rotate(-20deg); }
+.sc-drive, .sc-small { transition: transform 1.6s ease; } .sv-screw.st-turn .sc-drive, .sv-screw.st-turn .sc-small { transform: translateY(26px); }
+.sv-screw.st-turn .sc-drive { animation: twist .4s linear 4; }
+@keyframes twist { 50% { transform: translateY(13px) scaleX(.6); } }
+/* the lever lifts the book */
+.lv-bar, .lv-book, .lv-hand { transition: transform 1s ease; }
+.lv-bar { transform-origin: 196px 150px; transform-box: view-box; }
+.sv-lever.st-press .lv-bar { transform: rotate(-6deg); }
+.sv-lever.st-press .lv-book { transform: translateY(-10px); }
+.sv-lever.st-press .lv-hand { transform: translateY(12px); }
+.sv-lever.st-effort .lv-e, .sv-lever.st-arms .lv-arms { opacity: 1; }
+/* lever classes */
+.cl-row { fill: #fff; stroke: #d9c7a6; stroke-width: 2; }
+.cl-f { fill: #2fb3a8; stroke: var(--ink); stroke-width: 1.5; } .cl-l { fill: #4fbf5a; stroke: var(--ink); stroke-width: 1.5; }
+.sv-classes [data-spot].is-found .cl-row { fill: #effae6; stroke: var(--green); }
+/* the flag goes up */
+.fg-flag { transition: transform 2s ease; } .sv-flag.st-pull .fg-flag { transform: translateY(-112px); }
+.sv-flag .fg-down { opacity: .3; } .sv-flag.st-pull .fg-down { opacity: 1; }
+/* pulleys lift their weights */
+.pu-f, .pu-m { transition: transform 1.6s ease; }
+.sv-pulleys.st-fixed .pu-f { transform: translateY(-30px); }
+.sv-pulleys.st-movable .pu-m { transform: translateY(-24px); }
+/* the knob turns the spindle; the steering wheels turn */
+.kb-knob, .kb-pen { transition: transform 1.5s ease; }
+.sv-knob.st-knob .kb-knob { transform: rotate(160deg); }
+.sv-knob.st-spindle .kb-spin { animation: shake .45s 2; }
+.sv-knob.st-cap .kb-pen { transform: rotate(18deg); }
+.st-sm, .st-bg { transition: transform 2s ease; }
+.sv-steering.st-small .st-sm { transform: rotate(180deg); } .sv-steering.st-big .st-bg { transform: rotate(180deg); }
+/* the nail clipper */
+.cp-top { transition: transform .8s ease; } .sv-clipper.st-top .cp-top { transform: rotate(4deg); transform-origin: right; }
+@media (prefers-reduced-motion: reduce) { .sv * { transition: none !important; } }
+/* Only a picture's parts take taps; drawings over them let taps through. */
+.sv * { pointer-events: none; }
+.sv [data-spot], .sv [data-spot] * { pointer-events: auto; }
+/* Overlapping parts: in a guided tour only the glowing part's area takes
+   taps, and a part already found steps aside for the next. */
+.lx--guided svg .lx-spot:not(.is-next) > .lx-hit, svg .lx-spot.is-found > .lx-hit, svg .lq-hit.is-found > .lx-hit { pointer-events: none; }
+.lx--guided svg [data-spot]:not(.is-next), .lx--guided svg [data-spot]:not(.is-next) * { pointer-events: none; }
+
+.sv .kb-knob, .sv .kb-pen, .sv .sv-wheel { transform-box: view-box; }
+.sv text[dir="ltr"] { direction: ltr; unicode-bidi: isolate; }

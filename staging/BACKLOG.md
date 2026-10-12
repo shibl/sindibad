@@ -582,3 +582,46 @@ errors; screenshots of every discovery step at 390×844 (fixed: a black
 key that jumped out of the piano while glowing, a key-signature picture
 too small to read). `npm test` checks every quest opens with «أتعلّم» and
 walks the piano tour (no skipping, one key at a time).
+
+## Playtest notes — 2026-10-13 (the science island)
+
+The owner gave the grade-6 science book, semester 1 (120 pages, read in
+full, page by page, by four readers working in parallel) and asked for the
+science island to be "creative and great", "high end", and to teach before
+it asks. Built: «جزيرة العلوم» as a 3D island (SPEC: "The science island
+(3D)"); the old walkable science island and its seven topics were retired.
+
+**What it is:** ten places in four districts (one per unit), seventeen
+quests (one per lesson), 46 «أتعلّم» teaching steps drawn from the book's
+experiments, and the book's own question formats (the shared
+`core/learn/steps.js`, ready for other islands). A lighthouse lights one
+crystal per quest; «شرارة» the lab robot helps.
+
+**Content choices to check with educators** (all draft):
+- Habit cards (urinary health): the book's «المشروبات الكحولية والغازية
+  بكثرة» became «المشروبات الغازية بكثرة» for young players.
+- Left out as unclear in the book: the fishing rod and the oar as lever
+  examples; "the rope is not a part of the pulley"; the football question
+  of worksheet 2 (no option fits); the relationship clock (worksheet 1).
+- The dust-card experiment shows example results (the book prints none):
+  "the yard card was the dirtiest in our experiment".
+- A few facts not printed in the book were added to explain: «المقذرة»
+  glossed as "an opening at the end of the body"; birds have no bladder
+  "to stay light" was not used as a fact, only the book's "adaptation".
+
+**Checked:** all seventeen quests played to three stars by script, no
+console errors; screenshots of every teaching step at 390×844 (fixed:
+parts hidden under other parts, a ramp picture that went blank, a knob
+that spun away, overlapping labels, arrows too short, text written
+backwards). `npm test` has a science-island section: well-formed quests,
+every view and part exists, teaching first, three quests played (one with
+a wrong sum → 2 stars), crystals, reload, offline. About 34 draw calls.
+
+**Next items:**
+43. [ ] Real-device check of the science island on a 2 GB Android phone.
+44. [ ] Semester 2 of the science book, when the owner shares it: more
+    quests on the same island (or a second district).
+45. [ ] Richer animals and people in the forest and pond (they are simple
+    toys now); a skier on the friction slopes that really slides.
+46. [on hold — teacher review comes later] Teacher review of the science
+    island's content (draft, from the book).

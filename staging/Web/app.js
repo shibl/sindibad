@@ -22,7 +22,6 @@ import { profileList, addPlayTime, activeProfile } from './core/save.js';
 import { initOverworld, enterIsland, lessonReturned, debugState, debugBlocked, debugPlace } from './core/overworld.js';
 import arabicIsland from './worlds/grade6/arabic.js';
 import mathIsland from './worlds/grade6/math.js';
-import scienceIsland from './worlds/grade6/science.js';
 import socialIsland from './worlds/grade6/social.js';
 import treasureIsland from './worlds/grade6/treasure.js';
 import { initLesson, startLesson, streak } from './core/lesson.js';
@@ -94,7 +93,7 @@ export function showScreen(name, detail) {
     el.toggleAttribute('data-active', el.id === `screen-${name}`);
   });
   document.body.dataset.screen = name;
-  if (name === 'island' || name === 'farm' || name === 'tunes') startAmbience(); else stopAmbience();
+  if (name === 'island' || name === 'farm' || name === 'tunes' || name === 'lab') startAmbience(); else stopAmbience();
   if (name === 'title' || name === 'map' || name === 'chapters') { place = name === 'chapters' ? 'map' : name; playMusic(place); }
   if (name === 'chapters') {
     renderChapters(document.getElementById('chapters'), {
@@ -222,8 +221,8 @@ paintScene();
 paintShip(document.querySelector('.ship--title'), ['sindbad', 'yasmina']);
 wireNavigation();
 wireHeroSelect();
-const ISLANDS = { arabic: arabicIsland, math: mathIsland, science: scienceIsland, social: socialIsland, treasure: treasureIsland };
-let lessonFromIsland = false, lessonFromFarm = false, lessonFromTunes = false;
+const ISLANDS = { arabic: arabicIsland, math: mathIsland, social: socialIsland, treasure: treasureIsland };
+let lessonFromIsland = false, lessonFromFarm = false, lessonFromTunes = false, lessonFromLab = false;
 // The farm is a 3D island: its code (and three.js) loads only when a child
 // first sails there, so the rest of the game starts as fast as before.
 let farm = null;
@@ -251,13 +250,27 @@ function enterTunes(region) {
   loadTunes().then(m => wipe(() => { showScreen('tunes'); m.enterTunes(region); place = 'music'; playMusic('music'); }))
     .catch(err => { console.error('The music island failed to load', err); tunes = null; });
 }
+// And the science island (core/lab/).
+let lab = null;
+const loadLab = () => (lab ||= import('./core/lab/lab.js').then(m => {
+  m.initLab({
+    leave: after => wipe(() => showScreen('map', after)),
+    startLesson: id => { lessonFromLab = true; wipe(() => startLesson(id)); },
+  });
+  return m;
+}));
+function enterLab(region) {
+  loadLab().then(m => wipe(() => { showScreen('lab'); m.enterLab(region); place = 'science'; playMusic('science'); }))
+    .catch(err => { console.error('The science island failed to load', err); lab = null; });
+}
 initMap(document.getElementById('map'), world, {
   openTopic: startLesson,
-  islands: { ...ISLANDS, farm: true, music: true },
+  islands: { ...ISLANDS, farm: true, music: true, science: true },
   enterIsland: id => {
     const region = world.regions.find(r => r.id === id);
     if (region.kind === 'farm') { enterFarm(region); return; }
     if (region.kind === 'tunes') { enterTunes(region); return; }
+    if (region.kind === 'lab') { enterLab(region); return; }
     wipe(() => { showScreen('island'); enterIsland(ISLANDS[id], region); place = id; playMusic(id); });
   },
 });
@@ -274,6 +287,7 @@ initLesson({
     if (lessonFromIsland) { lessonFromIsland = false; wipe(() => { showScreen('island'); lessonReturned(after); }); }
     else if (lessonFromFarm) { lessonFromFarm = false; loadFarm().then(m => wipe(() => { showScreen('farm'); m.lessonReturned(after); })); }
     else if (lessonFromTunes) { lessonFromTunes = false; loadTunes().then(m => wipe(() => { showScreen('tunes'); m.lessonReturned(after); })); }
+    else if (lessonFromLab) { lessonFromLab = false; loadLab().then(m => wipe(() => { showScreen('lab'); m.lessonReturned(after); })); }
     else showScreen('map', after);
   },
 });
@@ -327,4 +341,4 @@ document.getElementById('screen-title').addEventListener('pointermove', e => {
 });
 
 // Test hook: lets headless tests read the hero's position on an island.
-if (window.__SINDBAD_TEST__) Object.assign(window, { __island: debugState, __blocked: debugBlocked, __place: debugPlace, __lesson: startLesson, __farm: () => loadFarm().then(m => m.debugFarm()), __tunes: () => loadTunes().then(m => m.debugTunes()), __tunesDo: (fn, ...a) => loadTunes().then(m => m[fn](...a)), __sea: debugSea, __seaLook: debugSeaLook });
+if (window.__SINDBAD_TEST__) Object.assign(window, { __island: debugState, __blocked: debugBlocked, __place: debugPlace, __lesson: startLesson, __farm: () => loadFarm().then(m => m.debugFarm()), __tunes: () => loadTunes().then(m => m.debugTunes()), __tunesDo: (fn, ...a) => loadTunes().then(m => m[fn](...a)), __lab: () => loadLab().then(m => m.debugLab()), __labDo: (fn, ...a) => loadLab().then(m => m[fn](...a)), __sea: debugSea, __seaLook: debugSeaLook });

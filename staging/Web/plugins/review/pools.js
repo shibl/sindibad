@@ -8,9 +8,7 @@ import { ITEMS as MUBTADA } from '../arabic/mubtada-khabar.js';
 import { ITEMS as PLURALS } from '../arabic/plurals.js';
 import { questions as percent } from '../math/percent.js';
 import { QUESTIONS as FRACOPS } from '../math/fraction-ops.js';
-import { ITEMS as MATTER } from '../science/matter.js';
-import { QUESTIONS as BODY } from '../science/body.js';
-import { QUESTIONS as PLANETS } from '../science/planets.js';
+import { QUESTS as SCIENCE, reviewOf as scienceReview } from '../../worlds/grade6/lab.js';
 import { QUESTIONS as GEO } from '../social/geography.js';
 import { PAIRS as LANDMARKS } from '../social/landmarks.js';
 import { ITEMS as KANA } from '../arabic/kana.js';
@@ -30,12 +28,8 @@ const fromPlural = it => ({
   options: [PLURAL_NAMES[it.bin], ...Object.entries(PLURAL_NAMES).filter(([k]) => k !== it.bin).map(([, v]) => v)], answer: 0,
   hint: it.hint, explain: it.explain,
 });
-const STATES = { s: 'صلبة', l: 'سائلة', g: 'غازية' };
-const fromMatter = it => ({
-  q: `ما حالة المادة: ${it.text}؟`,
-  options: [STATES[it.bin], ...Object.entries(STATES).filter(([k]) => k !== it.bin).map(([, v]) => v)], answer: 0,
-  hint: it.hint, explain: it.explain,
-});
+// The science island's quick-review questions (worlds/grade6/lab.js).
+const sciencePool = () => SCIENCE.flatMap(q => scienceReview(q.id));
 const fromLandmark = (p, all) => ({
   q: `في أيّ محافظة يقع: ${p.a}؟`,
   options: [p.b, ...shuffle(all.filter(x => x !== p)).slice(0, 3).map(x => x.b)], answer: 0,
@@ -46,7 +40,7 @@ function mixed() {
   return [
     ...pick(FAEL, 2).map(fromTap), ...pick(MUBTADA, 1).map(fromTap), ...pick(PLURALS, 1).map(fromPlural),
     ...pick(percent(), 1), ...pick(FRACOPS, 1),
-    ...pick(MATTER, 1).map(fromMatter), ...pick(BODY, 1), ...pick(PLANETS, 1),
+    ...pick(sciencePool(), 3),
     ...pick(GEO, 1), ...pick(LANDMARKS, 1).map(p => fromLandmark(p, LANDMARKS)),
     ...pick([...KANA, ...INNA], 1).map(fromTap), ...pick(RATIO, 1), ...pick(CLIMATE, 1),
   ];
@@ -56,7 +50,7 @@ function mixed() {
 const POOLS = {
   arabic: () => [...FAEL.map(fromTap), ...MUBTADA.map(fromTap), ...PLURALS.map(fromPlural), ...KANA.map(fromTap), ...INNA.map(fromTap)],
   math: () => [...percent(), ...FRACOPS, ...RATIO],
-  science: () => [...MATTER.map(fromMatter), ...BODY, ...PLANETS],
+  science: sciencePool,
   social: () => [...GEO, ...CLIMATE, ...LANDMARKS.map(p => fromLandmark(p, LANDMARKS)),
     ...CIVS.map(p => ({ q: `بماذا اشتهرت ${p.a}؟`, options: [p.b, ...shuffle(CIVS.filter(x => x !== p)).slice(0, 3).map(x => x.b)], answer: 0, hint: p.hint, explain: `${p.a}: ${p.b}.` }))],
 };

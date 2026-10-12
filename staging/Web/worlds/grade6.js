@@ -14,8 +14,8 @@
 // least `stars` stars in total. `null` = open from the start.
 //
 // from: draw the sea route from this stop instead of the island before it
-// (a side trip). kind: 'farm' / 'tunes' = a 3D island (core/farm/,
-// core/tunes/), not a walkable one.
+// (a side trip). kind: 'farm' / 'tunes' / 'lab' = a 3D island (core/farm/,
+// core/tunes/, core/lab/), not a walkable one.
 //
 // Curriculum mapping is a draft pending review by Syrian educators.
 
@@ -53,10 +53,12 @@ export default {
       intro: 'منارة الأرقام ترشد السفن بالكسور والنسب. احسب جيداً لتصل بأمان!',
     },
     {
+      // A 3D island (core/lab/) where the science book, semester 1, is
+      // played: experiments first, then questions (worlds/grade6/lab.js).
       id: 'science', name: 'جزيرة العلوم', subject: 'العلوم', art: 'science', pos: [28, 38],
-      color: '#2f8a5f', unlock: { region: 'math', stars: 2 },
+      color: '#2f8a5f', unlock: { region: 'math', stars: 2 }, kind: 'lab',
       badge: { name: 'مصباح العلوم', icon: '🔬' },
-      intro: 'بركان صغير ومختبر عجيب! هنا نكتشف المادة والكواكب وجسم الإنسان.',
+      intro: 'جزيرة نجرّب فيها العلوم بأيدينا: غابة وبحيرة، وساحة القوى، وقبّة الجسم، وقلعة الحصن… كما في كتاب العلوم.',
     },
     {
       id: 'social', name: 'جزيرة القلعة', subject: 'الجغرافيا والتاريخ', art: 'citadel', pos: [72, 22],
