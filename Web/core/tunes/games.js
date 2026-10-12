@@ -500,8 +500,12 @@ const KINDS = {
         timer = setTimeout(() => { if (taps) judge(); }, (S.beatsOf(step.pattern).beats + 1.5) * spb * 1000);
       }, TEST ? 0 : lead * 1000);
     });
-    drumBtn.addEventListener('pointerdown', e => { e.preventDefault(); hit(); });
-    drumBtn.addEventListener('click', e => { if (e.detail === 0 || TEST) hit(); });   // keyboard / tests
+    // A tap is a pointerdown (no click delay); the click that follows it is
+    // ignored, so each tap counts once even on a slow phone. A click with no
+    // pointerdown before it is the keyboard (Enter / Space).
+    let pressed = false;
+    drumBtn.addEventListener('pointerdown', e => { e.preventDefault(); pressed = true; hit(); });
+    drumBtn.addEventListener('click', () => { if (pressed) { pressed = false; return; } hit(); });
     let lastHit = 0;
     function hit() {
       if (!taps || performance.now() - lastHit < 60) return;

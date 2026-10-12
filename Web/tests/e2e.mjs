@@ -436,7 +436,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
       const turn = p.locator('#tunes-panel [data-turn]:not([disabled])');
       if (await turn.count() && await p.locator('#tunes-panel .tn-drum[disabled]').count()) { await turn.click(); await p.waitForTimeout(100); continue; }
       const drum = p.locator('#tunes-panel .tn-drum:not([disabled])');
-      if (await drum.count()) { const n = +(await drum.getAttribute('data-taps')); for (let i = 0; i < n; i++) { await drum.click(); await p.waitForTimeout(70); } await p.waitForTimeout(150); continue; }
+      if (await drum.count()) { const n = +(await drum.getAttribute('data-taps')); for (let i = 0; i < n && await drum.count(); i++) { await drum.click({ timeout: 5000 }); await p.waitForTimeout(70); } await p.waitForTimeout(150); continue; }
       const ok = p.locator('#tunes-panel [data-ok]');
       if (await ok.count()) { await ok.first().click(); continue; }
       await p.waitForTimeout(80);
