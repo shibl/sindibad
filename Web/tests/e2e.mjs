@@ -7,6 +7,8 @@
 //   pay, fill, build) can be played to three stars and fit a phone screen.
 //   The farm island (3D): choose a helper, play the potato quest to three
 //   stars, sell to the ship, keep it all after a reload, and play offline.
+//   A new version shows up by itself for players who already have the game,
+//   and the game falls silent in another tab.
 //   And the staging copy (under /staging/) keeps its own saves and offline copy.
 //
 //   npm install      (once, installs Playwright)
@@ -23,12 +25,15 @@ import { chromium } from 'playwright';
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.woff2': 'font/woff2' };
 
+let nextVersion = null;
 const server = createServer(async (req, res) => {
   // /staging/… serves the same files, like the staging copy on the website.
   const path = normalize(decodeURIComponent(new URL(req.url, 'http://x').pathname)).replace(/^([/\\])+/, '').replace(/^staging[/\\]/, '');
   const file = path || 'index.html';
   try {
-    const body = await readFile(join(ROOT, file));
+    let body = await readFile(join(ROOT, file));
+    // Tests can publish a "new version": same files, another version number.
+    if (file === 'service-worker.js' && nextVersion) body = String(body).replace(/const CACHE_VERSION = '[^']*';/, `const CACHE_VERSION = '${nextVersion}';`);
     res.writeHead(200, { 'content-type': TYPES[extname(file)] || 'application/octet-stream' });
     res.end(body);
   } catch { res.writeHead(404); res.end(); }
@@ -355,6 +360,45 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   check(errors.length === 0, `no console errors${errors.length ? `: ${errors.join(' | ')}` : ''}`);
   await ctx.close();
   await gl.close();
+}
+
+// A new version reaches players who already have the game: it shows up by
+// itself (a reload between activities), not only after closing the tab.
+// And the game falls silent in the background.
+console.log('— updates and background');
+{
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const p = await ctx.newPage();
+  const errors = [];
+  p.on('pageerror', e => errors.push(e.message));
+  await p.goto(URL_);
+  await p.evaluate(() => navigator.serviceWorker.ready);
+  await p.reload();
+  await p.waitForFunction(() => !!navigator.serviceWorker.controller);
+  const oldCaches = await p.evaluate(() => caches.keys());
+  nextVersion = 'next-version';   // the website now has a new version
+  await p.evaluate(() => { window.__before = true; });
+  const reloaded = p.waitForEvent('load', { timeout: 15000 }).then(() => true, () => false);
+  await p.evaluate(() => navigator.serviceWorker.getRegistration().then(r => r.update()));
+  check(await reloaded && !(await p.evaluate(() => window.__before)), 'a new version reloads the title screen by itself');
+  const now = await p.evaluate(() => caches.keys());
+  check(now.length === 1 && now[0].endsWith('next-version') && !oldCaches.includes(now[0]), 'the old offline copy is replaced by the new one');
+  nextVersion = null;
+
+  // Background: pretend the child switched to another tab.
+  await p.click('text=ابدأ الرحلة');   // a tap allows sound
+  const state = () => p.evaluate(() => import('/core/sound.js').then(m => m.ac()?.state));
+  const setHidden = h => p.evaluate(h => { Object.defineProperty(document, 'hidden', { value: h, configurable: true }); document.dispatchEvent(new Event('visibilitychange')); }, h);
+  await p.waitForTimeout(300);
+  check(await state() === 'running', 'sound plays while the game is in front');
+  await setHidden(true);
+  await p.waitForTimeout(600);   // the music keeps ticking in the background
+  check(await state() === 'suspended', 'switching tabs silences the game');
+  await setHidden(false);
+  await p.waitForTimeout(300);
+  check(await state() === 'running', 'coming back brings the sound back');
+  check(errors.length === 0, `no page errors${errors.length ? `: ${errors.join(' | ')}` : ''}`);
+  await ctx.close();
 }
 
 // The staging copy shares the website with the live game, under /staging/.

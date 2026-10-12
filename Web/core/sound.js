@@ -10,9 +10,18 @@ export function ac() {
     if (!AC) return null;
     ctx = new AC();
   }
-  if (ctx.state === 'suspended') ctx.resume();
+  // Never wake the sound while the game is in the background.
+  if (ctx.state === 'suspended' && !document.hidden) ctx.resume();
   return ctx;
 }
+
+// All game sound (music, sea, effects) stops while the game is in the
+// background — another tab, another app, the phone locked — and picks up
+// again when the child comes back.
+document.addEventListener('visibilitychange', () => {
+  if (!ctx) return;
+  if (document.hidden) ctx.suspend(); else ctx.resume();
+});
 
 function tone(freq, { at = 0, dur = 0.15, type = 'sine', vol = 0.18, slide = 0 } = {}) {
   if (save.get().muted) return;

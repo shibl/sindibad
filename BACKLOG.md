@@ -454,3 +454,18 @@ graphics card); the other tests keep the normal browser.
 35. [on hold — teacher review comes later] Teacher review of the farm's
     content (`worlds/grade6/farm.js`, `plugins/agriculture/`).
 
+**Later the same day (owner's report):** on staging the farm didn't show:
+the browser kept showing the old offline copy. Two fixes:
+- A new version now replaces the old one by itself: the service worker
+  downloads the new files straight from the server (`cache: 'reload'`; the
+  browser's own 10-minute cache could hand it the previous version's
+  files), and the page reloads when the new version takes over — only on
+  the title screen, the voyages chart or the sea map, never mid-lesson
+  (`app.js`). Players who still run an older copy see the new one after one
+  more reload; from then on it is automatic.
+- Sound kept playing in another tab: all game sound (music, sea, effects)
+  now pauses when the game is in the background and resumes on return
+  (`core/sound.js`), and read-aloud stops.
+`npm test` checks both: a new version reloads the title screen and
+replaces the old offline copy; switching tabs silences the game.
+

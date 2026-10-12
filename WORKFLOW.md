@@ -78,9 +78,10 @@ against?
 ## 5. Preview, then ship
 
 1. Run a local server from the repo root: `python3 -m http.server 8000`,
-   then open <http://localhost:8000/> (it forwards to `Web/`). If you see
-   an old version, reload once more: the offline cache updates in the
-   background.
+   then open <http://localhost:8000/> (it forwards to `Web/`). The game
+   shows its offline copy first and fetches a new version in the
+   background; it then reloads by itself on the title screen or the maps
+   (never mid-lesson). Elsewhere, reload once more to see it.
 2. Commit only the files of this change; never sweep in unrelated local
    edits.
 3. **Staging**: push to the `staging` branch. GitHub runs the tests; if
