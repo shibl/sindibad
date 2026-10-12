@@ -5,6 +5,7 @@
 //   the app (and the island) still load with the network off → no errors. Runs at phone and tablet sizes.
 //   Then: every island map is walkable, and the newer kinds of play (steer,
 //   pay, fill, build) can be played to three stars and fit a phone screen.
+//   And the staging copy (under /staging/) keeps its own saves and offline copy.
 //
 //   npm install      (once, installs Playwright)
 //   npm test
@@ -21,7 +22,8 @@ const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.woff2': 'font/woff2' };
 
 const server = createServer(async (req, res) => {
-  const path = normalize(decodeURIComponent(new URL(req.url, 'http://x').pathname)).replace(/^([/\\])+/, '');
+  // /staging/… serves the same files, like the staging copy on the website.
+  const path = normalize(decodeURIComponent(new URL(req.url, 'http://x').pathname)).replace(/^([/\\])+/, '').replace(/^staging[/\\]/, '');
   const file = path || 'index.html';
   try {
     const body = await readFile(join(ROOT, file));
@@ -262,6 +264,38 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   check(errors.length === 0, `no console errors${errors.length ? `: ${errors.join(' | ')}` : ''}`);
   await ctx.close();
 }
+
+// The staging copy shares the website with the live game, under /staging/.
+console.log('— staging copy');
+{
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const p = await ctx.newPage();
+  const errors = [];
+  p.on('pageerror', e => errors.push(e.message));
+  const stored = () => p.evaluate(async () => ({ keys: Object.keys(localStorage), caches: await caches.keys() }));
+
+  await p.goto(`${URL_}staging/`);
+  await p.evaluate(() => navigator.serviceWorker.ready);
+  check(await p.evaluate(() => document.documentElement.dataset.env) === 'staging', 'staging wears its ribbon');
+  await p.click('text=ابدأ الرحلة');
+  await p.fill('#child-name', 'سارة');
+  await p.click('#who-form [type=submit]');
+  await p.waitForSelector('#screen-select[data-active]', { timeout: 5000 });
+  let s = await stored();
+  check(s.keys.length > 0 && s.keys.every(k => k.startsWith('sindbad-staging.')), 'staging keeps its own saves');
+  check(s.caches.length === 1 && s.caches[0].startsWith('sindbad-staging-'), 'staging keeps its own offline copy');
+
+  await p.goto(URL_);
+  await p.evaluate(() => navigator.serviceWorker.ready);
+  check(await p.evaluate(() => !document.documentElement.dataset.env), 'the live game has no ribbon');
+  await p.click('text=ابدأ الرحلة');
+  check(await p.isVisible('#child-name'), 'the live game doesn\'t see the child saved in staging');
+  s = await stored();
+  check(s.caches.some(k => k.startsWith('sindbad-web-')) && s.caches.some(k => k.startsWith('sindbad-staging-')), 'the live and staging offline copies stay side by side');
+  check(errors.length === 0, `no page errors${errors.length ? `: ${errors.join(' | ')}` : ''}`);
+  await ctx.close();
+}
+
 await browser.close();
 server.close();
 if (failures) { console.error(`\n${failures} check(s) failed`); process.exit(1); }

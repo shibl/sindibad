@@ -254,9 +254,13 @@ lesson content also needs a teacher.
 **Next items:**
 23. [in progress] Step 1 setup on GitHub (needs the repo owner — admin):
     ~~merge the live branch `claude/sharp-hawking-0380ax` into `main`~~
-    (done 2026-10-12: `main` has everything); set Pages source to
-    "GitHub Actions"; protect `main` (pull request + passing `test`
-    check). *On hold (2026-10-12, no outside feedback for now): the Claude
+    (done 2026-10-12: `main` has everything); ~~set Pages source to
+    "GitHub Actions"~~ (not needed: since 2026-10-12 the workflow
+    publishes through the branch, only when tests pass; switching Pages
+    to "GitHub Actions" now also needs `site.yml` updated). Still for the
+    owner: protect `main` (passing `test` check) and lock the website
+    branch `claude/sharp-hawking-0380ax` so only GitHub Actions can push
+    to it. *On hold (2026-10-12, no outside feedback for now): the Claude
     GitHub App, the `ANTHROPIC_API_KEY` secret, the `agent-ready` and
     `lesson` labels, and a teacher in `CODEOWNERS`.*
 24. [on hold — no outside feedback for now, 2026-10-12] Step 2 — in-game feedback and error reports: a Hudhud button on
@@ -347,3 +351,28 @@ public issue forms (`.github/ISSUE_TEMPLATE/`) and the GitHub agent
 workflow (`.github/workflows/claude.yml`); both are in git history for
 later. CLAUDE.md, WORKFLOW.md, SPEC and the brief's status list updated;
 items 24–26 and 29 are on hold.
+
+**Staging and test-gated publishing (owner's request, same day).** Before,
+the live site rebuilt whenever someone pushed to its branch, without
+waiting for the tests. Now (`.github/workflows/site.yml`):
+- Push to `staging` → tests → the staging copy at
+  <https://shibl.github.io/sindibad/staging/>. Merge into `main` → tests
+  → the live game. Nothing is published when tests fail.
+- GitHub Pages still builds from `claude/sharp-hawking-0380ax` (changing
+  that needs the owner); that branch is now the website branch, written
+  only by the workflow. Each publish replaces only its own part (the top,
+  or `staging/`), so a failing branch never reaches the site. Jekyll is
+  off (`.nojekyll`): files are served as they are, as on a local server.
+- Staging shares the website with the live game, so it keeps its own
+  saves (`sindbad-staging.…`) and offline copy (`sindbad-staging-…`):
+  `Web/core/env.js`. It wears a small pink «نسخة تجريبية» tag. Live
+  players' saves and offline copy are unchanged.
+
+**Tested**: `npm test` has a new "staging copy" section (own saves, own
+offline copy, both offline copies side by side, the live game doesn't see
+a child saved in staging). The publish steps were run against a local copy
+of the repository: publishing main, then staging from an out-of-date
+checkout (it catches up and retries), and an empty commit (refused, the
+site is untouched). The resulting website, served locally, showed both
+copies working side by side with no errors.
+

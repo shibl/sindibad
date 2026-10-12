@@ -7,7 +7,8 @@ Syrian national curriculum (grades 1–12) into an RPG-style adventure.
 - **Work queue**: see [`BACKLOG.md`](./BACKLOG.md) — the living backlog and
   playtest log; pick the top open item, implement, test, and append notes.
 - **How to add or change things**: [`WORKFLOW.md`](./WORKFLOW.md).
-- **Play it**: <https://shibl.github.io/sindibad/>
+- **Play it**: <https://shibl.github.io/sindibad/> (the staging copy, for
+  developers: <https://shibl.github.io/sindibad/staging/>)
 - **About the project** (Arabic, for developers and founders): the
   project brief as a long-form web page — [`Web/about.html`](./Web/about.html), live at
   <https://shibl.github.io/sindibad/Web/about.html> (also linked as «ℹ️ عن
@@ -61,6 +62,16 @@ npm test      # offline cache-list check + end-to-end play-through
 After adding or changing any file, run `node tools/update-shell.mjs` (in
 `Web/`) so the service worker caches it for offline play (the test fails
 otherwise).
+
+## Publishing
+
+- Push to `staging` → tests → the staging copy at
+  <https://shibl.github.io/sindibad/staging/> (marked «نسخة تجريبية»,
+  with its own saves).
+- Merge into `main` → tests → the live game.
+
+Nothing is published when tests fail. Details: step 5 of
+[`WORKFLOW.md`](./WORKFLOW.md) and `.github/workflows/site.yml`.
 
 ## Layout
 

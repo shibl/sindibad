@@ -5,8 +5,11 @@
 // file run `node tools/update-shell.mjs` (tests/check-shell.mjs fails if you
 // forget). A new version makes clients download the new files once.
 
-const CACHE_VERSION = '7f5c491c9b';
-const CACHE_NAME = `sindbad-web-${CACHE_VERSION}`;
+const CACHE_VERSION = 'b1f56d7548';
+// The staging copy (under /staging/, see core/env.js) keeps its own offline
+// copy, so it never clears the live game's, nor the live game its.
+const CACHE_PREFIX = /\/staging\//.test(self.location.pathname) ? 'sindbad-staging-' : 'sindbad-web-';
+const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 
 const APP_SHELL = [
   // <app-shell>
@@ -21,6 +24,7 @@ const APP_SHELL = [
   'core/ambience.js',
   'core/battle.js',
   'core/chapters.js',
+  'core/env.js',
   'core/family.js',
   'core/finale.js',
   'core/format.js',
@@ -114,7 +118,7 @@ self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
       .then(keys => Promise.all(
-        keys.filter(k => k.startsWith('sindbad-web-') && k !== CACHE_NAME).map(k => caches.delete(k))
+        keys.filter(k => k.startsWith(CACHE_PREFIX) && k !== CACHE_NAME).map(k => caches.delete(k))
       ))
       .then(() => self.clients.claim())
   );

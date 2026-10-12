@@ -1,23 +1,34 @@
-# Tests every pull request. When main changes, tests again and publishes
-# the game to GitHub Pages — so merging a pull request is what makes it go
-# live, and nothing goes live with failing tests. Players' devices pick up
-# the new version the next time they open the game online (service worker).
+# Tests every pull request and every push to main or staging. Then, if the
+# tests pass, publishes the branch that was pushed:
 #
-# The game lives in Web/. The whole repository is published; the top-level
-# index.html forwards to Web/. Publishing starts once the repository owner
-# sets Settings → Pages → Source to "GitHub Actions" (BACKLOG item 23).
-# Until then Pages builds from a branch, and the publish job is skipped.
+#   main     →  the live game      https://shibl.github.io/sindibad/
+#   staging  →  the staging copy   https://shibl.github.io/sindibad/staging/
+#
+# Nothing is published when tests fail. Players' devices pick up a new
+# version the next time they open the game online (service worker). The
+# staging copy keeps its own saves and offline copy (Web/core/env.js).
+#
+# GitHub Pages builds the website from one branch, SITE_BRANCH. This
+# workflow writes that branch; nobody pushes to it by hand. Each publish
+# replaces only its own part (the live game at the top, or staging/) and
+# keeps the other as it was, so a branch whose tests fail never reaches
+# the site. If the repository owner changes Settings → Pages (another
+# branch, or "GitHub Actions"), publishing stops with an error until this
+# file is updated to match (BACKLOG item 23).
 
 name: Test and publish
 
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, staging]
   workflow_dispatch:
 
 permissions:
   contents: read
+
+env:
+  SITE_BRANCH: claude/sharp-hawking-0380ax
 
 jobs:
   test:
@@ -34,40 +45,61 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm test
 
-  # Is Pages set to publish from this workflow yet?
-  pages-mode:
+  publish:
     needs: test
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: github.event_name != 'pull_request' && (github.ref_name == 'main' || github.ref_name == 'staging')
     runs-on: ubuntu-latest
     permissions:
-      pages: read
-    outputs:
-      type: ${{ steps.mode.outputs.type }}
+      contents: write   # push to SITE_BRANCH
+      pages: read       # check the Pages settings
+    concurrency:
+      group: publish-${{ github.ref_name }}
+      cancel-in-progress: false
+    defaults:
+      run:
+        shell: bash   # stop on any error, also inside a pipe
     steps:
-      - id: mode
+      - name: Check that Pages still builds from SITE_BRANCH
         env:
           GH_TOKEN: ${{ github.token }}
-        run: echo "type=$(gh api repos/${{ github.repository }}/pages --jq .build_type || echo none)" >> "$GITHUB_OUTPUT"
+        run: |
+          source=$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq '"\(.build_type) \(.source.branch)"')
+          if [ "$source" != "legacy $SITE_BRANCH" ]; then
+            echo "::error::Pages builds from \"$source\", not from the branch $SITE_BRANCH. Update .github/workflows/site.yml."
+            exit 1
+          fi
 
-  publish:
-    needs: pages-mode
-    if: needs.pages-mode.outputs.type == 'workflow'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    concurrency:
-      group: pages
-      cancel-in-progress: false
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
-    steps:
       - uses: actions/checkout@v7
-      - uses: actions/configure-pages@v6
-      - uses: actions/upload-pages-artifact@v5
         with:
-          path: .
-      - id: deploy
-        uses: actions/deploy-pages@v5
+          ref: ${{ env.SITE_BRANCH }}
+
+      - name: Put the tested version in its place
+        run: |
+          git fetch --depth=1 origin "$GITHUB_SHA"
+          if [ "$GITHUB_REF_NAME" = staging ]; then
+            dest=staging
+            rm -rf staging
+          else
+            dest=.
+            find . -mindepth 1 -maxdepth 1 ! -name .git ! -name staging -exec rm -rf {} +
+          fi
+          mkdir -p "$dest"
+          git archive FETCH_HEAD | tar -x -C "$dest"
+          rm -rf "$dest/.github"
+          touch .nojekyll   # serve the files as they are
+          test -f Web/index.html && test -f "$dest/Web/index.html"   # never publish an empty site
+
+      - name: Publish
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if git diff --cached --quiet; then echo 'Nothing changed.'; exit 0; fi
+          git commit -q -m "Publish $GITHUB_REF_NAME ${GITHUB_SHA::7}"
+          # main and staging may publish at the same moment; their parts
+          # don't overlap, so catch up and try again.
+          for try in 1 2 3; do
+            git push origin "HEAD:$SITE_BRANCH" && exit 0
+            git fetch origin "$SITE_BRANCH" && git rebase FETCH_HEAD
+          done
+          exit 1

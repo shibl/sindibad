@@ -115,6 +115,11 @@ right before anything else:
   sketches, not the production codebase).
 - **Folders** *(decision 2026-10-12)*: the web app lives in `Web/`;
   `Android/` and `iOS/` are reserved for future native apps (not started).
+- **Staging and publishing** *(decision 2026-10-12)*: pushing to the
+  `staging` branch publishes a staging copy at `/staging/` on the same
+  website; merging into `main` publishes the live game. Both only when the
+  tests pass (`.github/workflows/site.yml`). The staging copy keeps its
+  own saves and offline copy (`Web/core/env.js`).
 - **Offline-first / PWA**: after first load, the app must work with zero
   network connectivity.
   - Service worker caches all assets.

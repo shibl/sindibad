@@ -83,9 +83,19 @@ against?
    background.
 2. Commit only the files of this change; never sweep in unrelated local
    edits.
-3. Merging into `main` publishes the game once BACKLOG item 23 is set
-   up; until then the live site is built from the branch
-   `claude/sharp-hawking-0380ax`.
+3. **Staging**: push to the `staging` branch. GitHub runs the tests; if
+   they pass, the staging copy updates at
+   <https://shibl.github.io/sindibad/staging/> within a few minutes. A
+   pink «نسخة تجريبية» tag marks it, and it keeps its own saves, separate
+   from the live game. Try it on a real phone.
+4. **Live**: merge into `main` (a pull request from `staging`, or a
+   push). The tests run again; if they pass, the live game updates at
+   <https://shibl.github.io/sindibad/>.
+5. A red ✗ on GitHub means nothing was published: fix it and push again.
+   Keep `staging` close to `main` (start from `main`, or merge `main`
+   into `staging`). Never push to the website branch
+   `claude/sharp-hawking-0380ax` by hand: the workflow writes it
+   (`.github/workflows/site.yml`).
 
 ## 6. More rules
 

@@ -23,6 +23,7 @@ import { setSeaLevel } from './ambience.js';
 import { awardSticker } from './stickers.js';
 import { startBattle, GUARDIANS } from './battle.js';
 import { save } from './save.js';
+import { storeKey } from './env.js';
 import { sfx } from './sound.js';
 import { num } from './format.js';
 import { canSpeak, speak, stopSpeaking } from './voice.js';
@@ -163,7 +164,7 @@ export function enterIsland(def, region) {
   }
   // Very first island ever: show how to walk until the child moves.
   let tutSeen = false;
-  try { tutSeen = !!localStorage.getItem('sindbad.walked'); } catch { /* ignore */ }
+  try { tutSeen = !!localStorage.getItem(storeKey('walked')); } catch { /* ignore */ }
   if (!tutSeen) setTimeout(() => { if (island === def && !walked) els.tut.hidden = false; }, 2400);
 }
 
@@ -190,7 +191,7 @@ function markWalked() {
   if (walked) return;
   walked = true;
   els.tut.hidden = true;
-  try { localStorage.setItem('sindbad.walked', '1'); } catch { /* ignore */ }
+  try { localStorage.setItem(storeKey('walked'), '1'); } catch { /* ignore */ }
 }
 
 function leaveIsland() {

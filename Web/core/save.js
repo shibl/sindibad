@@ -17,9 +17,13 @@
 //
 // Storage can be missing or throw (private mode, blocked site data), so every
 // access is wrapped and the game keeps working in memory if it fails.
+//
+// The staging copy uses 'sindbad-staging.' instead of 'sindbad.' (env.js).
 
-const LEGACY_KEY = 'sindbad.save.v1';
-const PROFILES_KEY = 'sindbad.profiles';
+import { storeKey } from './env.js';
+
+const LEGACY_KEY = storeKey('save.v1');
+const PROFILES_KEY = storeKey('profiles');
 const keyFor = id => `${LEGACY_KEY}:${id}`;
 
 function read(key) {
