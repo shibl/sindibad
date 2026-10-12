@@ -4,9 +4,12 @@
 #   main     →  the live game      https://shibl.github.io/sindibad/
 #   staging  →  the staging copy   https://shibl.github.io/sindibad/staging/
 #
-# Nothing is published when tests fail. Players' devices pick up a new
-# version the next time they open the game online (service worker). The
-# staging copy keeps its own saves and offline copy (Web/core/env.js).
+# Nothing is published when tests fail. A publish turns green once the
+# website is rebuilt, and shows under Deployments on GitHub (github-pages
+# for the live game, staging for the staging copy). Players' devices pick
+# up a new version the next time they open the game online (service
+# worker). The staging copy keeps its own saves and offline copy
+# (Web/core/env.js).
 #
 # GitHub Pages builds the website from one branch, SITE_BRANCH. This
 # workflow writes that branch; nobody pushes to it by hand. Each publish
@@ -51,7 +54,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write   # push to SITE_BRANCH
-      pages: read       # check the Pages settings
+      pages: read       # check the Pages settings and builds
+    environment:
+      name: ${{ github.ref_name == 'staging' && 'staging' || 'github-pages' }}
+      url: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ github.ref_name == 'staging' && 'staging/' || '' }}
     concurrency:
       group: publish-${{ github.ref_name }}
       cancel-in-progress: false
@@ -90,6 +96,7 @@ jobs:
           test -f Web/index.html && test -f "$dest/Web/index.html"   # never publish an empty site
 
       - name: Publish
+        id: publish
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -99,7 +106,28 @@ jobs:
           # main and staging may publish at the same moment; their parts
           # don't overlap, so catch up and try again.
           for try in 1 2 3; do
-            git push origin "HEAD:$SITE_BRANCH" && exit 0
+            git push origin "HEAD:$SITE_BRANCH" && { echo pushed=true >> "$GITHUB_OUTPUT"; exit 0; }
             git fetch origin "$SITE_BRANCH" && git rebase FETCH_HEAD
           done
+          exit 1
+
+      - name: Wait until the website is rebuilt
+        if: steps.publish.outputs.pushed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sha=$(git rev-parse HEAD)
+          for i in $(seq 60); do   # up to 10 minutes
+            build=$(gh api "repos/$GITHUB_REPOSITORY/pages/builds/latest" --jq '"\(.status) \(.commit)"')
+            case "$build" in
+              "built $sha") echo 'The website is rebuilt.'; exit 0 ;;
+              "errored $sha") echo '::error::GitHub Pages could not build the website.'; exit 1 ;;
+            esac
+            # A newer publish came after this one; its own run waits for it.
+            if [ "$(git ls-remote origin "refs/heads/$SITE_BRANCH" | cut -f1)" != "$sha" ]; then
+              echo 'A newer publish took over.'; exit 0
+            fi
+            sleep 10
+          done
+          echo '::error::GitHub Pages took more than 10 minutes to rebuild the website.'
           exit 1

@@ -376,3 +376,10 @@ checkout (it catches up and retries), and an empty commit (refused, the
 site is untouched). The resulting website, served locally, showed both
 copies working side by side with no errors.
 
+Then: each publish shows under Deployments on GitHub (`github-pages` for
+the live game, a new `staging` environment for the staging copy) and turns
+green only once GitHub Pages has rebuilt the website (it waits up to 10
+minutes and fails if the build fails). Checked on GitHub: the workflow's
+own push does start the Pages rebuild. Required checks on `main` and a
+locked website branch still need the owner (item 23).
+

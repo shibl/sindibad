@@ -70,7 +70,8 @@ otherwise).
   with its own saves).
 - Merge into `main` → tests → the live game.
 
-Nothing is published when tests fail. Details: step 5 of
+Nothing is published when tests fail. Each publish shows under
+Deployments on GitHub (`github-pages` = live, `staging`). Details: step 5 of
 [`WORKFLOW.md`](./WORKFLOW.md) and `.github/workflows/site.yml`.
 
 ## Layout
