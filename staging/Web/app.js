@@ -30,6 +30,7 @@ import { sfx } from './core/sound.js';
 import world from './worlds/grade6.js';
 import { num } from './core/format.js';
 import { STAGING, storeKey } from './core/env.js';
+import { stopSpeaking } from './core/voice.js';
 import './plugins/index.js';
 
 // ---------- Backdrop ----------
@@ -183,6 +184,16 @@ function registerServiceWorker() {
       console.warn('Service worker registration failed:', err);
     });
   });
+  // A new version arrived while the old one was open: reload to show it,
+  // but only between activities (title, voyages, sea map), never mid-lesson.
+  // The first install (no old version) never reloads.
+  const hadOld = !!navigator.serviceWorker.controller;
+  let reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadOld || reloading) return;
+    // (No screen name yet = the title screen, before any tap.)
+    if (['title', 'chapters', 'map'].includes(document.body.dataset.screen || 'title')) { reloading = true; location.reload(); }
+  });
 }
 
 // Lite mode for budget phones: ≤ 2 GB memory or ≤ 4 cores.
@@ -201,6 +212,7 @@ window.addEventListener('keydown', () => playMusic(place), { once: true });
 // on low-end phones).
 document.addEventListener('visibilitychange', () => {
   document.body.classList.toggle('is-paused', document.hidden);
+  if (document.hidden) stopSpeaking();   // sound itself pauses in core/sound.js
 });
 
 // ---------- Boot ----------
