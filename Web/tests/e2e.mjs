@@ -7,6 +7,8 @@
 //   pay, fill, build) can be played to three stars and fit a phone screen.
 //   The farm island (3D): choose a helper, play the potato quest to three
 //   stars, sell to the ship, keep it all after a reload, and play offline.
+//   The 3D sea map (a staging preview): fog, labels, the flat/3D button,
+//   sailing ashore, the fog lifting, offline; the live game keeps the flat map.
 //   A new version shows up by itself for players who already have the game,
 //   and the game falls silent in another tab.
 //   And the staging copy (under /staging/) keeps its own saves and offline copy.
@@ -357,6 +359,88 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   await p.click('.isle[data-region=farm]');
   await p.waitForSelector('#screen-farm[data-active]', { timeout: 20000 });
   check(await p.locator('#farm-stage canvas').count() === 1 && !(await p.isVisible('#farm-modal [data-helper]')), 'the farm works offline, with its helper');
+  check(errors.length === 0, `no console errors${errors.length ? `: ${errors.join(' | ')}` : ''}`);
+  await ctx.close();
+  await gl.close();
+}
+
+// The 3D sea map: a preview on the staging copy (?map=3d shows it here too).
+// The live game keeps the flat map.
+{
+  console.log('— 3D sea map');
+  const gl = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  const ctx = await gl.newContext({ viewport: { width: 390, height: 844 } });
+  await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
+  const p = await ctx.newPage();
+  const errors = [];
+  p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+  p.on('pageerror', e => errors.push(e.message));
+  const toMap = async () => {
+    await p.click('#screen-title [data-go]');
+    await p.click('.voyage--open');
+    await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
+    await p.waitForSelector('#map .sea-canvas', { timeout: 15000 });
+    await p.waitForTimeout(600);
+  };
+  await p.goto(`${URL_}?map=3d`);
+  await p.evaluate(() => navigator.serviceWorker.ready);
+  await p.click('text=ابدأ الرحلة');
+  await p.fill('#child-name', 'سارة');
+  await p.click('#who-form [type=submit]');
+  await p.waitForSelector('#screen-select[data-active]', { timeout: 5000 });
+  await p.click('[data-hero=sindbad]');
+  await p.click('#select-go');
+  await p.click('[data-st=skip]');
+  await p.click('.voyage--open');
+  await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
+  await p.waitForSelector('#map .sea-canvas', { timeout: 15000 });
+  await p.waitForTimeout(600);
+  const sea = () => p.evaluate(() => window.__sea());
+  let s = await sea();
+  check(s?.fog.length === 4 && s.next === 'arabic', 'the 3D sea: fog over the four locked islands, the letters island first');
+  const boxes = await p.evaluate(() => {
+    const m = document.getElementById('map').getBoundingClientRect();
+    return [...document.querySelectorAll('#map .isle')].map(b => { const r = b.getBoundingClientRect(); return r.width > 40 && r.left >= m.left - 1 && r.right <= m.right + 1 && r.top >= m.top - 1 && r.bottom <= m.bottom + 1; });
+  });
+  check(boxes.length === 7 && boxes.every(Boolean), 'every island has its label and tap area on screen');
+  await p.click('#map-view');
+  check(await p.locator('#map .sea-canvas').count() === 0 && await p.locator('#map .isle__art').count() === 7, 'the button switches to the flat map…');
+  await p.click('#map-view');
+  await p.waitForSelector('#map .sea-canvas', { timeout: 5000 });
+  check(await p.locator('#map .isle__art').count() === 0, '…and back to the 3D sea');
+  await p.click('.isle[data-region=math]');
+  await p.waitForTimeout(400);
+  check(await p.isVisible('#map-toast') && (await sea()).at === 'home', 'a foggy island explains how to open it; the ship stays');
+  await p.click('.isle[data-region=arabic]');
+  await p.waitForSelector('#screen-island[data-active]', { timeout: 10000 });
+  check(true, 'tapping an island sails there and goes ashore');
+  await p.click('#island-leave');
+  await p.waitForSelector('#map .sea-canvas', { timeout: 10000 });
+  check((await sea()).at === 'arabic', 'back at sea, the ship waits by the letters island');
+  // Stars on the letters island: the fog lifts from the numbers island.
+  await p.evaluate(async () => {
+    const { save } = await import('./core/save.js');
+    const { topicsIn } = await import('./core/topics.js');
+    save.update(v => { v.topics[topicsIn('arabic')[0].id] = { stars: 3, best: 1, plays: 1 }; });
+  });
+  await p.click('.map-voyages');
+  await p.click('.voyage--open');
+  await p.waitForTimeout(4500);
+  s = await sea();
+  check(!s.fog.includes('math') && await p.locator('.isle[data-region=math]:not(.isle--locked)').count() === 1, 'stars earned: the fog lifts from the numbers island');
+  await ctx.setOffline(true);
+  await p.reload();
+  await p.waitForTimeout(600);
+  await toMap();
+  check((await sea())?.fog.length === 3, 'the 3D sea works offline and remembers the open islands');
+  await ctx.setOffline(false);
+  await p.goto(URL_);
+  await p.waitForTimeout(600);
+  await p.click('#screen-title [data-go]');
+  await p.click('.voyage--open');
+  await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
+  await p.waitForTimeout(1200);
+  check(await p.locator('#map .sea-canvas').count() === 0 && await p.isHidden('#map-view'), 'the live game keeps the flat map (no 3D button)');
   check(errors.length === 0, `no console errors${errors.length ? `: ${errors.join(' | ')}` : ''}`);
   await ctx.close();
   await gl.close();

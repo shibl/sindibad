@@ -2210,3 +2210,26 @@ body[data-screen="farm"] #scene { visibility: hidden; }
 /* Keyboard users: the list of farm places shows up when it has focus. */
 #farm-places:focus-within { position: absolute !important; z-index: 9; width: auto; height: auto; margin: 0; clip: auto; overflow: visible; white-space: normal; inset-inline: 10px; top: calc(118px + var(--safe-top)); display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; background: rgba(255, 247, 230, .96); border: 3px solid var(--ink); border-radius: 16px; }
 #farm-places button { font: inherit; font-weight: 800; padding: 4px 10px; background: #fff; border: 2px solid var(--ink); border-radius: 999px; }
+
+/* ================= The 3D sea map (staging preview; core/sea/) ================= */
+.map--3d { background: #1f86b0; }
+.map3d { position: absolute; inset: 0; }
+.sea-canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; touch-action: none; animation: sea-in .5s ease-out both; }
+@keyframes sea-in { from { opacity: 0; } }
+.map__labels { position: absolute; inset: 0; pointer-events: none; }
+.map--3d .isle { transform: none; pointer-events: auto; }
+.map--3d .isle:active { transform: scale(.97); }
+.map--3d .isle::before, .map--3d .isle__ring { display: none; }   /* the sea draws its own shallows and ring */
+.map--3d .isle__label { top: calc(100% - 10px); bottom: auto; transform: translateX(calc(-50% + var(--dx, 0px))); }
+.map--3d .isle__beacon { top: -30px; }
+.map--3d .isle--nope { animation: nope-3d .45s; }
+@keyframes nope-3d { 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
+.map--3d .map__compass { z-index: 1; pointer-events: none; }
+/* Flat map ↔ 3D sea (staging only). */
+.map-view {
+  position: absolute; z-index: 4; top: calc(76px + var(--safe-top)); left: 12px;
+  padding: 3px 12px 6px; font: inherit; font-size: 15px; font-weight: 800; color: var(--ink); cursor: pointer; direction: ltr;
+  background: var(--paper); border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 3px 0 var(--ink);
+}
+.map-view[hidden] { display: none; }
+.map-view:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
