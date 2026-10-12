@@ -60,6 +60,32 @@ also mean a school term. Content: `Web/worlds/chapters.js`.
 - Finishing a level's full curriculum removes the "fog of war" for that
   grade's map.
 
+### The farm island (3D)
+*(Decision 2026-10-12.)* Next to the home port sits «مزرعتي السعيدة», a
+farm in the spirit of Hay Day where the grade-6 agriculture book
+(«التربية الزراعية») is played instead of read. It is open from the start
+and has its own badge. Each quest is one lesson of the book: the tool tray
+is the question (the right job, in the book's order: plough, manure, plant,
+water, hoe, hill up, stake, thin, stop watering, harvest, top…), small
+choices check the book's facts (the potato piece with two buds, 85 °C then
+42 °C for cheese, a balanced meal, the queen bee), and the helper explains
+every step. A finished quest records stars for its topic like a lesson.
+- **Helpers:** the child picks a companion: a bee, a cow, a puppy or a
+  kitty. Each gives hints in its own voice and has its own special moments
+  tied to the book (the bee pollinates flowers, the kitty chases field
+  mice: biological pest control…). No helper locks or unlocks content.
+- **No real-time waiting** (owner decision on time-based features): plants
+  grow when they have been cared for, and the weeks in the book pass in a
+  short day–night time-lapse that names the real duration.
+- **Economy:** harvests go to the barn and are sold by ship (orders from
+  islanders, from the book's lesson on marketing products). Coins buy
+  decorations only (the Damask rose, the jasmine arch…), never answers.
+- **Technology:** three.js (MIT, kept in `Web/vendor/three/`, loaded only
+  when a child sails to the farm); every model is made in code. Light
+  enough for budget phones: merged meshes, no shadows in lite mode. Phones
+  without WebGL see a short message instead.
+- Content: `Web/worlds/grade6/farm.js`; engine: `Web/core/farm/`.
+
 ### Characters
 - The player **chooses their hero** at the start: **Sindbad** (سندباد, a boy)
   or **Yasmina** (ياسمينة, a girl). Both are full playable heroes with the

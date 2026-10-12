@@ -1,7 +1,8 @@
 // The sticker album (ألبوم الملصقات): six collectible stickers per island,
 // each with a short true fact. Stickers come from helping villagers,
 // chests, stepping-stone puzzles and monuments on each island; the treasure
-// island's come from its quest, its monument and the four subject badges.
+// island's come from its quest, its monument and the four subject badges;
+// the farm's from its quests (core/farm/farm.js).
 
 import { save } from './save.js';
 import { sfx } from './sound.js';
@@ -38,6 +39,14 @@ export const STICKERS = {
     ['olive', '🫒', 'شجرة الزيتون', 'تعيش شجرة الزيتون مئات السنين، وزيتها من أشهر منتجات سوريا.'],
     ['horse', '🐎', 'الحصان العربي', 'من أقدم سلالات الخيل وأجملها، يشتهر بالسرعة والصبر.'],
     ['umayyad', '🕌', 'الجامع الأموي', 'في قلب دمشق القديمة، بُني قبل أكثر من ألف وثلاثمئة سنة.'],
+  ],
+  farm: [
+    ['damask-rose', '🌹', 'الوردة الشامية', 'الزهرة الوطنية للجمهورية العربية السورية، ومنها يُستخرج زيت الورد العطري.'],
+    ['shami-cow', '🐄', 'البقرة الشامية', 'سلالة سورية قديمة من أبقار الحليب، تعطي ٣٠٠٠–٤٠٠٠ لتر من الحليب في الموسم.'],
+    ['honeybee', '🐝', 'نحلة العسل', 'لتصنع نصف كيلو من العسل يزور النحل نحو مليوني زهرة!'],
+    ['cotton', '☁️', 'القطن', 'يُسمّى «الذهب الأبيض»، وهو من أهم المحاصيل النقدية في سورية.'],
+    ['sugar-beet', '🍬', 'الشوندر السكري', 'يُزرع في سورية في ثلاث عروات، فتعمل معامل السكر طوال السنة.'],
+    ['silkworm', '🐛', 'دودة القزّ', 'لا تأكل إلا ورق التوت، وتغزل شرنقتها من خيط حرير طوله ٨٠٠–١٥٠٠ متر!'],
   ],
   treasure: [
     ['turtle', '🐢', 'السلحفاة البحرية', 'تعود السلحفاة البحرية إلى الشاطئ الذي وُلدت فيه لتضع بيضها.'],

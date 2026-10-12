@@ -148,6 +148,36 @@
     <div class="quest-log" id="quest-log" hidden></div>
   </section>
 
+  <!-- The farm island: a 3D farm (core/farm/), loaded when first visited. -->
+  <section id="screen-farm" class="screen screen--farm">
+    <div class="farm-stage" id="farm-stage">
+      <div class="farm-labels" id="farm-labels" aria-hidden="true"></div>
+    </div>
+    <header class="topbar topbar--island topbar--farm">
+      <button class="btn btn--round" id="farm-leave" aria-label="العودة إلى السفينة">⛵</button>
+      <h2 id="farm-title">مزرعتي السعيدة</h2>
+      <button class="btn btn--round" id="farm-quests-btn" aria-label="المهمّات">📜</button>
+      <button class="hud-pill farm-coins" id="farm-coins-btn" title="القطع الذهبية: زيّن مزرعتك">🪙 <b id="farm-coins">٠</b></button>
+      <span class="hud-pill farm-level" id="farm-level" title="مستوى المزرعة"><b>١</b><i><span></span></i></span>
+    </header>
+    <div class="goal farm-goal" id="farm-goal" aria-live="polite"></div>
+    <div class="sr-only" id="farm-places" aria-label="أماكن المزرعة"></div>
+    <div class="farm-lapse" id="farm-lapse" hidden aria-live="polite"></div>
+    <div class="farm-say" id="farm-say" hidden>
+      <button class="farm-say__face" aria-label="المساعد: اضغط لتلميح"><img alt=""></button>
+      <div class="farm-say__body"><p class="farm-say__name"></p><p class="bubble" aria-live="polite"></p></div>
+      <button class="farm-say__voice say-btn" aria-label="اقرأ لي" hidden>🔊</button>
+    </div>
+    <nav class="farm-bar" id="farm-bar" aria-label="المزرعة">
+      <button data-bar="inv">🧺<small>المخزن</small><em></em></button>
+      <button data-bar="orders">⛵<small>الطلبات</small><em></em></button>
+      <button data-bar="decor">🌹<small>الزينة</small></button>
+    </nav>
+    <div class="farm-tray" id="farm-tray" hidden></div>
+    <div class="farm-pick" id="farm-pick" hidden></div>
+    <div class="farm-modal" id="farm-modal" hidden></div>
+  </section>
+
   <section id="screen-journey" class="screen screen--journey">
     <header class="topbar">
       <button class="btn btn--round" data-go="map" aria-label="رجوع إلى الخريطة">→</button>

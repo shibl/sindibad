@@ -93,7 +93,7 @@ export function showScreen(name, detail) {
     el.toggleAttribute('data-active', el.id === `screen-${name}`);
   });
   document.body.dataset.screen = name;
-  if (name === 'island') startAmbience(); else stopAmbience();
+  if (name === 'island' || name === 'farm') startAmbience(); else stopAmbience();
   if (name === 'title' || name === 'map' || name === 'chapters') { place = name === 'chapters' ? 'map' : name; playMusic(place); }
   if (name === 'chapters') {
     renderChapters(document.getElementById('chapters'), {
@@ -211,11 +211,29 @@ paintShip(document.querySelector('.ship--title'), ['sindbad', 'yasmina']);
 wireNavigation();
 wireHeroSelect();
 const ISLANDS = { arabic: arabicIsland, math: mathIsland, science: scienceIsland, social: socialIsland, treasure: treasureIsland };
-let lessonFromIsland = false;
+let lessonFromIsland = false, lessonFromFarm = false;
+// The farm is a 3D island: its code (and three.js) loads only when a child
+// first sails there, so the rest of the game starts as fast as before.
+let farm = null;
+const loadFarm = () => (farm ||= import('./core/farm/farm.js').then(m => {
+  m.initFarm({
+    leave: after => wipe(() => showScreen('map', after)),
+    startLesson: id => { lessonFromFarm = true; wipe(() => startLesson(id)); },
+  });
+  return m;
+}));
+function enterFarm(region) {
+  loadFarm().then(m => wipe(() => { showScreen('farm'); m.enterFarm(region); place = 'farm'; playMusic('farm'); }))
+    .catch(err => { console.error('The farm failed to load', err); farm = null; });
+}
 initMap(document.getElementById('map'), world, {
   openTopic: startLesson,
-  islands: ISLANDS,
-  enterIsland: id => wipe(() => { showScreen('island'); enterIsland(ISLANDS[id], world.regions.find(r => r.id === id)); place = id; playMusic(id); }),
+  islands: { ...ISLANDS, farm: true },
+  enterIsland: id => {
+    const region = world.regions.find(r => r.id === id);
+    if (region.kind === 'farm') { enterFarm(region); return; }
+    wipe(() => { showScreen('island'); enterIsland(ISLANDS[id], region); place = id; playMusic(id); });
+  },
 });
 initOverworld({
   startLesson: (id, host) => { lessonFromIsland = true; wipe(() => startLesson(id, { host })); },
@@ -225,6 +243,7 @@ initLesson({
   showScreen,
   onReturn: after => {
     if (lessonFromIsland) { lessonFromIsland = false; wipe(() => { showScreen('island'); lessonReturned(after); }); }
+    else if (lessonFromFarm) { lessonFromFarm = false; loadFarm().then(m => wipe(() => { showScreen('farm'); m.lessonReturned(after); })); }
     else showScreen('map', after);
   },
 });
@@ -278,4 +297,4 @@ document.getElementById('screen-title').addEventListener('pointermove', e => {
 });
 
 // Test hook: lets headless tests read the hero's position on an island.
-if (window.__SINDBAD_TEST__) Object.assign(window, { __island: debugState, __blocked: debugBlocked, __place: debugPlace, __lesson: startLesson });
+if (window.__SINDBAD_TEST__) Object.assign(window, { __island: debugState, __blocked: debugBlocked, __place: debugPlace, __lesson: startLesson, __farm: () => loadFarm().then(m => m.debugFarm()) });

@@ -218,6 +218,15 @@ function record(topic, { correct, total }) {
   });
 }
 
+// Record a result played outside the lesson screen (e.g. a farm quest done
+// in 3D): same stars, pearls, daily goal and review schedule as a lesson.
+export function recordResult(topicId, result) {
+  const topic = getTopic(topicId);
+  if (!topic) return null;
+  record(topic, result);
+  return { stars: starsFor(result), pearls: lastPearls, goal: goalHit };
+}
+
 const HEADLINES = ['محاولة شجاعة', 'جيد', 'أحسنت', 'مذهل'];
 const LINES = [
   'لا بأس! كل بحّار عظيم تاه مرة. راجع تلميحاتي وحاول مجدداً.',
