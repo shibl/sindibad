@@ -253,25 +253,25 @@ lesson content also needs a teacher.
 
 **Next items:**
 23. [in progress] Step 1 setup on GitHub (needs the repo owner — admin):
-    merge the live branch `claude/sharp-hawking-0380ax` into `main` first
-    (the live site has V2–V30, `main` doesn't); set Pages source to
-    "GitHub Actions"; install the Claude GitHub App and add the
-    `ANTHROPIC_API_KEY` secret; create the labels `agent-ready` and
-    `lesson`; protect `main` (pull request + passing `test` check +
-    code-owner review); add the reviewing teacher to `CODEOWNERS`.
-24. [ ] Step 2 — in-game feedback and error reports: a Hudhud button on
+    ~~merge the live branch `claude/sharp-hawking-0380ax` into `main`~~
+    (done 2026-10-12: `main` has everything); set Pages source to
+    "GitHub Actions"; protect `main` (pull request + passing `test`
+    check). *On hold (2026-10-12, no outside feedback for now): the Claude
+    GitHub App, the `ANTHROPIC_API_KEY` secret, the `agent-ready` and
+    `lesson` labels, and a teacher in `CODEOWNERS`.*
+24. [on hold — no outside feedback for now, 2026-10-12] Step 2 — in-game feedback and error reports: a Hudhud button on
     each question with fixed choices (السؤال خطأ / لم أفهم / صعب جداً /
     شيء لا يعمل); errors caught automatically with the game version;
     reports wait on the device and are sent when online; a small server
     (e.g. a Cloudflare Worker) blocks spam and keeps one GitHub issue per
     question with a counter. First update the "we collect nothing"
     promises (SPEC "Improving from feedback").
-25. [ ] Step 3 — anonymous learning stats and a weekly review agent:
+25. [on hold] Step 3 — anonymous learning stats and a weekly review agent:
     per-question counts (tries, chosen answer, mini-lesson opened, where
     kids quit, recall at review time); a plain weekly script sums them; a
     read-only review agent files issues with evidence, plus a weekly list
     of rejected feedback with reasons for the owner to skim.
-26. [ ] Step 4 — measure and earn autonomy: compare each changed question
+26. [on hold] Step 4 — measure and earn autonomy: compare each changed question
     before/after by game version; judge by recall at review time, not
     first-try score; after 10–20 good agent PRs, let crash and layout
     fixes go live without waiting for a person.
@@ -322,7 +322,7 @@ lesson. No console errors.
     🔈 button inside the bubble); check every lesson at 360×740.
 28. [ ] Give the divisibility keeper its own id (existing saves store
     `keeper` in `met` / `rewarded` — keep them working).
-29. [ ] Teacher review of the four new lessons. «الزوايا» is new ground:
+29. [on hold — teacher review comes later] Teacher review of the four new lessons. «الزوايا» is new ground:
     confirm grade 6 covers complementary/supplementary angles and the
     angle sum of a triangle.
 30. [ ] Reuse the new engines: `market` with weights for decimals (fish
@@ -340,3 +340,10 @@ lesson. No console errors.
   are locked ("coming soon"). Start and "continue" now lead to the chart;
   "🗺️ كل الرحلات" on the sea map leads back up.
 31. [ ] Voyage 5 or 7: the next world, reusing the engines (was item 13).
+
+**Owner decision (2026-10-12): no outside feedback for now.** Feedback
+comes only from the developers, in Claude Code sessions. Removed the
+public issue forms (`.github/ISSUE_TEMPLATE/`) and the GitHub agent
+workflow (`.github/workflows/claude.yml`); both are in git history for
+later. CLAUDE.md, WORKFLOW.md, SPEC and the brief's status list updated;
+items 24–26 and 29 are on hold.

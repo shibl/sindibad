@@ -141,10 +141,14 @@ right before anything else:
 - **Curriculum accuracy**: content should ultimately be reviewable/approved
   by qualified Syrian educators before being treated as canonical — this
   project does not invent curriculum, it adapts the real official one.
-- Zero personal data, zero ads, zero purchases — ever. Anonymous feedback
-  and error logs are allowed (see "Improving from feedback").
+- Zero personal data, zero ads, zero purchases — ever. For now nothing
+  leaves the device (see "Improving from feedback").
 
 ## Improving from feedback
+
+*(Decision 2026-10-12: on hold. For now there is no outside feedback — no
+player reports, logs, stats or public issues. Feedback comes only from the
+developers, in Claude Code sessions. The plan below waits for later.)*
 
 *(Decision 2026-10-11: the owner allowed anonymous feedback and logs. The
 founding brief said "no data collection"; the rule is now **no personal

@@ -89,17 +89,13 @@ Inside `Web/`:
 - `manifest.json`, `service-worker.js`, `icons/` — PWA / offline support.
 - `tools/`, `tests/` — maintainer scripts and tests (not shipped logic).
 
-## Feedback and the improvement agent
+## Feedback
 
-- **Report a problem or idea**: open an issue and pick a form — bug, lesson
-  mistake, or idea (Arabic and English).
-- **Let the agent fix it**: a maintainer adds the `agent-ready` label. Claude
-  works on it in a new branch, runs the tests, and replies with a link to
-  open a pull request. Mention `@claude` in a comment to ask for changes.
-  Its rules are in [`CLAUDE.md`](./CLAUDE.md).
-- **Approve**: merging a pull request into `main` publishes the game, after
-  the tests pass. Lesson changes also need a teacher's approval
-  ([`.github/CODEOWNERS`](./.github/CODEOWNERS)).
+For now, feedback comes only from the developers, given to Claude in Claude
+Code sessions; there are no public feedback forms. The agent's rules are in
+[`CLAUDE.md`](./CLAUDE.md), the steps for every change in
+[`WORKFLOW.md`](./WORKFLOW.md). Every pull request is tested
+(`.github/workflows/site.yml`).
 
 ## License
 
