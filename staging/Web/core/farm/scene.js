@@ -13,21 +13,24 @@ import { wind, VC } from './models.js';
 const TAP_MOVE = 10;      // px: more than this is a drag, not a tap
 const TAP_TIME = 450;     // ms
 
-export function createStage(host, { lite = false } = {}) {
+// Options (the music island uses them; the farm keeps the defaults): fov
+// [portrait, landscape], the sky colour, the fog's near and far, the canvas's
+// CSS class.
+export function createStage(host, { lite = false, fov = [40, 32], sky = '#9fd9ee', fog = [90, 190], cls = 'farm-canvas' } = {}) {
   const renderer = new THREE.WebGLRenderer({ antialias: !lite, powerPreference: 'high-performance', preserveDrawingBuffer: !!window.__SINDBAD_TEST__ });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, lite ? 1 : 1.75));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.shadowMap.enabled = !lite;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const canvas = renderer.domElement;
-  canvas.className = 'farm-canvas';
+  canvas.className = cls;
   canvas.setAttribute('aria-hidden', 'true');
   host.prepend(canvas);
 
   const scene = new THREE.Scene();
-  const SKY = new THREE.Color('#9fd9ee');
+  const SKY = new THREE.Color(sky);
   scene.background = SKY.clone();
-  scene.fog = new THREE.Fog(SKY.clone(), 90, 190);
+  scene.fog = new THREE.Fog(SKY.clone(), fog[0], fog[1]);
 
   const camera = new THREE.PerspectiveCamera(32, 1, 1, 400);
 
@@ -43,7 +46,7 @@ export function createStage(host, { lite = false } = {}) {
   sun.shadow.bias = -0.0006;
   sun.shadow.normalBias = 0.04;
   scene.add(sun, sun.target);
-  const DAY = { hemi: 1.5, sun: 2.6, sky: new THREE.Color('#9fd9ee'), sunColor: new THREE.Color('#fff1d6') };
+  const DAY = { hemi: 1.5, sun: 2.6, sky: SKY.clone(), sunColor: new THREE.Color('#fff1d6') };
 
   // ---------- Camera rig: a target on the ground, looked at from above ----------
   const rig = {
@@ -75,7 +78,7 @@ export function createStage(host, { lite = false } = {}) {
     renderer.setSize(W, H, false);
     camera.aspect = W / H;
     // Narrow (portrait) screens: widen the view so the farm still fits.
-    camera.fov = W < H ? 40 : 32;
+    camera.fov = W < H ? fov[0] : fov[1];
     camera.updateProjectionMatrix();
   }
   new ResizeObserver(resize).observe(host);
@@ -312,7 +315,7 @@ export function createStage(host, { lite = false } = {}) {
   }
 
   return {
-    THREE, scene, camera, renderer, canvas, rig, sun,
+    THREE, scene, camera, renderer, canvas, rig, sun, hemi,
     addClickable, removeClickable, pick, project, focus, burst, timelapse, snapshots,
     seaNight: u => seaUniforms.push(u),
     onFrame: f => frameFns.push(f),

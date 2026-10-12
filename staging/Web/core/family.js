@@ -120,7 +120,7 @@ export function renderParentGate(el) {
 }
 
 const minutes = sec => Math.round((sec || 0) / 60);
-const dateAr = t => new Date(t).toLocaleDateString('ar-SY', { weekday: 'long', day: 'numeric', month: 'long' });
+const dateAr = t => new Date(t).toLocaleDateString('ar-SY-u-nu-latn', { weekday: 'long', day: 'numeric', month: 'long' });
 
 export function renderParents(el) {
   const s = save.get();
@@ -139,7 +139,7 @@ export function renderParents(el) {
   const days = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(Date.now() - (6 - i) * 86400000);
     const key = d.toISOString().slice(0, 10);
-    return { label: d.toLocaleDateString('ar-SY', { weekday: 'short' }), min: minutes((s.days || {})[key]) };
+    return { label: d.toLocaleDateString('ar-SY-u-nu-latn', { weekday: 'short' }), min: minutes((s.days || {})[key]) };
   });
   const maxMin = Math.max(10, ...days.map(d => d.min));
   const week = days.reduce((a, d) => a + d.min, 0);
@@ -152,7 +152,7 @@ export function renderParents(el) {
         <div class="parents__face">${heroSVG(hero)}</div>
         <div><h3>لوحة الأهل — ${child}</h3><p>الصف السادس • كل البيانات محفوظة على هذا الجهاز فقط</p></div>
       </header>
-      <p class="print-only">تقرير رحلات سندباد وياسمينة — ${new Date().toLocaleDateString('ar-SY', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+      <p class="print-only">تقرير رحلات سندباد وياسمينة — ${new Date().toLocaleDateString('ar-SY-u-nu-latn', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
 
       <section class="p-tiles">
         <div class="p-tile"><b>${num(week)}</b><small>دقيقة لعب هذا الأسبوع</small></div>
@@ -164,7 +164,7 @@ export function renderParents(el) {
       </section>
 
       <section>
-        <h4>وقت اللعب (آخر ٧ أيام)</h4>
+        <h4>وقت اللعب (آخر 7 أيام)</h4>
         <div class="p-week" role="img" aria-label="دقائق اللعب في آخر سبعة أيام">
           ${days.map(d => `<div class="p-day"><span class="p-bar" style="height:${Math.max(4, (d.min / maxMin) * 100)}%"><em>${d.min ? num(d.min) : ''}</em></span><small>${d.label}</small></div>`).join('')}
         </div>
@@ -177,7 +177,7 @@ export function renderParents(el) {
           return `<details class="p-subject" style="--region:${r.color}">
             <summary><b>${r.subject}</b><span class="p-stars">${list.map(t => '★'.repeat(rec(t.id)?.stars || 0) + '☆'.repeat(3 - (rec(t.id)?.stars || 0))).join(' ')}</span></summary>
             <table class="p-table"><thead><tr><th>الدرس</th><th>النجوم</th><th>أفضل نتيجة</th><th>مرات</th><th>للمراجعة</th></tr></thead><tbody>
-            ${list.map(t => { const x = rec(t.id); return `<tr><td>${t.icon} ${t.title}</td><td>${x ? '★'.repeat(x.stars) || '—' : '—'}</td><td>${x ? `${num(Math.round((x.best || 0) * 100))}٪` : 'لم يبدأ'}</td><td>${num(x?.plays || 0)}</td><td>${x?.missed?.length ? num(x.missed.length) : '—'}</td></tr>`; }).join('')}
+            ${list.map(t => { const x = rec(t.id); return `<tr><td>${t.icon} ${t.title}</td><td>${x ? '★'.repeat(x.stars) || '—' : '—'}</td><td>${x ? `${num(Math.round((x.best || 0) * 100))}%` : 'لم يبدأ'}</td><td>${num(x?.plays || 0)}</td><td>${x?.missed?.length ? num(x.missed.length) : '—'}</td></tr>`; }).join('')}
             </tbody></table>
           </details>`;
         }).join('')}
@@ -185,7 +185,7 @@ export function renderParents(el) {
 
       <section>
         <h4>يحتاج دعماً</h4>
-        ${weak.length ? `<ul class="p-list">${weak.map(t => `<li><b>${t.icon} ${t.title}</b> — أفضل نتيجة ${num(Math.round((rec(t.id).best || 0) * 100))}٪.
+        ${weak.length ? `<ul class="p-list">${weak.map(t => `<li><b>${t.icon} ${t.title}</b> — أفضل نتيجة ${num(Math.round((rec(t.id).best || 0) * 100))}%.
           <small>فكرة للبيت: ${t.learn?.[0] ? `اطلبوا من ${child} شرح «${t.learn[0].title}» بمثال من حياتكم اليومية.` : 'العبوا الدرس معاً مرة أخرى.'}</small></li>`).join('')}</ul>`
           : `<p class="p-empty">${started.length ? 'رائع! لا توجد دروس ضعيفة حتى الآن.' : 'لم يبدأ أي درس بعد.'}</p>`}
       </section>

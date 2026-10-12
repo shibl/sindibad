@@ -499,3 +499,52 @@ flat map. About 100 draw calls; not yet tried on a real budget phone.
 38. [ ] If 3D stays: bring the walkable islands' look closer to it (they
     are drawn in 2D today), one island at a time.
 
+
+## Playtest notes — 2026-10-12 (the music island, and the digits 1 2 3)
+
+The owner asked for a music island made from the grade-6 music book
+(«التربية الموسيقية»، 72 pages, read in full), "very creative, engaging and
+artistic", allowed a different vibe, and showed a toy-diorama city-builder
+board as the look to aim for. Built: «جزيرة الأنغام» (SPEC: "The music
+island (3D)"), open from the start, a side trip from the letters island.
+The owner also asked that all numbers be written 1 2 3, not ١ ٢ ٣: done in
+the whole game (SPEC: "Numbers: the digits 1 2 3").
+
+**What it is:** a tall toy island in sunset light: terraces, a winding path
+with note lanterns and bunting, puffy trees, people walking, and eight
+places on raised bases — the giant grand piano (its keys play), the glass
+pavilion, the drum circle round a fire with a big darbuka, the metronome
+tower with the book's orange note-car racing round its track, the cloud
+raining onto a grand-staff sculpture with red and yellow clefs, the
+Damascene music library, the black-basalt theatre with its audience and
+spotlights, and the harbour of world instruments. Ten quests (all twenty
+lessons and the projects), played with small music games and real sounds
+made in code: keys, whole/half tones, the staff, rhythm cards, the drum,
+measures, sorting forms, filling glasses by fractions and playing them.
+The helper «نغمة» explains every step. Golden notes on a rainbow gate; ten
+make the «sky song». Six stickers, one per matching quest.
+
+**Digits:** `num()` now writes 1 2 3 (and a dot for decimals); every
+hard-coded ١٢٣ in the game's code and content was rewritten (417 places:
+the maths and farm lessons, the about page, dates via `ar-SY-u-nu-latn`,
+`٪` → `%`). The parents' gate still accepts either kind of typed digit.
+The questions themselves did not change, only how their numbers look.
+
+**Checked:** read every page of the book; screenshots of every kind of step
+at 390×844 and the island at 1024×768; all ten quests played to three
+stars by script with no console errors; the flat map and the 3D sea show
+the new island. `npm test` has a music-island section (well-formed quests,
+the piano lesson with a wrong key → 2 stars, the rhythm lesson with the
+drum → 3 stars, golden notes, reload, offline). About 80 draw calls
+(70 in lite mode); not yet tried on a real budget phone.
+
+**Next items:**
+39. [ ] Real-device check of the music island on a 2 GB Android phone (with
+    items 33 and 37): frame rate, sound timing of the drum step.
+40. [ ] Sing along: the book's songs could get their melodies on the piano
+    (their lyrics belong to their poets: ask the developers before adding
+    any words).
+41. [ ] A free-play «concert» mode: record a short tune on the piano or the
+    glasses and play it back on the theatre stage.
+42. [on hold — teacher review comes later] Teacher review of the music
+    island's content (draft, from the book).

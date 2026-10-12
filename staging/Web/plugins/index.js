@@ -40,4 +40,5 @@ import './agriculture/cheese.js';
 import './agriculture/bees.js';
 import './agriculture/cotton.js';
 import './agriculture/beet.js';
+import './music/reviews.js';
 import './review/treasure.js';

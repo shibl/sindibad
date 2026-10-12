@@ -177,7 +177,7 @@ function showBanner(def, region) {
     ${region ? `<small style="--c:${region.color}">${region.subject}</small>` : ''}
     <b>${def.name}</b>
     <span>${def.tokens.map(t => `<i class="${state.letters.includes(t) ? 'on' : ''}">${t}</i>`).join('')}</span>
-    <em>${have === def.tokens.length ? 'أكملت هذه الجزيرة! ✔' : `${def.tokenName}: ${have} / ${def.tokens.length}`.replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d])}</em>`;
+    <em>${have === def.tokens.length ? 'أكملت هذه الجزيرة! ✔' : `${def.tokenName}: ${have} / ${def.tokens.length}`}</em>`;
   els.banner.hidden = false;
   els.banner.classList.remove('is-out'); void els.banner.offsetWidth;
   clearTimeout(bannerTimer);

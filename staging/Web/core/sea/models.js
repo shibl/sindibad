@@ -8,6 +8,7 @@
 import * as THREE from '../../vendor/three/three.module.min.js';
 import { Kit, VC, rng, roundBox, palm, rock, bush, barn, windmill, silo, hive } from '../farm/models.js';
 import { DEFS, heroSVG, hudhudSVG } from '../../art/art.js';
+import { grandPiano, rainbowGate, noteGeo } from '../tunes/models.js';
 
 export const R = 4.2;        // island radius at the waterline
 export const GROUND = 0.95;  // height of the grass top
@@ -277,6 +278,27 @@ const LANDMARKS = {
     decor(group, [['palm', 2.6, 2.6, 0.85], ['bush', 0.9, 2.5], ['rock', 4.0, 3.6], ['rock', 5.5, 3.7, 0.7]], 6);
   },
 
+  // Music: the music island's grand piano under its rainbow-staff gate, and
+  // two notes turning in the air.
+  music(group, p) {
+    const piano = grandPiano();
+    piano.scale.setScalar(0.3);
+    piano.position.set(0.2, G - 0.1, 0.1);
+    piano.rotation.y = 0.35;
+    group.add(piano);
+    const arc = rainbowGate();
+    arc.scale.setScalar(0.42);
+    arc.position.set(-0.2, G, -1.0);
+    group.add(arc);
+    [['#8a63c9', -1.6, 0.4], ['#d0507e', 1.7, -0.3]].forEach(([c, x, z], i) => {
+      const n = new THREE.Mesh(noteGeo(c, { s: 0.9 }), VC);
+      n.position.set(x, G + 1.9 + i * 0.4, z);
+      group.add(n);
+      p.spin.push({ obj: n, axis: 'y', speed: 1.2 + i * 0.4 });
+    });
+    decor(group, [['palm', 2.4, 2.5, 0.8], ['bush', 0.4, 2.6], ['rock', 4.2, 3.6], ['rock', 5.4, 3.7, 0.7]], 8);
+  },
+
   // Treasure: a glowing chest under a palm, with gold coins about.
   treasure(group, p) {
     const k = kit(), brass = '#f2c14e';
@@ -310,7 +332,7 @@ const LANDMARKS = {
 export function buildIsland(kind, seed) {
   const group = new THREE.Group();
   const p = parts();
-  const tint = { port: '#9bcf72', numbers: '#8ccf8a', science: '#78c46a', citadel: '#9ccf6e', farm: '#8fd06e', treasure: '#8fd06e' }[kind];
+  const tint = { port: '#9bcf72', numbers: '#8ccf8a', science: '#78c46a', citadel: '#9ccf6e', farm: '#8fd06e', music: '#a5d66c', treasure: '#8fd06e' }[kind];
   group.add(islandBase(seed, { grass: tint || '#86c86a', sand: kind === 'treasure' ? '#f7dc9c' : '#f3d596' }));
   const landmark = new THREE.Group();
   (LANDMARKS[kind] || (g => decor(g, [['palm', 1.6, 0.6], ['palm', 4, 1.2, 0.9], ['bush', 0, 1.5]], seed)))(landmark, p);
