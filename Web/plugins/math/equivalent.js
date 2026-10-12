@@ -15,7 +15,7 @@ const SIMPLIFY = [[4, 8, 2], [6, 9, 3], [8, 10, 5], [9, 12, 4], [6, 8, 4]];
 const DECIMALS = [[0.5, 1, 2, 4], [0.25, 1, 4, 4], [0.75, 3, 4, 8], [0.4, 2, 5, 5]];
 const PERCENTS = [[75, 3, 4, 4], [40, 2, 5, 5], [20, 1, 5, 10], [50, 1, 2, 6]];
 
-// "مقسوم إلى جزأين / ٦ أجزاء / ١٢ جزءاً" — the counted noun follows the number.
+// "مقسوم إلى جزأين / 6 أجزاء / 12 جزءاً" — the counted noun follows the number.
 const partsText = n => (n === 2 ? 'جزأين' : n <= 10 ? `${num(n)} أجزاء` : `${num(n)} جزءاً`);
 const ask = (shown, parts) => `املأ الدلو إلى <span class="target">${shown}</span><small class="prompt__sub">الدلو مقسوم إلى ${partsText(parts)}</small>`;
 
@@ -45,10 +45,10 @@ export const ITEMS = [
     note: `${num(v)} = ${frac((n * parts) / d, parts)}`,
   })),
   ...PERCENTS.map(([p, n, d, parts]) => ({
-    q: ask(`${num(p)}٪`, parts), parts, answer: (n * parts) / d,
-    hint: `النسبة المئوية كسر مقامه ${num(100)}: ${num(p)}٪ = ${frac(p, 100)}. اختصره حتى يصير المقام ${num(parts)}.`,
-    explain: `${num(p)}٪ = ${frac(p, 100)} = ${frac((n * parts) / d, parts)}.`,
-    note: `${num(p)}٪ = ${frac((n * parts) / d, parts)}`,
+    q: ask(`${num(p)}%`, parts), parts, answer: (n * parts) / d,
+    hint: `النسبة المئوية كسر مقامه ${num(100)}: ${num(p)}% = ${frac(p, 100)}. اختصره حتى يصير المقام ${num(parts)}.`,
+    explain: `${num(p)}% = ${frac(p, 100)} = ${frac((n * parts) / d, parts)}.`,
+    note: `${num(p)}% = ${frac((n * parts) / d, parts)}`,
   })),
 ];
 
@@ -75,7 +75,7 @@ registerTopic({
     },
     {
       title: 'عشري ونسبة مئوية',
-      html: `<p>${num(0.5)} = ${frac(1, 2)} &nbsp;•&nbsp; ${num(25)}٪ = ${frac(1, 4)} &nbsp;•&nbsp; ${num(0.75)} = ${num(75)}٪ = ${frac(3, 4)}</p>
+      html: `<p>${num(0.5)} = ${frac(1, 2)} &nbsp;•&nbsp; ${num(25)}% = ${frac(1, 4)} &nbsp;•&nbsp; ${num(0.75)} = ${num(75)}% = ${frac(3, 4)}</p>
              <p>املأ الدلو بالزرّين ▲ ▼ أو بالضغط على الجزء، ثم اضغط <b>«اسكب»</b>.</p>`,
       say: 'الناعورة تنتظر. املأ الدلاء بدقّة!',
     },

@@ -100,9 +100,9 @@
     <header class="topbar topbar--map">
       <button class="btn btn--round" data-go="journey" aria-label="رحلتي" id="hero-btn"></button>
       <h2>الصف السادس</h2>
-      <span class="stars-badge" title="النجوم">★ <span id="stars-total">٠</span></span>
-      <span class="stars-badge streak-pill" id="streak-pill" title="هدف اليوم: ٣ دروس">🔥 <span id="streak-n">٠</span></span>
-      <button class="stars-badge pearl-btn" id="pearl-btn" title="سوق الميناء">🦪 <span id="pearl-total">٠</span></button>
+      <span class="stars-badge" title="النجوم">★ <span id="stars-total">0</span></span>
+      <span class="stars-badge streak-pill" id="streak-pill" title="هدف اليوم: 3 دروس">🔥 <span id="streak-n">0</span></span>
+      <button class="stars-badge pearl-btn" id="pearl-btn" title="سوق الميناء">🦪 <span id="pearl-total">0</span></button>
       <button class="btn btn--round" id="mute-btn" aria-label="الإعدادات">⚙️</button>
     </header>
     <button class="map-voyages" data-go="chapters">🗺️ كل الرحلات</button>
@@ -125,7 +125,7 @@
       <h2 id="island-name"></h2>
       <button class="btn btn--round" id="log-btn" aria-label="المهمّات">📜</button>
       <span class="hud-pill" title="الأحرف الذهبية"><span class="letter-slots" id="letter-slots"></span></span>
-      <span class="hud-pill" title="اللآلئ">🦪 <b id="pearl-count">٠</b></span>
+      <span class="hud-pill" title="اللآلئ">🦪 <b id="pearl-count">0</b></span>
     </header>
     <div class="goal" id="goal" aria-live="polite"></div>
     <p class="island-hint" id="island-hint" hidden></p>
@@ -159,8 +159,8 @@
       <button class="btn btn--round" id="farm-leave" aria-label="العودة إلى السفينة">⛵</button>
       <h2 id="farm-title">مزرعتي السعيدة</h2>
       <button class="btn btn--round" id="farm-quests-btn" aria-label="المهمّات">📜</button>
-      <button class="hud-pill farm-coins" id="farm-coins-btn" title="القطع الذهبية: زيّن مزرعتك">🪙 <b id="farm-coins">٠</b></button>
-      <span class="hud-pill farm-level" id="farm-level" title="مستوى المزرعة"><b>١</b><i><span></span></i></span>
+      <button class="hud-pill farm-coins" id="farm-coins-btn" title="القطع الذهبية: زيّن مزرعتك">🪙 <b id="farm-coins">0</b></button>
+      <span class="hud-pill farm-level" id="farm-level" title="مستوى المزرعة"><b>1</b><i><span></span></i></span>
     </header>
     <div class="goal farm-goal" id="farm-goal" aria-live="polite"></div>
     <div class="sr-only" id="farm-places" aria-label="أماكن المزرعة"></div>
@@ -178,6 +178,28 @@
     <div class="farm-tray" id="farm-tray" hidden></div>
     <div class="farm-pick" id="farm-pick" hidden></div>
     <div class="farm-modal" id="farm-modal" hidden></div>
+  </section>
+
+  <!-- The music island: a 3D toy island (core/tunes/), loaded when first visited. -->
+  <section id="screen-tunes" class="screen screen--tunes">
+    <div class="tn-stage" id="tunes-stage">
+      <div class="tn-labels" id="tunes-labels"></div>
+    </div>
+    <header class="topbar topbar--island topbar--tunes">
+      <button class="btn btn--round" id="tunes-leave" aria-label="العودة إلى السفينة">⛵</button>
+      <h2 id="tunes-title">جزيرة الأنغام</h2>
+      <button class="btn btn--round" id="tunes-quests-btn" aria-label="الدروس">📜</button>
+      <button class="hud-pill tn-notes" id="tunes-notes-btn" title="النوتات الذهبية: اسمع أغنية السماء">🎵 <b id="tunes-notes">0</b><small>/10</small></button>
+    </header>
+    <div class="goal tn-goal" id="tunes-goal" aria-live="polite"></div>
+    <div class="sr-only" id="tunes-places" aria-label="أماكن الجزيرة"></div>
+    <div class="farm-say tn-say" id="tunes-say" hidden>
+      <button class="farm-say__face" aria-label="نغمة: اضغط لتلميح"><img alt=""></button>
+      <div class="farm-say__body"><p class="farm-say__name"></p><p class="bubble" aria-live="polite"></p></div>
+      <button class="farm-say__voice say-btn" aria-label="اقرأ لي" hidden>🔊</button>
+    </div>
+    <div class="tn-panel" id="tunes-panel" hidden></div>
+    <div class="farm-modal tn-modal" id="tunes-modal" hidden></div>
   </section>
 
   <section id="screen-journey" class="screen screen--journey">

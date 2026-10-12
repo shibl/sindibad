@@ -4,7 +4,7 @@
 //
 // numberline({ items, count, intro })
 // items: [{ value: 0.75, label: html, min: 0, max: 1, ticks: 4,
-//           labels: [[0,'٠'], [1,'١']], hint, explain }]
+//           labels: [[0,'0'], [1,'1']], hint, explain }]
 // A tap counts if it lands within half a tick of the value.
 
 import { runRounds, draw, h, TEST } from './kit.js';

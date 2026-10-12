@@ -37,6 +37,26 @@ plant, care for and harvest potatoes, tomatoes, cotton and sugar beet in
 the book's order; feed and milk the Shami cow; make village cheese; open a
 beehive. Seven quests, one per book lesson, each worth stars like any
 lesson; harvests are sold to the ship for coins that buy decorations.
+
+**The music island** («جزيرة الأنغام»), open from the start: a 3D toy
+island where the grade-6 music book (التربية الموسيقية) is played with
+real sounds. Eight places along a winding path — a giant grand piano, a
+glass pavilion, a drum circle round a fire, a metronome tower with the
+book's note-car racing round it, a cloud raining notes onto the grand
+staff, a music library, a black-basalt theatre (after Bosra's) and a
+harbour of world instruments. Ten quests cover all twenty lessons and the
+projects: play the major scale, find the half tones, sharps and flats,
+key signatures, rain notes onto the staff, hear a rhythm and tap it back
+on the drum, fill measures, tempo terms, the Longa and the fugue, the
+monologue and the choir, Guido's note names and the letters A–G, folk
+instruments of the world, and tuning eight water glasses by the book's
+fractions before playing them. The helper «نغمة» (a purple note) explains
+every step; each quest hangs a golden note on the rainbow gate, and ten
+notes play the «sky song». Between quests the piano, the darbuka, the
+metronome and (once made) the glasses can be played freely.
+
+All numbers in the game are written with the digits 1 2 3 (owner decision
+2026-10-12).
 Lessons are played in different ways: multiple choice, sorting, sailing
 a number line, steering the ship by an angle, paying at the market,
 filling a waterwheel's buckets, and building sentences from word blocks.
@@ -109,9 +129,14 @@ Inside `Web/`:
 - `core/sea/` — the 3D sea map, a preview on the staging copy (`sea.js` the
   sea, ship, fog and camera; `models.js` the islands' landmarks, made in
   code). `core/map.js` picks it or the flat map; both share the island labels.
-- `vendor/three/` — three.js r170 (MIT), kept in the game so the farm and the
-  3D sea work offline. Loaded only when a child sails to the farm (or, on
-  staging, when the 3D sea map is on).
+- `core/tunes/` — the 3D music island (`tunes.js` game, `games.js` the
+  little games each quest step is played with, `synth.js` the instruments,
+  made with Web Audio, `models.js` every model, made in code); its content
+  (stations, quests, steps) is `worlds/grade6/tunes.js`, its quick reviews
+  `plugins/music/`. It reuses the farm's camera and light (`core/farm/scene.js`).
+- `vendor/three/` — three.js r170 (MIT), kept in the game so the farm, the
+  music island and the 3D sea work offline. Loaded only when a child sails
+  to one of them (or, on staging, when the 3D sea map is on).
 - `plugins/` — topics and reusable game engines. **Adding a lesson:** see
   [`Web/plugins/README.md`](./Web/plugins/README.md).
 - `art/art.js` — all art as inline SVG (heroes, Hudhud, dhow, islands…).

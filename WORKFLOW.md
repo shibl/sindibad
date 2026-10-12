@@ -44,9 +44,10 @@ against?
   review by Syrian educators" at the top of the file. Teacher review comes
   later; for now the developers decide what goes live.
 - **Match the game.** Same cartoon style, the colour tokens in `style.css`,
-  the bundled font, Arabic-Indic digits through `num()`, right-to-left.
+  the bundled font, the digits 1 2 3 through `num()` (owner decision
+  2026-10-12), right-to-left.
 - **Arabic text**: check that the counted noun agrees with the number
-  (٣ دراهم، ١٥ درهماً، ٢٠٠ درهم). Use the generic imperative (اضغط، فكّر).
+  (3 دراهم، 15 درهماً، 200 درهم). Use the generic imperative (اضغط، فكّر).
   Hints point to the rule; they never give the answer away.
 - **Small phones first.** Most players have 360-px-wide Android phones.
   The question and its main buttons must be visible without scrolling at

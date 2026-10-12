@@ -100,7 +100,7 @@ function draw(el) {
         ${trying ? (pearls() >= trying.price
           ? `<button class="btn btn--gold shop__buy" data-shop="buy" data-id="${trying.id}">اشترِ «${trying.name}» بـ 🦪 ${num(trying.price)}</button>`
           : `<p class="shop__need">تحتاج ${num(trying.price - pearls())} لؤلؤة أخرى 🦪 — اجمعها من الجزر!</p>`)
-          : '<p class="shop__note">اضغط على أي شيء لتجرّبه قبل أن تشتريه. اجمع اللآلئ من الجزر، و٥ لآلئ عن كل نجمة جديدة.</p>'}
+          : '<p class="shop__note">اضغط على أي شيء لتجرّبه قبل أن تشتريه. اجمع اللآلئ من الجزر، و5 لآلئ عن كل نجمة جديدة.</p>'}
       </footer>
     </div>`;
   el.onclick = e => {

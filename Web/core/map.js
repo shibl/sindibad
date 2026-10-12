@@ -462,7 +462,7 @@ function showBadge(region, state) {
   return new Promise(resolve => {
     const first = !(save.get().badges || {})[region.id];
     save.update(v => { v.badges = { ...(v.badges || {}), [region.id]: state }; });
-    if (first && region.id !== 'treasure' && region.kind !== 'farm') setTimeout(() => awardSticker('treasure'), 900);
+    if (first && region.id !== 'treasure' && !region.kind) setTimeout(() => awardSticker('treasure'), 900);
     const modal = document.getElementById('badge-modal');
     const gold = state === 'gold';
     modal.innerHTML = `
@@ -595,7 +595,7 @@ function openSheet(region) {
             <button class="topic-card" data-topic="${t.id}">
               <span class="topic-card__icon">${t.icon}</span>
               <span class="topic-card__text"><b>${t.title}</b><small>${t.blurb}</small>${due.has(t.id) ? '<em class="tag-review">🔁 وقت المراجعة</em>' : ''}</span>
-              <span class="topic-card__stars" aria-label="${num(st)} من ٣ نجوم">${starRow(st)}</span>
+              <span class="topic-card__stars" aria-label="${num(st)} من 3 نجوم">${starRow(st)}</span>
             </button>
           </li>`;
         }).join('') || '<li class="topic-list__empty">الدروس في الطريق…</li>'}

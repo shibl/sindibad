@@ -884,8 +884,8 @@ function openPick(pick, run) {
         <div class="fdial__therm" aria-hidden="true"><i style="--v:${value}%"></i></div>
         <div class="fdial__read"><b class="fdial__val">${num(value)}</b><span>درجة</span></div>
         <div class="fdial__btns">
-          <button class="btn btn--ghost" data-d="-10">−١٠</button><button class="btn btn--ghost" data-d="-1">−١</button>
-          <button class="btn btn--ghost" data-d="1">+١</button><button class="btn btn--ghost" data-d="10">+١٠</button>
+          <button class="btn btn--ghost" data-d="-10">−10</button><button class="btn btn--ghost" data-d="-1">−1</button>
+          <button class="btn btn--ghost" data-d="1">+1</button><button class="btn btn--ghost" data-d="10">+10</button>
         </div>
         <button class="btn btn--gold fdial__ok" data-done>تمّ ✔</button>
       </div>`;
@@ -1186,7 +1186,7 @@ function gainXp(n, at) {
     sfx.fanfare();
     F.coins += 20;
     updateHud();
-    toast(`🎉 مستوى جديد للمزرعة: <b>${num(level())}</b>! هدية: ٢٠ 🪙`);
+    toast(`🎉 مستوى جديد للمزرعة: <b>${num(level())}</b>! هدية: 20 🪙`);
   }
 }
 
@@ -1264,7 +1264,7 @@ async function questComplete(q, def, res) {
         <h3>${q.icon} ${q.title}</h3>
         <div class="fm-stars">${[0, 1, 2].map(i => `<span class="${i < stars ? 'is-on' : ''}" style="--i:${i}">★</span>`).join('')}</div>
         <div class="fm-learned"><b>📖 تعلّمنا من كتاب «${def.book}»:</b><ul>${def.learned.map(l => `<li>${l}</li>`).join('')}</ul></div>
-        <p class="fm-chips"><span>+٣٠ 🪙</span><span>+٤٠ ⭐</span>${res?.pearls ? `<span>+${num(res.pearls)} 🦪</span>` : ''}</p>
+        <p class="fm-chips"><span>+30 🪙</span><span>+40 ⭐</span>${res?.pearls ? `<span>+${num(res.pearls)} 🦪</span>` : ''}</p>
         ${next ? `<p class="fm-next">المهمّة التالية: <b>${next.icon} ${next.title}</b></p>` : '<p class="fm-next"><b>🎉 أنهيت كل مهمّات المزرعة!</b></p>'}
         <button class="btn btn--gold" data-close>تابِع</button>
       </div>`, root => { root.querySelector('[data-close]').addEventListener('click', () => setTimeout(resolve, 0)); }, { keep: true });

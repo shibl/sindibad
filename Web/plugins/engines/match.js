@@ -48,7 +48,7 @@ export function match({ pairs, boards = 2, perBoard = 4, intro, headA = '', head
             const hue = (set.length - left) * 67;
             [sel, b].forEach(x => { x.classList.remove('is-sel'); x.classList.add('is-done'); x.style.setProperty('--hue', hue); });
             if (!missed.has(p)) correct += 1;
-            burst(b, missed.has(p) ? '' : '+١');
+            burst(b, missed.has(p) ? '' : '+1');
             ctx.mark?.(p, !missed.has(p));
             left -= 1;
             ctx.sfx.good();

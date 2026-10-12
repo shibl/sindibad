@@ -1,10 +1,9 @@
-// Number formatting. Syrian textbooks use Arabic-Indic digits (٠١٢٣٤٥٦٧٨٩)
-// and the Arabic decimal separator (٫).
-
-const DIGITS = '٠١٢٣٤٥٦٧٨٩';
+// Number formatting. The game writes numbers with the digits 1 2 3
+// (owner decision 2026-10-12: «الأرقام العربية» 0123456789, not ٠١٢٣٤٥٦٧٨٩),
+// a dot for decimals and a true minus sign.
 
 export function num(n) {
-  return String(n).replace(/[0-9]/g, d => DIGITS[d]).replace(/\./g, '٫').replace(/-/g, '−');
+  return String(n).replace(/-/g, '−');
 }
 
 // A stacked fraction as HTML: frac(3, 4) → ¾ drawn with a bar.

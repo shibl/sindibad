@@ -7,6 +7,9 @@
 //   pay, fill, build) can be played to three stars and fit a phone screen.
 //   The farm island (3D): choose a helper, play the potato quest to three
 //   stars, sell to the ship, keep it all after a reload, and play offline.
+//   The music island (3D): its quests are well formed, the piano lesson and
+//   the rhythm lesson (with the drum) play to the end, golden notes, reload,
+//   offline.
 //   The 3D sea map (a staging preview): fog, labels, the flat/3D button,
 //   sailing ashore, the fog lifting, offline; the live game keeps the flat map.
 //   A new version shows up by itself for players who already have the game,
@@ -162,7 +165,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   await p.click('#screen-title [data-go]');
   await p.click('.voyage--open');
   await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
-  check(await p.locator('.isle').count() === 7, 'map works offline');
+  check(await p.locator('.isle').count() === (await import('../worlds/grade6.js')).default.regions.length + 1, 'map works offline');
   await p.click('.isle[data-region=arabic]');
   await p.waitForSelector('#screen-island[data-active]', { timeout: 6000 });
   check(true, 'the island works offline');
@@ -198,7 +201,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
     const { enterIsland, debugFits } = await import('/core/overworld.js');
     const world = (await import('/worlds/grade6.js')).default;
     const out = [];
-    for (const { id } of world.regions.filter(r => r.kind !== 'farm')) {
+    for (const { id } of world.regions.filter(r => !r.kind)) {
       const def = (await import(`/worlds/grade6/${id}.js`)).default;
       enterIsland(def, world.regions.find(r => r.id === id));
       const nx = Math.round(def.tiles[0].length / STEP), ny = Math.round(def.tiles.length / STEP);
@@ -364,6 +367,111 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   await gl.close();
 }
 
+// The music island: a 3D toy island where the music book is played.
+{
+  console.log('— music island');
+  const { QUESTS, STATIONS, GLASSES, reviewOf } = await import('../worlds/grade6/tunes.js');
+  const glassIds = GLASSES.map(g => g.id);
+  const piano = n => /^(C|C#|D|D#|E|F|F#|G|G#|A|A#|B)4$|^C5$/.test(n);
+  const okStep = s => ({
+    learn: () => !!s.title && !!s.html,
+    choice: () => s.options.length >= 2 && new Set(s.options).size === s.options.length && (!s.art || s.art.length === s.options.length),
+    keys: () => s.play.length > 0 && s.play.every(piano),
+    gaps: () => true, pattern: () => true,
+    staff: () => s.drops.every(([n]) => /^[A-G][2-5]$/.test(n)),
+    name: () => /^[A-G][2-5]$/.test(s.note) && s.options.length >= 2,
+    order: () => s.items.length >= 3 && new Set(s.items).size === s.items.length && (!s.sound || s.sound.length === s.items.length),
+    rhythm: () => !s.others.includes(s.pattern), drum: () => !!s.pattern,
+    measure: () => s.given.reduce((b, t) => b + ({ w: 4, h: 2 }[t] || 1), 0) < s.beats,
+    sort: () => s.items.every(([, b]) => s.bins.some(x => x.id === b)),
+    fill: () => glassIds.includes(s.glass) && s.n > 0 && s.n <= s.d,
+    glasses: () => s.play.every(g => glassIds.includes(g)),
+  }[s.kind]?.() && (s.kind === 'learn' || !!s.hint));
+  check(QUESTS.every(q => STATIONS[q.station] && q.steps.every(okStep)), 'music: every step is well formed (notes on the piano, a right answer, a hint)');
+  check(QUESTS.every(q => reviewOf(q.id).length >= 6) && new Set(QUESTS.map(q => q.topic)).size === QUESTS.length, 'music: every quest has a review quiz of 6+ questions');
+
+  const gl = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  const ctx = await gl.newContext({ viewport: { width: 390, height: 844 } });
+  await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
+  const p = await ctx.newPage();
+  const errors = [];
+  p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+  p.on('pageerror', e => errors.push(e.message));
+  await p.goto(URL_);
+  await p.evaluate(() => navigator.serviceWorker.ready);
+  await p.click('text=ابدأ الرحلة');
+  await p.fill('#child-name', 'سارة');
+  await p.click('#who-form [type=submit]');
+  await p.waitForSelector('#screen-select[data-active]', { timeout: 5000 });
+  await p.click('[data-hero=yasmina]');
+  await p.click('#select-go');
+  await p.click('[data-st=skip]');
+  await p.click('.voyage--open');
+  await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
+  check(await p.locator('.isle[data-region=music]:not(.isle--locked)').count() === 1, 'the music island is open from the start');
+  await p.click('.isle[data-region=music]');
+  await p.waitForSelector('#screen-tunes[data-active]', { timeout: 20000 });
+  check(await p.locator('#tunes-stage canvas').count() === 1, 'sailing there opens the 3D music island');
+  await p.waitForTimeout(800);
+  const tunes = () => p.evaluate(() => window.__tunes());
+  let s = await tunes();
+  check(s.places.length === 8 && s.next === 'scale' && (await p.textContent('#tunes-say .bubble')).includes('نغمة'), 'eight places; the helper «نغمة» says hello; the piano lesson comes first');
+  check(await p.locator('.tn-tag:not([hidden])').count() >= 2, 'name tags float over the places');
+  await p.locator('#tunes-places [data-place=piano]').dispatchEvent('click');
+  check(await p.locator('#tunes-modal [data-start]').count() === 2, 'the giant piano holds two lessons');
+  await p.click('#tunes-modal [data-start="scale"]');
+  await p.waitForSelector('#tunes-panel:not([hidden]) .tn-step', { timeout: 5000 });
+  await p.click('#tunes-panel [data-next]');
+  // A wrong key: the helper explains, the step waits.
+  await p.click('#tunes-panel .tn-key[data-note="G4"]');
+  s = await tunes();
+  check(s.step === 1 && (await p.textContent('#tunes-say .bubble')).includes('ابدأ من دو'), 'a wrong key: the helper gives a hint, the step waits');
+  const fits = await p.evaluate(() => { const r = document.querySelector('.tn-sheet').getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight + 1; });
+  check(fits, 'the lesson card fits a phone screen');
+  const play = async () => {
+    for (let guard = 0; guard < 400; guard++) {
+      if (await p.isVisible('#tunes-modal .fm-done')) return true;
+      const next = p.locator('#tunes-panel [data-next]');
+      if (await next.count()) { await next.first().click(); continue; }
+      const turn = p.locator('#tunes-panel [data-turn]:not([disabled])');
+      if (await turn.count() && await p.locator('#tunes-panel .tn-drum[disabled]').count()) { await turn.click(); await p.waitForTimeout(100); continue; }
+      const drum = p.locator('#tunes-panel .tn-drum:not([disabled])');
+      if (await drum.count()) { const n = +(await drum.getAttribute('data-taps')); for (let i = 0; i < n; i++) { await drum.click(); await p.waitForTimeout(70); } await p.waitForTimeout(150); continue; }
+      const ok = p.locator('#tunes-panel [data-ok]');
+      if (await ok.count()) { await ok.first().click(); continue; }
+      await p.waitForTimeout(80);
+    }
+    return false;
+  };
+  check(await play(), 'the scale lesson can be played to the end');
+  const stars = id => p.evaluate(t => JSON.parse(localStorage.getItem('sindbad.save.v1')).topics[t]?.stars, id);
+  check(await stars('music-scale') === 2, `one wrong key, then all right: 2 stars (got ${await stars('music-scale')})`);
+  await p.click('#tunes-modal [data-close]');
+  s = await tunes();
+  check(s.T.done.scale && s.next === 'stage' && (await p.textContent('#tunes-notes')) === '1', 'a golden note for the rainbow gate; the theatre is next');
+  // The drum circle: hear a rhythm, pick its card, tap it back on the drum.
+  await p.evaluate(() => window.__tunesDo('debugStart', 'rhythm'));
+  await p.waitForSelector('#tunes-panel:not([hidden]) .tn-step', { timeout: 5000 });
+  check(await play() && await stars('music-rhythm') === 3, 'the rhythm lesson (cards, the drum, measures) played perfectly: 3 stars');
+  await p.click('#tunes-modal [data-close]');
+  await p.reload();
+  await p.waitForTimeout(500);
+  const kept = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')).world.tunes);
+  check(kept.done.scale && kept.done.rhythm, 'the island survives a reload');
+  await ctx.setOffline(true);
+  await p.reload();
+  await p.waitForTimeout(600);
+  await p.click('#screen-title [data-go]');
+  await p.click('.voyage--open');
+  await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
+  await p.click('.isle[data-region=music]');
+  await p.waitForSelector('#screen-tunes[data-active]', { timeout: 20000 });
+  check(await p.locator('#tunes-stage canvas').count() === 1 && (await p.textContent('#tunes-notes')) === '2', 'the music island works offline, with its golden notes');
+  check(errors.length === 0, `no console errors${errors.length ? `: ${errors.join(' | ')}` : ''}`);
+  await ctx.close();
+  await gl.close();
+}
+
 // The 3D sea map: a preview on the staging copy (?map=3d shows it here too).
 // The live game keeps the flat map.
 {
@@ -402,9 +510,10 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
     const m = document.getElementById('map').getBoundingClientRect();
     return [...document.querySelectorAll('#map .isle')].map(b => { const r = b.getBoundingClientRect(); return r.width > 40 && r.left >= m.left - 1 && r.right <= m.right + 1 && r.top >= m.top - 1 && r.bottom <= m.bottom + 1; });
   });
-  check(boxes.length === 7 && boxes.every(Boolean), 'every island has its label and tap area on screen');
+  const ISLES = (await import('../worlds/grade6.js')).default.regions.length + 1;
+  check(boxes.length === ISLES && boxes.every(Boolean), 'every island has its label and tap area on screen');
   await p.click('#map-view');
-  check(await p.locator('#map .sea-canvas').count() === 0 && await p.locator('#map .isle__art').count() === 7, 'the button switches to the flat map…');
+  check(await p.locator('#map .sea-canvas').count() === 0 && await p.locator('#map .isle__art').count() === ISLES, 'the button switches to the flat map…');
   await p.click('#map-view');
   await p.waitForSelector('#map .sea-canvas', { timeout: 5000 });
   check(await p.locator('#map .isle__art').count() === 0, '…and back to the 3D sea');
