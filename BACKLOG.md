@@ -548,3 +548,37 @@ drum → 3 stars, golden notes, reload, offline). About 80 draw calls
     glasses and play it back on the theatre stage.
 42. [on hold — teacher review comes later] Teacher review of the music
     island's content (draft, from the book).
+
+## Playtest notes — 2026-10-13 (teach before asking: «أتعلّم»)
+
+The owner played the music island and said it moved to the quiz straight
+away: "we should teach the kids before we make them solve things… in an
+interactive nice way". The quests did open with a card, but a card is
+reading, not teaching.
+
+**Built:** a shared teaching step, «أتعلّم» (`core/learn/explore.js`; SPEC:
+"The music island (3D)" → "Taught first"). A picture with glowing spots;
+each tap opens one small idea (a title and a sentence), plays it, lights
+it (keys light, the 3D piano presses, the glasses ring, the note-car races)
+and ticks it off. Guided tours open one spot at a time with a bouncing 👆.
+Only when every spot is found does «فهمت» lead on, and the questions
+follow. Never scored. Every one of the 22 old teaching cards in the
+ten music quests is now a discovery: walking up the piano key by key,
+counting the black keys, measuring each whole / half tone, the parts of
+musical theatre on a dark stage, portrait cards for al-Qabbani, al-Sunbati
+and Mendelssohn, the voice range, solo vs choir by ear, ♯ ♭ ♮ shown on the
+piano, the key signature, note lengths you hear held, measures and
+anacrusis, the grand staff part by part and note by note, a tempo slider
+that finds Largo → Presto, the world's instruments by sound, Guido's
+manuscript line by line, the letters A–G, and the eight glasses. Lesson
+dots show teaching steps as blue squares.
+
+Also: the drum step no longer cuts off a child who starts late (time's
+up only after the rhythm could have ended), which was failing CI on the
+slow test machine.
+
+**Checked:** all ten quests played to three stars by script, no console
+errors; screenshots of every discovery step at 390×844 (fixed: a black
+key that jumped out of the piano while glowing, a key-signature picture
+too small to read). `npm test` checks every quest opens with «أتعلّم» and
+walks the piano tour (no skipping, one key at a time).

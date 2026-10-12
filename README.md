@@ -129,6 +129,10 @@ Inside `Web/`:
 - `core/sea/` — the 3D sea map, a preview on the staging copy (`sea.js` the
   sea, ship, fog and camera; `models.js` the islands' landmarks, made in
   code). `core/map.js` picks it or the flat map; both share the island labels.
+- `core/learn/explore.js` — «أتعلّم», the teaching step every 3D island
+  quest opens with: a picture with glowing spots, each tap opens one idea;
+  the questions come when every spot is found. Islands give it their own
+  pictures (the music island's are in `core/tunes/games.js`).
 - `core/tunes/` — the 3D music island (`tunes.js` game, `games.js` the
   little games each quest step is played with, `synth.js` the instruments,
   made with Web Audio, `models.js` every model, made in code); its content

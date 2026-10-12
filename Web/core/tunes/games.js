@@ -10,6 +10,7 @@
 
 import { num, frac } from '../format.js';
 import * as S from './synth.js';
+import { explore } from '../learn/explore.js';
 import { SOLFEGE, GLASSES } from '../../worlds/grade6/tunes.js';
 
 const TEST = typeof window !== 'undefined' && !!window.__SINDBAD_TEST__;
@@ -151,6 +152,109 @@ const SHOW = {
 };
 export const showHTML = name => (SHOW[name] ? `<div class="tn-show">${SHOW[name]()}</div>` : '');
 
+// ---------- «أتعلّم» pictures (core/learn/explore.js) ----------
+// Each draws a picture whose parts carry data-spot="<spot id>"; the spots
+// the picture lacks become cards under it.
+
+const tpl = html => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
+const idsOf = step => new Set(step.spots.map(x => x.id));
+const hymnLines = [['Ut', 'Ut', ' queant laxis'], ['Re', 'Re', 'sonare fibris'], ['Mi', 'Mi', 'ra gestorum'], ['Fa', 'Fa', 'muli tuorum'], ['Sol', 'Sol', 've polluti'], ['La', 'La', 'bii reatum'], ['Si', 'S', 'ancte ', 'I', 'oannes']];
+const svgNote = (id, d, x) => {
+  const y = yOf(d), ledger = d === 0 ? `<line x1="${x - 14}" x2="${x + 14}" y1="${y}" y2="${y}" class="tn-staff__ledger"/>` : '';
+  return `<g data-spot="${id}" class="tn-note lx-n"><rect x="${x - 13}" y="${y - 11}" width="26" height="22" rx="8" class="lx-hit"/>${ledger}<ellipse cx="${x}" cy="${y}" rx="8.5" ry="6.2" transform="rotate(-18 ${x} ${y})"/><text x="${x}" y="${d >= 0 ? y - 12 : y + 20}" class="lx-label lx-n__t"></text></g>`;
+};
+const hit = (id, x, y, w, h) => `<rect data-spot="${id}" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" class="lx-hit"/>`;
+
+const LX_VIEWS = {
+  keyboard(step) {
+    const kb = step.kb || {}, ids = idsOf(step);
+    const el = tpl(keyboardHTML({ from: kb.from || 'C4', to: kb.to || 'C5', labels: kb.labels ?? 'names', gaps: !!kb.gaps, marks: kb.gaps ? Array(16).fill('') : null }));
+    el.querySelectorAll('.tn-key').forEach(k => {
+      if (ids.has(k.dataset.note)) k.dataset.spot = k.dataset.note;
+      if (kb.labels === 'none') k.querySelector('span')?.classList.add('lx-label');
+    });
+    el.querySelectorAll('.tn-gap').forEach(g => {
+      const id = `gap${g.dataset.gap}`;
+      if (ids.has(id)) { g.dataset.spot = id; g.innerHTML = '<span class="lx-label"></span>'; } else g.textContent = '·';
+    });
+    return el.outerHTML;
+  },
+  // The grand staff in parts: the clefs, the two groups of lines, middle C.
+  grand: () => staffSVG({ notes: [] }).replace('</svg>', hit('treble', 4, yOf(12), 48, yOf(1) - yOf(12))
+    + hit('glines', 58, yOf(10) - 6, W - 70, yOf(2) - yOf(10) + 12) + hit('mid', 58, yOf(0) - 6, W - 70, 12)
+    + hit('flines', 58, yOf(-2) - 6, W - 70, yOf(-10) - yOf(-2) + 12) + hit('bass', 4, yOf(-1), 48, yOf(-11) - yOf(-1)) + '</svg>'),
+  // Notes on the grand staff, one per spot (spot id = the note), left to right.
+  notes: step => staffSVG({ notes: [] }).replace('</svg>', step.spots.map((x, i) => svgNote(x.id, noteD(x.id), 84 + i * 34)).join('') + '</svg>'),
+  // One treble staff, large: a ♯ right after the clef (a key signature)
+  // and a ♭ in front of one note (an accidental).
+  keysig: () => {
+    const y = d => 22 + (10 - d) * 9, head = (d, x) => `<ellipse cx="${x}" cy="${y(d)}" rx="8" ry="5.8" transform="rotate(-18 ${x} ${y(d)})" class="lx-ks__note"/>`;
+    return `<svg class="lx-ks" viewBox="0 0 320 132" dir="ltr" role="img" aria-label="سطر موسيقي فيه إشارتا تحويل">${[2, 4, 6, 8, 10].map(d => `<line x1="6" x2="314" y1="${y(d)}" y2="${y(d)}" class="tn-staff__line"/>`).join('')}
+      <g transform="translate(10 ${y(4) - 66 * 0.83}) scale(0.83)"><path d="${TREBLE}" class="tn-clef tn-clef--g"/></g>
+      ${head(4, 112)}${head(6, 150)}${head(5, 214)}${head(3, 252)}${head(2, 290)}
+      <g data-spot="sig"><rect x="54" y="${y(10) - 16}" width="28" height="30" rx="7" class="lx-hit"/><text x="60" y="${y(10) + 8}" class="lx-ks__sign">♯</text><text x="68" y="124" class="lx-label lx-ks__cap"></text></g>
+      <g data-spot="acc"><rect x="184" y="${y(5) - 18}" width="22" height="32" rx="7" class="lx-hit"/><text x="188" y="${y(5) + 7}" class="lx-ks__sign">♭</text><text x="200" y="124" class="lx-label lx-ks__cap"></text></g></svg>`;
+  },
+  glasses: step => `<div class="lx-glasses" dir="ltr">${GLASSES.filter(g => idsOf(step).has(g.id)).map(g => `<button class="lx-glass" data-spot="${g.id}" aria-label="كوب ${glassLetter(g.id)}">${glassSVG({ ...g })}<small class="lx-label"></small></button>`).join('')}</div>`,
+  hymn: () => `<div class="tn-hymn lx-hymn" dir="ltr">${hymnLines.map(([id, ...p]) => `<p data-spot="${id}">${p.length > 2 ? `<b>${p[0]}</b>${p[1]}<b>${p[2]}</b>${p[3]}` : `<b>${p[0]}</b>${p[1]}`}<span class="lx-label"></span></p>`).join('')}</div>`,
+  tempo: step => `<div class="lx-tempo"><div class="lx-tempo__zones" dir="ltr">${step.spots.map(z => `<button class="lx-zone" data-spot="${z.id}"><span>${z.icon}</span><b>${z.label}</b></button>`).join('')}</div>
+    <input type="range" class="lx-tempo__range" dir="ltr" min="40" max="200" value="90" aria-label="السرعة"><p class="lx-tempo__bpm"><b>${num(90)}</b> نبضة في الدقيقة</p></div>`,
+  measure: () => `<div class="lx-measure" dir="ltr"><b class="tn-ts" data-spot="ts"><i>4</i><i>4</i></b><span data-spot="m1">${rhythmSVG('q q h')}</span><span data-spot="m2">${rhythmSVG('ee q q q')}</span></div>`,
+  ana: () => `<div class="lx-measure lx-ana" dir="ltr"><span data-spot="first">${rhythmSVG('q')}<small class="lx-label"></small></span><span data-spot="mid">${rhythmSVG('q q q q')}<small class="lx-label"></small></span><span data-spot="last">${rhythmSVG('h q')}<small class="lx-label"></small></span></div>`,
+  portrait: step => `<div class="lx-portrait"><span class="lx-portrait__frame">${step.person.icon}</span><div><b>${step.person.name}</b><small>${step.person.role}</small></div></div>`,
+  art: step => `<div class="lx-art">${ART[step.art] || ''}</div>`,
+};
+const LX_ART = { ...ART, ...Object.fromEntries(['w', 'h', 'q', 'ee'].map(t => [`v-${t}`, rhythmSVG(t, { beatW: 22 })])) };
+
+// What a spot does when it opens: play it, light keys, move the 3D island.
+const lightKeys = (host, notes, ctx, gap) => notes.forEach((n, k) => setTimeout(() => {
+  if (ctx.signal.aborted) return;
+  const key = host.querySelector(`.tn-key[data-note="${n}"]`);
+  if (key) { key.classList.add('is-lit'); setTimeout(() => key.classList.remove('is-lit'), gap * 1000 + 250); }
+  S.piano(n); ctx.onNote?.(n);
+}, k * gap * 1000));
+const HOLD = { w: 4, h: 2, q: 1, ee: 1 };
+function spotSound(ctx) {
+  return (s, el, host) => {
+    if (s.light) lightKeys(host, s.light, ctx, 0.6);
+    else if (s.pair) {
+      lightKeys(host, s.pair.slice(0, 2), ctx, 0.45);
+      const black = s.pair[2] && host.querySelector(`.tn-key[data-note="${s.pair[2]}"]`);
+      if (black) { black.classList.add('is-mark'); setTimeout(() => black.classList.remove('is-mark'), 1600); }
+    } else if (el.dataset.note) { S.piano(el.dataset.note); bump(el, 'is-down'); ctx.onNote?.(el.dataset.note); }
+    if (s.note) { S.piano(s.note); ctx.onNote?.(s.note); }
+    if (s.glass) { S.glass(glassFreq(s.id)); ctx.onGlass?.(s.id); }
+    if (s.hold) {
+      const spb = 60 / 76, n = HOLD[s.hold];
+      if (s.hold === 'ee') { S.piano('G4', { dur: spb }); S.piano('G4', { at: spb / 2, dur: spb }); } else S.piano('G4', { dur: n * spb * 1.6 });
+      S.metronome(76, n);
+      el.style.setProperty('--hold', `${n * spb}s`); bump(el, 'is-holding');
+    }
+    if (s.bpm) {
+      const r = host.querySelector('.lx-tempo__range');
+      if (r) { r.value = s.bpm; host.querySelector('.lx-tempo__bpm b').textContent = num(s.bpm); }
+      S.metronome(s.bpm, Math.max(4, Math.round(s.bpm / 30))); ctx.race?.(s.bpm);
+    }
+    if (s.rhythm) S.playRhythm(s.rhythm, 84);
+    if (s.play) playSound(s.play);
+  };
+}
+// A picture's own controls: every key sounds; the tempo slider finds the
+// speed words as it moves.
+function lxMount(ctx) {
+  return (host, step, tap) => {
+    host.querySelectorAll('.tn-key:not(.lx-spot)').forEach(k => k.addEventListener('click', () => { S.piano(k.dataset.note); bump(k, 'is-down'); ctx.onNote?.(k.dataset.note); }));
+    const range = host.querySelector('.lx-tempo__range');
+    if (!range) return;
+    const out = host.querySelector('.lx-tempo__bpm b');
+    range.addEventListener('input', () => { out.textContent = num(range.value); });
+    range.addEventListener('change', () => {
+      const v = +range.value, z = step.spots.find(x => v >= x.min && v <= x.max);
+      if (z) tap(host.querySelector(`[data-spot="${z.id}"]`));
+    });
+  };
+}
+
 // ---------- Sounds for `play` / `listen` ----------
 
 export function playSound(p) {
@@ -160,6 +264,8 @@ export function playSound(p) {
   if (p.longa) return S.longa();
   if (p.canon) return S.canon();
   if (p.inst) return S.instrument(p.inst);
+  if (p.choir) { S.choir(); return 2.5; }
+  if (p.solo) return S.phrase(['E4', 'F4', 'G4', 'A4', 'G4', 'F4', 'G4', 'E4', 'D4', 'E4', 'C4'], { step: 0.22 });
   if (p.glasses) { p.glasses.forEach((g, i) => S.glass(glassFreq(g), { at: i * 0.9 })); return p.glasses.length * 0.9 + 1; }
   if (p.rhythm) return S.playRhythm(p.rhythm, p.bpm).seconds;
   return 0;
@@ -209,6 +315,11 @@ function wirePlay(host, p, ctx, auto = true) {
 }
 
 const KINDS = {
+  // «أتعلّم»: discover each part of a picture before the questions.
+  explore(step, host, ctx, resolve) {
+    explore(step, host, ctx, resolve, { views: LX_VIEWS, art: LX_ART, onSpot: spotSound(ctx), mount: lxMount(ctx) });
+  },
+
   // A short teaching card.
   learn(step, host, ctx, resolve) {
     host.innerHTML = `<div class="tn-learn"><h3>${step.title}</h3>${showHTML(step.show)}<div class="tn-text">${step.html}</div>
