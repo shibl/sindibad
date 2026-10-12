@@ -469,3 +469,33 @@ the browser kept showing the old offline copy. Two fixes:
 `npm test` checks both: a new version reloads the title screen and
 replaces the old offline copy; switching tabs silences the game.
 
+## Playtest notes — 2026-10-12 (a 3D sea map, to compare)
+
+The owner asked whether grade 6 needs a new theme. Recommendation: keep
+the sea voyage story and update the look, starting with the sea map. A 3D
+sea map is now on the staging copy (SPEC: "The 3D sea map (preview)"), with
+a "2D / 3D" button to compare it with the flat map; the live game is
+unchanged.
+
+**What it is:** a turquoise sea with shallows, foam and little wave marks;
+seven islands with their landmarks made in 3D (the farm reuses the farm
+island's models); dotted routes; clouds and misty silhouettes over locked
+islands, which part when the fog lifts; the dhow with the hero and Hudhud
+on deck (their usual drawings) and a wake when it sails; a golden ring on
+the island to try next; a whale, gulls, the lighthouse beam, volcano smoke,
+the windmill. Day, sunset and night. Drag to tilt the view; it eases back.
+
+**Checked:** screenshots at 360×640, 390×844 and 1024×768, day, sunset and
+night; sailing ashore and back; the fog lifting; every island open; offline.
+`npm test` covers it (with `?map=3d`) and checks the live game keeps the
+flat map. About 100 draw calls; not yet tried on a real budget phone.
+
+**Next items:**
+36. [ ] Decide: 3D sea or flat map for the live game (owner, after trying
+    staging on a phone). If 3D: make it the default, keep the flat map as
+    the fallback, and check item 37 first.
+37. [ ] Real-device check of the 3D sea on a 2 GB Android phone (with item
+    33): frame rate, battery, memory with the farm open too.
+38. [ ] If 3D stays: bring the walkable islands' look closer to it (they
+    are drawn in 2D today), one island at a time.
+

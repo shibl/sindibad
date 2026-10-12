@@ -10,7 +10,7 @@ import { openSettings, applySettings } from './core/settings.js';
 import { startAmbience, stopAmbience } from './core/ambience.js';
 import { defsSVG, shipSVG, palmSVG, gullSVG, cloudSVG, skylineSVG, shoreSVG, heroSVG, hudhudSVG } from './art/art.js';
 import { save } from './core/save.js';
-import { initMap, enter as enterMap, totalStars, badgeState } from './core/map.js';
+import { initMap, enter as enterMap, totalStars, badgeState, preloadMapView, debugSea, debugSeaLook } from './core/map.js';
 import { renderChapters } from './core/chapters.js';
 import { STAGES, CHAPTERS } from './worlds/chapters.js';
 import { renderJourney } from './core/journey.js';
@@ -247,6 +247,9 @@ initMap(document.getElementById('map'), world, {
     wipe(() => { showScreen('island'); enterIsland(ISLANDS[id], region); place = id; playMusic(id); });
   },
 });
+// The 3D sea map (staging) loads while the child is still on the title
+// screen, so the map is ready when they get there.
+setTimeout(() => preloadMapView(), 800);
 initOverworld({
   startLesson: (id, host) => { lessonFromIsland = true; wipe(() => startLesson(id, { host })); },
   leave: after => wipe(() => showScreen('map', after)),
@@ -309,4 +312,4 @@ document.getElementById('screen-title').addEventListener('pointermove', e => {
 });
 
 // Test hook: lets headless tests read the hero's position on an island.
-if (window.__SINDBAD_TEST__) Object.assign(window, { __island: debugState, __blocked: debugBlocked, __place: debugPlace, __lesson: startLesson, __farm: () => loadFarm().then(m => m.debugFarm()) });
+if (window.__SINDBAD_TEST__) Object.assign(window, { __island: debugState, __blocked: debugBlocked, __place: debugPlace, __lesson: startLesson, __farm: () => loadFarm().then(m => m.debugFarm()), __sea: debugSea, __seaLook: debugSeaLook });

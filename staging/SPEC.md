@@ -86,6 +86,25 @@ every step. A finished quest records stars for its topic like a lesson.
   without WebGL see a short message instead.
 - Content: `Web/worlds/grade6/farm.js`; engine: `Web/core/farm/`.
 
+### The 3D sea map (preview)
+*(Decision 2026-10-12: a preview to compare, not yet decided.)* The owner
+asked whether grade 6 needs a new theme. Recommendation taken: keep the sea
+voyage story (Sindbad, Yasmina, Hudhud, the islands) and update the look,
+starting with the sea map in 3D, in the same style as the farm.
+- **Where:** on the staging copy only, the sea map is drawn in 3D by default,
+  with a "2D / 3D" button to compare it with the flat map. The live game
+  keeps the flat map until the developers decide. `?map=3d` or `?map=2d`
+  picks one on any copy.
+- **Same map, same rules:** the same islands, routes, fog, beacon, ship and
+  labels as the flat map; each island's landmark is the flat map's drawing
+  made in 3D (Arwad's fort, the striped Damascene gate, the lighthouse, the
+  volcano, the Citadel of Aleppo, the farm, the treasure). Day, sunset and
+  night follow the device clock. The islands' names stay HTML labels on top,
+  so they stay crisp and screen readers find them.
+- **Fallbacks:** phones without WebGL, or if the 3D sea fails to load, get
+  the flat map. Lite mode: no shadows, about 30 frames a second.
+- Engine: `Web/core/sea/`; switching: `Web/core/map.js`.
+
 ### Characters
 - The player **chooses their hero** at the start: **Sindbad** (سندباد, a boy)
   or **Yasmina** (ياسمينة, a girl). Both are full playable heroes with the

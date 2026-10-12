@@ -106,8 +106,12 @@ Inside `Web/`:
   light, `models.js` every model, made in code); its content (crops, steps,
   helpers, quests, orders) is `worlds/grade6/farm.js`, its quick reviews
   `plugins/agriculture/`.
-- `vendor/three/` — three.js r170 (MIT), kept in the game so the farm works
-  offline. Loaded only when a child sails to the farm.
+- `core/sea/` — the 3D sea map, a preview on the staging copy (`sea.js` the
+  sea, ship, fog and camera; `models.js` the islands' landmarks, made in
+  code). `core/map.js` picks it or the flat map; both share the island labels.
+- `vendor/three/` — three.js r170 (MIT), kept in the game so the farm and the
+  3D sea work offline. Loaded only when a child sails to the farm (or, on
+  staging, when the 3D sea map is on).
 - `plugins/` — topics and reusable game engines. **Adding a lesson:** see
   [`Web/plugins/README.md`](./Web/plugins/README.md).
 - `art/art.js` — all art as inline SVG (heroes, Hudhud, dhow, islands…).
