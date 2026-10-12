@@ -91,7 +91,10 @@ against?
 4. **Live**: merge into `main` (a pull request from `staging`, or a
    push). The tests run again; if they pass, the live game updates at
    <https://shibl.github.io/sindibad/>.
-5. A red ✗ on GitHub means nothing was published: fix it and push again.
+5. Each publish shows under **Deployments** on GitHub (`github-pages` is
+   the live game, `staging` the staging copy) and turns green once the
+   website is rebuilt. A red ✗ means nothing was published: fix it and
+   push again.
    Keep `staging` close to `main` (start from `main`, or merge `main`
    into `staging`). Never push to the website branch
    `claude/sharp-hawking-0380ax` by hand: the workflow writes it
