@@ -42,7 +42,8 @@ WORKFLOW.md.
 
 Lesson content is what children learn from: questions, answers, hints,
 explanations, mini-lessons, facts. It lives in the topic folders under
-`Web/plugins/` (`arabic/`, `math/`, `science/`, `social/`, `review/`), in
+`Web/plugins/` (`arabic/`, `math/`, `science/`, `social/`, `agriculture/`,
+`review/`), in
 `Web/worlds/`, and in the facts in `Web/core/stickers.js`.
 
 Mark it as draft ("Draft content, pending review by Syrian educators").

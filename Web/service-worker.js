@@ -5,7 +5,7 @@
 // file run `node tools/update-shell.mjs` (tests/check-shell.mjs fails if you
 // forget). A new version makes clients download the new files once.
 
-const CACHE_VERSION = 'b1f56d7548';
+const CACHE_VERSION = '57d81c06c9';
 // The staging copy (under /staging/, see core/env.js) keeps its own offline
 // copy, so it never clears the live game's, nor the live game its.
 const CACHE_PREFIX = /\/staging\//.test(self.location.pathname) ? 'sindbad-staging-' : 'sindbad-web-';
@@ -26,6 +26,9 @@ const APP_SHELL = [
   'core/chapters.js',
   'core/env.js',
   'core/family.js',
+  'core/farm/farm.js',
+  'core/farm/models.js',
+  'core/farm/scene.js',
   'core/finale.js',
   'core/format.js',
   'core/fx.js',
@@ -43,6 +46,13 @@ const APP_SHELL = [
   'core/story.js',
   'core/topics.js',
   'core/voice.js',
+  'plugins/agriculture/bees.js',
+  'plugins/agriculture/beet.js',
+  'plugins/agriculture/cheese.js',
+  'plugins/agriculture/cotton.js',
+  'plugins/agriculture/cow.js',
+  'plugins/agriculture/potato.js',
+  'plugins/agriculture/tomato.js',
   'plugins/arabic/build.js',
   'plugins/arabic/fael-mafool.js',
   'plugins/arabic/five-verbs.js',
@@ -91,10 +101,12 @@ const APP_SHELL = [
   'worlds/chapters.js',
   'worlds/grade6.js',
   'worlds/grade6/arabic.js',
+  'worlds/grade6/farm.js',
   'worlds/grade6/math.js',
   'worlds/grade6/science.js',
   'worlds/grade6/social.js',
   'worlds/grade6/treasure.js',
+  'vendor/three/three.module.min.js',
   'fonts/baloo-bhaijaan-2-arabic-500-normal.woff2',
   'fonts/baloo-bhaijaan-2-arabic-800-normal.woff2',
   'fonts/baloo-bhaijaan-2-latin-500-normal.woff2',

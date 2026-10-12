@@ -29,6 +29,14 @@ until their worlds are built.
 archipelago guided by Hudhud the hoopoe, and learn through 32 short
 lessons — Arabic grammar, fractions/decimals/percent, angles, science,
 and Syrian geography — each starting with an illustrated mini-lesson.
+
+**The farm island** («مزرعتي السعيدة»), open from the start: a 3D farm
+where the grade-6 agriculture book (التربية الزراعية) is played, not
+read. Pick a helper (a bee, a cow, a puppy or a kitty), then plough,
+plant, care for and harvest potatoes, tomatoes, cotton and sugar beet in
+the book's order; feed and milk the Shami cow; make village cheese; open a
+beehive. Seven quests, one per book lesson, each worth stars like any
+lesson; harvests are sold to the ship for coins that buy decorations.
 Lessons are played in different ways: multiple choice, sorting, sailing
 a number line, steering the ship by an angle, paying at the market,
 filling a waterwheel's buckets, and building sentences from word blocks.
@@ -94,6 +102,12 @@ Inside `Web/`:
 - `worlds/chapters.js` — the twelve voyages (one per grade) and the four
   age stages; `core/chapters.js` draws the voyages chart.
 - `worlds/grade6.js` — the grade-6 islands, positions, unlock rules, badges.
+- `core/farm/` — the 3D farm island (`farm.js` game, `scene.js` camera and
+  light, `models.js` every model, made in code); its content (crops, steps,
+  helpers, quests, orders) is `worlds/grade6/farm.js`, its quick reviews
+  `plugins/agriculture/`.
+- `vendor/three/` — three.js r170 (MIT), kept in the game so the farm works
+  offline. Loaded only when a child sails to the farm.
 - `plugins/` — topics and reusable game engines. **Adding a lesson:** see
   [`Web/plugins/README.md`](./Web/plugins/README.md).
 - `art/art.js` — all art as inline SVG (heroes, Hudhud, dhow, islands…).

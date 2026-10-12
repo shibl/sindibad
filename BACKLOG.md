@@ -383,3 +383,74 @@ minutes and fails if the build fails). Checked on GitHub: the workflow's
 own push does start the Pages rebuild. Required checks on `main` and a
 locked website branch still need the owner (item 23).
 
+## Playtest notes — 2026-10-12 (the farm island)
+
+Owner's request: a new island, «مزرعتي السعيدة», "like Hay Day", 3D and
+high quality, mapped to the grade-6 agriculture book (159 pages, read in
+full first; its four units summarised in the session), in Arabic, with a
+helper the child chooses (a bee, a cow, a puppy, a kitty). "The kids must
+understand the book away from boring reading: by playing."
+
+**Built:**
+- `core/farm/` — a 3D farm in three.js (r170, kept in `vendor/three/`,
+  loaded only when the child sails there): an island with a beach and a
+  shader sea, six fields, a red barn and silo, the Shami cow's pen, a
+  dairy, beehives in a meadow, a windmill, an orders board and a trading
+  dhow at the dock. Every model is made in code, merged into one mesh each.
+  Drag to look around, pinch or wheel to zoom, tap to choose.
+- Seven quests from the book, in order: potato, tomato (`أزرع خضرواتي`),
+  the cow (`مزرعتي الصغيرة`), village cheese (`أصنع الجبن البلدي`), the
+  beehive (`مصنع العسل` ١ and ٢), cotton (`الذهب الأبيض`), sugar beet
+  (`الجذر العجيب`). The tool tray is the question; small choices check the
+  book's facts (two-bud potato piece, planting depth and season, the
+  thermometer at 85 °C then 42 °C, a balanced meal with one feed of each
+  kind, find the queen, order the bee's life cycle, pick only red
+  tomatoes). Weeks pass in a day–night time-lapse naming the book's
+  durations; cotton is picked in three rounds, bottom bolls first.
+- Helpers: chosen on the first visit (changeable from 📜). Tap the helper
+  for a hint; after two wrong jobs it names the right one. Special moments:
+  the bee pollinates tomato and cotton flowers (+2), the kitty chases a
+  field mouse at the potato and beet harvests (+1), the puppy sniffs out
+  weeds (+15 ⭐), the cow helper makes the Shami cow happy (+1 milk).
+- Stars: each quest is a topic in `plugins/agriculture/` (region `farm`);
+  the farm calls `recordResult()` (new in `core/lesson.js`). The topic's
+  own lesson is a short quiz or sort that spaced review brings back.
+- Barn, orders sold by ship (coins and farm levels), decorations bought
+  with coins (Damask rose, jasmine arch, scarecrow, fountain, lanterns —
+  each with a fact from the book), six farm stickers in the album.
+- The sea map: the farm sits by the home port with its own short route
+  (`from: 'home'` in `worlds/grade6.js`).
+
+**Tested:** `npm test` has a farm section: data checks (every job is in
+its tray, every choice has a right answer), choose a helper, a wrong job
+explained, the tray and the helper's words fit a phone, the potato quest
+played to the end (one wrong job → 2 stars), the next quest opens, an
+order sold, a reload keeps the farm, and the farm loads offline. All seven
+quests were also played automatically to three stars, and screenshots were
+checked at 320×568, 360×740, 390×844 and 1024×768. The farm's test uses a
+second Chromium allowed to draw WebGL in software (the test server has no
+graphics card); the other tests keep the normal browser.
+
+**Found / decided:**
+- Size: the whole game is now about 1.6 MB (three.js is 0.66 MB, 0.17 MB
+  zipped); the target is under 35 MB.
+- In software-drawn WebGL the farm runs at ~10 fps; real phones draw with
+  their graphics chip. Not yet tried on a real budget phone (item 10).
+- The book has a few mistakes to avoid when more quests are added: it says
+  amber comes from beehives; the roof rainwater numbers (p.45) don't add
+  up; the Damask rose's planting months read "December and February".
+
+**Next items:**
+32. [ ] More farm quests from the book: the silage pit (feeds the cow),
+    water harvesting (a rain tank for the fields), biogas (dung → gas for
+    the dairy and fertiliser), the Damask rose and jasmine from cuttings,
+    the greenhouse, apples and citrus, silkworms, apple vinegar, the plant
+    doctor (pests and natural enemies), soil, propagation, organic farming,
+    the ecological footprint. Each: a crop or task, a quest, a review topic.
+33. [ ] Real-device check of the farm on a 2 GB Android phone: frame rate,
+    memory, lite mode (no shadows), time to first load.
+34. [ ] Give every helper a special moment in every quest (today the cow
+    helper only shines in the cow quest).
+35. [on hold — teacher review comes later] Teacher review of the farm's
+    content (`worlds/grade6/farm.js`, `plugins/agriculture/`).
+

@@ -13,6 +13,9 @@
 // unlock: the island stays under fog until the named island has earned at
 // least `stars` stars in total. `null` = open from the start.
 //
+// from: draw the sea route from this stop instead of the island before it
+// (a side trip). kind: 'farm' = a 3D island (core/farm/), not a walkable one.
+//
 // Curriculum mapping is a draft pending review by Syrian educators.
 
 export default {
@@ -25,6 +28,14 @@ export default {
       color: '#d0507e', unlock: null,
       badge: { name: 'مفتاح الحروف', icon: '🗝️' },
       intro: 'في جزيرة الحروف تُفتح الأبواب بقواعد اللغة! كل جملة شيفرة، وأنت مَن يفكّها.',
+    },
+    {
+      // A side trip from the home port, open from the start: a 3D farm
+      // (core/farm/) where the agriculture book is played (worlds/grade6/farm.js).
+      id: 'farm', name: 'مزرعتي السعيدة', subject: 'التربية الزراعية', art: 'farm', pos: [81, 75],
+      color: '#6aa84f', unlock: null, from: 'home', kind: 'farm',
+      badge: { name: 'سنبلة المزرعة', icon: '🌾' },
+      intro: 'مزرعة كاملة بين يديك! تحرث وتزرع وتحلب البقرة وتصنع الجبن… كما في كتاب التربية الزراعية.',
     },
     {
       id: 'math', name: 'جزيرة الأرقام', subject: 'الرياضيات', art: 'numbers', pos: [73, 55],

@@ -10,6 +10,7 @@ plugins/
   index.js            ← the list of topics to load (one import per topic)
   engines/            ← reusable game mechanics (quiz, sort, number line …)
   arabic/ math/ science/ social/ review/   ← the grade-6 topics
+  agriculture/        ← quick reviews of the farm island's quests
 ```
 
 ## Add a topic in 4 steps
@@ -96,3 +97,21 @@ plural tables, icon cards, planets, angles.
   big images. The whole grade must stay well under 35 MB.
 - Mark new content as draft until a Syrian educator has reviewed it.
 - Licences: code MIT/GPL; educational content and art CC-BY-SA.
+
+## Quests played outside the lesson screen (the farm)
+
+The farm island (`core/farm/`) is a 3D game, not a lesson screen. Each of
+its quests is still a topic (`plugins/agriculture/`, region `farm`), so it
+earns stars, counts toward the island's badge and joins spaced review.
+When a quest ends, the farm records the result itself:
+
+```js
+import { recordResult } from '../core/lesson.js';
+recordResult('farm-potato', { correct, total });   // → { stars, pearls }
+```
+
+(`correct` = jobs done right the first time, `total` = all jobs.) The
+topic's own `render` is a short quiz or sort: the review that comes back
+days later. Adding a farm quest: a crop or task in
+`worlds/grade6/farm.js` (steps, choices, the book's facts), a quest in
+`QUESTS`, and its review topic here.

@@ -114,11 +114,14 @@ export function render() {
   const s = save.get();
   const here = s.at && points[s.at] ? s.at : 'home';
 
-  const stops = ['home', ...world.regions.map(r => r.id)];
-  const routes = stops.slice(1).map((id, i) => {
-    const a = points[stops[i]], b = points[id];
+  // Each island's route comes from the one before it, or from `from` for a
+  // side trip (worlds/grade6.js).
+  let prev = 'home';
+  const routes = world.regions.map(r => {
+    const a = points[r.from || prev], b = points[r.id];
+    if (!r.from) prev = r.id;
     const mx = (a.x + b.x) / 2 + (b.y - a.y) * 0.18, my = (a.y + b.y) / 2 - (b.x - a.x) * 0.18;
-    const open = isUnlocked(world.regions[i]);
+    const open = isUnlocked(r);
     return `<path d="M${a.x} ${a.y} Q${mx} ${my} ${b.x} ${b.y}" class="route ${open ? 'route--open' : ''}"/>`;
   }).join('');
 
@@ -321,7 +324,7 @@ function showBadge(region, state) {
   return new Promise(resolve => {
     const first = !(save.get().badges || {})[region.id];
     save.update(v => { v.badges = { ...(v.badges || {}), [region.id]: state }; });
-    if (first && region.id !== 'treasure') setTimeout(() => awardSticker('treasure'), 900);
+    if (first && region.id !== 'treasure' && region.kind !== 'farm') setTimeout(() => awardSticker('treasure'), 900);
     const modal = document.getElementById('badge-modal');
     const gold = state === 'gold';
     modal.innerHTML = `

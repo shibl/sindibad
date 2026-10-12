@@ -5,6 +5,8 @@
 //   the app (and the island) still load with the network off → no errors. Runs at phone and tablet sizes.
 //   Then: every island map is walkable, and the newer kinds of play (steer,
 //   pay, fill, build) can be played to three stars and fit a phone screen.
+//   The farm island (3D): choose a helper, play the potato quest to three
+//   stars, sell to the ship, keep it all after a reload, and play offline.
 //   And the staging copy (under /staging/) keeps its own saves and offline copy.
 //
 //   npm install      (once, installs Playwright)
@@ -153,7 +155,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   await p.click('#screen-title [data-go]');
   await p.click('.voyage--open');
   await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
-  check(await p.locator('.isle').count() === 6, 'map works offline');
+  check(await p.locator('.isle').count() === 7, 'map works offline');
   await p.click('.isle[data-region=arabic]');
   await p.waitForSelector('#screen-island[data-active]', { timeout: 6000 });
   check(true, 'the island works offline');
@@ -189,7 +191,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
     const { enterIsland, debugFits } = await import('/core/overworld.js');
     const world = (await import('/worlds/grade6.js')).default;
     const out = [];
-    for (const { id } of world.regions) {
+    for (const { id } of world.regions.filter(r => r.kind !== 'farm')) {
       const def = (await import(`/worlds/grade6/${id}.js`)).default;
       enterIsland(def, world.regions.find(r => r.id === id));
       const nx = Math.round(def.tiles[0].length / STEP), ny = Math.round(def.tiles.length / STEP);
@@ -249,7 +251,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   await p.click('[data-hero=yasmina]');
   await p.click('#select-go');
   await p.click('[data-st=skip]');
-  for (const id of ['math-angles', 'math-market', 'math-equivalent', 'arabic-build']) {
+  for (const id of ['math-angles', 'math-market', 'math-equivalent', 'arabic-build', 'farm-cow', 'farm-cheese']) {
     await p.evaluate(id => import('/core/lesson.js').then(m => m.startLesson(id)), id);
     await p.waitForSelector('#screen-activity[data-active]', { timeout: 5000 });
     while (await p.locator('[data-learn=next]').count()) await p.click('[data-learn=next]');
@@ -263,6 +265,96 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   }
   check(errors.length === 0, `no console errors${errors.length ? `: ${errors.join(' | ')}` : ''}`);
   await ctx.close();
+}
+
+// The farm island: a 3D farm where the agriculture book is played.
+{
+  console.log('— farm island');
+  const { CROPS, TASKS, QUESTS } = await import('../worlds/grade6/farm.js');
+  const tools = Object.keys((await import('../worlds/grade6/farm.js')).TOOLS);
+  const all = [...Object.values(CROPS), ...Object.values(TASKS)];
+  check(all.every(d => d.steps.every(st => [].concat(st.do).every(t => tools.includes(t) && d.tools.includes(t)))), 'farm: every step\'s job is in its tool tray');
+  check(all.every(d => d.steps.every(st => !st.pick || (st.pick.type === 'dial' ? st.pick.target >= st.pick.min && st.pick.target <= st.pick.max : st.pick.type === 'order' || st.pick.type === 'oneEach' || st.pick.options.some(o => o.ok)))), 'farm: every choice has a right answer');
+  check(QUESTS.every(q => (q.crop ? CROPS[q.crop] : TASKS[q.task])), 'farm: every quest has its crop or task');
+
+  // The farm needs WebGL. On a machine without a graphics card (like the
+  // test server) Chromium may draw it in software only if allowed to.
+  const gl = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  const ctx = await gl.newContext({ viewport: { width: 390, height: 844 } });
+  await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
+  const p = await ctx.newPage();
+  const errors = [];
+  p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+  p.on('pageerror', e => errors.push(e.message));
+  await p.goto(URL_);
+  await p.evaluate(() => navigator.serviceWorker.ready);
+  await p.click('text=ابدأ الرحلة');
+  await p.fill('#child-name', 'سارة');
+  await p.click('#who-form [type=submit]');
+  await p.waitForSelector('#screen-select[data-active]', { timeout: 5000 });
+  await p.click('[data-hero=yasmina]');
+  await p.click('#select-go');
+  await p.click('[data-st=skip]');
+  await p.click('.voyage--open');
+  await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
+  check(await p.locator('.isle[data-region=farm]:not(.isle--locked)').count() === 1, 'the farm island is open from the start');
+  await p.click('.isle[data-region=farm]');
+  await p.waitForSelector('#screen-farm[data-active]', { timeout: 20000 });
+  check(await p.locator('#farm-stage canvas').count() === 1, 'sailing to the farm opens the 3D farm');
+  await p.waitForSelector('#farm-modal [data-helper]', { timeout: 10000 });
+  check(await p.locator('#farm-modal [data-helper]').count() === 4, 'four helpers to choose from');
+  await p.click('#farm-modal [data-helper][data-ok]');
+  const farm = () => p.evaluate(() => window.__farm());
+  check((await farm()).F.helper === 'kitty', 'the chosen helper is saved');
+  const place = id => p.locator(`#farm-places [data-place="${id}"]`).dispatchEvent('click');
+  await place((await farm()).place);
+  await p.waitForSelector('#farm-tray:not([hidden]) [data-tool]', { timeout: 5000 });
+  await p.click('#farm-tray [data-tool=harvest]');
+  let s = await farm();
+  const plot = s.F.plots.find(x => x.run);
+  check(plot?.run.step === 0 && (await p.textContent('#farm-say .bubble')).length > 10, 'a wrong job: the helper explains, the field waits');
+  const fits = await p.evaluate(() => {
+    const b = document.querySelector('#farm-say .bubble').getBoundingClientRect(), t = document.getElementById('farm-tray').getBoundingClientRect();
+    return b.bottom <= t.top + 1 && t.bottom <= innerHeight + 1;
+  });
+  check(fits, 'the tool tray and the helper\'s words fit a phone screen');
+  // Play on: the right job, the right choice. One wrong job was made, so two stars.
+  let done = false;
+  for (let i = 0; i < 300 && !done; i++) {
+    if (await p.isVisible('#farm-modal .fm-done')) { done = true; break; }
+    const ok = p.locator('#farm-pick:not([hidden]) [data-ok], #farm-pick:not([hidden]) [data-step]');
+    if (await ok.count()) { await ok.first().click({ timeout: 2000 }).catch(() => {}); await p.waitForTimeout(60); continue; }
+    const tool = p.locator('#farm-tray:not([hidden]):not(.is-busy) [data-tool][data-ok]');
+    if (await tool.count()) { await tool.first().click({ timeout: 2000 }).catch(() => {}); await p.waitForTimeout(80); continue; }
+    await p.waitForTimeout(120);
+  }
+  check(done, 'the potato quest can be played to the end');
+  const stars = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')).topics['farm-potato']?.stars);
+  check(stars === 2, `one wrong job, then all right: 2 stars (got ${stars})`);
+  await p.click('#farm-modal [data-close]');
+  s = await farm();
+  check(s.quest === 'tomato' && s.F.inv.potato >= 6, 'harvest in the barn; the next quest opens');
+  await p.click('[data-bar=orders]');
+  const before = s.F.coins;
+  await p.click('#farm-modal [data-deliver]:not([disabled])');
+  s = await farm();
+  check(s.F.coins > before && s.F.inv.potato < 6, 'an order sold by ship earns coins');
+  await p.reload();
+  await p.waitForTimeout(500);
+  const kept = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')).world.farm);
+  check(kept.helper === 'kitty' && kept.quest === 1, 'the farm survives a reload');
+  await ctx.setOffline(true);
+  await p.reload();
+  await p.waitForTimeout(600);
+  await p.click('#screen-title [data-go]');
+  await p.click('.voyage--open');
+  await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
+  await p.click('.isle[data-region=farm]');
+  await p.waitForSelector('#screen-farm[data-active]', { timeout: 20000 });
+  check(await p.locator('#farm-stage canvas').count() === 1 && !(await p.isVisible('#farm-modal [data-helper]')), 'the farm works offline, with its helper');
+  check(errors.length === 0, `no console errors${errors.length ? `: ${errors.join(' | ')}` : ''}`);
+  await ctx.close();
+  await gl.close();
 }
 
 // The staging copy shares the website with the live game, under /staging/.

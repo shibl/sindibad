@@ -534,6 +534,20 @@ const LANDMARKS = {
     <path d="M120 88 L112 134 H128Z" fill="#c9a26b" ${OUT_THIN}/>
     <path d="M147 56 V34" ${OUT}/><path d="M147 36 Q141 26 147 20 Q153 26 147 36Z" fill="#f2c14e" ${OUT_THIN}/>`,
 
+  // Farm: a red barn, rows of crops, a windmill and a little beehive.
+  farm: () => `
+    ${islandBase({ grass: '#8fd06e' })}
+    <path d="M50 132 L96 112 L132 128 L86 150Z" fill="#a36f42" ${OUT_THIN}/>
+    <path d="M60 130 L100 113 M70 135 L110 118 M80 140 L120 123" stroke="#4fae45" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 9"/>
+    <path d="M118 100 V72 L138 56 L158 72 V100Z" fill="#d6463a" ${OUT}/>
+    <path d="M112 74 L138 50 L164 74" fill="none" stroke="#8c2f25" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M128 100 V82 H148 V100Z" fill="#a8322a" ${OUT_THIN}/>
+    <path d="M128 82 L148 100 M148 82 L128 100" stroke="#fdf6e9" stroke-width="2.5"/>
+    <rect x="164" y="64" width="16" height="36" rx="8" fill="#dfe7ea" ${OUT_THIN}/><path d="M164 70 Q172 56 180 70Z" fill="#d6463a" ${OUT_THIN}/>
+    <path d="M78 104 L82 66 H92 L96 104Z" fill="#f5ead2" ${OUT_THIN}/>
+    <g class="farm-blades" transform="translate(87 64)"><path d="M0 0 L-3 -22 L3 -22Z M0 0 L22 -3 L22 3Z M0 0 L3 22 L-3 22Z M0 0 L-22 3 L-22 -3Z" fill="#fdf6e9" ${OUT_THIN}/><circle r="3" fill="#6b3f1f"/></g>
+    <g transform="translate(172 116)"><rect x="-9" y="-12" width="18" height="16" rx="3" fill="#ffe08a" ${OUT_THIN}/><rect x="-11" y="-16" width="22" height="5" rx="2" fill="#d6863a" ${OUT_THIN}/><circle cx="14" cy="-18" r="2.5" fill="#ffd23f"/><circle cx="20" cy="-12" r="2" fill="#ffd23f"/></g>`,
+
   // Treasure: a glowing chest under a palm — the final review island.
   treasure: () => `
     ${islandBase({ sand: '#f7dc9c', grass: '#8fd06e' })}
