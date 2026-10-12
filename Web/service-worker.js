@@ -5,7 +5,7 @@
 // file run `node tools/update-shell.mjs` (tests/check-shell.mjs fails if you
 // forget). A new version makes clients download the new files once.
 
-const CACHE_VERSION = 'f313b1079e';
+const CACHE_VERSION = 'a36f6c5f99';
 // The staging copy (under /staging/, see core/env.js) keeps its own offline
 // copy, so it never clears the live game's, nor the live game its.
 const CACHE_PREFIX = /\/staging\//.test(self.location.pathname) ? 'sindbad-staging-' : 'sindbad-web-';
@@ -33,6 +33,7 @@ const APP_SHELL = [
   'core/format.js',
   'core/fx.js',
   'core/journey.js',
+  'core/learn/explore.js',
   'core/lesson.js',
   'core/map.js',
   'core/music.js',

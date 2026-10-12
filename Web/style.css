@@ -2516,3 +2516,148 @@ body[data-screen="tunes"] #scene { visibility: hidden; }
 }
 .map-view[hidden] { display: none; }
 .map-view:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+
+/* ---------- «أتعلّم»: learning by discovery (core/learn/explore.js) ----------
+   A picture with glowing spots; each tap opens one small idea. Islands can
+   tint it with --lx-accent / --lx-ink / --lx-card. */
+.lx { --lx-accent: var(--rose); --lx-glow: #ffd23f; --lx-card: #fff; display: flex; flex-direction: column; gap: 8px; }
+.lx-title { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0; font-size: clamp(17px, 4.6vw, 20px); color: var(--lx-accent); }
+.lx-chip { font-size: 13px; font-weight: 800; color: #fff; background: #3f8fd6; border: 2px solid var(--ink); border-radius: 999px; padding: 1px 10px 2px; box-shadow: 0 2px 0 var(--ink); }
+.lx-view { display: flex; justify-content: center; }
+.lx-view > * { max-width: 100%; }
+.lx-view .tn-kb { width: min(100%, 420px); }
+.lx-view .tn-staff { width: min(100%, 360px); }
+
+/* a spot that waits to be found: a soft golden pulse; the next one in a
+   guided tour also bounces a finger */
+.lx-spot { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.lx-spot.is-new { animation: lx-pulse 1.6s ease-in-out infinite; }
+@keyframes lx-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 210, 63, .9), 0 3px 0 var(--ink); } 50% { box-shadow: 0 0 0 7px rgba(255, 210, 63, 0), 0 3px 0 var(--ink); } }
+.lx-spot.is-next::before { content: "👆"; position: absolute; z-index: 5; left: 50%; bottom: -30px; translate: -50% 0; font-size: 24px; pointer-events: none; animation: lx-finger 1s ease-in-out infinite; filter: drop-shadow(0 2px 0 rgba(0, 0, 0, .25)); }
+@keyframes lx-finger { 50% { transform: translateY(-7px); } }
+.lx-spot.is-nudge { animation: lx-nudge .5s; }
+@keyframes lx-nudge { 30% { transform: scale(1.12); } 60% { transform: scale(.96); } }
+.lx-spot.is-pop { animation: lx-open .45s cubic-bezier(.2, .8, .3, 1.4); }
+@keyframes lx-open { from { transform: scale(.82); filter: brightness(1.5); } }
+
+/* cards */
+.lx-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
+.lx-cards[style*="--cols"] { grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); }
+.lx-card {
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 78px; padding: 8px 6px 7px;
+  font: inherit; font-weight: 800; font-size: 14px; line-height: 1.25; color: var(--ink); text-align: center;
+  background: var(--lx-card); border: 3px solid var(--ink); border-radius: 16px; box-shadow: 0 3px 0 var(--ink);
+}
+.lx-card:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.lx-card__icon { font-size: 30px; line-height: 1.1; }
+.lx-card__art svg { width: 56px; height: 56px; display: block; }
+.lx-card.is-new { background: linear-gradient(#fffbe8, #fff1bd); }
+.lx-card.is-found { background: linear-gradient(#f2fbe9, #dff3d2); }
+.lx-tick { position: absolute; top: -9px; inset-inline-end: -7px; width: 24px; height: 24px; display: grid; place-items: center; font-style: normal; font-size: 14px; color: #fff; background: var(--green); border: 2.5px solid var(--ink); border-radius: 50%; scale: 0; transition: scale .25s cubic-bezier(.2, .8, .3, 1.6); }
+.is-found > .lx-tick { scale: 1; }
+
+/* the idea that was just opened */
+.lx-note { min-height: 64px; }
+.lx-hint { margin: 6px 0; text-align: center; font-weight: 800; color: #8a7a5a; }
+.lx-note__card { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #fffdf6; border: 2.5px solid var(--ink); border-radius: 16px; box-shadow: 0 3px 0 var(--ink); }
+.lx-note__card.is-pop { animation: lx-note .4s cubic-bezier(.2, .8, .3, 1.3); }
+@keyframes lx-note { from { transform: translateY(8px) scale(.96); opacity: 0; } }
+.lx-note__icon { flex: 0 0 auto; font-size: 34px; line-height: 1; }
+.lx-note__art svg { width: 54px; height: 54px; display: block; }
+.lx-note__t { display: block; font-size: 17px; color: var(--lx-accent); }
+.lx-note__card p { margin: 2px 0 0; font-size: 16px; line-height: 1.5; }
+.lx-note__card p:empty { display: none; }
+.lx-note b:not(.lx-note__t) { color: #6a3fb0; }
+.lx-sum { margin-top: 8px; padding: 8px 12px; background: #eef7ff; border: 2.5px dashed #3f8fd6; border-radius: 14px; animation: lx-note .4s; }
+.lx-sum > b { color: #2a6fb0; }
+.lx-sum p { margin: 3px 0; font-size: 15px; line-height: 1.5; }
+.lx-foot { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+.lx-count { font-weight: 800; font-size: 15px; color: #6b5b3b; background: #fff6dc; border: 2px solid var(--paper-edge, #d9c49a); border-radius: 999px; padding: 1px 10px 3px; }
+.lx-go { font-size: 19px; min-width: 150px; animation: pop .3s; }
+
+/* spots on the piano */
+.tn-key--w.lx-spot.is-new { background: linear-gradient(#fff 50%, #fff1a8); }
+.tn-key--w.lx-spot.is-new, .tn-key--b.lx-spot.is-new { animation: lx-key 1.4s ease-in-out infinite; }
+@keyframes lx-key { 50% { filter: drop-shadow(0 0 6px var(--lx-glow)) brightness(1.06); } }
+.tn-key--w.is-found { background: linear-gradient(#fff 55%, #e4f5d8); }
+.tn-key--b.is-found, .tn-key--b.is-mark { background: linear-gradient(#a685e8, #6a46b4); }
+.tn-key .lx-label { min-height: 1.2em; }
+.tn-key.is-found .lx-label { animation: lx-open .4s; }
+.tn-key.is-next::before { bottom: auto; top: 30%; }
+.tn-key--b.is-next::before { top: 100%; }
+.tn-gap.lx-spot.is-new { background: #fff3c4; }
+.tn-gap.is-found { background: var(--green); color: #fff; }
+
+/* spots drawn in SVG (the staff, the key signature) */
+.lx-hit { fill: rgba(255, 210, 63, 0); stroke: none; }
+.lx-spot.is-new.lx-hit, .lx-spot.is-new > .lx-hit { fill: rgba(255, 210, 63, .28); stroke: #e0a400; stroke-width: 2; stroke-dasharray: 6 4; animation: march 1.2s linear infinite; }
+.lx-spot.is-found.lx-hit, .lx-spot.is-found > .lx-hit { fill: rgba(79, 191, 90, .08); }
+.lx-spot:focus { outline: none; }
+.lx-spot:focus-visible { outline: 3px solid #3f8fd6; outline-offset: 2px; }
+svg .lx-spot:focus-visible { outline: none; }
+svg .lx-spot:focus-visible.lx-hit, svg .lx-spot:focus-visible > .lx-hit { stroke: #3f8fd6; stroke-width: 3; stroke-dasharray: none; }
+.lx-ks { width: min(100%, 380px); }
+.lx-ks__note { fill: var(--ink); }
+.lx-ks__sign { font: 800 26px "Baloo Bhaijaan 2", sans-serif; fill: #6a3fb0; }
+.lx-ks__cap { font: 800 14px "Baloo Bhaijaan 2", sans-serif; fill: var(--rose); text-anchor: middle; }
+svg .lx-spot.is-new, svg .lx-spot.is-pop, svg .lx-spot.is-nudge { animation: none; }
+svg .lx-spot.is-next::before { content: none; }
+.lx-n__t { font: 800 12px "Baloo Bhaijaan 2", sans-serif; fill: #6a3fb0; text-anchor: middle; }
+.lx-n.is-found ellipse { fill: #6a3fb0; }
+
+/* glasses */
+.lx-glasses { display: flex; justify-content: center; gap: 2px; width: 100%; }
+.lx-glass { position: relative; flex: 1; max-width: 60px; display: flex; flex-direction: column; align-items: center; padding: 2px 0; font: inherit; font-weight: 800; color: var(--ink); background: none; border: 0; border-radius: 12px; }
+.lx-glass svg { width: 100%; height: auto; }
+.lx-glass small { min-height: 1.3em; font-size: 13px; direction: ltr; }
+.lx-glass.is-new { animation: lx-key 1.4s ease-in-out infinite; box-shadow: none; }
+.lx-glass.is-next::before { bottom: -24px; font-size: 20px; }
+
+/* the manuscript */
+.lx-hymn p { position: relative; margin: 3px 0; padding: 1px 8px; border-radius: 10px; cursor: pointer; }
+.lx-hymn p.is-new { background: #fff3c4; box-shadow: none; animation: lx-key 1.4s ease-in-out infinite; }
+.lx-hymn p.is-found { background: #e7f5dc; }
+.lx-hymn .lx-label { margin-left: 10px; font-weight: 800; color: #6a3fb0; direction: rtl; unicode-bidi: isolate; }
+.lx-hymn .lx-label:not(:empty) { padding: 0 8px 1px; background: #efe6ff; border-radius: 999px; font-style: normal; }
+.lx-hymn p.is-next::before { left: auto; right: -6px; bottom: auto; top: 0; translate: 0 0; }
+
+/* the tempo slider */
+.lx-tempo { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.lx-tempo__zones { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; width: 100%; }
+.lx-zone { position: relative; display: flex; flex-direction: column; align-items: center; padding: 4px 2px; font: inherit; font-weight: 800; font-size: 12px; color: var(--ink); background: #fff; border: 2.5px solid var(--ink); border-radius: 12px; box-shadow: 0 3px 0 var(--ink); }
+.lx-zone span { font-size: 22px; line-height: 1.1; }
+.lx-zone.is-found { background: #dff3d2; }
+.lx-tempo__range { width: 100%; accent-color: var(--lx-accent); height: 28px; }
+.lx-tempo__bpm { margin: 0; font-weight: 800; color: #6b5b3b; }
+
+/* measures */
+.lx-measure { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
+.lx-measure > [data-spot] { position: relative; display: flex; flex-direction: column; align-items: center; padding: 4px; border-radius: 12px; background: #fff; border: 2.5px solid transparent; }
+.lx-measure > .is-new { border-color: #e0a400; background: #fff8d6; box-shadow: none; animation: lx-key 1.4s ease-in-out infinite; }
+.lx-measure > .is-found { border-color: var(--green); background: #f0f9ea; }
+.lx-measure .tn-rhythm { height: 50px; width: auto; }
+.lx-measure small { min-height: 1.2em; font-weight: 800; color: #6a3fb0; }
+.lx-ana > [data-spot="mid"] { opacity: .8; }
+
+/* a portrait card and a single picture */
+.lx-portrait { display: flex; align-items: center; gap: 12px; padding: 8px 14px; background: linear-gradient(#fff, #f6ecd6); border: 3px solid var(--ink); border-radius: 18px; box-shadow: 0 3px 0 var(--ink); }
+.lx-portrait__frame { display: grid; place-items: center; width: 64px; height: 64px; font-size: 36px; background: radial-gradient(circle at 50% 35%, #fff8e0, #f2c14e); border: 3px solid var(--ink); border-radius: 50%; box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .12); }
+.lx-portrait b { display: block; font-size: 19px; }
+.lx-portrait small { font-size: 14px; font-weight: 700; color: #6b5b3b; }
+.lx-art svg { width: 110px; height: 110px; display: block; }
+
+/* a note being held: a bar fills for as long as it lasts */
+.lx-card.is-holding::after { content: ""; position: absolute; inset-inline: 10px; bottom: 5px; height: 5px; border-radius: 3px; background: var(--gold); transform-origin: right; animation: lx-hold var(--hold, 1s) linear forwards; }
+@keyframes lx-hold { from { transform: scaleX(0); } }
+
+/* the stage theme: cards on a dark stage under a spotlight */
+.lx--stage .lx-cards { padding: 12px 10px 10px; background: radial-gradient(ellipse at 50% 130%, #7a2236, #2a1a2e 72%); border: 3px solid var(--ink); border-radius: 18px; }
+.lx--stage .lx-card { background: rgba(255, 255, 255, .1); color: #fff; border-color: rgba(255, 255, 255, .4); box-shadow: none; }
+.lx--stage .lx-card.is-new { background: rgba(255, 243, 160, .18); }
+.lx--stage .lx-card.is-found { background: radial-gradient(circle at 50% 25%, rgba(255, 243, 160, .95), rgba(255, 243, 160, .3) 75%); color: var(--ink); border-color: var(--gold); }
+@media (max-width: 420px) {
+  .lx-note__card p { font-size: 15px; line-height: 1.45; }
+  .lx-card { min-height: 70px; font-size: 13px; }
+}
+.tn-dots i.is-learn { border-radius: 3px; background: #cfe3f7; }
+.tn-dots i.is-learn.is-on { background: #3f8fd6; }
