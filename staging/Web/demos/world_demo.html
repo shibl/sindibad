@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>عرض تجريبي - رحلات سندباد</title>
+<style>
+  :root{
+    --sky-top:#ffcf7a; --sky-bottom:#ff9a5a; --sea:#1b6f8c; --sea-dark:#0e4a63;
+    --sand:#e8c07d; --sand-dark:#c99a55; --ui:#3a2a1a;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  html,body{height:100%;margin:0;overflow:hidden;background:#111;font-family:'Segoe UI',Tahoma,sans-serif;}
+  #stage{position:relative;width:100%;height:100%;overflow:hidden;}
+
+  /* sky */
+  .sky{position:absolute;inset:0 0 45% 0;background:linear-gradient(to bottom,var(--sky-top),var(--sky-bottom));transition:background 2s;}
+  .sun{position:absolute;top:8%;left:50%;width:70px;height:70px;border-radius:50%;
+       background:radial-gradient(circle at 35% 35%,#fff6d0,#ffcf5c 60%,#ff9d3d 100%);
+       box-shadow:0 0 60px 20px rgba(255,200,100,.5);
+       animation:sun-path 26s linear infinite;}
+  @keyframes sun-path{
+    0%{transform:translate(-220px,40px);}
+    50%{transform:translate(0px,-60px);}
+    100%{transform:translate(220px,40px);}
+  }
+  .star{position:absolute;background:#fff;border-radius:50%;opacity:0;}
+  @keyframes twinkle{0%,100%{opacity:0;}50%{opacity:.9;}}
+
+  /* sea */
+  .sea{position:absolute;left:0;right:0;bottom:20%;height:35%;background:linear-gradient(to bottom,var(--sea),var(--sea-dark));}
+  .wave{position:absolute;bottom:0;left:0;width:200%;height:18px;
+        background:repeating-linear-gradient(90deg,rgba(255,255,255,.35) 0 20px,transparent 20px 60px);
+        animation:wave-move 6s linear infinite;}
+  @keyframes wave-move{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+  /* dunes / shore */
+  .dunes{position:absolute;left:0;right:0;bottom:0;height:22%;background:var(--sand);
+         border-radius:50% 50% 0 0/100% 100% 0 0;transform:scaleX(1.4);}
+  .dunes.back{background:var(--sand-dark);height:26%;opacity:.8;z-index:0;}
+  .dunes.front{z-index:2;}
+
+  .palm{position:absolute;bottom:19%;width:60px;height:100px;z-index:3;transform-origin:bottom center;}
+  .palm svg{width:100%;height:100%;}
+  .palm .leaves{animation:sway 3.4s ease-in-out infinite;transform-origin:50% 85%;}
+  @keyframes sway{0%,100%{transform:rotate(-4deg);}50%{transform:rotate(4deg);}}
+
+  /* ship */
+  .ship{position:absolute;bottom:24%;left:50%;width:150px;transform:translateX(-50%);z-index:4;
+        animation:bob 3.2s ease-in-out infinite, sail 22s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateX(-50%) translateY(0) rotate(-1.5deg);}50%{transform:translateX(-50%) translateY(-8px) rotate(1.5deg);}}
+  @keyframes sail{0%,100%{left:30%;}50%{left:70%;}}
+  .sail-cloth{animation:flap 2.6s ease-in-out infinite;transform-origin:top center;}
+  @keyframes flap{0%,100%{transform:skewX(-3deg);}50%{transform:skewX(3deg);}}
+
+  .bird{position:absolute;width:26px;top:14%;animation:fly linear infinite;}
+  @keyframes fly{from{left:-40px;}to{left:110%;}}
+  .bird path{animation:wing .5s ease-in-out infinite alternate;transform-origin:center;}
+
+  .caption{position:absolute;bottom:calc(3% + env(safe-area-inset-bottom,0px));left:0;right:0;
+           text-align:center;color:#3a2a1a;font-weight:600;font-size:15px;text-shadow:0 1px 2px rgba(255,255,255,.5);
+           padding:0 16px;}
+  .badge{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));left:12px;background:rgba(0,0,0,.35);
+         color:#fff;font-size:11px;padding:5px 10px;border-radius:20px;letter-spacing:.5px;}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="sky" id="sky"></div>
+  <div id="stars"></div>
+  <div class="sun" id="sun"></div>
+
+  <svg class="bird" style="animation-duration:9s;top:16%" viewBox="0 0 24 12"><path d="M0 8 Q6 0 12 8 Q18 0 24 8" fill="none" stroke="#3a2a1a" stroke-width="2"/></svg>
+  <svg class="bird" style="animation-duration:13s;top:22%;animation-delay:-4s" viewBox="0 0 24 12"><path d="M0 8 Q6 0 12 8 Q18 0 24 8" fill="none" stroke="#3a2a1a" stroke-width="2"/></svg>
+
+  <div class="dunes back" style="right:-10%;"></div>
+  <div class="sea">
+    <div class="wave" style="top:6px;opacity:.6"></div>
+    <div class="wave" style="top:16px;opacity:.4;animation-duration:9s"></div>
+  </div>
+
+  <div class="ship">
+    <svg viewBox="0 0 150 140">
+      <path d="M15 100 Q75 130 135 100 L120 118 Q75 138 30 118 Z" fill="#6b3d1f"/>
+      <rect x="72" y="20" width="4" height="80" fill="#4a2a12"/>
+      <path class="sail-cloth" d="M76 24 Q120 45 78 92 Z" fill="#f2e2c0" stroke="#c9a86a"/>
+      <path class="sail-cloth" style="animation-delay:-1s" d="M74 34 Q40 52 74 82 Z" fill="#f2e2c0" stroke="#c9a86a"/>
+    </svg>
+  </div>
+
+  <div class="dunes front"></div>
+  <div class="palm" style="left:8%">
+    <svg viewBox="0 0 60 100">
+      <rect x="27" y="40" width="6" height="60" fill="#6b4423"/>
+      <g class="leaves">
+        <path d="M30 40 Q0 20 -5 5" stroke="#2f6b34" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M30 40 Q60 20 65 5" stroke="#2f6b34" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M30 40 Q30 10 20 -5" stroke="#3d8a44" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M30 40 Q30 10 40 -5" stroke="#3d8a44" stroke-width="6" fill="none" stroke-linecap="round"/>
+      </g>
+    </svg>
+  </div>
+  <div class="palm" style="right:6%;bottom:16%;transform:scale(.8)">
+    <svg viewBox="0 0 60 100">
+      <rect x="27" y="40" width="6" height="60" fill="#6b4423"/>
+      <g class="leaves" style="animation-delay:-1.5s">
+        <path d="M30 40 Q0 20 -5 5" stroke="#2f6b34" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M30 40 Q60 20 65 5" stroke="#2f6b34" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M30 40 Q30 10 20 -5" stroke="#3d8a44" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M30 40 Q30 10 40 -5" stroke="#3d8a44" stroke-width="6" fill="none" stroke-linecap="round"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="badge">عرض أولي — بدون تفاعل لعب</div>
+  <div class="caption">رحلات سندباد — عرض شكل وأجواء العالم</div>
+</div>
+
+<script>
+// stars fade in during "night" portion of the sun cycle
+const starsHost = document.getElementById('stars');
+for(let i=0;i<40;i++){
+  const s = document.createElement('div');
+  s.className='star';
+  const size = Math.random()*2+1;
+  s.style.width=s.style.height=size+'px';
+  s.style.left = Math.random()*100+'%';
+  s.style.top = Math.random()*40+'%';
+  s.style.animation = `twinkle 26s ease-in-out ${Math.random()*26}s infinite`;
+  starsHost.appendChild(s);
+}
+const sky = document.getElementById('sky');
+let t=0;
+setInterval(()=>{
+  t+=0.1;
+  const cycle = (Math.sin(t*(2*Math.PI/26))+1)/2; // 0 night .. 1 day
+  const day = `linear-gradient(to bottom, #ffcf7a, #ff9a5a)`;
+  const night = `linear-gradient(to bottom, #16213e, #1b3a5c)`;
+  sky.style.background = cycle>0.5? day: night;
+  starsHost.style.opacity = cycle>0.5? 0 : 1;
+},1400);
+</script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>عالم المعرفة - سندباد وياسمين</title>
+<style>
+  :root{
+    --sky1:#ffd28a; --sky2:#ff9a5a; --sea1:#1c7fa0; --sea2:#0e4a63;
+    --card:#fff8ec; --ink:#3a2a1a;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  html,body{height:100%;margin:0;overflow:hidden;font-family:'Segoe UI',Tahoma,sans-serif;}
+  #stage{position:relative;width:100%;height:100%;overflow:hidden;
+         background:linear-gradient(to bottom,var(--sky1) 0%,var(--sky2) 40%,var(--sea1) 42%,var(--sea2) 100%);}
+
+  .title{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));left:0;right:0;
+         text-align:center;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.4);}
+  .title h1{margin:0;font-size:clamp(18px,4.2vw,26px);}
+  .title p{margin:4px 0 0;font-size:12px;opacity:.9;}
+
+  .sun{position:absolute;top:6%;right:12%;width:60px;height:60px;border-radius:50%;
+       background:radial-gradient(circle at 35% 35%,#fff6d0,#ffcf5c 60%,#ff9d3d 100%);
+       box-shadow:0 0 50px 18px rgba(255,200,100,.45);animation:sunbob 8s ease-in-out infinite;}
+  @keyframes sunbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+  .wave{position:absolute;left:0;width:200%;height:14px;
+        background:repeating-linear-gradient(90deg,rgba(255,255,255,.3) 0 18px,transparent 18px 50px);
+        animation:wavemove 6s linear infinite;}
+  @keyframes wavemove{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  .continent{position:absolute;cursor:pointer;filter:drop-shadow(0 6px 10px rgba(0,0,0,.3));
+             animation:pulse 4.5s ease-in-out infinite;transition:transform .2s}
+  .continent:hover{transform:scale(1.06)}
+  @keyframes pulse{0%,100%{brightness:1}50%{filter:brightness(1.08)}}
+
+  .label{position:absolute;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
+  .label .icon{font-size:20px}
+  .label .name{display:block;font-size:11px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.55);margin-top:2px;white-space:nowrap}
+
+  .ship{position:absolute;bottom:8%;width:170px;z-index:4;transform-origin:center;
+        animation:bob 3s ease-in-out infinite, sail 24s linear infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-6px) rotate(1.5deg)}}
+  @keyframes sail{0%{left:-15%} 50%{left:60%} 100%{left:-15%}}
+  .sailcloth{animation:flap 2.6s ease-in-out infinite;transform-origin:top center}
+  @keyframes flap{0%,100%{transform:skewX(-3deg)}50%{transform:skewX(3deg)}}
+  .wavehand{animation:wavearm 1.8s ease-in-out infinite;transform-origin:12px 8px}
+  @keyframes wavearm{0%,100%{transform:rotate(0)}50%{transform:rotate(-25deg)}}
+
+  .card{position:absolute;left:50%;bottom:calc(2% + env(safe-area-inset-bottom,0px));
+        transform:translateX(-50%) translateY(130%);width:min(90vw,360px);
+        background:var(--card);color:var(--ink);border-radius:16px;padding:14px 16px;
+        box-shadow:0 10px 30px rgba(0,0,0,.35);transition:transform .35s ease;z-index:6}
+  .card.show{transform:translateX(-50%) translateY(0)}
+  .card h3{margin:0 0 4px;font-size:15px}
+  .card p{margin:0;font-size:13px;opacity:.85}
+  .card .close{position:absolute;top:8px;left:10px;cursor:pointer;opacity:.5}
+
+  .hint{position:absolute;bottom:calc(3% + env(safe-area-inset-bottom,0px));left:0;right:0;
+        text-align:center;color:#fff;font-size:12px;opacity:.8}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="title"><h1>🧭 عالم المعرفة مع سندباد وياسمين</h1><p>الصف الخامس — اضغط على قارة لاكتشاف موضوعها</p></div>
+
+  <div class="sun"></div>
+  <div class="wave" style="top:44%;opacity:.5"></div>
+  <div class="wave" style="top:50%;opacity:.35;animation-duration:9s"></div>
+
+  <svg viewBox="0 0 100 100" style="position:absolute;inset:0;width:100%;height:100%" preserveAspectRatio="xMidYMid meet">
+    <path class="continent" data-id="na" d="M10 48 Q20 44 30 48 Q34 55 30 62 Q26 70 18 68 Q10 64 10 48Z" fill="#4caf6f"/>
+    <path class="continent" data-id="sa" d="M24 70 Q30 68 32 76 Q33 86 27 92 Q22 88 22 78Z" fill="#8bc34a"/>
+    <path class="continent" data-id="eu" d="M46 46 Q53 43 58 47 Q57 53 51 54 Q45 53 46 46Z" fill="#ffb74d"/>
+    <path class="continent" data-id="af" d="M46 56 Q56 54 58 64 Q59 76 52 84 Q45 82 44 70Z" fill="#f06292"/>
+    <path class="continent" data-id="as" d="M60 42 Q76 40 84 50 Q82 60 70 62 Q60 58 60 42Z" fill="#ba68c8"/>
+    <path class="continent" data-id="oc" d="M76 78 Q84 76 88 82 Q85 88 78 87 Q74 84 76 78Z" fill="#4dd0e1"/>
+  </svg>
+
+  <div class="label" style="left:19%;top:54%"><div class="icon">🔢</div><span class="name">أمريكا الشمالية</span></div>
+  <div class="label" style="left:27%;top:80%"><div class="icon">📖</div><span class="name">أمريكا الجنوبية</span></div>
+  <div class="label" style="left:52%;top:48%"><div class="icon">🎨</div><span class="name">أوروبا</span></div>
+  <div class="label" style="left:51%;top:68%"><div class="icon">🦁</div><span class="name">أفريقيا</span></div>
+  <div class="label" style="left:72%;top:50%"><div class="icon">🧪</div><span class="name">آسيا</span></div>
+  <div class="label" style="left:81%;top:82%"><div class="icon">🌊</div><span class="name">أوقيانوسيا</span></div>
+
+  <div class="ship">
+    <svg viewBox="0 0 170 140">
+      <path d="M10 100 Q85 130 160 100 L142 118 Q85 138 28 118 Z" fill="#6b3d1f"/>
+      <rect x="82" y="18" width="4" height="82" fill="#4a2a12"/>
+      <path class="sailcloth" d="M86 22 Q135 44 88 92 Z" fill="#f2e2c0" stroke="#c9a86a"/>
+      <path class="sailcloth" style="animation-delay:-1s" d="M84 32 Q45 50 84 82 Z" fill="#f2e2c0" stroke="#c9a86a"/>
+      <!-- Sindbad -->
+      <g transform="translate(55,80)">
+        <circle cx="12" cy="6" r="7" fill="#e0a878"/>
+        <path d="M4 4 Q12 -6 20 4 Q20 -2 12 -3 Q4 -2 4 4Z" fill="#2e7d5b"/>
+        <rect x="6" y="12" width="12" height="16" rx="4" fill="#2e7d5b"/>
+        <g class="wavehand"><rect x="15" y="12" width="4" height="12" rx="2" fill="#e0a878"/></g>
+      </g>
+      <!-- Yasmina -->
+      <g transform="translate(95,80)">
+        <circle cx="12" cy="6" r="7" fill="#f0c9a0"/>
+        <path d="M3 6 Q12 -8 21 6 Q21 14 12 15 Q3 14 3 6Z" fill="#c9457a"/>
+        <path d="M6 12 L18 12 L20 30 L4 30Z" fill="#c9457a"/>
+        <g class="wavehand"><rect x="3" y="12" width="4" height="12" rx="2" fill="#f0c9a0"/></g>
+      </g>
+    </svg>
+  </div>
+
+  <div class="hint" id="hint">اضغط على أي قارة لعرض موضوعها</div>
+  <div class="card" id="card">
+    <span class="close" id="close">✕</span>
+    <h3 id="card-title"></h3>
+    <p id="card-text"></p>
+  </div>
+</div>
+
+<script>
+const topics = {
+  na: {title:"🔢 أمريكا الشمالية — الرياضيات", text:"الكسور والأعداد العشرية وحل المسائل من واقع الحياة."},
+  sa: {title:"📖 أمريكا الجنوبية — اللغة العربية", text:"فهم النصوص وسرد القصص والكتابة الإبداعية."},
+  eu: {title:"🎨 أوروبا — الفنون والثقافة", text:"لوحات فنية مشهورة وأساليب فنية ومشاريع عملية."},
+  af: {title:"🦁 أفريقيا — العلوم والطبيعة", text:"النظم البيئية والحيوانات وعجائب العالم الطبيعي."},
+  as: {title:"🧪 آسيا — التجارب والاكتشاف", text:"تجارب كيميائية وفيزيائية بسيطة واختراعات عبر التاريخ."},
+  oc: {title:"🌊 أوقيانوسيا — الجغرافيا والمحيطات", text:"الخرائط والمناخات والحياة في المحيطات وحولها."}
+};
+const card = document.getElementById('card');
+const hint = document.getElementById('hint');
+document.querySelectorAll('.continent').forEach(el=>{
+  el.addEventListener('click',()=>{
+    const t = topics[el.dataset.id];
+    document.getElementById('card-title').textContent = t.title;
+    document.getElementById('card-text').textContent = t.text;
+    card.classList.add('show'); hint.style.opacity = 0;
+  });
+});
+document.getElementById('close').addEventListener('click',()=>{
+  card.classList.remove('show'); hint.style.opacity = .8;
+});
+</script>
+</body>
+</html>

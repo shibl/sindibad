@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1c7fa0">
+<meta name="description" content="رحلات سندباد وياسمينة — مغامرة تعليمية مجانية تعمل دون اتصال بالإنترنت">
+<title>رحلات سندباد وياسمينة</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preload" href="fonts/baloo-bhaijaan-2-arabic-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- Shared animated backdrop: sky, sun, clouds, Damascus skyline, sea,
+       shore. Always visible behind whichever screen is active. Filled in by
+       app.js from art/art.js. -->
+  <div id="scene" aria-hidden="true">
+    <div class="sky"></div>
+    <div class="stars"></div>
+    <div class="sun"><div class="sun__rays"></div></div>
+    <div class="clouds"></div>
+    <div class="gulls"></div>
+    <div class="skyline"></div>
+    <div class="sea">
+      <div class="sea__glint"></div>
+      <div class="waves waves--far"></div>
+      <div class="waves waves--mid"></div>
+      <div class="waves waves--near"></div>
+    </div>
+    <div class="shore"></div>
+    <div class="palm palm--start"></div>
+    <div class="palm palm--end"></div>
+    <div class="vignette"></div>
+  </div>
+
+  <!-- Screens. Exactly one has [data-active] at a time (see showScreen in app.js). -->
+
+  <div id="story" class="story" hidden></div>
+
+  <section id="screen-title" class="screen" data-active>
+    <header class="logo">
+      <span class="logo__small">رحلات</span>
+      <h1 class="logo__big" data-text="سندباد وياسمينة">سندباد وياسمينة</h1>
+      <span class="logo__tag" id="title-tag">مغامرة في بحر المعرفة • الصف السادس</span>
+    </header>
+    <div class="ship ship--title" data-crew="sindbad,yasmina"></div>
+    <button class="btn btn--gold btn--big" data-go="select">ابدأ الرحلة</button>
+    <button class="parents-link" data-go="parents">👪 للأهل</button>
+    <a class="parents-link about-link" href="about.html">ℹ️ عن المشروع</a>
+  </section>
+
+  <section id="screen-who" class="screen screen--who">
+    <div class="who" id="who"></div>
+  </section>
+
+  <section id="screen-parents" class="screen screen--parents">
+    <header class="topbar">
+      <button class="btn btn--round" data-go="title" aria-label="رجوع">→</button>
+      <h2>لوحة الأهل</h2>
+    </header>
+    <div class="parents-wrap" id="parents"></div>
+  </section>
+
+  <section id="screen-select" class="screen">
+    <div class="guide">
+      <div class="guide__bird"></div>
+      <p class="bubble" id="select-bubble">أهلاً! أنا <b>هُدهُد</b>، دليلك في الرحلة. مَن سيبحر معي اليوم؟</p>
+    </div>
+    <div class="heroes" role="radiogroup" aria-label="اختر بطلك">
+      <button class="hero-card" role="radio" aria-checked="false" data-hero="sindbad">
+        <span class="hero-card__art"></span>
+        <span class="hero-card__name">سندباد</span>
+        <span class="hero-card__trait">البحّار الشجاع</span>
+      </button>
+      <button class="hero-card" role="radio" aria-checked="false" data-hero="yasmina">
+        <span class="hero-card__art"></span>
+        <span class="hero-card__name">ياسمينة</span>
+        <span class="hero-card__trait">المستكشفة الذكية</span>
+      </button>
+    </div>
+    <div class="actions">
+      <button class="btn btn--ghost" data-go="title" aria-label="رجوع">رجوع</button>
+      <button class="btn btn--gold" id="select-go" disabled>هيّا نُبحر!</button>
+    </div>
+  </section>
+
+  <section id="screen-chapters" class="screen screen--chapters">
+    <header class="topbar">
+      <button class="btn btn--round" data-go="title" aria-label="رجوع">→</button>
+      <h2>خريطة الرحلات</h2>
+    </header>
+    <div class="chapters" id="chapters"></div>
+  </section>
+
+  <section id="screen-map" class="screen screen--map">
+    <header class="topbar topbar--map">
+      <button class="btn btn--round" data-go="journey" aria-label="رحلتي" id="hero-btn"></button>
+      <h2>الصف السادس</h2>
+      <span class="stars-badge" title="النجوم">★ <span id="stars-total">٠</span></span>
+      <span class="stars-badge streak-pill" id="streak-pill" title="هدف اليوم: ٣ دروس">🔥 <span id="streak-n">٠</span></span>
+      <button class="stars-badge pearl-btn" id="pearl-btn" title="سوق الميناء">🦪 <span id="pearl-total">٠</span></button>
+      <button class="btn btn--round" id="mute-btn" aria-label="الإعدادات">⚙️</button>
+    </header>
+    <button class="map-voyages" data-go="chapters">🗺️ كل الرحلات</button>
+    <div id="map" class="map"></div>
+    <div id="map-toast" class="map__toast" hidden>
+      <div class="guide__bird"></div><p class="bubble" aria-live="polite"></p>
+    </div>
+    <div id="sheet" class="sheet" hidden></div>
+    <div id="badge-modal" class="badge-modal" hidden></div>
+    <div id="shop" class="shop" hidden></div>
+  </section>
+
+  <section id="screen-island" class="screen screen--island">
+    <canvas id="island-canvas" class="island-canvas" aria-label="الجزيرة — تحرّك بالأسهم أو بالسحب، واضغط للتفاعل"></canvas>
+    <div class="island-lens" aria-hidden="true"></div>
+    <header class="topbar topbar--island">
+      <button class="btn btn--round" id="island-leave" aria-label="العودة إلى السفينة">⛵</button>
+      <h2 id="island-name"></h2>
+      <button class="btn btn--round" id="log-btn" aria-label="المهمّات">📜</button>
+      <span class="hud-pill" title="الأحرف الذهبية"><span class="letter-slots" id="letter-slots"></span></span>
+      <span class="hud-pill" title="اللآلئ">🦪 <b id="pearl-count">٠</b></span>
+    </header>
+    <div class="goal" id="goal" aria-live="polite"></div>
+    <p class="island-hint" id="island-hint" hidden></p>
+    <div class="isle-banner" id="isle-banner" hidden aria-live="polite"></div>
+    <div class="walk-tut" id="walk-tut" hidden aria-hidden="true">
+      <div class="walk-tut__hand">👆</div>
+      <p>اسحب إصبعك في أي مكان لتمشي<br><small>أو اضغط على المكان الذي تريد الذهاب إليه</small></p>
+    </div>
+    <div class="joy" id="joy" hidden aria-hidden="true"><div class="joy__knob"></div></div>
+    <button class="act-btn" id="act-btn" hidden><b>✋</b><span></span></button>
+    <div class="dialog" id="dialog" hidden role="dialog" aria-live="polite">
+      <div class="dialog__portrait"></div>
+      <div class="dialog__body">
+        <p class="dialog__name"></p>
+        <p class="dialog__text"></p>
+        <div class="dialog__choices"></div>
+      </div>
+      <span class="dialog__next" aria-hidden="true">▼</span>
+      <button class="dialog__say" aria-label="اقرأ لي" hidden>🔊</button>
+    </div>
+    <div class="item-popup" id="item-popup" hidden></div>
+    <div class="quest-log" id="quest-log" hidden></div>
+  </section>
+
+  <section id="screen-journey" class="screen screen--journey">
+    <header class="topbar">
+      <button class="btn btn--round" data-go="map" aria-label="رجوع إلى الخريطة">→</button>
+      <h2>رحلتي</h2>
+    </header>
+    <div class="journey" id="journey"></div>
+  </section>
+
+  <section id="screen-activity" class="screen screen--activity">
+    <header class="topbar">
+      <button class="btn btn--round" id="lesson-quit" aria-label="رجوع إلى الخريطة">→</button>
+      <h2 id="activity-title"></h2>
+      <button class="btn btn--round" id="learn-btn" aria-label="الدرس" title="راجع الدرس" hidden>📖</button>
+    </header>
+    <div class="progress-row">
+      <span class="q-count" id="q-count" aria-live="polite"></span>
+      <div class="progress" aria-hidden="true">
+        <div class="progress__fill"></div>
+        <div class="progress__ship">⛵</div>
+      </div>
+    </div>
+    <!-- A topic plugin renders its activity into this container. -->
+    <div id="activity" class="activity"></div>
+    <div class="coach" data-mood="happy">
+      <div class="guide__bird"></div>
+      <p class="bubble" id="coach-bubble" aria-live="polite"></p>
+      <button class="say-btn" id="coach-say" aria-label="اقرأ لي" hidden>🔊</button>
+      <div class="coach__hero"></div>
+    </div>
+    <div class="result" id="result" hidden></div>
+  </section>
+
+</div>
+
+<div id="wipe" class="wipe" hidden aria-hidden="true"></div>
+<noscript>يحتاج هذا التطبيق إلى تفعيل JavaScript.</noscript>
+<script type="module" src="app.js"></script>
+</body>
+</html>
