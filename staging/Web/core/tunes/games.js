@@ -462,6 +462,10 @@ const KINDS = {
     play.addEventListener('click', () => { ctx.sfx.tap(); S.playRhythm(step.pattern, step.bpm, { onHit: flash }); });
     if (!TEST) setTimeout(() => { if (!ctx.signal.aborted && play.isConnected) S.playRhythm(step.pattern, step.bpm, { onHit: flash }); }, 600);
     let misses = 0, taps = null, startAt = 0, timer = 0, guide = false;
+    // Time's up `n` beats from now: a slow start or a slow tap is not cut
+    // off, because every tap gives time for the rest of the rhythm.
+    const beats = S.beatsOf(step.pattern).beats;
+    const arm = n => { clearTimeout(timer); if (!TEST) timer = setTimeout(() => { if (taps) judge(); }, n * spb * 1000); };
     const judge = () => {
       clearTimeout(timer);
       drumBtn.disabled = true; go.disabled = false;
@@ -497,11 +501,15 @@ const KINDS = {
         drumBtn.disabled = false; drumBtn.focus({ preventScroll: true });
         taps = []; startAt = performance.now();
         if (guide) hits.forEach((h, k) => setTimeout(() => flash(k), h * spb * 1000));
-        timer = setTimeout(() => { if (taps) judge(); }, (S.beatsOf(step.pattern).beats + 1.5) * spb * 1000);
+        arm(beats + 4);
       }, TEST ? 0 : lead * 1000);
     });
-    drumBtn.addEventListener('pointerdown', e => { e.preventDefault(); hit(); });
-    drumBtn.addEventListener('click', e => { if (e.detail === 0 || TEST) hit(); });   // keyboard / tests
+    // A tap is a pointerdown (no click delay); the click that follows it is
+    // ignored, so each tap counts once even on a slow phone. A click with no
+    // pointerdown before it is the keyboard (Enter / Space).
+    let pressed = false;
+    drumBtn.addEventListener('pointerdown', e => { e.preventDefault(); pressed = true; hit(); });
+    drumBtn.addEventListener('click', () => { if (pressed) { pressed = false; return; } hit(); });
     let lastHit = 0;
     function hit() {
       if (!taps || performance.now() - lastHit < 60) return;
@@ -511,7 +519,8 @@ const KINDS = {
       bump(drumBtn, 'is-hit');
       taps.push((performance.now() - startAt) / 1000);
       lights[k]?.classList.add('is-done');
-      if (taps.length >= hits.length) setTimeout(() => { if (taps) judge(); }, TEST ? 0 : 250);
+      if (taps.length >= hits.length) { clearTimeout(timer); setTimeout(() => { if (taps) judge(); }, TEST ? 0 : 250); }
+      else arm(beats - hits[k] + 1.5);
     }
   },
 
