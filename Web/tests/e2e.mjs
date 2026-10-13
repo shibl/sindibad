@@ -480,6 +480,125 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   await gl.close();
 }
 
+// The science island: a 3D island where the science book (semester 1) is
+// played; every quest teaches first («أتعلّم»), then asks.
+{
+  console.log('— science island');
+  const { QUESTS, STATIONS, reviewOf } = await import('../worlds/grade6/lab.js');
+  const { VIEWS } = await import('../core/lab/views.js');
+  const { MACHINE_VIEWS } = await import('../core/lab/views-machines.js');
+  const VIEWS_ALL = { ...VIEWS, ...MACHINE_VIEWS };
+  const uniq = a => new Set(a).size === a.length;
+  const drawn = (st, id) => VIEWS_ALL[st.view].html(st).includes(`data-spot="${id}"`);
+  const okStep = st => ({
+    explore: () => !!st.title && st.spots.length >= 2 && uniq(st.spots.map(x => x.id)) && st.spots.every(x => x.title && typeof x.text === 'string') && (!st.view || !!VIEWS_ALL[st.view]),
+    choice: () => st.options.length >= 2 && uniq(st.options) && (!st.pic || !!VIEWS_ALL[st.pic]),
+    twoway: () => st.lines.length >= 2 && st.lines.every(([t, a, b]) => t.includes('___') && a && b && a !== b),
+    sort: () => st.items.length >= 3 && st.items.every(([, b]) => st.bins.some(x => x.id === b)) && st.bins.every(x => st.items.some(([, b]) => b === x.id)),
+    order: () => st.items.length >= 3 && uniq(st.items),
+    match: () => st.pairs.length >= 3 && uniq(st.pairs.map(x => x[1])),
+    tf: () => st.items.length >= 2 && st.items.every(([t, v, fix]) => t && typeof v === 'boolean' && (v || !!fix)),
+    number: () => Number.isFinite(st.answer) && st.answer >= 0,
+    label: () => !!VIEWS_ALL[st.view] && st.ask.length >= 2 && st.ask.every(([id]) => drawn(st, id)),
+  }[st.kind]?.() && (st.kind === 'explore' || !!st.hint));
+  check(QUESTS.length === 17 && QUESTS.every(q => STATIONS[q.station] && q.steps.every(okStep)), 'science: 17 quests; every step is well formed (a right answer, a hint, its picture)');
+  check(QUESTS.every(q => q.steps[0].kind === 'explore'), 'science: every lesson teaches first (أتعلّم) before it asks anything');
+  check(QUESTS.every(q => reviewOf(q.id).length >= 6) && uniq(QUESTS.map(q => q.topic)), 'science: every quest has a review quiz of 6+ questions');
+
+  const gl = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  const ctx = await gl.newContext({ viewport: { width: 390, height: 844 } });
+  await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
+  const p = await ctx.newPage();
+  const errors = [];
+  p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+  p.on('pageerror', e => errors.push(e.message));
+  await p.goto(URL_);
+  await p.evaluate(() => navigator.serviceWorker.ready);
+  await p.click('text=ابدأ الرحلة');
+  await p.fill('#child-name', 'سارة');
+  await p.click('#who-form [type=submit]');
+  await p.waitForSelector('#screen-select[data-active]', { timeout: 5000 });
+  await p.click('[data-hero=yasmina]');
+  await p.click('#select-go');
+  await p.click('[data-st=skip]');
+  await p.click('.voyage--open');
+  await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
+  check(await p.locator('.isle[data-region=science].isle--locked').count() === 1, 'the science island waits behind the numbers island');
+  await p.evaluate(async () => {
+    const { save } = await import('./core/save.js');
+    const { topicsIn } = await import('./core/topics.js');
+    save.update(v => { for (const r of ['arabic', 'math']) for (const t of topicsIn(r)) v.topics[t.id] = { stars: 3, best: 1, plays: 1 }; });
+  });
+  await p.click('.map-voyages');
+  await p.click('.voyage--open');
+  await p.waitForTimeout(800);
+  await p.click('.isle[data-region=science]');
+  await p.waitForSelector('#screen-lab[data-active]', { timeout: 20000 });
+  check(await p.locator('#lab-stage canvas').count() === 1, 'with stars on the numbers island, sailing there opens the 3D science island');
+  await p.waitForTimeout(800);
+  const lab = () => p.evaluate(() => window.__lab());
+  let s = await lab();
+  check(s.places.length === 10 && s.next === 'hunters' && (await p.textContent('#lab-say .bubble')).includes('شرارة'), 'ten places; the helper «شرارة» says hello; the forest lesson comes first');
+  check(await p.locator('.lb-tag:not([hidden])').count() >= 2, 'name tags in their unit colours float over the places');
+  await p.locator('#lab-places [data-place=forest]').dispatchEvent('click');
+  check(await p.locator('#lab-modal [data-start]').count() === 2, 'the forest holds two lessons');
+  await p.click('#lab-modal [data-start="hunters"]');
+  await p.waitForSelector('#lab-panel:not([hidden]) .tn-step', { timeout: 5000 });
+  check(await p.locator('#lab-panel .lx .sv-valley').count() === 1 && await p.locator('#lab-panel [data-next]').count() === 0, 'the lesson starts by teaching (أتعلّم): a picture to explore, no question, no skipping');
+  const fits = await p.evaluate(() => { const r = document.querySelector('#lab-panel .tn-sheet').getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight + 1; });
+  check(fits, 'the lesson card fits a phone screen');
+  // Plays to the end: the right answer each time, except `wrong` (one slip).
+  const play = async ({ wrong = null } = {}) => {
+    let slipped = false;
+    for (let guard = 0; guard < 500; guard++) {
+      if (await p.isVisible('#lab-modal .fm-done')) return true;
+      const next = p.locator('#lab-panel [data-next]');
+      if (await next.count()) { await next.first().click(); continue; }
+      if (wrong === 'number' && !slipped && await p.locator('#lab-panel .lq-num').count()) {
+        slipped = true;
+        await p.click('#lab-panel [data-key="9"]'); await p.click('#lab-panel [data-key="✓"]');
+        continue;
+      }
+      const ok = p.locator('#lab-panel [data-ok]');
+      if (await ok.count()) { await ok.first().click(); continue; }
+      await p.waitForTimeout(80);
+    }
+    return false;
+  };
+  const stars = id => p.evaluate(t => JSON.parse(localStorage.getItem('sindbad.save.v1')).topics[t]?.stars, id);
+  check(await play() && await stars('sci-hunters') === 3, 'the forest lesson (a picture to explore, cards, sorting, choices) played perfectly: 3 stars');
+  await p.click('#lab-modal [data-close]');
+  s = await lab();
+  check(s.L.done.hunters && s.next === 'partners' && (await p.textContent('#lab-gems')) === '1', 'a crystal lights in the lighthouse; the next lesson waits');
+  // The spring scale lesson: a wrong number first, then all right → 2 stars.
+  await p.evaluate(() => window.__labDo('debugStart', 'measure'));
+  await p.waitForSelector('#lab-panel:not([hidden]) .tn-step', { timeout: 5000 });
+  check(await play({ wrong: 'number' }), 'the forces lesson (the spring scale, the force arrow, matching, a sum) can be played to the end');
+  check(await stars('sci-measure') === 2, `one wrong sum, then all right: 2 stars (got ${await stars('sci-measure')})`);
+  await p.click('#lab-modal [data-close]');
+  // The kidney lesson: tap the parts on a drawing, order the path.
+  await p.evaluate(() => window.__labDo('debugStart', 'excretion'));
+  await p.waitForSelector('#lab-panel:not([hidden]) .tn-step', { timeout: 5000 });
+  check(await play() && await stars('sci-excretion') === 3, 'the kidney lesson (the filter, the urinary system to label, the path) played perfectly: 3 stars');
+  await p.click('#lab-modal [data-close]');
+  await p.reload();
+  await p.waitForTimeout(500);
+  const kept = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')).world.lab);
+  check(kept.done.hunters && kept.done.measure && kept.done.excretion, 'the island survives a reload');
+  await ctx.setOffline(true);
+  await p.reload();
+  await p.waitForTimeout(600);
+  await p.click('#screen-title [data-go]');
+  await p.click('.voyage--open');
+  await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
+  await p.click('.isle[data-region=science]');
+  await p.waitForSelector('#screen-lab[data-active]', { timeout: 20000 });
+  check(await p.locator('#lab-stage canvas').count() === 1 && (await p.textContent('#lab-gems')) === '3', 'the science island works offline, with its crystals');
+  check(errors.length === 0, `no console errors${errors.length ? `: ${errors.join(' | ')}` : ''}`);
+  await ctx.close();
+  await gl.close();
+}
+
 // The 3D sea map: a preview on the staging copy (?map=3d shows it here too).
 // The live game keeps the flat map.
 {
