@@ -694,3 +694,24 @@ globe's card and flag game, reload, offline. About 27–42 draw calls.
     and capital).
 51. [on hold — teacher review comes later] Teacher review of the atlas
     island's content and the country cards (draft).
+
+## Playtest notes — 2026-10-13 (every island open on staging)
+
+**Owner's request:** "on staging make everything opened, like the islands
+opened." On the staging copy (`STAGING` in `core/env.js`) everything is
+open from the start:
+- every island: no fog, no stars needed, no fog-lifting scene (`core/map.js`);
+- the gates on the walkable islands (`core/overworld.js`);
+- every farm task and crop, played as practice that still earns stars; the
+  farm's own story still moves one task at a time (`core/farm/farm.js`).
+
+The live game is unchanged. The other grades' voyages stay "coming soon"
+(they have no lessons yet). The lessons on the music, science and atlas
+islands were already all open.
+
+**Tested:** `npm test`: the staging section now checks that every island
+on the staging map is open; the first section still checks that the live
+game starts with four islands under fog and that closed gates keep the hero
+out. By hand in a test browser: on staging, 0 islands under fog, the maths
+island's gate open, 0 of 7 farm tasks locked; on the live copy, 4, closed,
+6 of 7.

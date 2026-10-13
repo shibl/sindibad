@@ -868,6 +868,12 @@ console.log('— staging copy');
   let s = await stored();
   check(s.keys.length > 0 && s.keys.every(k => k.startsWith('sindbad-staging.')), 'staging keeps its own saves');
   check(s.caches.length === 1 && s.caches[0].startsWith('sindbad-staging-'), 'staging keeps its own offline copy');
+  await p.click('[data-hero=sindbad]');
+  await p.click('#select-go');
+  await p.click('[data-st=skip]');
+  await p.click('.voyage--open');
+  await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
+  check(await p.locator('.isle').count() > 4 && await p.locator('.isle--locked').count() === 0, 'on staging every island is open');
 
   await p.goto(URL_);
   await p.evaluate(() => navigator.serviceWorker.ready);

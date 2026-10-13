@@ -23,7 +23,7 @@ import { setSeaLevel } from './ambience.js';
 import { awardSticker } from './stickers.js';
 import { startBattle, GUARDIANS } from './battle.js';
 import { save } from './save.js';
-import { storeKey } from './env.js';
+import { STAGING, storeKey } from './env.js';
 import { sfx } from './sound.js';
 import { num } from './format.js';
 import { canSpeak, speak, stopSpeaking } from './voice.js';
@@ -208,7 +208,8 @@ const tileAt = (x, y) => {
   const row = island.tiles[Math.floor(y)];
   return row ? row[Math.floor(x)] ?? '~' : '~';
 };
-const gateOpen = o => o.opens && state && state.letters.includes(island.people.find(p => p.id === o.opens)?.quest.letter);
+// (On the staging copy every gate is open.)
+const gateOpen = o => o.opens && (STAGING || state && state.letters.includes(island.people.find(p => p.id === o.opens)?.quest.letter));
 
 function onStone(x, y) {
   for (const pz of puzzles) for (const st of pz.stones) if (Math.abs(x - st.x) < 0.5 && Math.abs(y - st.y) < 0.5) return st;
