@@ -178,6 +178,62 @@ that children are taught before they are asked.
 - Content: `Web/worlds/grade6/lab.js` and `Web/worlds/grade6/lab/`; engine:
   `Web/core/lab/`, `Web/core/learn/`.
 
+### The atlas island (3D)
+*(Decision 2026-10-13.)* The social studies island is now «جزيرة الأطلس»
+(after the science island): a 3D island where the grade-6 social studies
+book («الدراسات الاجتماعية»، الفصل الأول) is played, with an atlas globe of
+every country. The owner asked for the globe "and its countries, flags,
+names meanings so kids get to learn them, and also flags meanings,
+currencies… resources, like an atlas", and, as for every island, teaching
+before asking.
+- **Look:** a warm golden afternoon over a deep blue sea; terraces step up
+  from the observatory at the harbour to the Andalusian palace at the top.
+  Each place stands on a plinth trimmed in its unit's colour (gold: the Arab
+  homeland and Africa's civilisations, teal: the Nile valley and the Horn,
+  rose: the family and institutions, orange: Libya, blue: the Arab
+  Maghreb). The travellers' compass in the square lights one ray per quest.
+- **Thirteen places, twenty-five quests (one per lesson, two for the longer
+  ones):** the observatory, the pyramids, the port of Carthage, the palace of
+  the state; the Nile valley, Fustat, the Horn of Africa; the family house,
+  the square of institutions; the Libyan oasis, the heroes' garden; the
+  Atlas mountains, the Andalusian palace.
+- **Taught first:** every quest opens with «أتعلّم»: maps to explore
+  (`core/atlas/views.js`, drawn from the world's real shapes: tap a sea, a
+  river, a mountain range, a city or a country and its card opens) and
+  timelines (the date by each dot; its name once found), then the shared
+  questions (`core/learn/steps.js`), including places to find on a map.
+- **The atlas globe** (the observatory, or 🌍 on the island): a 3D Earth to
+  spin with a finger; tap any country for its card. 71 countries (all 22
+  Arab countries and the main countries of every continent) have a full
+  card: flag, official name, capital, continent, currency (with its code),
+  language, the meaning of its name, the meaning of its flag, resources and
+  one fact; the others show their name, continent and capital. Two games:
+  «أين تقع؟» (find the country on the globe) and «علم مَن هذا؟» (whose flag
+  is it, out of three). The Arab countries visited are counted (🛂 n من 22).
+- **Helper and rewards:** «سهيل», a little star explorer (Arab travellers
+  steered by the star Suhail). Six stickers (the pyramids, Carthage, the
+  Nile, Kairouan, Omar al-Mukhtar, al-Andalus).
+- **The map follows the Syrian textbook:** Palestine is drawn whole,
+  Western Sahara as part of Morocco, Somaliland as part of Somalia, northern
+  Cyprus with Cyprus, Kosovo with Serbia, Taiwan with China
+  (`Web/tools/make-world.mjs`). The book's lists of "usurped lands" are not
+  quizzed. *(To confirm with the developers.)*
+- **Outside data:** the world's shapes are Natural Earth's 1:110m map
+  (public domain), via world-atlas 2.0.2 (ISC), turned into
+  `Web/worlds/atlas/shapes.js` by `Web/tools/make-world.mjs`. It came in
+  because the owner asked for a globe of every country. The flags are drawn
+  in code (`Web/worlds/atlas/countries.js`).
+- **The old walkable social studies island** (the Citadel of Aleppo; Syrian
+  geography, capitals, landmarks, climate, civilisations) was retired with
+  this decision; it is in the git history.
+- **One engine for the quest islands:** the science and atlas islands are
+  both configs of `Web/core/isle/island.js` (ground, plinths, toys, the
+  camera, the quest panel); a new book island is a config, its models and
+  its pictures.
+- Content: `Web/worlds/grade6/atlas.js`, `Web/worlds/grade6/atlas/` (one
+  file per unit) and `Web/worlds/atlas/` (the countries); engine:
+  `Web/core/atlas/`, `Web/core/isle/`, `Web/core/learn/`.
+
 ### Numbers: the digits 1 2 3
 *(Decision 2026-10-12.)* The game writes every number with the digits
 0123456789 («الأرقام العربية»), not ٠١٢٣٤٥٦٧٨٩, with a dot for decimals —
@@ -196,7 +252,7 @@ starting with the sea map in 3D, in the same style as the farm.
 - **Same map, same rules:** the same islands, routes, fog, beacon, ship and
   labels as the flat map; each island's landmark is the flat map's drawing
   made in 3D (Arwad's fort, the striped Damascene gate, the lighthouse, the
-  volcano, the Citadel of Aleppo, the farm, the treasure). Day, sunset and
+  volcano, the atlas globe and pyramids, the farm, the treasure). Day, sunset and
   night follow the device clock. The islands' names stay HTML labels on top,
   so they stay crisp and screen readers find them.
 - **Fallbacks:** phones without WebGL, or if the 3D sea fails to load, get

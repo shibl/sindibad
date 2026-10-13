@@ -263,6 +263,35 @@ const LANDMARKS = {
     decor(group, [['palm', 2.5, 2.6, 0.9], ['bush', 0.3, 2.6], ['bush', 3.6, 2.5, 0.8], ['rock', 4.6, 3.6], ['rock', 1.0, 3.7, 0.7]], 5);
   },
 
+  // Social studies: the atlas island's globe on its brass stand, turning,
+  // beside two pyramids.
+  atlas(group, p) {
+    const k = kit();
+    k.add(new THREE.ConeGeometry(1.3, 1.7, 4), '#ecc77e', { p: [-1.2, G + 0.85, -0.5], r: [0, Math.PI / 4, 0] });
+    k.add(new THREE.ConeGeometry(0.8, 1.05, 4), '#e3b96c', { p: [-0.3, G + 0.52, 0.85], r: [0, Math.PI / 4 + 0.25, 0] });
+    k.add('cyl', '#a0602e', { p: [1.2, G + 0.09, -0.2], s: [0.6, 0.18, 0.6] });
+    k.add('cyl', '#6b3f1f', { p: [1.2, G + 0.55, -0.2], s: [0.09, 0.8, 0.09] });
+    group.add(k.mesh());
+    // the Earth, tilted on its axis; the brass half ring holds it
+    const tilt = new THREE.Group();
+    tilt.position.set(1.2, G + 1.8, -0.2);
+    tilt.rotation.z = 0.41;
+    const ek = kit();
+    ek.add('sphere', '#4fa8e0', { s: 0.85 });
+    for (const [lat, lon, r] of [[0.45, 0.2, 0.38], [-0.25, 0.9, 0.32], [0.35, 2.4, 0.42], [-0.55, 3.6, 0.28], [0.6, 4.6, 0.34], [0.05, 5.5, 0.26]]) {
+      const v = new THREE.Vector3().setFromSphericalCoords(0.72, Math.PI / 2 - lat, lon);
+      ek.add('sphere', '#7cc95a', { p: [v.x, v.y, v.z], s: r });
+    }
+    const earth = ek.mesh();
+    tilt.add(earth);
+    const rk = kit();
+    rk.add(new THREE.TorusGeometry(1.0, 0.06, 8, 40, Math.PI), '#d9a440', { r: [0, 0, -Math.PI / 2] });
+    tilt.add(rk.mesh());
+    group.add(tilt);
+    p.spin.push({ obj: earth, axis: 'y', speed: 0.5 });
+    decor(group, [['palm', 2.6, 2.6, 0.85], ['bush', 0.5, 2.6], ['rock', 4.2, 3.6], ['rock', 5.4, 3.7, 0.7]], 9);
+  },
+
   // Farm: the farm island's own barn, windmill, silo, crops and hive.
   farm(group, p) {
     const add = (obj, s, x, z, ry = 0) => { obj.scale.setScalar(s); obj.position.set(x, G, z); obj.rotation.y = ry; group.add(obj); return obj; };
@@ -332,7 +361,7 @@ const LANDMARKS = {
 export function buildIsland(kind, seed) {
   const group = new THREE.Group();
   const p = parts();
-  const tint = { port: '#9bcf72', numbers: '#8ccf8a', science: '#78c46a', citadel: '#9ccf6e', farm: '#8fd06e', music: '#a5d66c', treasure: '#8fd06e' }[kind];
+  const tint = { port: '#9bcf72', numbers: '#8ccf8a', science: '#78c46a', citadel: '#9ccf6e', atlas: '#a8d470', farm: '#8fd06e', music: '#a5d66c', treasure: '#8fd06e' }[kind];
   group.add(islandBase(seed, { grass: tint || '#86c86a', sand: kind === 'treasure' ? '#f7dc9c' : '#f3d596' }));
   const landmark = new THREE.Group();
   (LANDMARKS[kind] || (g => decor(g, [['palm', 1.6, 0.6], ['palm', 4, 1.2, 0.9], ['bush', 0, 1.5]], seed)))(landmark, p);

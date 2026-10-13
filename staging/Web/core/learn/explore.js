@@ -30,7 +30,7 @@ const bump = (el, cls) => { if (!el) return; el.classList.remove(cls); void el.o
 export function fitHits(root) {
   for (const g of root.querySelectorAll('svg g[data-spot]')) {
     const hit = g.querySelector(':scope > .lx-hit');
-    if (!hit || !g.getBBox) continue;
+    if (!hit || hit.tagName !== 'rect' || !g.getBBox) continue;
     try {
       const b = g.getBBox(), pad = 3;
       const x0 = Math.min(b.x - pad, +hit.getAttribute('x')), y0 = Math.min(b.y - pad, +hit.getAttribute('y'));

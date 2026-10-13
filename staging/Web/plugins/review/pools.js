@@ -2,20 +2,17 @@
 // into multiple choice. Used by the treasure review and by villagers' riddles
 // on the islands (worlds/grade6/*.js). CC-BY-SA.
 
-import { pick, shuffle } from '../engines/kit.js';
+import { pick } from '../engines/kit.js';
 import { ITEMS as FAEL } from '../arabic/fael-mafool.js';
 import { ITEMS as MUBTADA } from '../arabic/mubtada-khabar.js';
 import { ITEMS as PLURALS } from '../arabic/plurals.js';
 import { questions as percent } from '../math/percent.js';
 import { QUESTIONS as FRACOPS } from '../math/fraction-ops.js';
 import { QUESTS as SCIENCE, reviewOf as scienceReview } from '../../worlds/grade6/lab.js';
-import { QUESTIONS as GEO } from '../social/geography.js';
-import { PAIRS as LANDMARKS } from '../social/landmarks.js';
 import { ITEMS as KANA } from '../arabic/kana.js';
 import { ITEMS as INNA } from '../arabic/inna.js';
 import { QUESTIONS as RATIO } from '../math/ratio.js';
-import { QUESTIONS as CLIMATE } from '../social/climate.js';
-import { PAIRS as CIVS } from '../social/civilizations.js';
+import { QUESTS as SOCIAL, reviewOf as socialReview } from '../../worlds/grade6/atlas.js';
 
 const fromTap = it => ({
   q: `في جملة «${it.words.join(' ')}»، ما ${it.ask}؟`,
@@ -30,19 +27,16 @@ const fromPlural = it => ({
 });
 // The science island's quick-review questions (worlds/grade6/lab.js).
 const sciencePool = () => SCIENCE.flatMap(q => scienceReview(q.id));
-const fromLandmark = (p, all) => ({
-  q: `في أيّ محافظة يقع: ${p.a}؟`,
-  options: [p.b, ...shuffle(all.filter(x => x !== p)).slice(0, 3).map(x => x.b)], answer: 0,
-  hint: p.hint, explain: `${p.a} في محافظة ${p.b}.`,
-});
+// The atlas island's quick-review questions (worlds/grade6/atlas.js).
+const socialPool = () => SOCIAL.flatMap(q => socialReview(q.id));
 
 function mixed() {
   return [
     ...pick(FAEL, 2).map(fromTap), ...pick(MUBTADA, 1).map(fromTap), ...pick(PLURALS, 1).map(fromPlural),
     ...pick(percent(), 1), ...pick(FRACOPS, 1),
     ...pick(sciencePool(), 3),
-    ...pick(GEO, 1), ...pick(LANDMARKS, 1).map(p => fromLandmark(p, LANDMARKS)),
-    ...pick([...KANA, ...INNA], 1).map(fromTap), ...pick(RATIO, 1), ...pick(CLIMATE, 1),
+    ...pick(socialPool(), 2),
+    ...pick([...KANA, ...INNA], 1).map(fromTap), ...pick(RATIO, 1),
   ];
 }
 
@@ -51,8 +45,7 @@ const POOLS = {
   arabic: () => [...FAEL.map(fromTap), ...MUBTADA.map(fromTap), ...PLURALS.map(fromPlural), ...KANA.map(fromTap), ...INNA.map(fromTap)],
   math: () => [...percent(), ...FRACOPS, ...RATIO],
   science: sciencePool,
-  social: () => [...GEO, ...CLIMATE, ...LANDMARKS.map(p => fromLandmark(p, LANDMARKS)),
-    ...CIVS.map(p => ({ q: `بماذا اشتهرت ${p.a}؟`, options: [p.b, ...shuffle(CIVS.filter(x => x !== p)).slice(0, 3).map(x => x.b)], answer: 0, hint: p.hint, explain: `${p.a}: ${p.b}.` }))],
+  social: socialPool,
 };
 
 // One random question from a subject (or from everything).

@@ -26,9 +26,10 @@ brief's four age stages. Voyage 6 is open; the other eleven are locked
 until their worlds are built.
 
 **Grade 6** (الصف السادس): pick Sindbad or Yasmina, sail a fog-covered
-archipelago guided by Hudhud the hoopoe, and learn through 32 short
-lessons — Arabic grammar, fractions/decimals/percent, angles, science,
-and Syrian geography — each starting with an illustrated mini-lesson.
+archipelago guided by Hudhud the hoopoe, and learn through short
+lessons — Arabic grammar, fractions/decimals/percent, angles — each
+starting with an illustrated mini-lesson; and through the 3D book islands
+below.
 
 **The farm island** («مزرعتي السعيدة»), open from the start: a 3D farm
 where the grade-6 agriculture book (التربية الزراعية) is played, not
@@ -72,6 +73,25 @@ pulley…), then asks, in the book's own formats (its «أستنتج» sentences
 sorting, matching, true/false with the fix, sums). The helper «شرارة», a
 little lab robot, explains every step; each quest lights a crystal in the
 lighthouse, and seventeen light its beam.
+
+**The atlas island** («جزيرة الأطلس»), after the science island: a 3D
+island where the grade-6 social studies book (الدراسات الاجتماعية، الفصل
+الأول) is explored on maps and timelines. Thirteen places in five
+districts, one per unit: the globe observatory, the pyramids, the port of
+Carthage and the palace of the state (the Arab homeland, Africa's
+civilisations, the state); the Nile valley, Fustat and the Horn of Africa;
+the family house and the square of institutions; the Libyan oasis and the
+heroes' garden; the Atlas mountains and the Andalusian palace.
+Twenty-five quests. Every quest teaches first («أتعلّم»): maps drawn from
+the world's real shapes (tap a sea, a river, a mountain range, a city or a
+country) and timelines (the canals of Suez, the ages of ancient Egypt, the
+liberation of the Maghreb…), then asks. The observatory opens **the atlas
+globe**: spin the Earth and tap any country; 71 of them (all 22 Arab
+countries among them) have a full card with the flag, capital, currency,
+language, the meaning of the name and of the flag, resources and a fact;
+two games, «أين تقع؟» (find it on the globe) and «علم مَن هذا؟» (whose
+flag?). The helper «سهيل», a little star explorer, explains every step;
+each quest lights a ray of the travellers' compass.
 
 All numbers in the game are written with the digits 1 2 3 (owner decision
 2026-10-12).
@@ -153,11 +173,22 @@ Inside `Web/`:
   found), and `steps.js`, the questions any island can use (choice, the
   book's «أستنتج» sentences, sort, order, match, true/false, a sum, tap the
   part). Islands give them their own pictures.
-- `core/lab/` — the 3D science island (`lab.js` game, `games.js` its steps,
-  `views.js` and `views-machines.js` the book's experiments drawn in SVG,
-  `models.js` every model, made in code); its content (stations, seventeen
-  quests) is `worlds/grade6/lab.js` and `worlds/grade6/lab/` (one file per
-  unit), its quick reviews `plugins/science/reviews.js`.
+- `core/isle/` — the engine every 3D book island shares (`island.js`: the
+  stage, camera, places, plinths, the quest panel, rewards; `ground.js` the
+  terraces and the path; `kit.js` small shared models). An island is a
+  config of it.
+- `core/lab/` — the 3D science island (`lab.js` its config, `games.js` its
+  steps, `views.js` and `views-machines.js` the book's experiments drawn in
+  SVG, `models.js` every model, made in code); its content (stations,
+  seventeen quests) is `worlds/grade6/lab.js` and `worlds/grade6/lab/` (one
+  file per unit), its quick reviews `plugins/science/reviews.js`.
+- `core/atlas/` — the 3D atlas island (`atlas.js` its config, `games.js` its
+  steps, `views.js` the maps and timelines, `globe.js` the atlas globe,
+  `models.js` every model); its content is `worlds/grade6/atlas.js` and
+  `worlds/grade6/atlas/` (one file per unit), the countries
+  `worlds/atlas/countries.js` (cards and flags) and `worlds/atlas/shapes.js`
+  (the world's shapes, from Natural Earth, made by `tools/make-world.mjs`),
+  its quick reviews `plugins/social/reviews.js`.
 - `core/tunes/` — the 3D music island (`tunes.js` game, `games.js` the
   little games each quest step is played with, `synth.js` the instruments,
   made with Web Audio, `models.js` every model, made in code); its content
@@ -185,6 +216,9 @@ Code sessions; there are no public feedback forms. The agent's rules are in
 
 - Code: MIT or GPL (open source).
 - Educational content & art: CC-BY-SA.
+- Bundled from others: three.js r170 (MIT), Baloo Bhaijaan 2 (SIL OFL), the
+  world map of Natural Earth 1:110m (public domain, via world-atlas 2.0.2,
+  ISC).
 - No ads, no personal data, no monetization — ever.
 
 ## Status

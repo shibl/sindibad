@@ -14,8 +14,8 @@
 // least `stars` stars in total. `null` = open from the start.
 //
 // from: draw the sea route from this stop instead of the island before it
-// (a side trip). kind: 'farm' / 'tunes' / 'lab' = a 3D island (core/farm/,
-// core/tunes/, core/lab/), not a walkable one.
+// (a side trip). kind: 'farm' / 'tunes' / 'lab' / 'atlas' = a 3D island
+// (core/farm/, core/tunes/, core/lab/, core/atlas/), not a walkable one.
 //
 // Curriculum mapping is a draft pending review by Syrian educators.
 
@@ -61,10 +61,12 @@ export default {
       intro: 'جزيرة نجرّب فيها العلوم بأيدينا: غابة وبحيرة، وساحة القوى، وقبّة الجسم، وقلعة الحصن… كما في كتاب العلوم.',
     },
     {
-      id: 'social', name: 'جزيرة القلعة', subject: 'الجغرافيا والتاريخ', art: 'citadel', pos: [72, 22],
+      // A 3D island (core/atlas/) where the social studies book is played,
+      // with a globe of the world's countries (worlds/grade6/atlas.js).
+      id: 'social', name: 'جزيرة الأطلس', subject: 'الدراسات الاجتماعية', art: 'atlas', pos: [72, 22], kind: 'atlas',
       color: '#c98d1c', unlock: { region: 'science', stars: 2 },
-      badge: { name: 'درع القلعة', icon: '🛡️' },
-      intro: 'من فوق القلعة نرى بلادنا كلها: مدنها وأنهارها ومعالمها.',
+      badge: { name: 'بوصلة الرحّالة', icon: '🧭' },
+      intro: 'من النيل إلى الأندلس! نرحل في وطننا العربي في أفريقيا، وفي مرصد الجزيرة كرة أرضية فيها كل دول العالم بأعلامها وعملاتها.',
     },
     {
       id: 'treasure', name: 'جزيرة الكنز', subject: 'مراجعة شاملة', art: 'treasure', pos: [35, 7],

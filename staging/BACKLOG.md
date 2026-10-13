@@ -625,3 +625,72 @@ a wrong sum → 2 stars), crystals, reload, offline. About 34 draw calls.
     toys now); a skier on the friction slopes that really slides.
 46. [on hold — teacher review comes later] Teacher review of the science
     island's content (draft, from the book).
+
+## Playtest notes — 2026-10-13 (the atlas island)
+
+The owner gave the grade-6 social studies book, semester 1, and asked for
+its island to "include the globe and its countries, flags, names meanings
+so kids get to learn them, and also flags meanings, currencies… resources,
+like an atlas", teaching before asking. Built: «جزيرة الأطلس» as a 3D island
+(SPEC: "The atlas island (3D)"); the old walkable social studies island and
+its five topics were retired. The science island and the atlas island now
+share one engine (`core/isle/`).
+
+**What it is:** thirteen places in five districts (one per unit),
+twenty-five quests, 100 «أتعلّم» teaching steps (maps drawn from the real
+shapes of the world, timelines, cards), the shared questions, and the atlas
+globe: 170 countries to tap, 71 with a full card (flag drawn in code,
+capital, currency, language, the meaning of the name and of the flag,
+resources, a fact), and two games. «سهيل» the star explorer helps; the
+travellers' compass lights one ray per quest; six new stickers.
+
+**Map decisions (to confirm with the developers):** as in the Syrian
+textbook, Palestine is drawn whole and Western Sahara as part of Morocco;
+Somaliland is drawn with Somalia, northern Cyprus with Cyprus, Kosovo with
+Serbia, Taiwan with China. The book's "usurped lands" lists are not quizzed.
+
+**Content choices to check with educators** (all draft):
+- Left out: the usurped-lands map, the Iraq box and its question, the
+  colonialism line, the "Islamic system" legitimacy text; Carthage's
+  religion and wine imports; the Roman canal (the book's 117 BC date looks
+  wrong); "who won at Kadesh"; the terms of the peace of Alexandria (the
+  book doesn't give them); the Ceuta and Melilla box; unit 5 lesson 5 (not
+  in the PDF); open projects and "in your opinion" questions; the routes of
+  map 7.
+- Shown but not quizzed (unclear in the book): 7% (only the main text's 5%
+  is used), the day of Omar al-Mukhtar's death (only 1931), Zuhayr's date
+  (65هـ), and "Algeria is first in Arab oil and gas".
+- Added to explain (not printed in the book): the Suez Canal shortens the
+  way from Europe to Asia; Herodotus's "gift of the Nile"; why mountain
+  terraces work; examples of rights and duties; minerals, oil and gas don't
+  renew; «رابح» means exports exceed imports; Gibraltar links two seas;
+  al-Aqsa is in Jerusalem; Cartagena is not Carthage; Iberia is in
+  south-west Europe; Libya spans 33 − 19 = 14 degrees of latitude (read off
+  the book's map).
+- The atlas cards (not from the book): Syria's currency after the new
+  pound (name and code SYP); what the three stars of Syria's flag stand for
+  (the card only describes them); Cyprus under Asia and Russia under Europe
+  (as Natural Earth); capitals that recently changed (Indonesia, Burundi,
+  Bolivia, Sri Lanka, Equatorial Guinea); the official languages of Mali
+  and Niger; Iran's currency; religious meanings in the flags of Jordan,
+  Bahrain, Morocco and Pakistan. Palestine's card shows no currency.
+
+**Checked:** all twenty-five quests played to three stars by script, no
+console errors; every map and timeline drawn with all its places found and
+looked at (fixed: names cut off at the edges, names on top of each other,
+seas off the map, a country's name hidden under its neighbour, timelines
+with the date and the name swapped); a checker for overlapping names runs
+over every map. The globe: a tapped country turns to the free space above
+its card; the flag game. `npm test` has an atlas section: well-formed
+quests, every map place exists, teaching first, two quests played, the
+globe's card and flag game, reload, offline. About 27–42 draw calls.
+
+**Next items:**
+47. [ ] The developers confirm the map decisions above.
+48. [ ] Real-device check of the atlas island and the globe on a 2 GB
+    Android phone (the globe's texture is 2048×1024, 1024×512 in lite mode).
+49. [ ] Semester 2 of the social studies book, when the owner shares it.
+50. [ ] Full cards for more countries (102 show only their name, continent
+    and capital).
+51. [on hold — teacher review comes later] Teacher review of the atlas
+    island's content and the country cards (draft).

@@ -2946,3 +2946,76 @@ svg .lq-hit.is-reveal { animation: none; }
 
 .sv .kb-knob, .sv .kb-pen, .sv .sv-wheel { transform-box: view-box; }
 .sv text[dir="ltr"] { direction: ltr; unicode-bidi: isolate; }
+
+/* ---------- Atlas maps and timeline (core/atlas/views.js) ---------- */
+.sv-map { overflow: hidden; border-radius: 14px; border: 2.5px solid var(--ink); background: #bfe3f5; }
+.mp-sea-bg { fill: #bfe3f5; }
+.mp-land { fill: #ece6d8; stroke: #b9ae98; stroke-width: .7; stroke-linejoin: round; }
+.mp-arab { fill: #f6e3b4; stroke: #c9a96a; }
+.mp-mark { fill: #ffd36b; stroke: #c98a1a; stroke-width: 1.2; }
+.mp-country .mp-land { transition: fill .4s; }
+.mp-country.is-found .mp-land, .mp-country.is-found .mp-arab { fill: #ffd36b; stroke: #b9781a; stroke-width: 1.4; }
+.mp-country.is-new .mp-land { fill: #fff2c2; }
+.lq-hit.mp-country.is-found .mp-land { fill: #c9eeb4; stroke: #4f9a3a; }
+.mp-name { font-size: 11px; }
+.mp-dot { stroke: var(--ink); stroke-width: 1.5; }
+.mp-lake { fill: #7cc8ef; stroke: #4a9ac9; stroke-width: 1; }
+.mp-river { fill: none; stroke: #3f9ad6; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.mp-riv.is-found .mp-river, .mp-riv.is-new .mp-river { stroke: #1f6fd6; stroke-width: 3.4; }
+.mp-hitline { fill: none; stroke: transparent; stroke-width: 16; stroke-linecap: round; stroke-linejoin: round; }
+.mp-line { stroke: #e8453c; stroke-width: 1.4; stroke-dasharray: 5 4; }
+.mp-peak { fill: #a07a4f; stroke: #6b4a2a; stroke-width: .8; }
+.mp-area { fill: rgba(240, 200, 120, .35); stroke: #c9962a; stroke-width: 1; stroke-dasharray: 3 2; }
+.mp-sea { fill: rgba(63, 143, 214, .18); stroke: #3f8fd6; stroke-width: 1; stroke-dasharray: 3 2; }
+.mp-sea__t { fill: #1f5f9a; }
+.mp-city { fill: #e8453c; stroke: #fff; stroke-width: 1.4; }
+.mp-north { font: 800 12px "Baloo Bhaijaan 2", sans-serif; fill: var(--ink); text-anchor: middle; }
+.mp-north__a { fill: var(--ink); }
+.sv-map [data-spot].is-new > :first-child { animation: mp-glow 1.4s ease-in-out infinite; }
+@keyframes mp-glow { 50% { opacity: .55; } }
+.tl-line { stroke: #a07a4f; stroke-width: 4; stroke-linecap: round; } .tl-arrow { fill: #a07a4f; }
+.tl-stem { stroke: #c9a96a; stroke-width: 2; } .tl-dot { fill: #fff; stroke: var(--ink); stroke-width: 2.5; }
+.sv-timeline .is-found .tl-dot { fill: #ffd36b; } .tl-year { font-size: 11px; fill: #6b4a2a; } .tl-name { font-size: 12px; }
+
+/* ---------- The atlas island and its globe (core/atlas/) ---------- */
+.screen--atlas { background: #ffeccd; }
+.gl-host { position: absolute; inset: 0; z-index: 20; }
+.gl-host[hidden] { display: none; }
+.gl { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 40%, #1d3a6b, #0b1630 70%); overflow: hidden; touch-action: none; }
+.gl-stage { position: absolute; inset: 0; }
+.gl-stage canvas { width: 100%; height: 100%; display: block; }
+.gl-nogl { color: #fff; text-align: center; margin-top: 40vh; font-weight: 800; }
+.gl-top { position: absolute; top: calc(8px + var(--safe-top)); inset-inline: 10px; display: flex; align-items: center; gap: 8px; z-index: 3; }
+.gl-top h2 { flex: 1; margin: 0; color: #fff; font-size: 20px; text-shadow: 0 2px 0 rgba(0, 0, 0, .4); }
+.gl-count small { font-size: 12px; opacity: .8; }
+.gl-modes { position: absolute; top: calc(60px + var(--safe-top)); inset-inline: 10px; display: flex; gap: 6px; justify-content: center; z-index: 3; flex-wrap: wrap; }
+.gl::after { content: ''; position: absolute; inset: 0 0 auto; height: calc(130px + var(--safe-top)); background: linear-gradient(rgba(11, 22, 48, .92), rgba(11, 22, 48, .6) 60%, rgba(11, 22, 48, 0)); pointer-events: none; z-index: 2; }
+.gl-mode { font: inherit; font-weight: 800; font-size: 14px; padding: 4px 12px 6px; color: #fff; background: rgba(11, 22, 48, .55); border: 2px solid rgba(255, 255, 255, .5); border-radius: 999px; cursor: pointer; }
+.gl-mode.is-on { color: var(--ink); background: var(--gold); border-color: var(--ink); box-shadow: 0 3px 0 var(--ink); }
+.gl-hint { position: absolute; bottom: calc(16px + var(--safe-bottom)); inset-inline: 10px; margin: 0; text-align: center; color: #dfe9ff; font-weight: 800; font-size: 14px; z-index: 2; pointer-events: none; }
+.gl-tags { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+.gl-tag { position: absolute; left: 0; top: 0; padding: 1px 8px 2px; font-size: 12px; font-weight: 800; color: var(--ink); background: rgba(255, 246, 220, .92); border: 1.5px solid var(--ink); border-radius: 999px; white-space: nowrap; }
+.gl-tag.is-sel { font-size: 15px; background: #ffd36b; border-width: 2.5px; z-index: 1; }
+.gl-tag[hidden] { display: none; }
+.gl-ask { position: absolute; top: calc(104px + var(--safe-top)); inset-inline: 10px; margin: 0 auto; max-width: 520px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; padding: 8px 12px; font-weight: 800; font-size: 17px; color: var(--ink); background: #fff8e6; border: 3px solid var(--ink); border-radius: 16px; box-shadow: 0 4px 0 var(--ink); z-index: 3; }
+.gl-ask small { font-size: 13px; color: #6b5b3b; }
+.gl-score { padding: 0 8px; background: #fff0b8; border-radius: 999px; }
+.gl-opts { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; width: 100%; }
+.gl-opt { font: inherit; font-weight: 800; font-size: 15px; padding: 4px 12px 6px; color: var(--ink); background: #fff; border: 2.5px solid var(--ink); border-radius: 12px; box-shadow: 0 3px 0 var(--ink); cursor: pointer; }
+.gl-opt:disabled { opacity: .4; }
+.gl-flag svg { display: block; width: 72px; height: 48px; border: 2px solid var(--ink); border-radius: 4px; box-shadow: 0 2px 0 rgba(0, 0, 0, .25); }
+.gl-flag--big svg { width: 120px; height: 80px; }
+.gl-card { position: absolute; bottom: calc(10px + var(--safe-bottom)); inset-inline: 10px; margin: 0 auto; max-width: 520px; max-height: 52vh; overflow: auto; padding: 12px 14px; background: linear-gradient(#fffaf0, #f7e6c2); border: 3px solid var(--ink); border-radius: 20px; box-shadow: 0 5px 0 var(--ink); z-index: 4; }
+.gl-card.is-pop { animation: card-up .35s cubic-bezier(.2, .8, .3, 1.3); }
+.gl-card__x { position: absolute; top: 8px; inset-inline-end: 8px; width: 32px; height: 32px; border-radius: 50%; font: inherit; font-weight: 800; background: #fff; border: 2.5px solid var(--ink); cursor: pointer; }
+.gl-card__head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; padding-inline-end: 34px; }
+.gl-card__head b { display: block; font-size: 22px; }
+.gl-card__head small { font-size: 13px; font-weight: 700; color: #6b5b3b; }
+.gl-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.gl-row { display: flex; gap: 6px; align-items: flex-start; padding: 6px 8px; background: #fff; border: 2px solid #ead9b4; border-radius: 12px; }
+.gl-row > span { font-size: 20px; line-height: 1.2; }
+.gl-row small { display: block; font-size: 12px; font-weight: 800; color: #9a7a4a; }
+.gl-row p { margin: 0; font-size: 14px; font-weight: 700; line-height: 1.45; }
+.gl-row:nth-child(n+5) { grid-column: 1 / -1; }
+.gl-code { font-size: 12px; color: #6b5b3b; }
+@media (max-width: 420px) { .gl-card { max-height: 50vh; padding: 10px 12px; } .gl-row { padding: 5px 7px; } .gl-row > span { font-size: 17px; } .gl-row p { font-size: 13.5px; } }

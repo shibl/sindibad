@@ -5,7 +5,7 @@
 // file run `node tools/update-shell.mjs` (tests/check-shell.mjs fails if you
 // forget). A new version makes clients download the new files once.
 
-const CACHE_VERSION = '716b49aff3';
+const CACHE_VERSION = '60b8a6b211';
 // The staging copy (under /staging/, see core/env.js) keeps its own offline
 // copy, so it never clears the live game's, nor the live game its.
 const CACHE_PREFIX = /\/staging\//.test(self.location.pathname) ? 'sindbad-staging-' : 'sindbad-web-';
@@ -22,6 +22,11 @@ const APP_SHELL = [
   'art/art.js',
   'art/sprites.js',
   'core/ambience.js',
+  'core/atlas/atlas.js',
+  'core/atlas/games.js',
+  'core/atlas/globe.js',
+  'core/atlas/models.js',
+  'core/atlas/views.js',
   'core/battle.js',
   'core/chapters.js',
   'core/env.js',
@@ -32,6 +37,9 @@ const APP_SHELL = [
   'core/finale.js',
   'core/format.js',
   'core/fx.js',
+  'core/isle/ground.js',
+  'core/isle/island.js',
+  'core/isle/kit.js',
   'core/journey.js',
   'core/lab/games.js',
   'core/lab/lab.js',
@@ -101,14 +109,18 @@ const APP_SHELL = [
   'plugins/review/pools.js',
   'plugins/review/treasure.js',
   'plugins/science/reviews.js',
-  'plugins/social/capitals.js',
-  'plugins/social/civilizations.js',
-  'plugins/social/climate.js',
-  'plugins/social/geography.js',
-  'plugins/social/landmarks.js',
+  'plugins/social/reviews.js',
+  'worlds/atlas/countries.js',
+  'worlds/atlas/shapes.js',
   'worlds/chapters.js',
   'worlds/grade6.js',
   'worlds/grade6/arabic.js',
+  'worlds/grade6/atlas.js',
+  'worlds/grade6/atlas/unit1.js',
+  'worlds/grade6/atlas/unit2.js',
+  'worlds/grade6/atlas/unit3.js',
+  'worlds/grade6/atlas/unit4.js',
+  'worlds/grade6/atlas/unit5.js',
   'worlds/grade6/farm.js',
   'worlds/grade6/lab.js',
   'worlds/grade6/lab/body.js',
@@ -116,7 +128,6 @@ const APP_SHELL = [
   'worlds/grade6/lab/life.js',
   'worlds/grade6/lab/machines.js',
   'worlds/grade6/math.js',
-  'worlds/grade6/social.js',
   'worlds/grade6/treasure.js',
   'worlds/grade6/tunes.js',
   'vendor/three/three.module.min.js',

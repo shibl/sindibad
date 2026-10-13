@@ -9,10 +9,11 @@ mini-game architecture" in [`SPEC.md`](../SPEC.md).
 plugins/
   index.js            ← the list of topics to load (one import per topic)
   engines/            ← reusable game mechanics (quiz, sort, number line …)
-  arabic/ math/ social/ review/   ← the grade-6 topics
+  arabic/ math/ review/   ← the grade-6 topics
   agriculture/        ← quick reviews of the farm island's quests
   music/              ← quick reviews of the music island's quests
   science/            ← quick reviews of the science island's quests
+  social/             ← quick reviews of the atlas island's quests
 ```
 
 ## Add a topic in 4 steps
@@ -128,3 +129,10 @@ So does the science island (`core/lab/`): quests in `worlds/grade6/lab/`
 (one file per unit of the book), steps from `core/learn/` (explore first,
 then choice, twoway, sort, order, match, tf, number, label), pictures in
 `core/lab/views.js`, and `plugins/science/reviews.js` for the reviews.
+
+And the atlas island (`core/atlas/`): quests in `worlds/grade6/atlas/` (one
+file per unit), the same steps, with maps and timelines from
+`core/atlas/views.js` (`view: 'map', area: 'libya'` and spot ids from its
+`FEATURES`: countries, seas, rivers, mountains, cities), and
+`plugins/social/reviews.js` for the reviews. A new map frame is one line in
+its `AREAS`.
