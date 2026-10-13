@@ -12,10 +12,12 @@
 // Units: 1 ≈ 1 metre; Y is up; the camera looks from +Z.
 
 import * as THREE from '../../vendor/three/three.module.min.js';
-import { Kit, VC, rng, roundBox } from '../farm/models.js';
+import { Kit, VC, roundBox } from '../farm/models.js';
 import { treeGeo, bushGeo, rockGeo, personGeo, put, glow } from '../tunes/models.js';
+import { makeGround } from '../isle/ground.js';
+import { plinth as basePlinth, animalGeo, beaconArrow, selectRing, sparkSprite, lampGeo } from '../isle/kit.js';
 
-export { treeGeo, bushGeo, rockGeo, personGeo, put, glow };
+export { treeGeo, bushGeo, rockGeo, personGeo, put, glow, animalGeo, beaconArrow, selectRing, sparkSprite, lampGeo };
 const kit = () => new Kit();
 const C = h => new THREE.Color(h);
 const LO = new THREE.SphereGeometry(1, 12, 8);
@@ -29,159 +31,27 @@ export const PAL = {
 };
 export const UNIT_COLORS = { 1: '#4fbf5a', 2: '#f28c3a', 3: '#e8537a', 4: '#3f8fd6' };
 
-// ---------- Ground ----------
+// ---------- Ground (core/isle/ground.js) ----------
 
-// Four levels stepping up towards the castle hill at the back.
-export function levelAt(z) { return z < -38 ? 4.6 : z < -12 ? 3.3 : z < 12 ? 2.1 : 0.9; }
-const RAMPS = [[15.2, 11.6, 0.9, 2.1], [-8.6, -12.2, 2.1, 3.3], [-34.6, -38.4, 3.3, 4.6]];
-export function pathY(z) {
-  for (const [z0, z1, y0, y1] of RAMPS) if (z <= z0 && z >= z1) { const t = (z0 - z) / (z0 - z1); return y0 + (y1 - y0) * t * t * (3 - 2 * t); }
-  return levelAt(z);
-}
-function outline(cx, cz, hx, hz, { n = 5, wob = 0.5, seed = 1, pts = 140 } = {}) {
-  const s = new THREE.Shape();
-  for (let i = 0; i <= pts; i++) {
-    const t = (i / pts) * Math.PI * 2, c = Math.cos(t), sn = Math.sin(t);
-    const w = 1 + (wob / Math.max(hx, hz)) * (Math.sin(t * 5 + seed) * 0.6 + Math.sin(t * 9 + seed * 2.1) * 0.4);
-    const x = cx + hx * Math.sign(c) * Math.abs(c) ** (2 / n) * w, z = cz + hz * Math.sign(sn) * Math.abs(sn) ** (2 / n) * w;
-    if (i) s.lineTo(x, -z); else s.moveTo(x, -z);
-  }
-  return s;
-}
-function slab(shape, { top, depth, bevel = 0.35, cap, side, sideDark }) {
-  const g = new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled: true, bevelThickness: bevel, bevelSize: bevel, bevelSegments: 2, curveSegments: 6 });
-  g.rotateX(-Math.PI / 2);
-  g.translate(0, top - depth - bevel, 0);
-  g.deleteAttribute('uv');
-  const ng = g.index ? g.toNonIndexed() : g;
-  if (ng !== g) g.dispose();
-  const pos = ng.attributes.position, nor = ng.attributes.normal, col = new Float32Array(pos.count * 3);
-  const cTop = C(cap), cSide = C(side), cDark = C(sideDark || side), tmp = new THREE.Color();
-  const bottom = top - depth - bevel * 2;
-  for (let i = 0; i < pos.count; i++) {
-    if (nor.getY(i) > 0.6) tmp.copy(cTop);
-    else {
-      tmp.copy(cDark).lerp(cSide, Math.min(1, Math.max(0, (pos.getY(i) - bottom) / (top - bottom))));
-      // limestone courses: faint horizontal bands on the cliffs
-      if (Math.floor(pos.getY(i) * 2.5) % 2) tmp.multiplyScalar(0.96);
-    }
-    col[i * 3] = tmp.r; col[i * 3 + 1] = tmp.g; col[i * 3 + 2] = tmp.b;
-  }
-  ng.setAttribute('color', new THREE.BufferAttribute(col, 3));
-  return ng;
-}
-export const ISLE = { cx: 0, cz: -6.5, hx: 19, hz: 45 };
-export function terrain() {
-  const k = kit();
-  k.parts.push(slab(outline(ISLE.cx, ISLE.cz, ISLE.hx, ISLE.hz, { n: 4, wob: 1, seed: 3 }), { top: 0.35, depth: 1.2, bevel: 0.6, cap: PAL.sand, side: PAL.sandSide }));
-  k.parts.push(slab(outline(0, -6.5, 16, 41.6, { n: 5, wob: 0.8, seed: 5 }), { top: 0.9, depth: 0.5, cap: PAL.grass, side: PAL.cliff, sideDark: PAL.cliffDark }));
-  k.parts.push(slab(outline(0, -17, 15.4, 29, { n: 6, wob: 0.6, seed: 7 }), { top: 2.1, depth: 1.1, cap: PAL.grassB, side: PAL.cliff, sideDark: PAL.cliffDark }));
-  k.parts.push(slab(outline(0, -30, 14.8, 18, { n: 6, wob: 0.5, seed: 9 }), { top: 3.3, depth: 1.1, cap: PAL.grassC, side: PAL.cliff, sideDark: PAL.cliffDark }));
-  k.parts.push(slab(outline(0.5, -43.5, 9.5, 5.6, { n: 4, wob: 0.4, seed: 11 }), { top: 4.6, depth: 1.2, cap: PAL.grassD, side: PAL.cliff, sideDark: PAL.cliffDark }));
-  const m = k.mesh();
-  m.castShadow = false;
-  return m;
-}
+const G = makeGround({
+  isle: { cx: 0, cz: -6.5, hx: 19, hz: 45 },
+  // four levels stepping up towards the castle hill at the back
+  levels: [[0.9, Infinity], [2.1, 12], [3.3, -12], [4.6, -38]],
+  slabs: [
+    [0, -6.5, 16, 41.6, 5, 0.8, 5, 0.9, 0.5, PAL.grass],
+    [0, -17, 15.4, 29, 6, 0.6, 7, 2.1, 1.1, PAL.grassB],
+    [0, -30, 14.8, 18, 6, 0.5, 9, 3.3, 1.1, PAL.grassC],
+    [0.5, -43.5, 9.5, 5.6, 4, 0.4, 11, 4.6, 1.2, PAL.grassD],
+  ],
+  ramps: [[15.2, 11.6, 0.9, 2.1], [-8.6, -12.2, 2.1, 3.3], [-34.6, -38.4, 3.3, 4.6]],
+  path: [[14, 32.5], [8.5, 29.5], [2.5, 26], [0.6, 20.5], [1, 15], [0.8, 10], [0.2, 4], [0.8, -2], [0.4, -8], [0.8, -12.5], [0.2, -17.5], [0.8, -23], [0.2, -28.5], [0.6, -33], [0.8, -37.5], [0.8, -40.2]],
+  pal: { sand: PAL.sand, sandSide: PAL.sandSide, cliff: PAL.cliff, cliffDark: PAL.cliffDark, path: PAL.path, pathEdge: PAL.pathEdge, post: PAL.white },
+});
+export const { ISLE, levelAt, pathY, terrain, pathCurve, pathRibbon } = G;
 
-export const PATH_POINTS = [[14, 32.5], [8.5, 29.5], [2.5, 26], [0.6, 20.5], [1, 15], [0.8, 10], [0.2, 4], [0.8, -2], [0.4, -8], [0.8, -12.5], [0.2, -17.5], [0.8, -23], [0.2, -28.5], [0.6, -33], [0.8, -37.5], [0.8, -40.2]];
-export function pathCurve() {
-  return new THREE.CatmullRomCurve3(PATH_POINTS.map(([x, z]) => new THREE.Vector3(x, pathY(z), z)), false, 'centripetal');
-}
-export function pathRibbon(curve, w = 2.8) {
-  const N = 300, pos = [], col = [], nor = [], edge = C(PAL.pathEdge), mid = C(PAL.path), ring = [];
-  for (let i = 0; i <= N; i++) {
-    const p = curve.getPointAt(i / N), t = curve.getTangentAt(i / N);
-    const nx = -t.z, nz = t.x, l = Math.hypot(nx, nz) || 1, y = pathY(p.z) + 0.04;
-    ring.push([-w / 2, -w / 2 + 0.3, w / 2 - 0.3, w / 2].map(o => [p.x + (nx / l) * o, y, p.z + (nz / l) * o]));
-  }
-  const cols = [edge, mid, mid, edge];
-  for (let i = 0; i < N; i++) for (let j = 0; j < 3; j++) {
-    const a = ring[i][j], b = ring[i][j + 1], c = ring[i + 1][j], d = ring[i + 1][j + 1];
-    // paving: every few metres a slightly darker stone
-    const shade = j === 1 && i % 6 < 3 ? 0.97 : 1;
-    for (const [v, cc] of [[a, cols[j]], [b, cols[j + 1]], [c, cols[j]], [b, cols[j + 1]], [d, cols[j + 1]], [c, cols[j]]]) { pos.push(...v); col.push(cc.r * shade, cc.g * shade, cc.b * shade); nor.push(0, 1, 0); }
-  }
-  const g = new THREE.BufferGeometry();
-  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-  g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
-  g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
-  const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ vertexColors: true, polygonOffset: true, polygonOffsetFactor: -2 }));
-  m.receiveShadow = true;
-  const k = kit();
-  for (const [z0, z1, y0, y1] of RAMPS) {
-    const zm = (z0 + z1) / 2, near = curve.getPoints(90).reduce((b, p) => (Math.abs(p.z - zm) < Math.abs(b.z - zm) ? p : b));
-    const len = Math.hypot(z0 - z1, y1 - y0), ang = Math.atan2(y1 - y0, z0 - z1);
-    k.add('box', PAL.cliffDark, { p: [near.x, (y0 + y1) / 2 - 0.55, zm], r: [ang, 0, 0], s: [w + 0.4, 1, len + 0.2] });
-    for (const sx of [-1, 1]) for (let i = 0; i < 4; i++) k.add('box', PAL.white, { p: [near.x + sx * (w / 2 + 0.22), y0 + (y1 - y0) * (i / 3) + 0.3, z0 - (z0 - z1) * (i / 3)], s: [0.16, 0.6, 0.16] });
-  }
-  const g2 = new THREE.Group(); g2.add(m, k.mesh());
-  return g2;
-}
-
-// A raised base for a landmark: a skirt, a coloured trim (the unit's) and a
-// top, with steps at the front. Round (r) or rectangular (w × d).
-function plinth(k, unit, { r, w, d, h = 0.5, top = PAL.white, side = PAL.stone, steps = true }) {
-  const trim = UNIT_COLORS[unit] || PAL.gold;
-  if (r) {
-    k.add(new THREE.CylinderGeometry(r, r + 0.16, h, 32), side, { p: [0, h / 2, 0] });
-    k.add(new THREE.CylinderGeometry(r + 0.08, r + 0.08, 0.12, 32), trim, { p: [0, h - 0.02, 0] });
-    k.add(new THREE.CylinderGeometry(r - 0.05, r - 0.05, 0.06, 32), top, { p: [0, h + 0.05, 0] });
-  } else {
-    k.add(roundBox(w, h, d, 0.08), side, { p: [0, h / 2, 0] });
-    k.add(roundBox(w + 0.14, 0.12, d + 0.14, 0.04), trim, { p: [0, h - 0.02, 0] });
-    k.add(roundBox(w - 0.1, 0.06, d - 0.1, 0.03), top, { p: [0, h + 0.05, 0] });
-  }
-  if (steps) {
-    const front = r || d / 2;
-    for (let i = 0; i < 2; i++) k.add(roundBox(2.2 - i * 0.4, h / 2, 0.42, 0.04), i ? top : side, { p: [0, (h / 2) * (i + 0.5) - 0.02, front + 0.3 - i * 0.28] });
-  }
-  return h + 0.08;
-}
+const plinth = (k, unit, opts) => basePlinth(k, UNIT_COLORS[unit] || PAL.gold, opts);
 const mat = (color, o = {}) => new THREE.MeshLambertMaterial({ color, ...o });
 const mesh = (geo, m) => { const x = new THREE.Mesh(geo, m); x.castShadow = true; return x; };
-
-// ---------- Animals (simple, toy-like, facing +Z) ----------
-
-export function animalGeo(kind) {
-  const k = kit();
-  const leg = (c, x, z, h = 0.28, r = 0.05) => k.add('cyl', c, { p: [x, h / 2, z], s: [r, h, r] });
-  if (kind === 'rabbit') {
-    k.add(LO, '#d9d2c8', { p: [0, 0.22, 0], s: [0.2, 0.17, 0.26] }); k.add(LO, '#d9d2c8', { p: [0, 0.38, 0.18], s: 0.13 });
-    for (const s of [-1, 1]) k.add(LO, '#d9d2c8', { p: [s * 0.05, 0.56, 0.14], r: [-0.3, 0, s * 0.15], s: [0.035, 0.13, 0.03] });
-    k.add(LO, '#ffffff', { p: [0, 0.24, -0.26], s: 0.06 }); k.eyes({ x: 0.06, y: 0.4, z: 0.28, r: 0.025 });
-  } else if (kind === 'fox') {
-    k.add(LO, '#e8742e', { p: [0, 0.34, 0], s: [0.17, 0.16, 0.34] }); k.add(LO, '#e8742e', { p: [0, 0.48, 0.32], s: 0.15 });
-    k.add('cone', '#e8742e', { p: [0, 0.46, 0.5], r: [Math.PI / 2, 0, 0], s: [0.07, 0.14, 0.07] });
-    for (const s of [-1, 1]) k.add('cone4', '#3b2414', { p: [s * 0.08, 0.64, 0.3], s: [0.05, 0.1, 0.04] });
-    k.add(LO, '#e8742e', { p: [0, 0.38, -0.42], r: [0.6, 0, 0], s: [0.08, 0.08, 0.2] }); k.add(LO, '#ffffff', { p: [0, 0.36, -0.58], s: 0.06 });
-    for (const [x, z] of [[-0.09, 0.2], [0.09, 0.2], [-0.09, -0.2], [0.09, -0.2]]) leg('#3b2414', x, z);
-    k.eyes({ x: 0.06, y: 0.52, z: 0.44, r: 0.025 });
-  } else if (kind === 'deer') {
-    k.add(LO, '#b9844a', { p: [0, 0.62, 0], s: [0.18, 0.18, 0.36] }); k.add(LO, '#b9844a', { p: [0, 0.98, 0.36], s: [0.11, 0.13, 0.14] });
-    k.add('cyl', '#b9844a', { p: [0, 0.82, 0.3], r: [0.5, 0, 0], s: [0.07, 0.3, 0.07] });
-    for (const s of [-1, 1]) { k.add('cyl', '#7a5130', { p: [s * 0.08, 1.16, 0.32], r: [0, 0, s * 0.4], s: [0.02, 0.24, 0.02] }); k.add('cyl', '#7a5130', { p: [s * 0.13, 1.24, 0.32], r: [0.6, 0, s * 0.2], s: [0.016, 0.12, 0.016] }); }
-    for (const [x, z] of [[-0.1, 0.24], [0.1, 0.24], [-0.1, -0.24], [0.1, -0.24]]) leg('#8a5a34', x, z, 0.5, 0.035);
-    k.add(LO, '#ffffff', { p: [0, 0.66, -0.36], s: 0.06 }); k.eyes({ x: 0.06, y: 1.0, z: 0.47, r: 0.025 });
-  } else if (kind === 'owl') {
-    k.add(LO, '#9a6a3c', { p: [0, 0.26, 0], s: [0.17, 0.22, 0.16] }); k.add(LO, '#f3e2c0', { p: [0, 0.22, 0.09], s: [0.12, 0.15, 0.08] });
-    k.add(LO, '#9a6a3c', { p: [0, 0.48, 0], s: 0.15 }); k.eyes({ x: 0.06, y: 0.5, z: 0.12, r: 0.05, look: 0.3 });
-    k.add('cone4', '#f2c14e', { p: [0, 0.44, 0.15], r: [Math.PI / 2, 0, 0], s: [0.025, 0.05, 0.025] });
-  } else if (kind === 'frog') {
-    k.add(LO, '#5ab84a', { p: [0, 0.1, 0], s: [0.14, 0.09, 0.15] }); k.eyes({ x: 0.06, y: 0.18, z: 0.08, r: 0.04, look: 0.2 });
-  } else if (kind === 'duck') {
-    k.add(LO, '#ffffff', { p: [0, 0.12, 0], s: [0.16, 0.11, 0.22] }); k.add(LO, '#2f8a3f', { p: [0, 0.3, 0.14], s: 0.09 });
-    k.add('cone4', '#f28c3a', { p: [0, 0.28, 0.25], r: [Math.PI / 2, 0, 0], s: [0.04, 0.08, 0.025] }); k.eyes({ x: 0.04, y: 0.33, z: 0.2, r: 0.018 });
-  } else if (kind === 'horse') {
-    k.add(LO, '#8a5a34', { p: [0, 0.95, 0], s: [0.26, 0.26, 0.55] }); k.add('cyl', '#8a5a34', { p: [0, 1.25, 0.5], r: [0.6, 0, 0], s: [0.12, 0.55, 0.14] });
-    k.add(roundBox(0.2, 0.22, 0.42, 0.08), '#8a5a34', { p: [0, 1.52, 0.78], r: [0.3, 0, 0] }); k.add('box', '#3b2414', { p: [0, 1.48, 0.42], r: [0.6, 0, 0], s: [0.06, 0.4, 0.16] });
-    for (const [x, z] of [[-0.14, 0.38], [0.14, 0.38], [-0.14, -0.38], [0.14, -0.38]]) leg('#6b4a2a', x, z, 0.8, 0.06);
-    k.eyes({ x: 0.09, y: 1.6, z: 0.86, r: 0.03 });
-  } else if (kind === 'robin') {
-    k.add(LO, '#7a6a5a', { p: [0, 0, 0], s: [0.1, 0.09, 0.13] }); k.add(LO, '#f28c3a', { p: [0, -0.01, 0.06], s: [0.07, 0.06, 0.07] });
-    for (const s of [-1, 1]) k.add(LO, '#6a5a4a', { p: [s * 0.13, 0.02, 0], r: [0, 0, s * 0.3], s: [0.12, 0.02, 0.07] });
-  }
-  return k.geometry();
-}
 
 // ---------- Landmarks (each: a Group with userData.height and parts to animate) ----------
 
@@ -485,43 +355,4 @@ export function helperBot() {
   const shine = glow('#ffe066', 0.7, 0.8); shine.position.y = 1.1; g.add(shine);
   g.userData = { bulb, shine };
   return g;
-}
-
-// ---------- Small things for the frame loop ----------
-
-export function beaconArrow() {
-  const k = kit();
-  k.add(new THREE.ConeGeometry(0.5, 0.8, 4), '#f2c14e', { r: [Math.PI, 0, 0] });
-  k.add('box', '#f2c14e', { p: [0, 0.6, 0], s: [0.28, 0.6, 0.28] });
-  const m = k.mesh(new THREE.MeshLambertMaterial({ vertexColors: true, emissive: '#7a5a10' }));
-  m.castShadow = false;
-  return m;
-}
-export function selectRing(r = 1) {
-  const m = new THREE.Mesh(new THREE.RingGeometry(r * 0.94, r, 48), new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0.7, depthWrite: false }));
-  m.rotation.x = -Math.PI / 2;
-  return m;
-}
-// A sprite with an emoji-like symbol, for sparks that rise from the places.
-const sparkTex = {};
-export function sparkSprite(ch = '✦', color = '#ffd23f') {
-  const key = ch + color;
-  if (!sparkTex[key]) {
-    const c = document.createElement('canvas'); c.width = c.height = 64;
-    const x = c.getContext('2d');
-    x.font = 'bold 46px sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
-    x.fillStyle = color; x.strokeStyle = '#ffffff'; x.lineWidth = 6;
-    x.strokeText(ch, 32, 34); x.fillText(ch, 32, 34);
-    sparkTex[key] = new THREE.CanvasTexture(c);
-  }
-  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: sparkTex[key], transparent: true, depthWrite: false }));
-  s.scale.set(0.7, 0.7, 1);
-  return s;
-}
-export function lampGeo() {
-  const k = kit();
-  k.add('cyl', '#3b3640', { p: [0, 1, 0], s: [0.06, 2, 0.06] });
-  k.add('cyl', '#3b3640', { p: [0, 0.08, 0], s: [0.18, 0.16, 0.18] });
-  k.add(new THREE.SphereGeometry(0.2, 10, 8), '#fff6c8', { p: [0, 2.15, 0] });
-  return k.geometry();
 }
