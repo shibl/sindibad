@@ -534,6 +534,23 @@ const LANDMARKS = {
     <path d="M120 88 L112 134 H128Z" fill="#c9a26b" ${OUT_THIN}/>
     <path d="M147 56 V34" ${OUT}/><path d="M147 36 Q141 26 147 20 Q153 26 147 36Z" fill="#f2c14e" ${OUT_THIN}/>`,
 
+  // Social studies: the atlas island — a globe on its brass stand beside
+  // two pyramids.
+  atlas: () => `
+    ${islandBase({ grass: '#a8d470', sand: '#f7dc9c' })}
+    <path d="M100 128 L122 98 L144 128Z" fill="#e3b96c" ${OUT}/>
+    <path d="M122 98 L130 128 H144Z" fill="#c4914a" ${OUT_THIN}/>
+    <path d="M44 132 L80 80 L116 132Z" fill="#ecc77e" ${OUT}/>
+    <path d="M80 80 L94 132 H116Z" fill="#cf9e55" ${OUT_THIN}/>
+    <path d="M58 116 H104 M66 104 H96 M72 94 H88" stroke="#b98a45" stroke-width="2"/>
+    <path d="M146 134 H186 L180 124 H152Z" fill="#a0602e" ${OUT_THIN}/>
+    <path d="M166 124 V110" stroke="${LINE}" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="166" cy="78" r="28" fill="#5fb3e6" ${OUT}/>
+    <path d="M150 64 q8 -8 18 -3 q4 6 -2 11 q-7 1 -8 9 q-5 5 -9 -3 q-4 -8 1 -14Z M172 58 q9 -3 15 4 q2 7 -5 9 q-6 -2 -10 -6Z M170 88 q6 -2 9 3 q-1 7 -7 8 q-4 -5 -2 -11Z" fill="#8fd06e" ${OUT_THIN}/>
+    <path d="M139 80 Q166 90 193 80" fill="none" stroke="#f2c14e" stroke-width="2" stroke-dasharray="4 3"/>
+    <path d="M166 44 A34 34 0 0 1 166 112" fill="none" stroke="${LINE}" stroke-width="7"/>
+    <path d="M166 44 A34 34 0 0 1 166 112" fill="none" stroke="url(#g-brass)" stroke-width="4"/>`,
+
   // Farm: a red barn, rows of crops, a windmill and a little beehive.
   farm: () => `
     ${islandBase({ grass: '#8fd06e' })}
@@ -585,7 +602,7 @@ const LANDMARKS = {
     <g fill="#ffd23f" ${OUT_THIN}><circle cx="82" cy="130" r="5"/><circle cx="150" cy="134" r="5"/><circle cx="92" cy="138" r="4"/></g>`,
 };
 
-// An island for the world map. kind: port | letters | numbers | science | citadel | farm | music | treasure
+// An island for the world map. kind: port | letters | numbers | science | citadel | atlas | farm | music | treasure
 export function islandSVG(kind) {
   return `<svg class="island-art island-art--${kind}" viewBox="0 0 240 200" aria-hidden="true" overflow="visible">${LANDMARKS[kind]()}</svg>`;
 }

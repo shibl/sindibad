@@ -599,6 +599,134 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   await gl.close();
 }
 
+// The atlas island: the social studies book played in 3D (maps and
+// timelines to explore first, then questions), and the atlas globe of every
+// country with its flag, capital, currency and the meanings of its name and
+// flag.
+{
+  console.log('— atlas island');
+  const { QUESTS, STATIONS, reviewOf } = await import('../worlds/grade6/atlas.js');
+  const { ATLAS_VIEWS, FEATURES } = await import('../core/atlas/views.js');
+  const { COUNTRIES, SMALL } = await import('../worlds/atlas/countries.js');
+  const uniq = a => new Set(a).size === a.length;
+  const drawn = (st, id) => ATLAS_VIEWS[st.view].html(st).includes(`data-spot="${id}"`);
+  const okStep = st => ({
+    explore: () => !!st.title && st.spots.length >= 2 && uniq(st.spots.map(x => x.id)) && st.spots.every(x => x.title && typeof x.text === 'string') && (!st.view || !!ATLAS_VIEWS[st.view]) && (st.view !== 'timeline' || st.spots.every(x => st.events.some(e => e.id === x.id))),
+    choice: () => st.options.length >= 2 && uniq(st.options),
+    twoway: () => st.lines.length >= 2 && st.lines.every(([t, a, b]) => t.includes('___') && a && b && a !== b),
+    sort: () => st.items.length >= 3 && st.items.every(([, b]) => st.bins.some(x => x.id === b)) && st.bins.every(x => st.items.some(([, b]) => b === x.id)),
+    order: () => st.items.length >= 3 && uniq(st.items),
+    match: () => st.pairs.length >= 3 && uniq(st.pairs.map(x => x[1])),
+    tf: () => st.items.length >= 2 && st.items.every(([t, v, fix]) => t && typeof v === 'boolean' && (v || !!fix)),
+    number: () => Number.isFinite(st.answer) && st.answer >= 0,
+    label: () => !!ATLAS_VIEWS[st.view] && st.ask.length >= 2 && st.ask.every(([id]) => FEATURES.has(id) && drawn(st, id)),
+  }[st.kind]?.() && (st.kind === 'explore' || !!st.hint));
+  check(QUESTS.length === 25 && QUESTS.every(q => STATIONS[q.station] && q.steps.every(okStep)), 'atlas: 25 quests; every step is well formed (a right answer, a hint, its map)');
+  check(QUESTS.every(q => q.steps[0].kind === 'explore'), 'atlas: every lesson teaches first (أتعلّم) before it asks anything');
+  check(QUESTS.every(q => reviewOf(q.id).length >= 6) && uniq(QUESTS.map(q => q.topic)), 'atlas: every quest has a review quiz of 6+ questions');
+  const cards = [...Object.values(COUNTRIES), ...Object.values(SMALL)].filter(c => c.flag);
+  check(cards.length >= 70 && cards.every(c => c.capital && c.flag.svg.startsWith('<svg') && c.nameMeaning && c.flagMeaning && c.resources?.length) && cards.filter(c => c.arab).length === 22, 'the atlas: 70+ countries with a full card (flag, capital, meanings, resources), all 22 Arab countries among them');
+
+  const gl = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  const ctx = await gl.newContext({ viewport: { width: 390, height: 844 } });
+  await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
+  const p = await ctx.newPage();
+  const errors = [];
+  p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+  p.on('pageerror', e => errors.push(e.message));
+  await p.goto(URL_);
+  await p.evaluate(() => navigator.serviceWorker.ready);
+  await p.click('text=ابدأ الرحلة');
+  await p.fill('#child-name', 'سارة');
+  await p.click('#who-form [type=submit]');
+  await p.waitForSelector('#screen-select[data-active]', { timeout: 5000 });
+  await p.click('[data-hero=yasmina]');
+  await p.click('#select-go');
+  await p.click('[data-st=skip]');
+  await p.click('.voyage--open');
+  await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
+  check(await p.locator('.isle[data-region=social].isle--locked').count() === 1, 'the atlas island waits behind the science island');
+  await p.evaluate(async () => {
+    const { save } = await import('./core/save.js');
+    const { topicsIn } = await import('./core/topics.js');
+    save.update(v => { for (const r of ['arabic', 'math', 'science']) for (const t of topicsIn(r)) v.topics[t.id] = { stars: 3, best: 1, plays: 1 }; });
+  });
+  await p.click('.map-voyages');
+  await p.click('.voyage--open');
+  await p.waitForTimeout(800);
+  await p.click('.isle[data-region=social]');
+  await p.waitForSelector('#screen-atlas[data-active]', { timeout: 20000 });
+  check(await p.locator('#atlas-stage canvas').count() === 1, 'with stars on the science island, sailing there opens the 3D atlas island');
+  await p.waitForTimeout(800);
+  const atlas = () => p.evaluate(() => window.__atlas());
+  let s = await atlas();
+  check(s.places.length === 13 && s.next === 'homeland' && (await p.textContent('#atlas-say .bubble')).includes('سهيل'), 'thirteen places; the helper «سهيل» says hello; the homeland lesson comes first');
+  await p.locator('#atlas-places [data-place=atlas]').dispatchEvent('click');
+  check(await p.locator('#atlas-modal [data-start]').count() === 2, 'the observatory holds two lessons');
+  await p.click('#atlas-modal [data-start="homeland"]');
+  await p.waitForSelector('#atlas-panel:not([hidden]) .tn-step', { timeout: 5000 });
+  check(await p.locator('#atlas-panel .lx .sv-map').count() === 1 && await p.locator('#atlas-panel [data-next]').count() === 0, 'the lesson starts by teaching (أتعلّم): a map to explore, no question, no skipping');
+  // Plays to the end: the right answer each time. SVG places are tapped
+  // where they are drawn; a country's middle can be sea, so those get the
+  // click itself.
+  const tap = async el => { try { await el.click({ timeout: 1500 }); } catch { await el.dispatchEvent('click'); } };
+  const play = async () => {
+    for (let guard = 0; guard < 500; guard++) {
+      if (await p.isVisible('#atlas-modal .fm-done')) return true;
+      const next = p.locator('#atlas-panel [data-next]');
+      if (await next.count()) { await next.first().click(); continue; }
+      const ok = p.locator('#atlas-panel [data-ok]');
+      if (await ok.count()) { await tap(ok.first()); continue; }
+      await p.waitForTimeout(80);
+    }
+    return false;
+  };
+  const stars = id => p.evaluate(t => JSON.parse(localStorage.getItem('sindbad.save.v1')).topics[t]?.stars, id);
+  check(await play() && await stars('soc-homeland') === 3, 'the homeland lesson (a map to explore, sentences, an order, a sum, places to find on the map) played perfectly: 3 stars');
+  await p.click('#atlas-modal [data-close]');
+  s = await atlas();
+  check(s.L.done.homeland && s.next === 'gates' && (await p.textContent('#atlas-gems')) === '1', 'a ray of the travellers\' compass lights; the next lesson waits');
+  // The Pharaohs' lesson: the timeline.
+  await p.evaluate(() => window.__atlasDo('debugStart', 'nilegift'));
+  await p.waitForSelector('#atlas-panel:not([hidden]) .tn-step', { timeout: 5000 });
+  check(await play() && await stars('soc-nilegift') === 3, 'the Nile valley lesson (the map of Egypt, a timeline) played perfectly: 3 stars');
+  await p.click('#atlas-modal [data-close]');
+  // The globe: tap a country, read its card; then the flag game.
+  await p.click('#atlas-globe-btn');
+  await p.waitForSelector('#atlas-globe .gl canvas', { timeout: 10000 });
+  await p.waitForTimeout(600);
+  await p.mouse.click(195, 470);
+  await p.waitForTimeout(300);
+  s = await atlas();
+  check(!!s.globe?.selected && await p.locator('#atlas-globe .gl-card:not([hidden]) .gl-row').count() >= 4, `tapping the globe opens a country's card: its capital, currency, the meaning of its name (${s.globe?.selected})`);
+  await p.click('#atlas-globe [data-mode=flag]');
+  check(await p.locator('#atlas-globe .gl-ask .gl-flag svg').count() === 1 && await p.locator('#atlas-globe .gl-opt').count() === 3, '«علم مَن هذا؟»: a flag and three names');
+  await p.click('#atlas-globe .gl-opt[data-ok]');
+  s = await atlas();
+  check(s.globe.score === 1 && await p.locator('#atlas-globe .gl-card:not([hidden])').count() === 1, 'the right name scores a star and opens that country\'s card');
+  await p.click('#atlas-globe .gl-x');
+  check(await p.locator('#atlas-globe[hidden]').count() === 1 && (await atlas()).globe === null, 'the globe closes back to the island');
+  await p.reload();
+  await p.waitForTimeout(500);
+  const kept = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')).world.atlas);
+  check(kept.done.homeland && kept.done.nilegift && kept.visited.length >= 2, 'the island and the countries visited survive a reload');
+  await ctx.setOffline(true);
+  await p.reload();
+  await p.waitForTimeout(600);
+  await p.click('#screen-title [data-go]');
+  await p.click('.voyage--open');
+  await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
+  await p.click('.isle[data-region=social]');
+  await p.waitForSelector('#screen-atlas[data-active]', { timeout: 20000 });
+  check(await p.locator('#atlas-stage canvas').count() === 1 && (await p.textContent('#atlas-gems')) === '2', 'the atlas island works offline, with its compass');
+  await p.click('#atlas-globe-btn');
+  await p.waitForSelector('#atlas-globe .gl canvas', { timeout: 10000 });
+  check(await p.locator('#atlas-globe .gl-mode').count() === 3, 'the atlas globe opens offline too');
+  check(errors.length === 0, `no console errors${errors.length ? `: ${errors.join(' | ')}` : ''}`);
+  await ctx.close();
+  await gl.close();
+}
+
 // The 3D sea map: a preview on the staging copy (?map=3d shows it here too).
 // The live game keeps the flat map.
 {
