@@ -133,7 +133,7 @@ otherwise).
 
 - Push to `staging` → tests → the staging copy at
   <https://shibl.github.io/sindibad/staging/> (marked «نسخة تجريبية»,
-  with its own saves).
+  with its own saves, and every island, gate and farm task open).
 - Merge into `main` → tests → the live game.
 
 Nothing is published when tests fail. Each publish shows under

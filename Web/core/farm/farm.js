@@ -19,6 +19,7 @@ import * as THREE from '../../vendor/three/three.module.min.js';
 import { createStage } from './scene.js';
 import * as M from './models.js';
 import { save } from '../save.js';
+import { STAGING } from '../env.js';
 import { sfx } from '../sound.js';
 import { num } from '../format.js';
 import { recordResult } from '../lesson.js';
@@ -406,7 +407,7 @@ function runningQuestElsewhere(id) {
 }
 
 function unlockedCrops() {
-  return Object.keys(CROPS).filter(c => QUESTS.some((q, i) => q.crop === c && i <= F.quest));
+  return Object.keys(CROPS).filter(c => STAGING || QUESTS.some((q, i) => q.crop === c && i <= F.quest));
 }
 
 function openPlot(plot) {
@@ -444,7 +445,7 @@ function openTask(id) {
   const p = places[id];
   const def = TASKS[p.task];
   const qi = QUESTS.findIndex(q => q.task === p.task);
-  if (qi > F.quest) {
+  if (qi > F.quest && !STAGING) {
     sayHelper(`سنعمل في ${p.label} قريباً. أولاً: ${quest()?.goal || ''} 📜`);
     deselect(); return;
   }
@@ -608,7 +609,7 @@ async function finishRun(run, def) {
   const q = QUESTS.find(x => (x.crop || x.task) === run.id);
   const topic = q && getTopic(q.topic);
   let res = null;
-  if (topic && (run.quest || questDone(q))) {
+  if (topic && (run.quest || questDone(q) || STAGING)) {
     const before = save.get().topics[q.topic]?.stars || 0;
     res = recordResult(q.topic, { correct: run.clean, total: run.units });
     const gained = (save.get().topics[q.topic]?.stars || 0) - before;
@@ -1280,12 +1281,12 @@ function openQuests() {
   openModal(`
     <h3>📜 مهمّات المزرعة</h3>
     <ul class="fm-quests">${QUESTS.map((q, i) => {
-      const done = i < F.quest, now = i === F.quest;
+      const done = i < F.quest, now = i === F.quest, open = now || (STAGING && !done);
       const st = topics[q.topic]?.stars || 0;
       const review = done && due[q.topic]?.due <= Date.now();
-      return `<li class="fm-q ${done ? 'is-done' : now ? 'is-now' : 'is-locked'}">
-        <span class="fm-q__icon">${done || now ? q.icon : '🔒'}</span>
-        <span class="fm-q__text"><b>${q.title}</b><small>${done ? `${'★'.repeat(st)}${'☆'.repeat(3 - st)} • كتاب «${(CROPS[q.crop] || TASKS[q.task]).book}»` : now ? q.goal : 'تُفتح بعد المهمّة السابقة'}</small></span>
+      return `<li class="fm-q ${done ? 'is-done' : now ? 'is-now' : open ? '' : 'is-locked'}">
+        <span class="fm-q__icon">${done || open ? q.icon : '🔒'}</span>
+        <span class="fm-q__text"><b>${q.title}</b><small>${done ? `${'★'.repeat(st)}${'☆'.repeat(3 - st)} • كتاب «${(CROPS[q.crop] || TASKS[q.task]).book}»` : open ? q.goal : 'تُفتح بعد المهمّة السابقة'}</small></span>
         ${done ? `<button class="btn btn--ghost fm-q__btn" data-review="${q.topic}">${review ? '🔁 حان وقت المراجعة' : '🔁 راجع'}</button>` : ''}
       </li>`;
     }).join('')}</ul>

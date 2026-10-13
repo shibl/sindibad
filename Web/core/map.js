@@ -50,8 +50,10 @@ export function regionStars(regionId) {
   return { stars, max: list.length * 3 };
 }
 
+// On the staging copy every island is open, so the developers can try any
+// of them without earning stars first.
 export function isUnlocked(region) {
-  if (!region.unlock) return true;
+  if (!region.unlock || STAGING) return true;
   return regionStars(region.unlock.region).stars >= region.unlock.stars;
 }
 
@@ -315,7 +317,7 @@ function nextIsland(due) {
   return (open.find(r => !badgeState(r.id)) || open.find(r => due.has(r.id)) || open.find(r => badgeState(r.id) !== 'gold'))?.id;
 }
 
-const pendingReveal = r => r.unlock && isUnlocked(r) && !(save.get().revealed || []).includes(r.id);
+const pendingReveal = r => r.unlock && !STAGING && isUnlocked(r) && !(save.get().revealed || []).includes(r.id);
 const wait = ms => new Promise(res => setTimeout(res, ms));
 let reviewNagged = false;
 
