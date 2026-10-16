@@ -121,11 +121,16 @@ low-end mode on/off).
 
 ```sh
 cd Web
-npm install   # once — installs Playwright for the headless tests
-npm test      # offline cache-list check + end-to-end play-through
+npm install   # once — installs Playwright and TypeScript for the tests
+npm test      # type-check + offline cache-list check + end-to-end play-through
 ```
 
-After adding or changing any file, run `node tools/update-shell.mjs` (in
+The tools and tests need Node 22.18 or newer: some are written in
+TypeScript, which Node runs as it is (no build step). `npm run typecheck`
+checks their types (`Web/tsconfig.json`). The game itself stays plain
+JavaScript that the browser loads directly.
+
+After adding or changing any file, run `node tools/update-shell.ts` (in
 `Web/`) so the service worker caches it for offline play (the test fails
 otherwise).
 
@@ -202,7 +207,8 @@ Inside `Web/`:
 - `art/art.js` — all art as inline SVG (heroes, Hudhud, dhow, islands…).
 - `fonts/` — Baloo Bhaijaan 2 (SIL OFL), bundled for offline use.
 - `manifest.json`, `service-worker.js`, `icons/` — PWA / offline support.
-- `tools/`, `tests/` — maintainer scripts and tests (not shipped logic).
+- `tools/`, `tests/` — maintainer scripts and tests (not shipped logic),
+  moving to TypeScript (`tsconfig.json`).
 
 ## Feedback
 

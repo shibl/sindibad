@@ -9,7 +9,7 @@ lesson or fix: check the brief, build, test, update the docs.
 The game lives in `Web/`.
 
 - After adding or changing any file the game loads, run
-  `node Web/tools/update-shell.mjs` so it is cached for offline play.
+  `node Web/tools/update-shell.ts` so it is cached for offline play.
 - `npm --prefix Web test` passes.
 
 ## Publishing

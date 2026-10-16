@@ -4,12 +4,18 @@
   "description": "رحلات سندباد وياسمينة — offline-first educational game. The app itself has no build step; npm is only for maintainer tools and tests.",
   "license": "MIT",
   "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
   "scripts": {
-    "shell": "node tools/update-shell.mjs",
-    "test": "node tests/check-shell.mjs && node tests/e2e.mjs",
+    "shell": "node tools/update-shell.ts",
+    "typecheck": "tsc",
+    "test": "tsc && node tests/check-shell.ts && node tests/e2e.mjs",
     "serve": "python3 -m http.server 8000"
   },
   "devDependencies": {
-    "playwright": "^1.56.1"
+    "@types/node": "22.20.5",
+    "playwright": "^1.56.1",
+    "typescript": "7.0.2"
   }
 }
