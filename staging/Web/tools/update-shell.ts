@@ -1,6 +1,6 @@
 // Regenerates the offline file list (APP_SHELL) and CACHE_VERSION in
 // service-worker.js from the files on disk. Run after adding or changing
-// any app file:   node tools/update-shell.mjs
+// any app file:   node tools/update-shell.ts
 // (No build step for the app itself — this only edits one list.)
 
 import { readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs';
@@ -10,26 +10,26 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const TOP = ['index.html', 'about.html', 'style.css', 'app.js', 'manifest.json'];
-const DIRS = { art: /\.js$/, core: /\.js$/, plugins: /\.js$/, worlds: /\.js$/, vendor: /\.js$/, fonts: /\.woff2$/, icons: /\.(png|svg)$/ };
+const DIRS: Record<string, RegExp> = { art: /\.js$/, core: /\.js$/, plugins: /\.js$/, worlds: /\.js$/, vendor: /\.js$/, fonts: /\.woff2$/, icons: /\.(png|svg)$/ };
 
-function walk(dir, re) {
+function walk(dir: string, re: RegExp): string[] {
   return readdirSync(join(ROOT, dir)).flatMap(name => {
     const rel = `${dir}/${name}`;
     return statSync(join(ROOT, rel)).isDirectory() ? walk(rel, re) : re.test(name) ? [rel] : [];
   });
 }
 
-export function shellFiles() {
+export function shellFiles(): string[] {
   return [...TOP, ...Object.entries(DIRS).flatMap(([d, re]) => walk(d, re).sort())];
 }
 
-export function shellVersion(files) {
+export function shellVersion(files: string[]): string {
   const h = createHash('sha1');
   for (const f of files) h.update(f).update(readFileSync(join(ROOT, f)));
   return h.digest('hex').slice(0, 10);
 }
 
-export function renderShell(sw, files, version) {
+export function renderShell(sw: string, files: string[], version: string): string {
   const list = ['./', ...files].map(f => `  '${f}',`).join('\n');
   return sw
     .replace(/const CACHE_VERSION = '[^']*';/, `const CACHE_VERSION = '${version}';`)

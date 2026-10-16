@@ -1,0 +1,21 @@
+// Type-checks the maintainer tools and tests written in TypeScript
+// (npm run typecheck, part of npm test). Node runs these .ts files as they
+// are, by stripping the types, so there is still no build step, and the
+// game itself (plain .js the browser loads) is not affected.
+{
+  "compilerOptions": {
+    "target": "es2023",
+    "lib": ["es2023"],
+    "module": "nodenext",
+    "types": ["node"],
+    "strict": true,
+    "noEmit": true,
+    // Only what Node's type stripping can run: no enums, namespaces or
+    // parameter properties; imports name the .ts file; `import type` for types.
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+    "allowImportingTsExtensions": true,
+    "skipLibCheck": true
+  },
+  "include": ["tools/**/*.ts", "tests/**/*.ts"]
+}

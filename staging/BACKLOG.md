@@ -715,3 +715,42 @@ game starts with four islands under fog and that closed gates keep the hero
 out. By hand in a test browser: on staging, 0 islands under fog, the maths
 island's gate open, 0 of 7 farm tasks locked; on the live copy, 4, closed,
 6 of 7.
+
+## Notes — 2026-10-17 (tools and tests start moving to TypeScript)
+
+**Developers' request:** start moving the code from JavaScript to
+TypeScript, easiest parts first, without breaking anything.
+
+The game has no build step, and that stays: the browser loads plain `.js`,
+and the service worker caches it. So this round moves only the maintainer
+code that runs in Node, which runs `.ts` files as they are (it strips the
+types; Node 22.18+):
+- `tools/update-shell.mjs` → `tools/update-shell.ts`;
+- `tests/check-shell.mjs` → `tests/check-shell.ts`;
+- `tsconfig.json` and `npm run typecheck` (TypeScript 7.0.2, strict). It
+  allows only what Node can strip (`erasableSyntaxOnly`), and runs first in
+  `npm test`, so the tests on GitHub check the types too.
+
+No game file changed: `service-worker.js` and its version are the same, so
+players download nothing new.
+
+**Tested:** with the types stripped, both files are the same code as before.
+`node tools/update-shell.ts` rewrites `service-worker.js` byte for byte;
+`check-shell.ts` still fails on a stale file list, and `tsc` on a type
+error. `npm test` passes.
+
+**Next:**
+
+52. [ ] `tools/make-world.mjs` → `.ts`, with the next change to the atlas
+    shapes: its output names the script in `worlds/atlas/shapes.js`, a game
+    file, so renaming it alone would make every player download the game
+    again. Same for the comment in `service-worker.js` that still says
+    `update-shell.mjs`: fix it with the next game change.
+53. [ ] `tests/e2e.mjs` → `.ts` (types for Playwright come with it; the test
+    hooks on `window` need a small declaration file).
+54. [ ] The game's own code: decide with the developers how. Either check
+    the plain `.js` with TypeScript (`// @ts-check` and JSDoc types, no build
+    step, no change to what players download), or write `.ts` and add a
+    build step (a bigger change: local preview, the offline file list and
+    publishing would all need it). The first is the safe start, beginning
+    with small modules that use no DOM (`core/format.js`, `core/ranks.js`).
