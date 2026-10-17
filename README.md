@@ -122,13 +122,19 @@ low-end mode on/off).
 ```sh
 cd Web
 npm install   # once — installs Playwright and TypeScript for the tests
-npm test      # type-check + offline cache-list check + end-to-end play-through
+npm test      # type-check + .js up to date + offline cache-list check + end-to-end play-through
 ```
 
 The tools and tests need Node 22.18 or newer: some are written in
-TypeScript, which Node runs as it is (no build step). `npm run typecheck`
-checks their types (`Web/tsconfig.json`). The game itself stays plain
-JavaScript that the browser loads directly.
+TypeScript, which Node runs as it is. `npm run typecheck` checks their
+types (`Web/tsconfig.json`) and the game's (`Web/tsconfig.game.json`).
+
+The game is moving to TypeScript one file at a time. The browser still
+loads plain JavaScript, so playing or previewing needs no build step: for a
+game file written in TypeScript (`core/farm/scene.ts`, `core/atlas/globe.ts`),
+the `.js` next to it is made from it by `npm run build`, and both are
+committed. Edit the `.ts`, then run `npm run build`; never edit that `.js`
+(the test fails if it no longer matches).
 
 After adding or changing any file, run `node tools/update-shell.ts` (in
 `Web/`) so the service worker caches it for offline play (the test fails
@@ -165,7 +171,7 @@ Inside `Web/`:
 - `worlds/chapters.js` — the twelve voyages (one per grade) and the four
   age stages; `core/chapters.js` draws the voyages chart.
 - `worlds/grade6.js` — the grade-6 islands, positions, unlock rules, badges.
-- `core/farm/` — the 3D farm island (`farm.js` game, `scene.js` camera and
+- `core/farm/` — the 3D farm island (`farm.js` game, `scene.ts` camera and
   light, `models.js` every model, made in code); its content (crops, steps,
   helpers, quests, orders) is `worlds/grade6/farm.js`, its quick reviews
   `plugins/agriculture/`.
@@ -198,7 +204,7 @@ Inside `Web/`:
   little games each quest step is played with, `synth.js` the instruments,
   made with Web Audio, `models.js` every model, made in code); its content
   (stations, quests, steps) is `worlds/grade6/tunes.js`, its quick reviews
-  `plugins/music/`. It reuses the farm's camera and light (`core/farm/scene.js`).
+  `plugins/music/`. It reuses the farm's camera and light (`core/farm/scene.ts`).
 - `vendor/three/` — three.js r170 (MIT), kept in the game so the farm, the
   music island and the 3D sea work offline. Loaded only when a child sails
   to one of them (or, on staging, when the 3D sea map is on).
@@ -208,7 +214,8 @@ Inside `Web/`:
 - `fonts/` — Baloo Bhaijaan 2 (SIL OFL), bundled for offline use.
 - `manifest.json`, `service-worker.js`, `icons/` — PWA / offline support.
 - `tools/`, `tests/` — maintainer scripts and tests (not shipped logic),
-  moving to TypeScript (`tsconfig.json`).
+  moving to TypeScript (`tsconfig.json`). `tools/build.ts` makes the game's
+  `.js` files from their TypeScript (`tsconfig.game.json`, `types/`).
 
 ## Feedback
 
