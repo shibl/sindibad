@@ -112,7 +112,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   await p.click('.voyage--open');
   await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
   check(true, 'the sea map leads back up to the voyages chart');
-  check(await p.locator('.isle--locked').count() === 4, 'four islands start under fog');
+  check(await p.locator('.isle--locked').count() === 5, 'five islands start under fog');
 
   await p.click('.isle[data-region=arabic]');
   await p.waitForSelector('#screen-island[data-active]', { timeout: 6000 });
@@ -739,6 +739,16 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   await ctx.close();
   await gl.close();
 }
+
+// The art island: the art book played in 3D (core/studio/).
+// <studio-e2e>
+// </studio-e2e>
+
+// ---------------------------------------------------------------------------
+
+// The English island: the English book played in 3D (core/english/).
+// <english-e2e>
+// </english-e2e>
 
 // The 3D sea map: a preview on the staging copy (?map=3d shows it here too).
 // The live game keeps the flat map.

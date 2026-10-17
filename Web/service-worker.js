@@ -5,7 +5,7 @@
 // file run `node tools/update-shell.ts` (tests/check-shell.ts fails if you
 // forget). A new version makes clients download the new files once.
 
-const CACHE_VERSION = '7cc77b8660';
+const CACHE_VERSION = '5983db3022';
 // The staging copy (under /staging/, see core/env.js) keeps its own offline
 // copy, so it never clears the live game's, nor the live game its.
 const CACHE_PREFIX = /\/staging\//.test(self.location.pathname) ? 'sindbad-staging-' : 'sindbad-web-';
@@ -82,6 +82,7 @@ const APP_SHELL = [
   'plugins/arabic/mubtada-khabar.js',
   'plugins/arabic/plurals.js',
   'plugins/arabic/tenses.js',
+  'plugins/art/reviews.js',
   'plugins/engines/blocks.js',
   'plugins/engines/fill.js',
   'plugins/engines/helm.js',
@@ -93,6 +94,7 @@ const APP_SHELL = [
   'plugins/engines/sort.js',
   'plugins/engines/tapword.js',
   'plugins/engines/visuals.js',
+  'plugins/english/reviews.js',
   'plugins/index.js',
   'plugins/math/angles.js',
   'plugins/math/area.js',
@@ -121,6 +123,7 @@ const APP_SHELL = [
   'worlds/grade6/atlas/unit3.js',
   'worlds/grade6/atlas/unit4.js',
   'worlds/grade6/atlas/unit5.js',
+  'worlds/grade6/english.js',
   'worlds/grade6/farm.js',
   'worlds/grade6/lab.js',
   'worlds/grade6/lab/body.js',
@@ -128,6 +131,7 @@ const APP_SHELL = [
   'worlds/grade6/lab/life.js',
   'worlds/grade6/lab/machines.js',
   'worlds/grade6/math.js',
+  'worlds/grade6/studio.js',
   'worlds/grade6/treasure.js',
   'worlds/grade6/tunes.js',
   'vendor/three/three.module.min.js',

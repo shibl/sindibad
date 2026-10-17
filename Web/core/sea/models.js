@@ -328,6 +328,62 @@ const LANDMARKS = {
     decor(group, [['palm', 2.4, 2.5, 0.8], ['bush', 0.4, 2.6], ['rock', 4.2, 3.6], ['rock', 5.4, 3.7, 0.7]], 8);
   },
 
+  // Art: an easel whose canvas spins the book's colour circles, a palette
+  // with its paints, a giant brush and a paper crane.
+  palette(group, p) {
+    const k = kit(), wood = '#c98a4a';
+    for (const [x, rz] of [[-0.55, -0.12], [0.55, 0.12]]) k.add('box', wood, { p: [x, G + 1.25, 0.1], r: [-0.12, 0, rz], s: [0.12, 2.6, 0.12] });
+    k.add('box', wood, { p: [0, G + 1.2, -0.45], r: [0.35, 0, 0], s: [0.1, 2.5, 0.1] });
+    k.add('box', wood, { p: [0, G + 0.72, 0.32], s: [1.5, 0.1, 0.22] });
+    k.add(roundBox(1.7, 1.35, 0.1, 0.03), '#fffaf0', { p: [0, G + 1.48, 0.24], r: [-0.12, 0, 0] });
+    // the palette and its paint blobs
+    k.add('cyl', '#f3d9a8', { p: [1.55, G + 0.08, 0.9], s: [0.75, 0.08, 0.55] });
+    [['#e8453c', 1.2, 0.7], ['#f6c632', 1.5, 0.55], ['#3f8fd6', 1.85, 0.7], ['#2f9a4a', 2.0, 1.0], ['#8a63c9', 1.25, 1.1]].forEach(([c, x, z]) => k.add('sphere', c, { p: [x, G + 0.16, z], s: [0.13, 0.07, 0.13] }));
+    // a giant brush leaning on the easel
+    k.add('cyl', '#c98a4a', { p: [-1.2, G + 0.85, 0.5], r: [0, 0, 0.45], s: [0.07, 1.8, 0.07] });
+    k.add('cyl', '#b8bec4', { p: [-0.83, G + 1.65, 0.5], r: [0, 0, 0.45], s: [0.09, 0.22, 0.09] });
+    k.add('cone', '#e8453c', { p: [-0.74, G + 1.84, 0.5], r: [0, 0, 0.45 - Math.PI], s: [0.1, 0.28, 0.1] });
+    // a paper crane
+    k.add('cone4', '#ec79a8', { p: [-1.5, G + 0.25, -0.6], r: [0, 0.4, Math.PI / 2], s: [0.22, 0.7, 0.12] });
+    k.add('cone4', '#f5a3c4', { p: [-1.5, G + 0.45, -0.6], r: [0.3, 0.4, 0], s: [0.3, 0.5, 0.06] });
+    group.add(k.mesh());
+    // the spinning colour circles on the canvas
+    const disc = new THREE.Group();
+    disc.position.set(0, G + 1.5, 0.32);
+    disc.rotation.x = -0.12;
+    const dk = kit();
+    ['#3f8fd6', '#f6c632', '#e8453c', '#ffffff', '#2f9a4a'].forEach((c, i) => dk.add('cyl', c, { p: [0, 0, 0.012 * i], r: [Math.PI / 2, 0, 0], s: [0.55 - i * 0.11, 0.02, 0.55 - i * 0.11] }));
+    for (let i = 0; i < 6; i++) dk.add('box', ['#8a63c9', '#e8453c', '#3f8fd6'][i % 3], { p: [0, 0, 0.07], r: [0, 0, (i / 6) * Math.PI], s: [1.1, 0.03, 0.01] });
+    disc.add(dk.mesh(VC, { shadow: false }));
+    group.add(disc);
+    p.spin.push({ obj: disc, axis: 'z', speed: 0.7 });
+    decor(group, [['palm', 2.6, 2.6, 0.85], ['bush', 0.5, 2.6], ['rock', 4.2, 3.6], ['rock', 5.4, 3.7, 0.7]], 11);
+  },
+
+  // English: a giant open book with A B C blocks, and a speech bubble that
+  // turns above it.
+  english(group, p) {
+    const k = kit();
+    for (const s of [-1, 1]) {
+      k.add(roundBox(1.25, 0.14, 1.5, 0.04), '#2f6fd0', { p: [s * 0.62, G + 0.35, 0], r: [0, 0, s * -0.22] });
+      k.add(roundBox(1.15, 0.1, 1.38, 0.03), '#fffaf0', { p: [s * 0.6, G + 0.46, 0], r: [0, 0, s * -0.22] });
+      for (let i = 0; i < 3; i++) k.add('box', '#9fb6d8', { p: [s * 0.6, G + 0.53, -0.4 + i * 0.4], r: [0, 0, s * -0.22], s: [0.8, 0.012, 0.06] });
+    }
+    k.add('box', '#3b3640', { p: [0, G + 0.2, 0], s: [0.3, 0.4, 0.5] });
+    [['#e8453c', -1.7, 0.9, 0.2], ['#f6c632', 1.8, 0.8, -0.3], ['#2f9a4a', 1.55, 1.35, 0.4]].forEach(([c, x, z, ry]) => k.add(roundBox(0.55, 0.55, 0.55, 0.06), c, { p: [x, G + 0.27, z], r: [0, ry, 0] }));
+    group.add(k.mesh());
+    const bubble = new THREE.Group();
+    bubble.position.set(0, G + 2.2, 0);
+    const bk = kit();
+    bk.add(roundBox(1.7, 0.85, 0.22, 0.2), '#ffffff', {});
+    bk.add('cone4', '#ffffff', { p: [-0.3, -0.55, 0], r: [0, 0, Math.PI], s: [0.2, 0.4, 0.1] });
+    for (let i = 0; i < 3; i++) bk.add('sphere', '#2f6fd0', { p: [-0.45 + i * 0.45, 0, 0.12], s: [0.12, 0.12, 0.05] });
+    bubble.add(bk.mesh());
+    group.add(bubble);
+    p.spin.push({ obj: bubble, axis: 'y', speed: 0.6 });
+    decor(group, [['palm', 2.5, 2.6, 0.9], ['bush', 0.4, 2.6], ['rock', 4.2, 3.6], ['rock', 5.4, 3.7, 0.7]], 12);
+  },
+
   // Treasure: a glowing chest under a palm, with gold coins about.
   treasure(group, p) {
     const k = kit(), brass = '#f2c14e';
@@ -361,7 +417,7 @@ const LANDMARKS = {
 export function buildIsland(kind, seed) {
   const group = new THREE.Group();
   const p = parts();
-  const tint = { port: '#9bcf72', numbers: '#8ccf8a', science: '#78c46a', citadel: '#9ccf6e', atlas: '#a8d470', farm: '#8fd06e', music: '#a5d66c', treasure: '#8fd06e' }[kind];
+  const tint = { port: '#9bcf72', numbers: '#8ccf8a', science: '#78c46a', citadel: '#9ccf6e', atlas: '#a8d470', farm: '#8fd06e', music: '#a5d66c', palette: '#9fd46e', english: '#8fcf7a', treasure: '#8fd06e' }[kind];
   group.add(islandBase(seed, { grass: tint || '#86c86a', sand: kind === 'treasure' ? '#f7dc9c' : '#f3d596' }));
   const landmark = new THREE.Group();
   (LANDMARKS[kind] || (g => decor(g, [['palm', 1.6, 0.6], ['palm', 4, 1.2, 0.9], ['bush', 0, 1.5]], seed)))(landmark, p);

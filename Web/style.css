@@ -3019,3 +3019,17 @@ svg .lq-hit.is-reveal { animation: none; }
 .gl-row:nth-child(n+5) { grid-column: 1 / -1; }
 .gl-code { font-size: 12px; color: #6b5b3b; }
 @media (max-width: 420px) { .gl-card { max-height: 50vh; padding: 10px 12px; } .gl-row { padding: 5px 7px; } .gl-row > span { font-size: 17px; } .gl-row p { font-size: 13.5px; } }
+
+/* ---------- The art island (core/studio/) ---------- */
+.screen--studio { background: #ffe6f0; }
+.st-host { position: absolute; inset: 0; z-index: 20; }
+.st-host[hidden] { display: none; }
+/* <studio-css> the art island's own styles go here </studio-css> */
+
+
+
+/* ---------- The English island (core/english/) ---------- */
+.screen--english { background: #dcecff; }
+.en-host { position: absolute; inset: 0; z-index: 20; }
+.en-host[hidden] { display: none; }
+/* <english-css> the English island's own styles go here </english-css> */

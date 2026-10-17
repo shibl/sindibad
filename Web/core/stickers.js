@@ -2,9 +2,10 @@
 // each with a short true fact. Stickers come from helping villagers,
 // chests, stepping-stone puzzles and monuments on each island; the treasure
 // island's come from its quest, its monument and the four subject badges;
-// the farm's, the music island's, the science island's and the atlas
-// island's from their quests (core/farm/farm.js, core/tunes/tunes.js,
-// core/lab/lab.js, core/atlas/atlas.js).
+// the farm's, the music island's, the science island's, the atlas
+// island's, the art island's and the English island's from their quests
+// (core/farm/farm.js, core/tunes/tunes.js, core/lab/lab.js,
+// core/atlas/atlas.js, core/studio/studio.js, core/english/english.js).
 
 import { save } from './save.js';
 import { sfx } from './sound.js';
@@ -57,6 +58,12 @@ export const STICKERS = {
     ['sunbati', '🎶', 'رياض السنباطي', 'ملحّن مصري تميّز بتلحين القصيدة العربية، وبلغت مؤلفاته الغنائية 539 عملاً.'],
     ['panflute', '🪈', 'البان فلوت', 'آلة تطوّرت عن الناي، فيها من 20 إلى 30 قصبة متلاصقة.'],
     ['mendelssohn', '🎹', 'مندلسون', 'بدأ العزف على البيانو في السادسة، وقاد أوركسترا في العشرين.'],
+  ],
+  // The art island's (core/studio/): ART-STICKERS
+  art: [
+  ],
+  // The English island's (core/english/): ENGLISH-STICKERS
+  english: [
   ],
   treasure: [
     ['turtle', '🐢', 'السلحفاة البحرية', 'تعود السلحفاة البحرية إلى الشاطئ الذي وُلدت فيه لتضع بيضها.'],
