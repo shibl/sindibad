@@ -8,8 +8,12 @@ lesson or fix: check the brief, build, test, update the docs.
 
 The game lives in `Web/`.
 
+- Some game files are written in TypeScript: `x.ts` is the source, and
+  `x.js` next to it (what the browser loads) is made from it. Edit the
+  `.ts`, never that `.js`, then run `npm --prefix Web run build`.
 - After adding or changing any file the game loads, run
-  `node Web/tools/update-shell.ts` so it is cached for offline play.
+  `node Web/tools/update-shell.ts` so it is cached for offline play
+  (`npm run build` does this too).
 - `npm --prefix Web test` passes.
 
 ## Publishing

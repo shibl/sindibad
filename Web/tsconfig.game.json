@@ -1,0 +1,24 @@
+// Type-checks the game's TypeScript files. The browser loads plain .js, so
+// `npm run build` (tools/build.ts) makes each x.js from its x.ts, and
+// tests/check-build.ts fails if one is out of date. The game's other .js
+// files are read for their types, not checked (allowJs without checkJs).
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "lib": ["esnext", "dom"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "types": [],
+    "strict": true,
+    "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
+    // Types only: the .js keeps the code exactly as written in the .ts.
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "rootDir": ".",
+    "newLine": "lf"
+  },
+  "include": ["art/**/*.ts", "core/**/*.ts", "plugins/**/*.ts", "worlds/**/*.ts", "types/**/*.d.ts"]
+}

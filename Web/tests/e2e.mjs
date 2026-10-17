@@ -6,7 +6,8 @@
 //   Then: every island map is walkable, and the newer kinds of play (steer,
 //   pay, fill, build) can be played to three stars and fit a phone screen.
 //   The farm island (3D): choose a helper, play the potato quest to three
-//   stars, sell to the ship, keep it all after a reload, and play offline.
+//   stars, sell to the ship, draw again when its 3D view is lost, keep it all
+//   after a reload, and play offline.
 //   The music island (3D): its quests are well formed, the piano lesson and
 //   the rhythm lesson (with the drum) play to the end, golden notes, reload,
 //   offline.
@@ -349,6 +350,16 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   await p.click('#farm-modal [data-deliver]:not([disabled])');
   s = await farm();
   check(s.F.coins > before && s.F.inv.potato < 6, 'an order sold by ship earns coins');
+  // A phone can take a 3D view away (too many at once, low memory) and not
+  // give it back: the farm then makes a new one, and never stays white.
+  await p.evaluate(() => window.__farmStage.renderer.getContext().getExtension('WEBGL_lose_context').loseContext());
+  await p.waitForTimeout(1500);
+  const drawing = await p.evaluate(async () => {
+    const st = window.__farmStage, f0 = st.renderer.info.render.frame;
+    await new Promise(r => setTimeout(r, 500));
+    return !st.renderer.getContext().isContextLost() && st.renderer.info.render.frame > f0 && document.querySelectorAll('#farm-stage canvas').length === 1;
+  });
+  check(drawing, 'a lost 3D view comes back by itself: the farm draws again, not a white screen');
   await p.reload();
   await p.waitForTimeout(500);
   const kept = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')).world.farm);
@@ -704,8 +715,10 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   await p.click('#atlas-globe .gl-opt[data-ok]');
   s = await atlas();
   check(s.globe.score === 1 && await p.locator('#atlas-globe .gl-card:not([hidden])').count() === 1, 'the right name scores a star and opens that country\'s card');
+  await p.evaluate(() => { window.__globeCanvas = document.querySelector('#atlas-globe .gl canvas'); });
   await p.click('#atlas-globe .gl-x');
   check(await p.locator('#atlas-globe[hidden]').count() === 1 && (await atlas()).globe === null, 'the globe closes back to the island');
+  check(await p.evaluate(() => window.__globeCanvas.getContext('webgl2').isContextLost()), 'closing the globe gives its 3D view back (a phone allows only a few; the oldest, the farm\'s, went white)');
   await p.reload();
   await p.waitForTimeout(500);
   const kept = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')).world.atlas);
