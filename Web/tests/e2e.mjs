@@ -174,6 +174,72 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   await ctx.close();
 }
 
+// The game on a phone (core/haptics.ts, core/touch.ts): vibrations for
+// touches, right and wrong answers; their switch in the settings; the soft
+// ring where a finger touched; holding an island on the map to hear about
+// it; the sea's ripple; the phone's back button going back in the game.
+{
+  console.log('— phone feel');
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+  await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
+  const p = await ctx.newPage();
+  const errors = [];
+  p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+  p.on('pageerror', e => errors.push(e.message));
+  await p.goto(URL_);
+  await p.tap('text=ابدأ الرحلة');
+  await p.fill('#child-name', 'سارة');
+  await p.tap('#who-form [type=submit]');
+  await p.waitForSelector('#screen-select[data-active]', { timeout: 5000 });
+  await p.tap('[data-hero=yasmina]');
+  await p.tap('#select-go');
+  await p.tap('[data-st=skip]');
+  await p.tap('.voyage--open');
+  await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
+  const buzzes = () => p.evaluate(async () => [...(await import('./core/haptics.js')).played]);
+  const clear = () => p.evaluate(async () => { (await import('./core/haptics.js')).played.length = 0; });
+  check((await buzzes()).includes('tap') && await p.locator('.touch-ring').count() >= 1, 'a finger on a button: a tap vibration and a ring where it touched');
+  // Hold an island: Hudhud tells about it, and the ship stays put.
+  const art = await p.locator('.isle[data-region=art]').boundingBox();
+  await clear();
+  await p.mouse.move(art.x + art.width / 2, art.y + art.height / 2);
+  await p.mouse.down(); await p.waitForTimeout(700); await p.mouse.up();
+  await p.waitForTimeout(200);
+  check((await buzzes()).includes('long') && (await p.textContent('#map-toast .bubble')).includes('جزيرة الألوان') && await p.isVisible('#screen-map[data-active]'), 'holding an island on the map tells what is there (a long vibration), without sailing');
+  // The sea ripples where it is tapped.
+  const sea = await p.evaluate(() => {
+    for (let y = 200; y < innerHeight - 160; y += 23) for (let x = 12; x < innerWidth - 12; x += 19) if (document.elementFromPoint(x, y)?.classList.contains('map__sea')) return { x, y };
+    return null;
+  });
+  if (sea) await p.mouse.click(sea.x, sea.y);
+  check(!!sea && await p.locator('.map__splash').count() >= 1, 'tapping the sea makes a ripple');
+  // A lesson: a wrong answer buzzes «error», a right one «success».
+  await clear();
+  await p.evaluate(() => window.__lesson('soc-homeland'));
+  await p.waitForSelector('#screen-activity[data-active]', { timeout: 5000 });
+  for (let i = 0; i < 5 && await p.locator('[data-learn=next]').count(); i++) await p.click('[data-learn=next]');
+  await p.waitForSelector('#activity .choice', { timeout: 5000 });
+  await p.click('#activity .round:not(.is-solved) .choice:not([data-ok])');
+  await p.click('#activity .round:not(.is-solved) .choice[data-ok]');
+  const got = await buzzes();
+  check(got.includes('error') && got.includes('success'), `a wrong answer buzzes twice, a right one pulses (${got.join(', ')})`);
+  // The phone's back button leaves the lesson, back to the map.
+  await p.goBack();
+  await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
+  check(true, 'the phone\'s back button goes back from a lesson to the map');
+  // The vibration switch.
+  await p.tap('#mute-btn');
+  const row = p.locator('.switch-row[data-key=noVibrate]');
+  check(await row.count() === 1, 'the settings have a vibration switch');
+  await row.tap();
+  await p.tap('.settings [data-close]');
+  await clear();
+  await p.evaluate(async () => (await import('./core/sound.js')).sfx.bad());
+  check((await buzzes()).length === 0, 'with vibration off, nothing vibrates');
+  check(errors.length === 0, `no console errors${errors.length ? `: ${errors.join(' | ')}` : ''}`);
+  await ctx.close();
+}
+
 // Every island's map: a closed gate really keeps the hero out, and there is
 // no area the hero can only reach by squeezing through a gap barely wider
 // than itself (it gets stuck there). Explores every spot the hero can stand
@@ -559,12 +625,25 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   const fits = await p.evaluate(() => { const r = document.querySelector('#lab-panel .tn-sheet').getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight + 1; });
   check(fits, 'the lesson card fits a phone screen');
   // Plays to the end: the right answer each time, except `wrong` (one slip).
-  const play = async ({ wrong = null } = {}) => {
+  // With `drag`, sorting cards are dragged into their bins with the finger.
+  let dragged = 0;
+  const play = async ({ wrong = null, drag = false } = {}) => {
     let slipped = false;
     for (let guard = 0; guard < 500; guard++) {
       if (await p.isVisible('#lab-modal .fm-done')) return true;
       const next = p.locator('#lab-panel [data-next]');
       if (await next.count()) { await next.first().click(); continue; }
+      if (drag && await p.locator('#lab-panel .lq-item.lq-drag').count() && await p.locator('#lab-panel .lq-bin[data-ok]').count()) {
+        await p.locator('#lab-panel .lq-bin[data-ok]').scrollIntoViewIfNeeded();
+        const a = await p.locator('#lab-panel .lq-item').boundingBox(), b = await p.locator('#lab-panel .lq-bin[data-ok]').boundingBox();
+        await p.mouse.move(a.x + a.width / 2, a.y + a.height / 2);
+        await p.mouse.down();
+        await p.mouse.move(a.x + a.width / 2 + 12, a.y + a.height / 2 + 12, { steps: 3 });
+        await p.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 8 });
+        await p.mouse.up();
+        dragged += 1;
+        continue;
+      }
       if (wrong === 'number' && !slipped && await p.locator('#lab-panel .lq-num').count()) {
         slipped = true;
         await p.click('#lab-panel [data-key="9"]'); await p.click('#lab-panel [data-key="✓"]');
@@ -577,7 +656,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
     return false;
   };
   const stars = id => p.evaluate(t => JSON.parse(localStorage.getItem('sindbad.save.v1')).topics[t]?.stars, id);
-  check(await play() && await stars('sci-hunters') === 3, 'the forest lesson (a picture to explore, cards, sorting, choices) played perfectly: 3 stars');
+  check(await play({ drag: true }) && await stars('sci-hunters') === 3 && dragged >= 3, `the forest lesson (a picture to explore, cards, sorting by dragging each card into its bin, choices) played perfectly: 3 stars (${dragged} cards dragged)`);
   await p.click('#lab-modal [data-close]');
   s = await lab();
   check(s.L.done.hunters && s.next === 'partners' && (await p.textContent('#lab-gems')) === '1', 'a crystal lights in the lighthouse; the next lesson waits');
@@ -783,7 +862,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   await p.waitForTimeout(600);
   const sea = () => p.evaluate(() => window.__sea());
   let s = await sea();
-  check(s?.fog.length === 4 && s.next === 'arabic', 'the 3D sea: fog over the four locked islands, the letters island first');
+  check(s?.fog.length === 5 && s.next === 'arabic', 'the 3D sea: fog over the five locked islands, the letters island first');
   const boxes = await p.evaluate(() => {
     const m = document.getElementById('map').getBoundingClientRect();
     return [...document.querySelectorAll('#map .isle')].map(b => { const r = b.getBoundingClientRect(); return r.width > 40 && r.left >= m.left - 1 && r.right <= m.right + 1 && r.top >= m.top - 1 && r.bottom <= m.bottom + 1; });
@@ -819,7 +898,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   await p.reload();
   await p.waitForTimeout(600);
   await toMap();
-  check((await sea())?.fog.length === 3, 'the 3D sea works offline and remembers the open islands');
+  check((await sea())?.fog.length === 4, 'the 3D sea works offline and remembers the open islands');
   await ctx.setOffline(false);
   await p.goto(URL_);
   await p.waitForTimeout(600);
