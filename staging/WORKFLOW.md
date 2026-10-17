@@ -55,6 +55,11 @@ against?
 - **Offline**: no network requests, no files from other sites. After
   adding or changing a file the game loads, run `node tools/update-shell.ts`
   in `Web/`.
+- **TypeScript**: when a game file has a `.ts` next to its `.js` (for
+  example `core/farm/scene.ts`), the `.ts` is the source: edit it, then run
+  `npm run build` in `Web/`. It makes the `.js` (which the browser loads)
+  and updates the offline list. Never edit that `.js` by hand: `npm test`
+  fails if it no longer matches its `.ts`.
 
 ## 3. Test
 

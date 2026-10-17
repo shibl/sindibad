@@ -744,13 +744,66 @@ error. `npm test` passes.
 52. [ ] `tools/make-world.mjs` → `.ts`, with the next change to the atlas
     shapes: its output names the script in `worlds/atlas/shapes.js`, a game
     file, so renaming it alone would make every player download the game
-    again. Same for the comment in `service-worker.js` that still says
-    `update-shell.mjs`: fix it with the next game change.
+    again. (The comment in `service-worker.js` that still said
+    `update-shell.mjs`: fixed 2026-10-17, with the farm fix.)
 53. [ ] `tests/e2e.mjs` → `.ts` (types for Playwright come with it; the test
     hooks on `window` need a small declaration file).
-54. [ ] The game's own code: decide with the developers how. Either check
+54. [done 2026-10-17: `.ts` sources, `.js` made by `npm run build`, see the
+    next notes] The game's own code: decide with the developers how. Either check
     the plain `.js` with TypeScript (`// @ts-check` and JSDoc types, no build
     step, no change to what players download), or write `.ts` and add a
     build step (a bigger change: local preview, the offline file list and
     publishing would all need it). The first is the safe start, beginning
     with small modules that use no DOM (`core/format.js`, `core/ranks.js`).
+
+## Notes — 2026-10-17 (the farm went white; the first game files in TypeScript)
+
+**Bug (from a developer's phone):** the farm island showed only its buttons
+on a white screen, with a small broken-picture icon in the corner.
+
+**Why:** a phone's browser lets a page keep only a few 3D views (WebGL
+contexts) at once, and takes away the oldest when there are too many. The
+atlas globe made a new 3D view each time it opened and never gave it back
+(`renderer.dispose()` does not free it). So after opening the globe a few
+times, the farm, usually the oldest, lost its 3D view, and nothing drew it
+again. Reproduced in Chrome on an Android emulator (2 GB): the farm went
+white after opening the globe 7 times (15 times in desktop Chrome).
+
+**Fix:**
+- The globe gives its 3D view back when it closes (`forceContextLoss`).
+- The 3D islands (farm, music, science, atlas: `createStage`) watch for a
+  lost 3D view. If the browser gives it back, three.js carries on. If not
+  (within a second, or when the child comes back), they make a new renderer
+  for the same scene, with the same touch controls.
+
+**TypeScript:** the developers asked for the fix in TypeScript, so the
+game's first TypeScript files arrive with it: `core/farm/scene.ts` and
+`core/atlas/globe.ts`. The browser still loads plain `.js` (no build step to
+play or preview): `npm run build` (`tools/build.ts`, `tsconfig.game.json`)
+makes `scene.js` and `globe.js` from them, and `tests/check-build.ts` fails
+if a `.js` no longer matches its `.ts`. Types for three.js come from
+`@types/three` 0.170 (`vendor/three/three.module.min.d.ts`). Apart from the
+fix, the code is the same: compiled the same way, the old and new files
+differ only by the fix.
+
+**Tested:**
+- `npm test`: two new checks, a farm whose 3D view is taken away draws
+  again by itself, and closing the globe gives its 3D view back.
+- Desktop Chrome (phone size) and Chrome 133 on an Android 16 emulator
+  (2 GB, Mac GPU): the globe opened 12–25 times and the farm keeps its 3D
+  view; a farm whose 3D view is taken away draws again, whether the child
+  is on it or comes back to it, and can still be dragged and tapped.
+- On the emulator, normal play with the old and the new code showed no
+  GPU-process crashes. One run of the long check had one emulator
+  GPU-process crash, and the game recovered from it (all later checks
+  passed). Not chased further.
+
+**Next:**
+
+55. [ ] Real-phone check on a 2 GB Android phone: open the globe 10 times,
+    then the farm, the music and science islands; nothing goes white.
+56. [ ] The 3D sea map (staging only, `core/sea/sea.js`) has its own
+    renderer without this recovery: give it the same (or reuse
+    `createStage`).
+57. [ ] More game files to TypeScript, smallest first (`core/format.js`,
+    `core/ranks.js`), with `npm run build`.
