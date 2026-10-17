@@ -29,6 +29,7 @@ import world from './worlds/grade6.js';
 import { num } from './core/format.js';
 import { STAGING, storeKey } from './core/env.js';
 import { stopSpeaking } from './core/voice.js';
+import { initTouch } from './core/touch.js';
 import './plugins/index.js';
 
 // ---------- Backdrop ----------
@@ -216,6 +217,7 @@ document.addEventListener('visibilitychange', () => {
 // ---------- Boot ----------
 
 applyStyle();
+initTouch();
 paintScene();
 paintShip(document.querySelector('.ship--title'), ['sindbad', 'yasmina']);
 wireNavigation();

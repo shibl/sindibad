@@ -35,7 +35,7 @@ export const hapticsOn = () => !save.get().noVibrate;
 export const hapticsAvailable = () => canVibrate || isIOS;
 // For the end-to-end test: every buzz played, in order.
 export const played = [];
-let last = 0, lastKind = null;
+let last = 0, lastKind = null, lastPress = -1e9;
 let iosSwitch = null;
 function iosTick(n) {
     if (!iosSwitch) {
@@ -57,6 +57,10 @@ export function buzz(kind) {
     if (!hapticsOn() || document.hidden)
         return;
     const now = performance.now();
+    // A button already ticked when the finger touched it (core/touch.ts):
+    // its tap sound doesn't buzz again.
+    if (kind === 'tap' && now - lastPress < 450)
+        return;
     // The same buzz twice in a row within 40 ms is one buzz (a tap that also
     // plays a sound); a light one never cuts a stronger one short.
     if (now - last < 40 && (kind === lastKind || kind === 'tick' || kind === 'tap'))
@@ -77,6 +81,12 @@ export function buzz(kind) {
     }
     catch { /* a browser may refuse before the first tap: no matter */ }
 }
+// The buzz of a finger touching something (core/touch.ts): plays now, and
+// the tap that follows when it is released stays silent.
+export function pressBuzz(kind = 'tap') {
+    buzz(kind);
+    lastPress = performance.now();
+}
 // Stop a pattern that is still playing (leaving a screen mid-reward).
 export function stopBuzz() {
     if (canVibrate)
@@ -89,7 +99,9 @@ export function stopBuzz() {
 // element matching `selector` inside `root`, with a firm buzz. The click
 // that follows a long press is swallowed, so the element's tap does not
 // also fire. Returns a function that removes the listeners.
-export function onLongPress(root, selector, onLong, ms = 480) {
+// `when(el)` may say no (nothing to do for this element right now): then
+// the press is an ordinary tap.
+export function onLongPress(root, selector, onLong, { ms = 480, when } = {}) {
     let timer = 0, startX = 0, startY = 0, target = null, fired = false;
     const cancel = () => { clearTimeout(timer); target?.classList.remove('is-holding'); target = null; };
     const down = (e) => {
@@ -97,7 +109,7 @@ export function onLongPress(root, selector, onLong, ms = 480) {
         if (pe.button > 0)
             return;
         const el = pe.target?.closest(selector);
-        if (!el)
+        if (!el || (when && !when(el)))
             return;
         cancel();
         fired = false;
