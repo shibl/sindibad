@@ -53,7 +53,7 @@ against?
   The question and its main buttons must be visible without scrolling at
   360×740 and 320×568.
 - **Offline**: no network requests, no files from other sites. After
-  adding or changing a file the game loads, run `node tools/update-shell.mjs`
+  adding or changing a file the game loads, run `node tools/update-shell.ts`
   in `Web/`.
 
 ## 3. Test
