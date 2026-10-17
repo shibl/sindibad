@@ -1,29 +1,38 @@
-// Read-aloud for weaker readers: speaks Arabic text with the device's own
-// speech voice (offline on most phones). Hidden when no Arabic voice exists.
-
-let arabic = null;
-
-function findVoice() {
-  if (!('speechSynthesis' in window)) return null;
-  const voices = speechSynthesis.getVoices();
-  return voices.find(v => /^ar(-|_|$)/i.test(v.lang)) || null;
+// Made from voice.ts by tools/build.ts. Edit that file, then run: npm run build
+// Read-aloud for weaker readers: speaks text with the device's own speech
+// voice (offline on most phones). Arabic for the game's words, English for
+// the English island (core/english/). A button that reads aloud is hidden
+// when the phone has no voice for its language.
+const voices = {};
+const has = typeof window !== 'undefined' && 'speechSynthesis' in window;
+function findVoice(lang) {
+    if (!has)
+        return null;
+    const list = speechSynthesis.getVoices();
+    const re = new RegExp(`^${lang}(-|_|$)`, 'i');
+    // English: a British or American voice first, as in the book's recordings.
+    if (lang === 'en')
+        return list.find(v => /^en[-_](GB|US)/i.test(v.lang) && v.localService) || list.find(v => re.test(v.lang)) || null;
+    return list.find(v => re.test(v.lang)) || null;
 }
-
-export function canSpeak() {
-  arabic = arabic || findVoice();
-  return !!arabic;
+export function canSpeak(lang = 'ar') {
+    voices[lang] ||= findVoice(lang);
+    return !!voices[lang];
 }
-
-if ('speechSynthesis' in window) speechSynthesis.addEventListener?.('voiceschanged', () => { arabic = findVoice(); document.dispatchEvent(new Event('voices-ready')); });
-
-// Strip markup and speak.
-export function speak(html) {
-  if (!canSpeak()) return;
-  const text = html.replace(/<[^>]+>/g, ' ').replace(/[🧩🔬🩺🔭🏰🗺️📜💎⛵🦪✔★☆]/gu, '').replace(/\s+/g, ' ').trim();
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.voice = arabic; u.lang = arabic.lang; u.rate = 0.92;
-  speechSynthesis.speak(u);
+if (has)
+    speechSynthesis.addEventListener?.('voiceschanged', () => { voices.ar = findVoice('ar'); voices.en = findVoice('en'); document.dispatchEvent(new Event('voices-ready')); });
+// Strip markup and speak. English is read a little slower, for learners.
+export function speak(html, lang = 'ar', { rate } = {}) {
+    if (!canSpeak(lang))
+        return;
+    const voice = voices[lang];
+    const text = html.replace(/<[^>]+>/g, ' ').replace(/[🧩🔬🩺🔭🏰🗺️📜💎⛵🦪✔★☆]/gu, '').replace(/\s+/g, ' ').trim();
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.voice = voice;
+    u.lang = voice.lang;
+    u.rate = rate ?? (lang === 'en' ? 0.82 : 0.92);
+    speechSynthesis.speak(u);
 }
-
-export function stopSpeaking() { if ('speechSynthesis' in window) speechSynthesis.cancel(); }
+export function stopSpeaking() { if (has)
+    speechSynthesis.cancel(); }
