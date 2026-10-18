@@ -109,7 +109,7 @@ export function showScreen(name: string, detail?: unknown) {
   if (name === 'map') {
     const hero = save.get().hero || 'sindbad';
     document.getElementById('hero-btn')!.innerHTML = `<span class="hero-face">${heroSVG(hero)}</span>`;
-    enterMap(detail);
+    enterMap(detail as LessonReturn | undefined);
   }
   if (name === 'who') renderWho(document.getElementById('who')!);
   if (name === 'parents') renderParentGate(document.getElementById('parents')!);
