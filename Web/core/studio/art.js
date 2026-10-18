@@ -123,7 +123,7 @@ export const ART = {
     ...[46, 54, 62, 70, 78].map(y => s(`M0 ${y} Q12.5 ${y - 6} 25 ${y} T50 ${y}`, '#1f1612', 2)), ...[0, 1, 2, 3].flatMap(r => [0, 1, 2, 3].map(c => (r + c) % 2 ? null : f(R(50 + c * 12.5, r * 10, 12.5, 10), '#1f1612'))).filter(Boolean),
     ...[[62, 52, 10], [88, 66, 9], [70, 72, 6]].flatMap(([x, y, r]) => [s(C(x, y, r), '#1f1612', 2), s(C(x, y, r / 2), '#1f1612', 2)])],
   // 20 · moving colour lines: a bird of patterned feathers
-  turkey: [bg('#f2ede0'), ...Array.from({ length: 7 }, (_, i) => { const a = Math.PI + (i / 6) * Math.PI, x = 52 + Math.cos(a) * 34, y = 52 + Math.sin(a) * 34; return f(P(52, 52, 52 + Math.cos(a - 0.2) * 22, 52 + Math.sin(a - 0.2) * 22, x, y, 52 + Math.cos(a + 0.2) * 22, 52 + Math.sin(a + 0.2) * 22), i % 2 ? '#1f1612' : '#fff'); }),
+  turkey: [bg('#ffcf5a'), ...Array.from({ length: 7 }, (_, i) => { const a = Math.PI + (i / 6) * Math.PI, x = 52 + Math.cos(a) * 34, y = 52 + Math.sin(a) * 34; return { d: P(52, 52, 52 + Math.cos(a - 0.2) * 22, 52 + Math.sin(a - 0.2) * 22, x, y, 52 + Math.cos(a + 0.2) * 22, 52 + Math.sin(a + 0.2) * 22), f: i % 2 ? '#1f1612' : '#fff', s: '#1f1612', w: 1.4 }; }),
     ...Array.from({ length: 6 }, (_, i) => s(L(28 + i * 8, 28, 30 + i * 8, 44), '#1f1612', 1.2)), f(C(54, 54, 14), '#1f1612'), ...[10, 6].map(r => s(C(54, 54, r), '#fff', 1.6)), f(C(72, 44, 5), '#1f1612'), f(C(73, 43, 1.4), '#fff'), f('M76 46 Q80 54 74 58 Q70 52 74 46Z', '#e8453c')],
   // 21 · collage: a fish made of scraps of paper, newspaper and fabric
   collagefish: [bg('#3f8fd6'), ...[[0, 0], [30, 6], [60, 0], [10, 60], [50, 66], [80, 56]].map(([x, y], i) => f(P(x, y, x + 24, y + 4, x + 20, y + 16, x - 2, y + 14), ['#6fb3e8', '#2a6fb0', '#9fd3ff'][i % 3])),

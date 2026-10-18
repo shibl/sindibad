@@ -379,7 +379,7 @@ function fold(step, host, ctx, resolve) {
       show();
       if (!stages[i].lines) {
         host.querySelector('.sg-paper').classList.add('is-done');
-        [...dots.children].forEach(d => d.classList.add('is-on'));
+        [...dots.children].forEach(d => { d.classList.add('is-on'); d.classList.remove('is-now'); });
         ctx.sfx.good();
         finish(host, step, ctx, resolve, (n - missed) / n);
       }
@@ -670,7 +670,7 @@ function craft(step, host, ctx, resolve) {
     i += 1;
     stage();
     if (i < step.seq.length) { show(); return; }
-    dots.forEach(d => d.classList.add('is-on'));
+    dots.forEach(d => { d.classList.add('is-on'); d.classList.remove('is-now'); });
     task.innerHTML = step.doneText || '✨ تمّ العمل!';
     btns.forEach(x => mark(x, false));
     ctx.sfx.good();

@@ -170,17 +170,17 @@ const TRIANGLE = `<path d="M10 140L190 140L100 50Z" ${PAPER}/>${crease('M100 50V
 export const STAGES = {
   butterfly: [
     { sheet: SQUARE, say: 'اطوِ المربّع نصفين، ثمّ افتحه',
-      lines: [{ d: 'M100 20V180', ok: true }, { d: 'M58 20V180' }, { d: 'M20 160L160 20' }] },
+      lines: [{ d: 'M100 20V180', ok: true }, { d: 'M58 20V180' }, { d: 'M20 150L130 40' }] },
     { sheet: `${SQUARE}${crease('M100 20V180M20 100H180')}`, say: 'نصفين في الاتّجاهين ✔️ والآن اطوِه قطريّاً',
       lines: [{ d: 'M20 20L180 180', ok: true }, { d: 'M20 100L100 20' }, { d: 'M20 140H180' }] },
     { sheet: `${SQUARE}${crease('M100 20V180M20 100H180M20 20L180 180M180 20L20 180')}`, say: 'والقطر الآخر ✔️ اجمعه مثلّثاً إلى الأسفل',
       lines: [{ d: 'M20 100H180', ok: true }, { d: 'M20 56H180' }, { d: 'M146 20V180' }] },
-    { sheet: TRIANGLE, say: 'ارفع زاويتي المثلّث السفليّتين إلى رأسه',
-      lines: [{ d: 'M55 95L100 140L145 95', ok: true }, { d: 'M34 116H166' }, { d: 'M64 68L126 140' }] },
-    { sheet: `${TRIANGLE}<path d="M100 50L145 95L100 140L55 95Z" fill="#b39ce8" stroke="#6a4ab0" stroke-width="1.6" stroke-linejoin="round"/>${crease('M100 50V140')}`, say: 'اقلبه، واطوِ رأسه إلى ما تحت الحافّة',
-      lines: [{ d: 'M46 104H154', ok: true }, { d: 'M68 66L160 134' }, { d: 'M18 132H182' }] },
+    { sheet: TRIANGLE, say: 'ارفع زاوية المثلّث إلى رأسه',
+      lines: [{ d: 'M100 140L145 95', ok: true }, { d: 'M30 132H90' }, { d: 'M70 70V140' }] },
+    { sheet: `${TRIANGLE}<path d="M100 50L145 95L100 140L55 95Z" fill="#b39ce8" stroke="#6a4ab0" stroke-width="1.6" stroke-linejoin="round"/>${crease('M100 50V140')}`, say: 'والزاوية الأخرى ✔️ اقلبه، واطوِ رأسه إلى الأسفل',
+      lines: [{ d: 'M46 104H154', ok: true }, { d: 'M30 132L120 58' }, { d: 'M18 132H182' }] },
     { sheet: `<path d="M46 104L154 104L190 140L10 140Z" ${PAPER}/><path d="M46 104L154 104L100 158Z" fill="#b39ce8" stroke="#6a4ab0" stroke-width="1.6" stroke-linejoin="round"/>`, say: 'اطوِ الفراشة نصفين، ثمّ افتحها قليلاً',
-      lines: [{ d: 'M100 96V166', ok: true }, { d: 'M26 122H174' }, { d: 'M54 104L140 158' }] },
+      lines: [{ d: 'M100 96V166', ok: true }, { d: 'M44 108H156' }, { d: 'M120 104L170 150' }] },
     { sheet: `<path d="M100 112L14 52L36 124ZM100 112L186 52L164 124Z" ${PAPER}/><path d="M100 116L36 124L58 172ZM100 116L164 124L142 172Z" fill="#b39ce8" stroke="#6a4ab0" stroke-width="2" stroke-linejoin="round"/>
       <rect x="94" y="88" width="12" height="84" rx="6" fill="#6a4ab0"/>${line('M97 90Q88 70 78 64M103 90Q112 70 122 64', '#6a4ab0', 2.4)}`,
       say: 'ها هي فراشتك! 🦋 زيّن بها الصفّ' },
