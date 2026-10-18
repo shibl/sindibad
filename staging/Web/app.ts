@@ -33,6 +33,7 @@ import { initTouch } from './core/touch.js';
 import './plugins/index.js';
 import type { IslandHooks } from './core/isle/island.js';
 import type { LessonReturn, LessonHost } from './core/lesson.js';
+import type { IslandDef } from './core/overworld.js';
 
 // ---------- Backdrop ----------
 
@@ -109,7 +110,7 @@ export function showScreen(name: string, detail?: unknown) {
   if (name === 'map') {
     const hero = save.get().hero || 'sindbad';
     document.getElementById('hero-btn')!.innerHTML = `<span class="hero-face">${heroSVG(hero)}</span>`;
-    enterMap(detail);
+    enterMap(detail as LessonReturn | undefined);
   }
   if (name === 'who') renderWho(document.getElementById('who')!);
   if (name === 'parents') renderParentGate(document.getElementById('parents')!);
@@ -272,7 +273,7 @@ initMap(document.getElementById('map')!, world, {
   enterIsland: (id: string) => {
     const region = world.regions.find(r => r.id === id)!;
     if (ISLANDS_3D[region.kind as Kind3D]) { enter3D(region.kind as Kind3D, region); return; }
-    wipe(() => { showScreen('island'); enterIsland(ISLANDS[id as keyof typeof ISLANDS], region); place = id; playMusic(id); });
+    wipe(() => { showScreen('island'); enterIsland(ISLANDS[id as keyof typeof ISLANDS] as IslandDef, region); place = id; playMusic(id); });
   },
 });
 // The 3D sea map (staging) loads while the child is still on the title
