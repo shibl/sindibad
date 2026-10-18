@@ -1,15 +1,36 @@
-// Checks the lessons of the 3D book islands (art, English, science, atlas)
-// in a second, without a browser: what the full test (e2e.mjs) would only
-// find by playing every quest, or never. Part of npm test.
+// Checks the game's lessons in a second, without a browser: what the full
+// test (e2e.mjs) would only find by playing every lesson, or never. Part of
+// npm test.
 //
+// The 3D book islands (art, English, science, atlas):
 // Every island: each quest teaches first («أتعلّم») and then asks at least
 // four questions; every question has a hint and an explanation; the places,
 // units, pictures and kinds of play it names exist; a picture's parts are
 // the ones the step lists; at least six review questions; «تعلّمنا» lines.
 // The art island also: its paint colours, collage pieces, folds, tiles and
 // paintings exist.
+//
+// Every topic of the lesson screen (plugins/: Arabic, maths, the farm, the
+// islands' quick reviews…): it belongs to an island of the map, its mini-
+// lesson cards are complete, every item has a hint and an explanation, the
+// lesson does not ask for more items than it has, and each engine's answer
+// is one it can show (a quiz's answer is one of its options, a tapped word
+// is in the sentence, a sorted card has its basket…). To read a topic's
+// content, the engines are replaced here by stand-ins that keep what the
+// topic gives them.
 
+import { register } from 'node:module';
 import type { Quest, Step, IslandContent } from '../types/content.d.ts';
+
+const ENGINES = ['quiz', 'tapword', 'sort', 'match', 'numberline', 'blocks', 'fill', 'helm', 'market'];
+register('data:text/javascript,' + encodeURIComponent(`
+  const ENGINES = ${JSON.stringify(ENGINES)};
+  export async function load(url, context, next) {
+    const m = /\\/plugins\\/engines\\/([a-z]+)\\.js$/.exec(url);
+    if (!m || !ENGINES.includes(m[1])) return next(url, context);
+    return { format: 'module', shortCircuit: true, source: \`export * from '\${url}?real';
+      export const \${m[1]} = opts => Object.assign(() => {}, { engine: '\${m[1]}', opts });\` };
+  }`));
 
 type Views = Record<string, { html(step: Step): string }>;
 const WEB = new URL('..', import.meta.url);
@@ -124,8 +145,55 @@ async function artChecks() {
   };
 }
 
+// ---------- The lesson screen's topics ----------
+
+// Known gaps, reported but not failing: topic id → what is missing.
+const KNOWN: Record<string, string> = {
+  'farm-cow': 'its cards have no explanation (said when the answer is shown)',
+};
+const { allTopics } = await load('core/topics.js');
+await load('plugins/index.js');
+const world = (await load('worlds/grade6.js')).default as { regions: { id: string }[] };
+const regions = new Set(world.regions.map(r => r.id));
+const notes: string[] = [];
+let topicCount = 0;
+for (const t of allTopics() as { id: string; region: string; title: string; icon: string; learn?: { title: string; html: string }[]; render: { engine?: string; opts?: any } }[]) {
+  topicCount += 1;
+  const bad = (msg: string) => problems.push(`topic ${t.id}: ${msg}`);
+  if (!regions.has(t.region)) bad(`no island ${t.region} on the map`);
+  if (!t.title) bad('no title');
+  for (const [i, c] of (t.learn || []).entries()) if (!c.title || !c.html) bad(`mini-lesson card ${i + 1}: a title and a text`);
+  const { engine, opts } = t.render;
+  if (!engine) { bad('its render is not one of the engines (it cannot be checked here)'); continue; }
+  const field = opts.questions ? 'questions' : opts.pairs ? 'pairs' : 'items';
+  // Questions made afresh each time (sums with random numbers): check a few draws.
+  const draws: any[][] = typeof opts[field] === 'function' ? Array.from({ length: 5 }, () => opts[field]()) : [opts[field] || []];
+  for (const list of draws) {
+    if (!list.length) bad('no content');
+    if (opts.count && engine !== 'match' && opts.count > list.length) bad(`asks ${opts.count} but has ${list.length}`);
+    for (const it of list) {
+      const what = `«${strip(it.q ?? it.text ?? it.words?.join(' ') ?? it.label ?? JSON.stringify(it)).slice(0, 40)}»`;
+      if (engine === 'match') { if (!Array.isArray(it) || it.length !== 2 || !it[0] || !it[1]) bad(`${what}: a pair`); continue; }
+      if (!it.hint) bad(`${what}: no hint`);
+      if (!it.explain && !KNOWN[t.id]) bad(`${what}: no explanation`);
+      if (engine === 'quiz') {
+        if ((it.options || []).length < 2) bad(`${what}: at least two options`);
+        for (const o of dupes(it.options || [])) bad(`${what}: the option «${strip(o)}» twice`);
+        if (!(it.answer >= 0 && it.answer < (it.options || []).length)) bad(`${what}: the answer is not one of the options`);
+      }
+      if (engine === 'tapword' && !(it.answer >= 0 && it.answer < it.words.length)) bad(`${what}: the word to tap is not in the sentence`);
+      if (engine === 'sort' && !opts.bins.some((b: { id: string }) => b.id === it.bin)) bad(`${what}: no basket ${it.bin}`);
+      if (engine === 'numberline' && !(it.value >= it.min && it.value <= it.max)) bad(`${what}: ${it.value} is not on the line ${it.min}…${it.max}`);
+      if (engine === 'fill' && !(it.answer >= 0 && it.answer <= it.parts)) bad(`${what}: fill ${it.answer} of ${it.parts}?`);
+      if (engine === 'blocks' && it.words.length !== it.slots.length) bad(`${what}: ${it.words.length} words for ${it.slots.length} places`);
+    }
+  }
+  if (KNOWN[t.id]) notes.push(`${t.id}: ${KNOWN[t.id]}`);
+}
+
 if (problems.length) {
-  console.error(`✗ the islands' lessons:\n  ${problems.join('\n  ')}`);
+  console.error(`✗ the lessons:\n  ${problems.join('\n  ')}`);
   process.exit(1);
 }
-console.log(`✓ the islands' lessons are complete (${quests} quests on ${ISLANDS.length} islands)`);
+for (const n of notes) console.log(`  (known gap) ${n}`);
+console.log(`✓ the lessons are complete (${quests} quests on ${ISLANDS.length} 3D islands, ${topicCount} topics)`);

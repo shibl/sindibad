@@ -1,3 +1,4 @@
+// Made from topics.ts by tools/build.ts. Edit that file, then run: npm run build
 // Topic registry — the contract between the core game and topic plugins.
 //
 // A topic is one short activity (a quiz, a puzzle, a mini-game) about one
@@ -32,27 +33,24 @@
 //   ctx.num(n)             format a number for display (−3.5)
 //   ctx.signal             AbortSignal fired when the student leaves early —
 //                          pass it to addEventListener / clear timers on it.
-
 const topics = new Map();
-
 export function registerTopic(def) {
-  const missing = ['id', 'region', 'title', 'render'].filter(k => !def[k]);
-  if (missing.length) throw new Error(`registerTopic: missing ${missing.join(', ')}`);
-  if (typeof def.render !== 'function') throw new Error(`registerTopic(${def.id}): render must be a function`);
-  if (topics.has(def.id)) throw new Error(`registerTopic: duplicate id "${def.id}"`);
-  topics.set(def.id, { icon: '⭐', blurb: '', order: 100, ...def });
+    const missing = ['id', 'region', 'title', 'render'].filter(k => !def[k]);
+    if (missing.length)
+        throw new Error(`registerTopic: missing ${missing.join(', ')}`);
+    if (typeof def.render !== 'function')
+        throw new Error(`registerTopic(${def.id}): render must be a function`);
+    if (topics.has(def.id))
+        throw new Error(`registerTopic: duplicate id "${def.id}"`);
+    topics.set(def.id, { icon: '⭐', blurb: '', order: 100, ...def });
 }
-
 export function getTopic(id) { return topics.get(id); }
-
 export function topicsIn(regionId) {
-  return [...topics.values()].filter(t => t.region === regionId).sort((a, b) => a.order - b.order);
+    return [...topics.values()].filter(t => t.region === regionId).sort((a, b) => a.order - b.order);
 }
-
 export function allTopics() { return [...topics.values()]; }
-
 // Stars for a result: 90%+ → 3, 70%+ → 2, 50%+ → 1.
 export function starsFor({ correct, total }) {
-  const r = total ? correct / total : 0;
-  return r >= 0.9 ? 3 : r >= 0.7 ? 2 : r >= 0.5 ? 1 : 0;
+    const r = total ? correct / total : 0;
+    return r >= 0.9 ? 3 : r >= 0.7 ? 2 : r >= 0.5 ? 1 : 0;
 }

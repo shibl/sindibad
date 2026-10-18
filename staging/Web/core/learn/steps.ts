@@ -51,6 +51,11 @@ export interface StepCtx {
 }
 /** A picture: step → svg/html. */
 export type View = (step: any) => string;
+/** An island's picture module entry: its html, and what it does when a spot opens. */
+export interface Picture {
+  html(step: any): string;
+  spot?(spot: Spot, el: HTMLElement, root: HTMLElement | null, ctx: StepCtx): void;
+}
 export type StepFn<S extends Step = Step> = (step: S, host: HTMLElement, ctx: StepCtx, resolve: Resolve) => void;
 export type RunStep = (step: Step, host: HTMLElement, ctx: StepCtx) => Promise<StepResult>;
 
