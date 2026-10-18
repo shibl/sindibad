@@ -6,6 +6,9 @@
 type Lang = 'ar' | 'en';
 const voices: Partial<Record<Lang, SpeechSynthesisVoice | null>> = {};
 const has = typeof window !== 'undefined' && 'speechSynthesis' in window;
+// The end-to-end test (tests/e2e.mjs) plays silently: the device's voice
+// speaks outside the browser, so a muted test browser would still talk.
+const TEST = typeof window !== 'undefined' && !!window.__SINDBAD_TEST__;
 
 function findVoice(lang: Lang): SpeechSynthesisVoice | null {
   if (!has) return null;
@@ -25,7 +28,7 @@ if (has) speechSynthesis.addEventListener?.('voiceschanged', () => { voices.ar =
 
 // Strip markup and speak. English is read a little slower, for learners.
 export function speak(html: string, lang: Lang = 'ar', { rate }: { rate?: number } = {}): void {
-  if (!canSpeak(lang)) return;
+  if (!canSpeak(lang) || TEST) return;
   const voice = voices[lang] as SpeechSynthesisVoice;
   const text = html.replace(/<[^>]+>/g, ' ').replace(/[🧩🔬🩺🔭🏰🗺️📜💎⛵🦪✔★☆]/gu, '').replace(/\s+/g, ' ').trim();
   speechSynthesis.cancel();
