@@ -53,13 +53,13 @@ function iosTick(n) {
     for (let i = 0; i < n; i++)
         setTimeout(() => iosSwitch?.click(), i * 90);
 }
-export function buzz(kind) {
+export function buzz(kind, { press = false } = {}) {
     if (!hapticsOn() || document.hidden)
         return;
     const now = performance.now();
     // A button already ticked when the finger touched it (core/touch.ts):
     // its tap sound doesn't buzz again.
-    if (kind === 'tap' && now - lastPress < 450)
+    if (kind === 'tap' && !press && now - lastPress < 450)
         return;
     // The same buzz twice in a row within 40 ms is one buzz (a tap that also
     // plays a sound); a light one never cuts a stronger one short.
@@ -84,7 +84,7 @@ export function buzz(kind) {
 // The buzz of a finger touching something (core/touch.ts): plays now, and
 // the tap that follows when it is released stays silent.
 export function pressBuzz(kind = 'tap') {
-    buzz(kind);
+    buzz(kind, { press: true });
     lastPress = performance.now();
 }
 // Stop a pattern that is still playing (leaving a screen mid-reward).
