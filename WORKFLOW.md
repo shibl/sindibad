@@ -66,7 +66,7 @@ against?
 - `npm test` (in `Web/`) must pass.
 - A new engine needs a test hook: tag the right answer with `data-ok`, and
   each useful tap with `data-step` if it takes several taps (see
-  `plugins/engines/kit.js`). Add the new lesson to the test in
+  `plugins/engines/kit.ts`). Add the new lesson to the test in
   `tests/e2e.mjs`.
 - Every lesson is also checked without a browser by
   `tests/check-content.ts` (a second; part of `npm test`). A 3D book

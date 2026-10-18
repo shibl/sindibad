@@ -238,32 +238,32 @@ Inside `Web/`:
   plays are typed in `types/content.d.ts` (a quest, a station, a step).
   `tests/check-content.ts` checks every island's lessons in a second
   (teaching first, hints, pictures, reviews), as part of `npm test`.
-- `core/lab/` — the 3D science island (`lab.ts` its config, `games.js` its
+- `core/lab/` — the 3D science island (`lab.ts` its config, `games.ts` its
   steps, `views.js` and `views-machines.js` the book's experiments drawn in
   SVG, `models.js` every model, made in code); its content (stations,
   seventeen quests) is `worlds/grade6/lab.js` and `worlds/grade6/lab/` (one
   file per unit), its quick reviews `plugins/science/reviews.js`.
-- `core/atlas/` — the 3D atlas island (`atlas.ts` its config, `games.js` its
+- `core/atlas/` — the 3D atlas island (`atlas.ts` its config, `games.ts` its
   steps, `views.js` the maps and timelines, `globe.js` the atlas globe,
   `models.js` every model); its content is `worlds/grade6/atlas.js` and
   `worlds/grade6/atlas/` (one file per unit), the countries
   `worlds/atlas/countries.js` (cards and flags) and `worlds/atlas/shapes.js`
   (the world's shapes, from Natural Earth, made by `tools/make-world.mjs`),
   its quick reviews `plugins/social/reviews.js`.
-- `core/studio/` — the 3D art island (`studio.ts` its config, `games.js`
+- `core/studio/` — the 3D art island (`studio.ts` its config, `games.ts`
   its hands-on games, `views.js` (with `views-1.js`…`views-3.js`) the
   book's pictures in SVG, `art.js` the little paintings, `easel.ts` the free
   easel, `models.js` every model); its content is `worlds/grade6/studio.js`
   and `worlds/grade6/studio/` (part1–3), its quick reviews
   `plugins/art/reviews.js`.
 - `core/english/` — the 3D English island (`english.ts` its config,
-  `games.js` its games, `words.js` the word book, `views.js` pictures,
+  `games.ts` its games, `words.js` the word book, `views.js` pictures,
   `models.js` every model); its content is `worlds/grade6/english.js` and
   `worlds/grade6/english/` (block1–4), its quick reviews
   `plugins/english/reviews.js`.
 - `core/haptics.ts`, `core/touch.ts` — vibrations and how the game answers
   the finger on a phone.
-- `core/tunes/` — the 3D music island (`tunes.js` game, `games.js` the
+- `core/tunes/` — the 3D music island (`tunes.js` game, `games.ts` the
   little games each quest step is played with, `synth.js` the instruments,
   made with Web Audio, `models.js` every model, made in code); its content
   (stations, quests, steps) is `worlds/grade6/tunes.js`, its quick reviews

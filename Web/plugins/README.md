@@ -56,7 +56,8 @@ the island's badge, unlocks the next island, and joins spaced review.
 
 ## The contract
 
-`registerTopic(def)` — see the comment at the top of `core/topics.js`.
+`registerTopic(def)` — see the comment at the top of `core/topics.ts`
+(its `TopicDef` and `LessonCtx` types).
 `render(container, onComplete, ctx)`:
 
 - draw your activity inside `container`;
@@ -89,7 +90,12 @@ Pick a mechanic and feed it content — no game code needed:
 | `fill` | equivalent fractions, decimals, percent: fill a bucket | `{ q, parts, answer, hint }` (answer = parts to fill) |
 | `blocks` | grammar: build a sentence from word blocks | `{ words, slots: [[label, role]], extra, hint }` |
 
-`engines/visuals.js` has helpers for learn cards: colour-coded sentence
+The engines are written in TypeScript (`engines/quiz.ts`…; the browser
+loads the `.js` made from each by `npm run build`), and each exports its
+content's type (`QuizQuestion`, `SortItem`…). A topic file stays plain
+JavaScript.
+
+`engines/visuals.ts` has helpers for learn cards: colour-coded sentence
 roles, fraction bars, a 100-square percent grid, mini number lines,
 plural tables, icon cards, planets, angles.
 
@@ -123,7 +129,7 @@ days later. Adding a farm quest: a crop or task in
 
 The music island (`core/tunes/`) works the same way: its quests are in
 `worlds/grade6/tunes.js` (a list of steps per quest, each drawn by a small
-music game in `core/tunes/games.js`: keys, staff, rhythm, drum, measure,
+music game in `core/tunes/games.ts`: keys, staff, rhythm, drum, measure,
 fill, glasses…), and `plugins/music/reviews.js` registers one review topic
 per quest, built from the quest's own questions (`reviewOf()`).
 
