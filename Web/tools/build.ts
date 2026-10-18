@@ -13,6 +13,8 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const DIRS = ['art', 'core', 'plugins', 'worlds'];
+// And the files at the top of Web/ (the app shell).
+const TOP = ['app.ts'];
 const TSC = join(ROOT, 'node_modules/typescript/bin/tsc');
 
 function walk(dir: string): string[] {
@@ -24,7 +26,7 @@ function walk(dir: string): string[] {
 
 // The game's TypeScript files, relative to Web/.
 export function gameSources(): string[] {
-  return DIRS.flatMap(walk).sort();
+  return [...TOP.filter(f => existsSync(join(ROOT, f))), ...DIRS.flatMap(walk)].sort();
 }
 
 const banner = (ts: string) => `// Made from ${basename(ts)} by tools/build.ts. Edit that file, then run: npm run build\n`;

@@ -163,9 +163,11 @@ The tools and tests need Node 22.18 or newer: some are written in
 TypeScript, which Node runs as it is. `npm run typecheck` checks their
 types (`Web/tsconfig.json`) and the game's (`Web/tsconfig.game.json`).
 
-The game is moving to TypeScript one file at a time. The browser still
-loads plain JavaScript, so playing or previewing needs no build step: for a
-game file written in TypeScript (`core/farm/scene.ts`, `core/learn/steps.ts`),
+The game's code is TypeScript (the app shell, the engines, the islands'
+games); the lesson content, the 3D models and the SVG pictures stay plain
+JavaScript, and `tests/check-content.ts` checks the content. The browser
+still loads plain JavaScript, so playing or previewing needs no build step:
+for a game file written in TypeScript (`app.ts`, `core/learn/steps.ts`…),
 the `.js` next to it is made from it by `npm run build`, and both are
 committed. Edit the `.ts`, then run `npm run build`; never edit that `.js`
 (the test fails if it no longer matches).
@@ -196,8 +198,8 @@ Deployments on GitHub (`github-pages` = live, `staging`). Details: step 5 of
 
 Inside `Web/`:
 
-- `index.html`, `style.css`, `app.js` — app shell: screens, backdrop, boot.
-  `app.js` lists the 3D islands in one table (`ISLANDS_3D`: each one's file,
+- `index.html`, `style.css`, `app.ts` — app shell: screens, backdrop, boot.
+  `app.ts` lists the 3D islands in one table (`ISLANDS_3D`: each one's file,
   map region and music); a new 3D island is one line there.
 - `about.html` — the project brief as a long-form page for developers and
   founders (self-contained; light/dark; IBM Plex Sans Arabic with system
