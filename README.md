@@ -206,6 +206,9 @@ Inside `Web/`:
   sounds, journey page, finale. Never changes when content is added.
   `save.ts` keeps each child's game in the browser; its `GameSave` type
   lists everything a save holds.
+  `topics.ts` is the contract with the topic plugins (`TopicDef`, the
+  `LessonCtx` a topic gets, its `Result`); `lesson.ts` runs a topic on the
+  lesson screen.
 - `worlds/chapters.js` — the twelve voyages (one per grade) and the four
   age stages; `core/chapters.js` draws the voyages chart.
 - `worlds/grade6.js` — the grade-6 islands, positions, unlock rules, badges.

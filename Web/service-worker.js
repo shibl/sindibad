@@ -5,7 +5,7 @@
 // file run `node tools/update-shell.ts` (tests/check-shell.ts fails if you
 // forget). A new version makes clients download the new files once.
 
-const CACHE_VERSION = 'de0b8f8d7b';
+const CACHE_VERSION = '764d441566';
 // The staging copy (under /staging/, see core/env.js) keeps its own offline
 // copy, so it never clears the live game's, nor the live game its.
 const CACHE_PREFIX = /\/staging\//.test(self.location.pathname) ? 'sindbad-staging-' : 'sindbad-web-';

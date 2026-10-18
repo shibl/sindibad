@@ -23,7 +23,11 @@
 import { storeKey } from './env.js';
 
 /** A topic's record: its stars (0–3), best score (0–1), plays, last play, and each play's score. */
-export interface TopicRecord { stars: number; best: number; plays: number; last: number; history: { t: number; pct: number }[] }
+export interface TopicRecord {
+  stars: number; best: number; plays: number; last?: number; history?: { t: number; pct: number }[];
+  /** The items missed last time (their keys), asked first next time. */
+  missed?: string[];
+}
 
 /** One child's game. Every field but the first five is added when first used. */
 export interface GameSave {
@@ -46,6 +50,8 @@ export interface GameSave {
   guardians?: string[];
   storySeen?: boolean;
   finale?: { at: number };
+  /** Lessons played per day ('YYYY-MM-DD'), for the daily goal and the streak. */
+  daily?: Record<string, number>;
   /** Play time in seconds, in all and per day ('YYYY-MM-DD'), for the parents' page. */
   time?: number;
   days?: Record<string, number>;

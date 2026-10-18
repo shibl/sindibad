@@ -47,7 +47,9 @@ plugins/
 
 2. **List it** in `plugins/index.js`: `import './math/ratios.js';`
 3. **Cache it for offline play**: `node tools/update-shell.ts`
-4. **Test**: `npm test`, then play it (`npm run serve` → http://localhost:8000).
+4. **Test**: `npm test` (its `tests/check-content.ts` checks every topic's
+   content in a second: a hint and an explanation on each item, answers
+   that exist…), then play it (`npm run serve` → http://localhost:8000).
 
 That's it — the topic appears on the island, earns stars, counts toward
 the island's badge, unlocks the next island, and joins spaced review.
