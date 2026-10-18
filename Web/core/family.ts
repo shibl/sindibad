@@ -114,8 +114,7 @@ export function renderParentGate(el: HTMLElement): void {
     </div>`;
   el.querySelector<HTMLFormElement>('#gate-form')!.onsubmit = e => {
     e.preventDefault();
-    // replace() writes each digit's index (a number) as text.
-    const v = el.querySelector<HTMLInputElement>('#gate-answer')!.value.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d) as unknown as string);
+    const v = el.querySelector<HTMLInputElement>('#gate-answer')!.value.replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
     if (Number(v) === a * b) { sfx.good(); renderParents(el); }
     else { sfx.bad(); el.querySelector<HTMLElement>('.gate__err')!.hidden = false; }
   };

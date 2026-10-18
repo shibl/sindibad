@@ -212,7 +212,7 @@ Inside `Web/`:
   `LessonCtx` a topic gets, its `Result`); `lesson.ts` runs a topic on the
   lesson screen.
 - `worlds/chapters.js` — the twelve voyages (one per grade) and the four
-  age stages; `core/chapters.js` draws the voyages chart.
+  age stages; `core/chapters.ts` draws the voyages chart.
 - `worlds/grade6.js` — the grade-6 islands, positions, unlock rules, badges.
 - `core/farm/` — the 3D farm island (`farm.js` game, `scene.ts` camera and
   light, `models.js` every model, made in code); its content (crops, steps,
