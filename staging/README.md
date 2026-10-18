@@ -163,9 +163,11 @@ The tools and tests need Node 22.18 or newer: some are written in
 TypeScript, which Node runs as it is. `npm run typecheck` checks their
 types (`Web/tsconfig.json`) and the game's (`Web/tsconfig.game.json`).
 
-The game is moving to TypeScript one file at a time. The browser still
-loads plain JavaScript, so playing or previewing needs no build step: for a
-game file written in TypeScript (`core/farm/scene.ts`, `core/learn/steps.ts`),
+The game's code is TypeScript (the app shell, the engines, the islands'
+games); the lesson content, the 3D models and the SVG pictures stay plain
+JavaScript, and `tests/check-content.ts` checks the content. The browser
+still loads plain JavaScript, so playing or previewing needs no build step:
+for a game file written in TypeScript (`app.ts`, `core/learn/steps.ts`…),
 the `.js` next to it is made from it by `npm run build`, and both are
 committed. Edit the `.ts`, then run `npm run build`; never edit that `.js`
 (the test fails if it no longer matches).
@@ -196,8 +198,8 @@ Deployments on GitHub (`github-pages` = live, `staging`). Details: step 5 of
 
 Inside `Web/`:
 
-- `index.html`, `style.css`, `app.js` — app shell: screens, backdrop, boot.
-  `app.js` lists the 3D islands in one table (`ISLANDS_3D`: each one's file,
+- `index.html`, `style.css`, `app.ts` — app shell: screens, backdrop, boot.
+  `app.ts` lists the 3D islands in one table (`ISLANDS_3D`: each one's file,
   map region and music); a new 3D island is one line there.
 - `about.html` — the project brief as a long-form page for developers and
   founders (self-contained; light/dark; IBM Plex Sans Arabic with system
@@ -210,7 +212,7 @@ Inside `Web/`:
   `LessonCtx` a topic gets, its `Result`); `lesson.ts` runs a topic on the
   lesson screen.
 - `worlds/chapters.js` — the twelve voyages (one per grade) and the four
-  age stages; `core/chapters.js` draws the voyages chart.
+  age stages; `core/chapters.ts` draws the voyages chart.
 - `worlds/grade6.js` — the grade-6 islands, positions, unlock rules, badges.
 - `core/farm/` — the 3D farm island (`farm.js` game, `scene.ts` camera and
   light, `models.js` every model, made in code); its content (crops, steps,
@@ -238,33 +240,33 @@ Inside `Web/`:
   plays are typed in `types/content.d.ts` (a quest, a station, a step).
   `tests/check-content.ts` checks every island's lessons in a second
   (teaching first, hints, pictures, reviews), as part of `npm test`.
-- `core/lab/` — the 3D science island (`lab.ts` its config, `games.js` its
+- `core/lab/` — the 3D science island (`lab.ts` its config, `games.ts` its
   steps, `views.js` and `views-machines.js` the book's experiments drawn in
   SVG, `models.js` every model, made in code); its content (stations,
   seventeen quests) is `worlds/grade6/lab.js` and `worlds/grade6/lab/` (one
   file per unit), its quick reviews `plugins/science/reviews.js`.
-- `core/atlas/` — the 3D atlas island (`atlas.ts` its config, `games.js` its
+- `core/atlas/` — the 3D atlas island (`atlas.ts` its config, `games.ts` its
   steps, `views.js` the maps and timelines, `globe.js` the atlas globe,
   `models.js` every model); its content is `worlds/grade6/atlas.js` and
   `worlds/grade6/atlas/` (one file per unit), the countries
   `worlds/atlas/countries.js` (cards and flags) and `worlds/atlas/shapes.js`
   (the world's shapes, from Natural Earth, made by `tools/make-world.mjs`),
   its quick reviews `plugins/social/reviews.js`.
-- `core/studio/` — the 3D art island (`studio.ts` its config, `games.js`
+- `core/studio/` — the 3D art island (`studio.ts` its config, `games.ts`
   its hands-on games, `views.js` (with `views-1.js`…`views-3.js`) the
   book's pictures in SVG, `art.js` the little paintings, `easel.ts` the free
   easel, `models.js` every model); its content is `worlds/grade6/studio.js`
   and `worlds/grade6/studio/` (part1–3), its quick reviews
   `plugins/art/reviews.js`.
 - `core/english/` — the 3D English island (`english.ts` its config,
-  `games.js` its games, `words.js` the word book, `views.js` pictures,
+  `games.ts` its games, `words.ts` the word book, `views.js` pictures,
   `models.js` every model); its content is `worlds/grade6/english.js` and
   `worlds/grade6/english/` (block1–4), its quick reviews
   `plugins/english/reviews.js`.
 - `core/haptics.ts`, `core/touch.ts` — vibrations and how the game answers
   the finger on a phone.
-- `core/tunes/` — the 3D music island (`tunes.js` game, `games.js` the
-  little games each quest step is played with, `synth.js` the instruments,
+- `core/tunes/` — the 3D music island (`tunes.js` game, `games.ts` the
+  little games each quest step is played with, `synth.ts` the instruments,
   made with Web Audio, `models.js` every model, made in code); its content
   (stations, quests, steps) is `worlds/grade6/tunes.js`, its quick reviews
   `plugins/music/`. It reuses the farm's camera and light (`core/farm/scene.ts`).

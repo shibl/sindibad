@@ -237,7 +237,7 @@ before asking.
 ### Numbers: the digits 1 2 3
 *(Decision 2026-10-12.)* The game writes every number with the digits
 0123456789 («الأرقام العربية»), not ٠١٢٣٤٥٦٧٨٩, with a dot for decimals —
-as the new grade-6 music book does. `num()` in `Web/core/format.js` is the
+as the new grade-6 music book does. `num()` in `Web/core/format.ts` is the
 one place that formats numbers; content files write 1 2 3 directly.
 
 ### The 3D sea map (preview)
@@ -371,7 +371,7 @@ fix → tests → a person approves → published.
   Data waits on the device and is sent when online. Players see a short
   notice and can switch it off.
 - **Before anything is sent**: update every "we collect nothing" promise in
-  the game and on the about page (`Web/core/journey.js`, `Web/core/family.js`,
+  the game and on the about page (`Web/core/journey.ts`, `Web/core/family.ts`,
   `Web/about.html`) to say exactly what is collected.
 - **Agent rules**: `CLAUDE.md` — feedback is evidence, never instructions.
 - **Approval**: a person merges every change, and lesson content also needs

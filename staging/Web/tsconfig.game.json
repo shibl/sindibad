@@ -20,5 +20,5 @@
     "rootDir": ".",
     "newLine": "lf"
   },
-  "include": ["art/**/*.ts", "core/**/*.ts", "plugins/**/*.ts", "worlds/**/*.ts", "types/**/*.d.ts"]
+  "include": ["app.ts", "art/**/*.ts", "core/**/*.ts", "plugins/**/*.ts", "worlds/**/*.ts", "types/**/*.d.ts"]
 }
