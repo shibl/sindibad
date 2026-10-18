@@ -14,8 +14,9 @@
 // least `stars` stars in total. `null` = open from the start.
 //
 // from: draw the sea route from this stop instead of the island before it
-// (a side trip). kind: 'farm' / 'tunes' / 'lab' / 'atlas' = a 3D island
-// (core/farm/, core/tunes/, core/lab/, core/atlas/), not a walkable one.
+// (a side trip). kind: 'farm' / 'tunes' / 'lab' / 'atlas' / 'studio' /
+// 'english' = a 3D island (core/farm/, core/tunes/, core/lab/, core/atlas/,
+// core/studio/, core/english/), not a walkable one.
 //
 // Curriculum mapping is a draft pending review by Syrian educators.
 
@@ -53,6 +54,14 @@ export default {
       intro: 'منارة الأرقام ترشد السفن بالكسور والنسب. احسب جيداً لتصل بأمان!',
     },
     {
+      // A side trip from the numbers island, open from the start: a 3D island
+      // (core/studio/) where the art book is played (worlds/grade6/studio.js).
+      id: 'art', name: 'جزيرة الألوان', subject: 'التربية الفنية', art: 'palette', pos: [90, 39],
+      color: '#e2543a', unlock: null, from: 'math', kind: 'studio',
+      badge: { name: 'ريشة الألوان', icon: '🎨' },
+      intro: 'جزيرة كلها ألوان! دوائر تدور، ومنظور شارع، وأقنعة أفريقية، وطيّ ورق، وكولاج… كما في كتاب التربية الفنية.',
+    },
+    {
       // A 3D island (core/lab/) where the science book, semester 1, is
       // played: experiments first, then questions (worlds/grade6/lab.js).
       id: 'science', name: 'جزيرة العلوم', subject: 'العلوم', art: 'science', pos: [28, 38],
@@ -67,6 +76,14 @@ export default {
       color: '#c98d1c', unlock: { region: 'science', stars: 2 },
       badge: { name: 'بوصلة الرحّالة', icon: '🧭' },
       intro: 'من النيل إلى الأندلس! نرحل في وطننا العربي في أفريقيا، وفي مرصد الجزيرة كرة أرضية فيها كل دول العالم بأعلامها وعملاتها.',
+    },
+    {
+      // A side trip from the science island: a 3D island (core/english/)
+      // where the English book is played (worlds/grade6/english.js).
+      id: 'english', name: 'جزيرة Hello', subject: 'اللغة الإنكليزية', art: 'english', pos: [9, 21],
+      color: '#2f6fd0', unlock: { region: 'math', stars: 2 }, from: 'science', kind: 'english',
+      badge: { name: 'نجمة الكلمات', icon: '🔤' },
+      intro: 'Hello! جزيرة نتكلّم فيها الإنكليزية: نسافر ونمثّل ونغوص ونطبخ ونزور الكواكب… كما في كتاب اللغة الإنكليزية.',
     },
     {
       id: 'treasure', name: 'جزيرة الكنز', subject: 'مراجعة شاملة', art: 'treasure', pos: [35, 7],

@@ -807,3 +807,32 @@ differ only by the fix.
     `createStage`).
 57. [ ] More game files to TypeScript, smallest first (`core/format.js`,
     `core/ranks.js`), with `npm run build`.
+
+## Playtest notes — 2026-10-18 (the art and English islands; the game on a phone)
+
+Built:
+- **«جزيرة الألوان»** (core/studio/): the whole grade-6 art book, 25 quests,
+  one per lesson in the book's order, at fifteen places on a 3D island. Ten
+  hands-on games play the book's «أحاول» (mix, paint, vanish, fold,
+  collage, pattern, mirror, gallery, press, craft); the gallery at the
+  harbour hangs one painting per finished quest; «مرسمي» (easel.ts) for
+  free drawing with mirror and mandala symmetry; six stickers.
+- **«جزيرة Hello»** (core/english/): the English book, 24 quests (twenty
+  units, four revisions), a seaside town of twelve places, ten games, the
+  word book with flash cards.
+- **On a phone**: vibrations (core/haptics.ts) for touches, right and wrong
+  answers and rewards, with their own switch in ⚙️; touch rings, hold to
+  hear, the back button, drag-to-sort, sparkles on right answers.
+- **TypeScript**: sound, settings, voice, haptics, touch and the easel.
+
+Tested: every art quest played to full marks at 360×740 and 320×568
+(scratch harness), the e2e suite (art and English islands added).
+Broke on the way: the perspective game's horizon and trees never showed on
+a real phone (SVG `<g>` has no `.hidden`), found by a writer and fixed.
+
+Next:
+- Teacher review of the art and English content (draft).
+- The `turkey` painting (lesson 19) reads poorly on its light ground.
+- Two more children's paintings for lesson 24's gallery.
+- Lesson 8's clay mask (p. 28) is not played yet.
+

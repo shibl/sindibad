@@ -76,7 +76,7 @@ export function makeIsland(cfg) {
   // What extras (the island's own code) may use.
   const api = {
     get places() { return places; }, get quest() { return quest; }, get stage() { return stage; },
-    get selected() { return selected; }, doneCount, total: QUESTS.length, lite, portrait,
+    get selected() { return selected; }, doneCount, isDone: id => !!S?.done[id], total: QUESTS.length, lite, portrait,
     say: (h, m) => sayHelper(h, m), spark: (x, y, z) => spawnSpark(x, y, z),
     focus: (x, z, d) => { deselect(); stage.focus(_v.set(x, 0, z), d); },
   };

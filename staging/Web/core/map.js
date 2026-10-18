@@ -16,6 +16,7 @@ import { showFinale } from './finale.js';
 import { awardSticker } from './stickers.js';
 import { rankInfo } from './ranks.js';
 import { STAGING, storeKey } from './env.js';
+import { onLongPress, buzz } from './haptics.js';
 
 let world;          // the current grade world (worlds/grade6.js)
 let el;             // the .map element
@@ -33,6 +34,8 @@ export function initMap(mapEl, worldDef, { openTopic, islands = {}, enterIsland 
   onEnterIsland = enterIsland;
   new ResizeObserver(() => { if (el.offsetParent) render(); }).observe(el);
   el.addEventListener('click', onClick);
+  // Press and hold an island: Hudhud tells what is there, without sailing.
+  onLongPress(el, '.isle', b => peek(b.dataset.region));
   initViewToggle();
   document.getElementById('sheet').addEventListener('click', e => {
     if (e.target.id === 'sheet' || e.target.closest('[data-close]')) closeSheet();
@@ -535,8 +538,44 @@ function sailTo(id, then) {
 
 // ---------- Interaction ----------
 
+// What Hudhud says about an island held down on the map: its subject, its
+// stars and lessons, its badge, or what lifts its fog.
+function peek(id) {
+  if (id === 'home') { toast(`<b>${world.home.name}</b>: بيتنا ومنه تبدأ كل رحلة. ⚓`); return; }
+  const r = world.regions.find(x => x.id === id);
+  if (!r) return;
+  const { stars, max } = regionStars(r.id);
+  const n = topicsIn(r.id).length, badge = badgeState(r.id);
+  if (!isUnlocked(r)) {
+    const req = world.regions.find(x => x.id === r.unlock.region);
+    toast(`<b>${r.name}</b> (${r.subject}) تحت الضباب. 🌫️ اجمع <b>${num(r.unlock.stars)}</b> نجوم في <b>${req.name}</b> ليتبدّد.`);
+    return;
+  }
+  toast(`<b>${r.name}</b> — ${r.subject}. ${r.intro}<br>⭐ ${num(stars)} من ${num(max)} • 📚 ${num(n)} ${n > 10 ? 'درساً' : 'دروس'}${badge ? ` • ${r.badge.icon} ${r.badge.name}` : ''}<br><small>اضغط عليها لتبحر إليها ⛵</small>`, 7000);
+}
+
+// The sea answers a tap too: a ripple, and now and then a fish jumps.
+let splashes = 0;
+function splash(e) {
+  const box = el.getBoundingClientRect(), x = e.clientX - box.left, y = e.clientY - box.top;
+  const s = document.createElement('i');
+  s.className = 'map__splash';
+  s.style.left = `${x}px`; s.style.top = `${y}px`;
+  if (++splashes % 4 === 0) s.innerHTML = `<span>${['🐟', '🐠', '🐡'][splashes % 3]}</span>`;
+  el.append(s);
+  sfx.tick();
+  setTimeout(() => s.remove(), 1400);
+}
+
 function onClick(e) {
   const btn = e.target.closest('.isle');
+  if (!btn && !sailing && e.target.closest('.map__whale')) {
+    const w = el.querySelector('.map__whale');
+    w.classList.remove('is-spouting'); void w.offsetWidth; w.classList.add('is-spouting');
+    buzz('press'); sfx.blip(180);
+    return;
+  }
+  if (!btn && !sailing && e.target.closest('.map__sea, .map__routes') && !el.classList.contains('map--3d')) { splash(e); return; }
   if (!btn || sailing) return;
   const id = btn.dataset.region;
   if (id === 'home') {

@@ -31,4 +31,6 @@ import './agriculture/bees.js';
 import './agriculture/cotton.js';
 import './agriculture/beet.js';
 import './music/reviews.js';
+import './art/reviews.js';
+import './english/reviews.js';
 import './review/treasure.js';

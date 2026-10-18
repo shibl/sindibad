@@ -93,6 +93,40 @@ two games, «أين تقع؟» (find it on the globe) and «علم مَن هذا
 flag?). The helper «سهيل», a little star explorer, explains every step;
 each quest lights a ray of the travellers' compass.
 
+**The art island** («جزيرة الألوان»), open from the start: the grade-6 art
+book («التربية الفنية البصرية والجمالية») as a 3D island of fifteen places
+in the book's order (the square of colour circles, Fatna Kabbouri's house,
+the street in perspective, Braque's studio, Palmyra, the African village,
+the norias of the Orontes, the cardboard workshop, the realist's studio,
+the mandala garden, the Damascene house, the house of ideas, the wall of
+lines, the crafts market and the artists' gallery). Twenty-five quests,
+one per lesson: each teaches with the book's paintings and words, then
+plays its «أحاول» with the fingers — mixing paints, colouring parts of a
+picture, finding the vanishing point and planting trees from near to far,
+folding a paper butterfly, gluing a collage, continuing rhythms of lines
+and beads, completing a symmetric mask, pressing sunken and raised marks
+into clay, making a work stage by stage with the right tool. Each quest
+hangs its painting in the gallery at the harbour. 🖌️ «مرسمي» is a sheet to
+draw freely, with mirror and mandala symmetry. The helper is «ريشة», a
+little paintbrush.
+
+**The English island** («جزيرة Hello»), after the numbers island: the
+grade-6 English book (Pupil's Book and Activity Book) as a seaside town of
+twelve places. Twenty-four quests: the twenty units and the four
+revisions, each teaching its words and grammar box first, then playing the
+book's exercises (listen and pick, build a sentence, spell, verb forms,
+memory, odd one out, adjective order, conversations). 📖 the word book
+keeps every word met, with flash cards. A finished quest lights a star
+round the HELLO sign.
+
+**On a phone** the game answers the finger: a light tick when a button,
+card or spot is touched, a double pulse for a right answer, a buzz for a
+wrong one, a drum roll for stars (⚙️ «الاهتزاز» turns vibration off); a
+soft ring where the finger touched; press and hold an answer, a card or an
+island on the map to hear it read aloud or learn what is there; sort cards
+can be dragged into their bins; the phone's back button goes back in the
+game; the sea ripples where it is tapped.
+
 All numbers in the game are written with the digits 1 2 3 (owner decision
 2026-10-12).
 Lessons are played in different ways: multiple choice, sorting, sailing
@@ -200,6 +234,19 @@ Inside `Web/`:
   `worlds/atlas/countries.js` (cards and flags) and `worlds/atlas/shapes.js`
   (the world's shapes, from Natural Earth, made by `tools/make-world.mjs`),
   its quick reviews `plugins/social/reviews.js`.
+- `core/studio/` — the 3D art island (`studio.js` its config, `games.js`
+  its hands-on games, `views.js` (with `views-1.js`…`views-3.js`) the
+  book's pictures in SVG, `art.js` the little paintings, `easel.ts` the free
+  easel, `models.js` every model); its content is `worlds/grade6/studio.js`
+  and `worlds/grade6/studio/` (part1–3), its quick reviews
+  `plugins/art/reviews.js`.
+- `core/english/` — the 3D English island (`english.js` its config,
+  `games.js` its games, `words.js` the word book, `views.js` pictures,
+  `models.js` every model); its content is `worlds/grade6/english.js` and
+  `worlds/grade6/english/` (block1–4), its quick reviews
+  `plugins/english/reviews.js`.
+- `core/haptics.ts`, `core/touch.ts` — vibrations and how the game answers
+  the finger on a phone.
 - `core/tunes/` — the 3D music island (`tunes.js` game, `games.js` the
   little games each quest step is played with, `synth.js` the instruments,
   made with Web Audio, `models.js` every model, made in code); its content

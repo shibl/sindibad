@@ -2,9 +2,10 @@
 // each with a short true fact. Stickers come from helping villagers,
 // chests, stepping-stone puzzles and monuments on each island; the treasure
 // island's come from its quest, its monument and the four subject badges;
-// the farm's, the music island's, the science island's and the atlas
-// island's from their quests (core/farm/farm.js, core/tunes/tunes.js,
-// core/lab/lab.js, core/atlas/atlas.js).
+// the farm's, the music island's, the science island's, the atlas
+// island's, the art island's and the English island's from their quests
+// (core/farm/farm.js, core/tunes/tunes.js, core/lab/lab.js,
+// core/atlas/atlas.js, core/studio/studio.js, core/english/english.js).
 
 import { save } from './save.js';
 import { sfx } from './sound.js';
@@ -57,6 +58,26 @@ export const STICKERS = {
     ['sunbati', '🎶', 'رياض السنباطي', 'ملحّن مصري تميّز بتلحين القصيدة العربية، وبلغت مؤلفاته الغنائية 539 عملاً.'],
     ['panflute', '🪈', 'البان فلوت', 'آلة تطوّرت عن الناي، فيها من 20 إلى 30 قصبة متلاصقة.'],
     ['mendelssohn', '🎹', 'مندلسون', 'بدأ العزف على البيانو في السادسة، وقاد أوركسترا في العشرين.'],
+  ],
+  // The art island's (core/studio/): facts from the grade-6 art book.
+  // Draft content, pending review by Syrian educators.
+  art: [
+    ['fatna', '🫖', 'فاطنة كبوري', 'فنّانة تشكيلية مغربية (1924–1989م)، من أبرز فنّاني الفنّ الفطريّ في العالم العربيّ، وأكثر ما يميّز رسومها العيون المفتوحة والألوان الصريحة.'],
+    ['perspective', '🛣️', 'نقطة الفرار', 'في المنظور تلتقي خطوط الشارع في نقطة الفرار على خطّ الأفق: القريب كبير ولونه غامق، والبعيد صغير ولونه فاتح.'],
+    ['palmyra', '🏛️', 'النحت التدمريّ', 'نفّذ النحّاتون التدمريون أكثر منحوتاتهم النافرة على الحجر الكلسيّ الطريّ الذي تغنى به الجبال القريبة من تدمر.'],
+    ['mask', '🎭', 'القناع الإفريقيّ', 'القناع الإفريقيّ موجود منذ قديم الزمان، وله علاقة بالطقوس الدينية والاجتماعية، وأغلب الأقنعة مصنوعة من خشب الأشجار.'],
+    ['origami', '🦋', 'فنّ طيّ الورق', 'بطيّ ورقة مربّعة خطوة بعد خطوة نصنع فراشة، ونعلّق الفراشات بسلك معدنيّ لنزيّن بها الصفّ.'],
+    ['marwan', '🖼️', 'مروان قصّاب باشي', 'رسّام ونحّات سوريّ من دمشق (1934–2016م)، من الفنّانين السوريين العالميين، اقتنت أعماله أهمّ متاحف العالم.'],
+  ],
+  // The English island's (core/english/): ENGLISH-STICKERS
+  // Facts from the grade-6 English book. Draft content, pending review by Syrian educators.
+  english: [
+    ['continents', '🌍', 'القارّات السبع', 'على الأرض سبع قارّات وخمسة محيطات، وروسيا أكبر بلد في العالم: جزء منها في أوروبا وجزء في آسيا.'],
+    ['bosra', '🎭', 'مسرح بصرى', 'يأتي زوّار من أنحاء العالم إلى مسرح بصرى ومسرح قلعة حلب ليستمتعوا بالرقص والغناء والمسرحيات.'],
+    ['bluewhale', '🐋', 'الحوت الأزرق', 'الحوت الأزرق أكبر حيوان على الأرض، طوله نحو 100 قدم، ويتنفّس الهواء من فتحة في أعلى رأسه.'],
+    ['childday', '🧒', 'يوم الطفل العالمي', 'كتبت الأمم المتحدة حقوق الطفل في 20 تشرين الثاني 1989، فصار هذا اليوم يوم الطفل العالمي.'],
+    ['palmyra', '🏛️', 'رحلة إلى تدمر', 'في كتاب الإنكليزية يخطّط طفل لعطلته فيقول: I\'m going to travel to Palmyra. وتدمر مدينة أثرية في البادية السورية.'],
+    ['saturn', '🪐', 'زحل', 'زحل الكوكب السادس في المجموعة الشمسية، لونه أصفر وحوله حلقات جميلة، وله نحو 82 قمراً.'],
   ],
   treasure: [
     ['turtle', '🐢', 'السلحفاة البحرية', 'تعود السلحفاة البحرية إلى الشاطئ الذي وُلدت فيه لتضع بيضها.'],
