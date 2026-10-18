@@ -94,6 +94,7 @@ export const owned = () => save.get().stickers || [];
 
 // Give the next sticker from an island's set (if any are left) and show a
 // little toast — or, with `id`, that sticker. Returns the sticker or null.
+/** @param {string} islandId @param {string | null} [id] */
 export function awardSticker(islandId, id = null) {
   const pool = STICKERS[islandId] || [];
   const have = owned();

@@ -23,38 +23,9 @@
 
 import { TEST, bump } from './util.js';
 import type { StepCtx, Resolve, View } from './steps.js';
+import type { Spot, ExploreStep } from '../../types/content.js';
 
-/** One thing to discover: a part of the picture, or a card. */
-export interface Spot {
-  id: string;
-  title: string;
-  text: string;
-  icon?: string;
-  /** A key of opts.art: a small picture for the card and the note. */
-  art?: string;
-  /** The name shown on the part once found (else a short title). */
-  label?: string;
-  /** What the helper says when it opens. */
-  say?: string;
-  /** Anything an island's onSpot needs (a note to play, a place to fly to…). */
-  [more: string]: unknown;
-}
-
-export interface ExploreStep {
-  kind: 'explore';
-  title: string;
-  spots: Spot[];
-  say?: string;
-  view?: string;
-  guided?: boolean;
-  cols?: number;
-  theme?: string;
-  done?: string;
-  sum?: string;
-  /** The line under the picture (default: «اضغط على كل ما يلمع لتكتشفه»). */
-  tap?: string;
-  [more: string]: unknown;
-}
+export type { Spot, ExploreStep };
 
 export interface ExploreOpts {
   views?: Record<string, View>;

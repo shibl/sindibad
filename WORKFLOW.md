@@ -68,6 +68,11 @@ against?
   each useful tap with `data-step` if it takes several taps (see
   `plugins/engines/kit.js`). Add the new lesson to the test in
   `tests/e2e.mjs`.
+- A 3D book island's lessons are also checked without a browser by
+  `tests/check-content.ts` (a second; part of `npm test`): teaching first,
+  four questions or more, a hint and an explanation on each, pictures and
+  places that exist, six review questions. A new island adds itself to its
+  list.
 - Play it yourself on a local server before shipping (step 5).
 
 ## 4. Update the docs (every time)

@@ -227,7 +227,7 @@ before asking.
   geography, capitals, landmarks, climate, civilisations) was retired with
   this decision; it is in the git history.
 - **One engine for the quest islands:** the science and atlas islands are
-  both configs of `Web/core/isle/island.js` (ground, plinths, toys, the
+  both configs of `Web/core/isle/island.ts` (ground, plinths, toys, the
   camera, the quest panel); a new book island is a config, its models and
   its pictures.
 - Content: `Web/worlds/grade6/atlas.js`, `Web/worlds/grade6/atlas/` (one

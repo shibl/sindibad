@@ -25,7 +25,10 @@
 
 import { num } from '../format.js';
 import { explore, fitHits } from './explore.js';
-import type { ExploreStep, ExploreOpts, Spot } from './explore.js';
+import type { ExploreOpts } from './explore.js';
+import type { Step, Question, Spot, ExploreStep } from '../../types/content.js';
+
+export type { Step, Question };
 import { burst } from '../../plugins/engines/kit.js';
 import { later, shuffle, bump } from './util.js';
 
@@ -46,31 +49,10 @@ export interface StepCtx {
   signal: AbortSignal;
   onSpot?(step: Step, spot: unknown): void;
 }
-/** Any step: «أتعلّم», a shared question, or an island's own game. */
-export interface Step {
-  kind: string;
-  q?: string;
-  hint?: string;
-  explain?: string;
-  view?: string;
-  pic?: string;
-  [more: string]: any;
-}
 /** A picture: step → svg/html. */
 export type View = (step: any) => string;
 export type StepFn<S extends Step = Step> = (step: S, host: HTMLElement, ctx: StepCtx, resolve: Resolve) => void;
 export type RunStep = (step: Step, host: HTMLElement, ctx: StepCtx) => Promise<StepResult>;
-
-// The shared questions.
-export interface Choice extends Step { kind: 'choice'; q: string; options: string[] }
-export interface TwoWay extends Step { kind: 'twoway'; lines: [string, string, string][] }
-export interface Sort extends Step { kind: 'sort'; q: string; bins: { id: string; label: string; icon?: string }[]; items: [string, string, string?][] }
-export interface Order extends Step { kind: 'order'; q: string; items: string[]; icons?: string[] }
-export interface Match extends Step { kind: 'match'; q: string; pairs: [string, string][] }
-export interface TrueFalse extends Step { kind: 'tf'; items: [string, boolean, string?][] }
-export interface NumberStep extends Step { kind: 'number'; q: string; answer: number | string; unit?: string }
-export interface Label extends Step { kind: 'label'; q: string; view: string; ask: [string, string][] }
-export type Question = Choice | TwoWay | Sort | Order | Match | TrueFalse | NumberStep | Label;
 
 // ---------- Shared by every island's games ----------
 
