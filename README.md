@@ -204,6 +204,8 @@ Inside `Web/`:
   fallback offline).
 - `core/` — the engine: map, lesson runner, topic registry, save data,
   sounds, journey page, finale. Never changes when content is added.
+  `save.ts` keeps each child's game in the browser; its `GameSave` type
+  lists everything a save holds.
 - `worlds/chapters.js` — the twelve voyages (one per grade) and the four
   age stages; `core/chapters.js` draws the voyages chart.
 - `worlds/grade6.js` — the grade-6 islands, positions, unlock rules, badges.

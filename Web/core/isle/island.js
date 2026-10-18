@@ -28,7 +28,7 @@ import { canSpeak, speak, stopSpeaking } from '../voice.js';
 import { playMusic, stopMusic } from '../music.js';
 const TEST = typeof window !== 'undefined' && !!window.__SINDBAD_TEST__;
 const $ = (id) => document.getElementById(id);
-const topicStars = (topic) => save.get().topics?.[topic]?.stars || 0;
+const topicStars = (topic) => save.get().topics[topic]?.stars || 0;
 /** A mesh that casts and takes shadows (not a see-through one). */
 export const solid = (o) => o.isMesh && !o.material.transparent;
 export function makeIsland(cfg) {
@@ -42,8 +42,7 @@ export function makeIsland(cfg) {
     let sessionGain = { gained: 0, topic: null };
     // ---------- Save data ----------
     function state() {
-        const s = save.get();
-        const w = (s.world ||= {});
+        const w = (save.get().world ||= {});
         const t = (w[key] ||= {});
         t.met ??= false;
         t.done ||= {};

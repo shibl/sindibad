@@ -72,9 +72,8 @@ const isle = makeIsland({
 });
 
 // The visited countries of the atlas (save.world.atlas.visited).
-type AtlasSave = { world?: { atlas?: { visited?: string[] } } };
-const visitedSet = () => new Set((save.get() as AtlasSave).world?.atlas?.visited || []);
-function remember(id: string) { save.update((s: AtlasSave) => { const w = (s.world ||= {}); const a = (w.atlas ||= {}); a.visited = [...new Set([...(a.visited || []), id])]; }); }
+const visitedSet = () => new Set<string>(save.get().world?.atlas?.visited || []);
+function remember(id: string) { save.update(s => { const w = (s.world ||= {}); const a = (w.atlas ||= {}); a.visited = [...new Set([...(a.visited || []), id])]; }); }
 
 function extras(scene: THREE.Scene, api: IslandApi): Extras {
   const P = api.places;

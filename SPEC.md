@@ -318,7 +318,7 @@ right before anything else:
   `staging` branch publishes a staging copy at `/staging/` on the same
   website; merging into `main` publishes the live game. Both only when the
   tests pass (`.github/workflows/site.yml`). The staging copy keeps its
-  own saves and offline copy (`Web/core/env.js`), and everything is open
+  own saves and offline copy (`Web/core/env.ts`), and everything is open
   there from the start *(decision 2026-10-13)*: every island, the gates on
   the walkable islands and every farm task. So the developers can try any
   of them without earning stars first. The live game keeps its locks.

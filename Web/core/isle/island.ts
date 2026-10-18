@@ -157,7 +157,7 @@ export interface IslandHooks {
 interface IslandSave { met: boolean; done: Record<string, boolean> }
 /** Stars won in this visit (shown on the map when the child leaves). */
 interface Gain { gained: number; topic: unknown }
-const topicStars = (topic: string): number => (save.get() as { topics?: Record<string, { stars?: number }> }).topics?.[topic]?.stars || 0;
+const topicStars = (topic: string) => save.get().topics[topic]?.stars || 0;
 /** A mesh that casts and takes shadows (not a see-through one). */
 export const solid = (o: THREE.Object3D): o is THREE.Mesh => (o as THREE.Mesh).isMesh && !((o as THREE.Mesh).material as THREE.Material).transparent;
 
@@ -174,9 +174,8 @@ export function makeIsland(cfg: IslandConfig) {
 
   // ---------- Save data ----------
   function state() {
-    const s = save.get() as { world?: Record<string, Partial<IslandSave>> };
-    const w = (s.world ||= {});
-    const t = (w[key] ||= {});
+    const w = (save.get().world ||= {});
+    const t: Partial<IslandSave> = (w[key] ||= {});
     t.met ??= false;
     t.done ||= {};
     return t as IslandSave;

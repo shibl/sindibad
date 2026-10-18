@@ -66,8 +66,9 @@ const isle = makeIsland({
     },
     extras,
 });
+// The visited countries of the atlas (save.world.atlas.visited).
 const visitedSet = () => new Set(save.get().world?.atlas?.visited || []);
-function remember(id) { save.update((s) => { const w = (s.world ||= {}); const a = (w.atlas ||= {}); a.visited = [...new Set([...(a.visited || []), id])]; }); }
+function remember(id) { save.update(s => { const w = (s.world ||= {}); const a = (w.atlas ||= {}); a.visited = [...new Set([...(a.visited || []), id])]; }); }
 function extras(scene, api) {
     const P = api.places;
     const compass = M.travellersCompass(QUESTS.length);
