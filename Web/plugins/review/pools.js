@@ -13,6 +13,8 @@ import { ITEMS as KANA } from '../arabic/kana.js';
 import { ITEMS as INNA } from '../arabic/inna.js';
 import { QUESTIONS as RATIO } from '../math/ratio.js';
 import { QUESTS as SOCIAL, reviewOf as socialReview } from '../../worlds/grade6/atlas.js';
+import { QUESTS as ART, reviewOf as artReview } from '../../worlds/grade6/studio.js';
+import { QUESTS as ENGLISH, reviewOf as englishReview } from '../../worlds/grade6/english.js';
 
 const fromTap = it => ({
   q: `في جملة «${it.words.join(' ')}»، ما ${it.ask}؟`,
@@ -29,6 +31,9 @@ const fromPlural = it => ({
 const sciencePool = () => SCIENCE.flatMap(q => scienceReview(q.id));
 // The atlas island's quick-review questions (worlds/grade6/atlas.js).
 const socialPool = () => SOCIAL.flatMap(q => socialReview(q.id));
+// The art island's and the English island's (worlds/grade6/studio.js, english.js).
+const artPool = () => ART.flatMap(q => artReview(q.id));
+const englishPool = () => ENGLISH.flatMap(q => englishReview(q.id));
 
 function mixed() {
   return [
@@ -36,6 +41,7 @@ function mixed() {
     ...pick(percent(), 1), ...pick(FRACOPS, 1),
     ...pick(sciencePool(), 3),
     ...pick(socialPool(), 2),
+    ...pick(englishPool(), 2), ...pick(artPool(), 1),
     ...pick([...KANA, ...INNA], 1).map(fromTap), ...pick(RATIO, 1),
   ];
 }
@@ -46,6 +52,8 @@ const POOLS = {
   math: () => [...percent(), ...FRACOPS, ...RATIO],
   science: sciencePool,
   social: socialPool,
+  art: artPool,
+  english: englishPool,
 };
 
 // One random question from a subject (or from everything).

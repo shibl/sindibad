@@ -29,6 +29,8 @@ const THEMES = {
   treasure: { maqam: 'saba', tonic: 208, bpm: 80 },
   farm: { maqam: 'ajam', tonic: 220, bpm: 96 },
   music: { maqam: 'ajam', tonic: 262, bpm: 88 },   // عجم on C: in tune with the island's piano
+  art: { maqam: 'rast', tonic: 233, bpm: 98 },
+  english: { maqam: 'ajam', tonic: 196, bpm: 108 },   // عجم: the major scale, as in English songs
 };
 
 // Maqsum: dum tak - tak dum - tak -  (8 eighth notes)

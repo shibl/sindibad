@@ -588,6 +588,45 @@ const LANDMARKS = {
       <g fill="#d0507e" stroke="#d0507e"><ellipse cx="56" cy="72" rx="5" ry="4" stroke="none"/><ellipse cx="72" cy="68" rx="5" ry="4" stroke="none"/><path d="M60 72 V54 L76 50 V68" stroke-width="3" fill="none"/></g>
     </g>`,
 
+  // Art: an easel whose canvas holds the book's colour circles, a palette
+  // with its paints and brush, and a paper crane.
+  palette: () => `
+    ${islandBase({ grass: '#9fd46e' })}
+    <path d="M92 132 L112 44 M148 132 L128 44 M120 40 V136" stroke="${LINE}" stroke-width="7" stroke-linecap="round"/>
+    <path d="M92 132 L112 44 M148 132 L128 44 M120 40 V136" stroke="#c98a4a" stroke-width="4" stroke-linecap="round"/>
+    <rect x="84" y="46" width="72" height="58" rx="4" fill="#fffaf0" ${OUT}/>
+    <circle cx="106" cy="72" r="17" fill="#3f8fd6"/><circle cx="106" cy="72" r="11" fill="#f6c632"/><circle cx="106" cy="72" r="5" fill="#e8453c"/>
+    <circle cx="138" cy="82" r="14" fill="#e8453c"/><circle cx="138" cy="82" r="8" fill="#ffffff"/><circle cx="138" cy="82" r="4" fill="#2f9a4a"/>
+    <path d="M86 98 L154 52" stroke="${LINE}" stroke-width="2.5"/><path d="M88 60 L150 100" stroke="#8a63c9" stroke-width="3"/>
+    <rect x="84" y="46" width="72" height="58" rx="4" fill="none" ${OUT}/>
+    <path d="M80 104 H160" stroke="${LINE}" stroke-width="6" stroke-linecap="round"/>
+    <g transform="translate(176 120) rotate(-14)">
+      <path d="M-26 0 Q-30 -22 -2 -24 Q26 -26 28 -6 Q30 10 12 8 Q2 6 4 14 Q2 22 -10 18 Q-24 14 -26 0Z" fill="#f3d9a8" ${OUT}/>
+      <circle cx="-14" cy="-10" r="5" fill="#e8453c"/><circle cx="0" cy="-15" r="5" fill="#f6c632"/><circle cx="14" cy="-12" r="5" fill="#3f8fd6"/><circle cx="18" cy="0" r="4.5" fill="#2f9a4a"/>
+      <ellipse cx="-12" cy="6" rx="5" ry="4" fill="#fff" ${OUT_THIN}/>
+    </g>
+    <path d="M166 92 L198 70" stroke="${LINE}" stroke-width="5" stroke-linecap="round"/><path d="M166 92 L198 70" stroke="#c98a4a" stroke-width="3" stroke-linecap="round"/>
+    <path d="M196 71 l8 -6 l-2 8Z" fill="#8a63c9" ${OUT_THIN}/>
+    <g transform="translate(58 112)">
+      <path d="M-16 4 L0 -8 L18 2 L4 6Z" fill="#ec79a8" ${OUT_THIN}/><path d="M0 -8 L-4 -22 L4 6Z" fill="#f5a3c4" ${OUT_THIN}/><path d="M18 2 L26 -10 L22 4Z" fill="#ec79a8" ${OUT_THIN}/>
+    </g>`,
+
+  // English: a giant open book with its letters, A B C blocks and a speech
+  // bubble saying hello.
+  english: () => `
+    ${islandBase({ grass: '#8fcf7a' })}
+    <path d="M70 120 L72 80 Q96 70 120 82 Q144 70 168 80 L170 120 Q144 110 120 122 Q96 110 70 120Z" fill="#2f6fd0" ${OUT}/>
+    <path d="M76 114 L78 76 Q98 66 120 78 V116 Q98 104 76 114Z" fill="#fffaf0" ${OUT_THIN}/>
+    <path d="M164 114 L162 76 Q142 66 120 78 V116 Q142 104 164 114Z" fill="#fffaf0" ${OUT_THIN}/>
+    <path d="M86 86 h24 M86 94 h20 M86 102 h24 M130 86 h24 M134 94 h20 M130 102 h24" stroke="#9fb6d8" stroke-width="2.5" stroke-linecap="round"/>
+    <g font-family="Baloo Bhaijaan 2, sans-serif" font-weight="800" text-anchor="middle">
+      <rect x="44" y="112" width="22" height="22" rx="4" fill="#e8453c" ${OUT_THIN}/><text x="55" y="129" font-size="16" fill="#fff">A</text>
+      <rect x="172" y="114" width="22" height="22" rx="4" fill="#f6c632" ${OUT_THIN}/><text x="183" y="131" font-size="16" fill="${LINE}">B</text>
+      <rect x="182" y="92" width="20" height="20" rx="4" fill="#2f9a4a" ${OUT_THIN}/><text x="192" y="107" font-size="15" fill="#fff">C</text>
+      <path d="M96 30 H150 Q160 30 160 40 V52 Q160 62 150 62 H128 L118 72 L118 62 H96 Q86 62 86 52 V40 Q86 30 96 30Z" fill="#fff" ${OUT}/>
+      <text x="123" y="53" font-size="17" fill="#2f6fd0">Hello!</text>
+    </g>`,
+
   // Treasure: a glowing chest under a palm — the final review island.
   treasure: () => `
     ${islandBase({ sand: '#f7dc9c', grass: '#8fd06e' })}
@@ -602,7 +641,7 @@ const LANDMARKS = {
     <g fill="#ffd23f" ${OUT_THIN}><circle cx="82" cy="130" r="5"/><circle cx="150" cy="134" r="5"/><circle cx="92" cy="138" r="4"/></g>`,
 };
 
-// An island for the world map. kind: port | letters | numbers | science | citadel | atlas | farm | music | treasure
+// An island for the world map. kind: port | letters | numbers | science | citadel | atlas | farm | music | palette | english | treasure
 export function islandSVG(kind) {
   return `<svg class="island-art island-art--${kind}" viewBox="0 0 240 200" aria-hidden="true" overflow="visible">${LANDMARKS[kind]()}</svg>`;
 }

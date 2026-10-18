@@ -7,6 +7,7 @@
 //   twoway   q, lines: [[sentence with ___, right, wrong]]
 //   sort     q, bins: [{ id, label, icon }], items: [[text, bin, icon?]]
 //   order    q, items (in the right order), icons?
+//            (sort: the card can also be dragged into its bin)
 //   match    q, pairs: [[left, right]] (in order)
 //   tf       q, items: [[statement, true|false, fix?]]
 //   number   q, answer, unit
@@ -20,6 +21,7 @@
 
 import { num } from '../format.js';
 import { fitHits } from './explore.js';
+import { burst } from '../../plugins/engines/kit.js';
 
 const TEST = typeof window !== 'undefined' && !!window.__SINDBAD_TEST__;
 const later = (fn, ms) => setTimeout(fn, TEST ? 0 : ms);
@@ -40,6 +42,50 @@ function tracker(step, ctx, reveal) {
     },
   };
 }
+// A right answer sparkles (+1 when it was right the first time).
+const sparkle = (el, first) => burst(el, first ? '+1' : '');
+
+// Drag `item` and drop it on one of `targets` (found under the finger):
+// `drop(target)` then does what tapping that target would. A light tick
+// each time the card comes over a target.
+function dragTo(item, targets, ctx, drop) {
+  let id = null, sx = 0, sy = 0, ghost = null, over = null;
+  item.classList.add('lq-drag');
+  const under = (x, y) => document.elementFromPoint(x, y)?.closest(targets);
+  item.addEventListener('pointerdown', e => {
+    if (e.button > 0) return;
+    id = e.pointerId; sx = e.clientX; sy = e.clientY;
+    try { item.setPointerCapture(id); } catch { /* fine */ }
+  });
+  item.addEventListener('pointermove', e => {
+    if (e.pointerId !== id) return;
+    if (!ghost) {
+      if (Math.hypot(e.clientX - sx, e.clientY - sy) < 8) return;
+      ghost = document.createElement('div');
+      ghost.className = 'lq lq-ghost';
+      ghost.append(item.cloneNode(true));
+      document.body.append(ghost);
+      item.classList.add('is-lifted');
+      ctx.sfx.tick?.();
+    }
+    ghost.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+    const t = under(e.clientX, e.clientY);
+    if (t !== over) { over?.classList.remove('is-over'); over = t; if (t) { t.classList.add('is-over'); ctx.sfx.tick?.(); } }
+  });
+  const end = e => {
+    if (e.pointerId !== id) return;
+    id = null;
+    if (!ghost) return;
+    ghost.remove(); ghost = null;
+    item.classList.remove('is-lifted');
+    const t = over;
+    over?.classList.remove('is-over'); over = null;
+    if (t) drop(t);
+  };
+  item.addEventListener('pointerup', end);
+  item.addEventListener('pointercancel', end);
+}
+
 function finish(host, step, ctx, resolve, ok) {
   if (step.explain) ctx.say(step.explain, ok >= 1 ? 'cheer' : 'happy');
   host.classList.add('is-solved');
@@ -66,6 +112,7 @@ const KINDS = {
       if (!('ok' in b.dataset)) { b.disabled = true; tr.miss(b); return; }
       b.classList.add('is-right');
       ctx.sfx.good();
+      sparkle(b, !tr.misses);
       finish(host, step, ctx, resolve, tr.misses ? 0 : 1);
     });
   },
@@ -95,6 +142,7 @@ const KINDS = {
       const slot = lis[i].querySelector('.lq-slot');
       slot.textContent = lines[i][1];
       slot.classList.add('is-filled');
+      sparkle(slot, !missedHere);
       lis[i].classList.add('is-done');
       i += 1;
       if (i < lines.length) { show(); return; }
@@ -123,6 +171,7 @@ const KINDS = {
       missedHere = false;
     };
     show();
+    dragTo(item, '.lq-bin', ctx, b => b.click());
     host.querySelector('.lq-bins').addEventListener('click', e => {
       const b = e.target.closest('.lq-bin');
       if (!b || host.classList.contains('is-solved')) return;
@@ -131,6 +180,7 @@ const KINDS = {
       const [t, , icon] = items[i];
       b.querySelector('.lq-bin__in').insertAdjacentHTML('beforeend', `<i title="${t}">${icon || '•'}</i>`);
       bump(b, 'is-got');
+      sparkle(b, !missedHere);
       i += 1;
       if (i < items.length) { show(); return; }
       host.querySelector('.lq-tray').remove();
@@ -158,6 +208,7 @@ const KINDS = {
       const it = items[i];
       slots[i].innerHTML = `${it.icon ? `<b>${it.icon}</b>` : ''}<small>${it.t}</small>`;
       slots[i].classList.add('is-filled');
+      sparkle(slots[i], false);
       b.disabled = true; b.classList.add('is-used');
       i += 1;
       if (i < items.length) { mark(); return; }
@@ -191,6 +242,7 @@ const KINDS = {
       ctx.sfx.tap();
       ls[i].classList.add('is-done');
       ls[i].insertAdjacentHTML('beforeend', `<b class="lq-match__got">${pairs[i][1]}</b>`);
+      sparkle(ls[i], !missedHere);
       b.disabled = true; b.classList.add('is-used');
       i += 1;
       if (i < pairs.length) { mark(); return; }
@@ -226,6 +278,7 @@ const KINDS = {
       if (!('ok' in b.dataset)) { b.disabled = true; if (!missedHere) { missedHere = true; missed += 1; } tr.miss(b); return; }
       ctx.sfx.tap();
       b.classList.add('is-right');
+      sparkle(b, !missedHere);
       btns.forEach(x => x.removeAttribute('data-ok'));
       const [, truth, correction] = items[i];
       if (!truth && correction) { fix.innerHTML = `✏️ ${correction}`; fix.hidden = false; }
@@ -260,7 +313,7 @@ const KINDS = {
       const k = e.target.closest('.lq-key');
       if (!k || host.classList.contains('is-solved')) return;
       const key = k.dataset.key;
-      ctx.sfx.tap();
+      if (key === '✓') ctx.sfx.tap(); else (ctx.sfx.tick || ctx.sfx.tap)();
       if (key === '⌫') typed = typed.slice(0, -1);
       else if (key === '✓') {
         if (!typed) return;
@@ -268,6 +321,7 @@ const KINDS = {
         keys.forEach(x => { x.removeAttribute('data-ok'); x.disabled = true; });
         out.classList.add('is-right');
         ctx.sfx.good();
+        sparkle(out, !tr.misses);
         finish(host, step, ctx, resolve, tr.misses ? 0 : 1);
         return;
       } else if (typed.length < 7) typed += key;
@@ -299,6 +353,7 @@ const KINDS = {
       if (id !== step.ask[i][0]) { if (!missedHere) { missedHere = true; missed += 1; } tr.miss(el); return; }
       ctx.sfx.tap();
       el.classList.add('is-found');
+      sparkle(el, !missedHere);
       el.classList.remove('is-reveal');
       el.removeAttribute('data-ok');
       const lab = el.querySelector('.lx-label');

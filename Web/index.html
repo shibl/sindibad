@@ -246,6 +246,54 @@
     <div class="gl-host" id="atlas-globe" hidden></div>
   </section>
 
+  <!-- The art island: a 3D island (core/studio/), loaded when first visited. -->
+  <section id="screen-studio" class="screen screen--tunes screen--lab screen--studio">
+    <div class="tn-stage" id="studio-stage">
+      <div class="tn-labels" id="studio-labels"></div>
+    </div>
+    <header class="topbar topbar--island topbar--tunes">
+      <button class="btn btn--round" id="studio-leave" aria-label="العودة إلى السفينة">⛵</button>
+      <h2 id="studio-title">جزيرة الألوان</h2>
+      <button class="btn btn--round" id="studio-quests-btn" aria-label="الدروس">📜</button>
+      <button class="btn btn--round" id="studio-easel-btn" aria-label="مرسمي: ارسم ولوّن بحرّية">🖌️</button>
+      <button class="hud-pill tn-notes lb-gems" id="studio-gems-btn" title="لوحات المعرض">🖼️ <b id="studio-gems">0</b></button>
+    </header>
+    <div class="goal tn-goal" id="studio-goal" aria-live="polite"></div>
+    <div class="sr-only lb-places" id="studio-places" aria-label="أماكن الجزيرة"></div>
+    <div class="farm-say tn-say" id="studio-say" hidden>
+      <button class="farm-say__face" aria-label="المساعد: اضغط لتلميح"><img alt=""></button>
+      <div class="farm-say__body"><p class="farm-say__name"></p><p class="bubble" aria-live="polite"></p></div>
+      <button class="farm-say__voice say-btn" aria-label="اقرأ لي" hidden>🔊</button>
+    </div>
+    <div class="tn-panel" id="studio-panel" hidden></div>
+    <div class="farm-modal tn-modal" id="studio-modal" hidden></div>
+    <div class="st-host" id="studio-easel" hidden></div>
+  </section>
+
+  <!-- The English island: a 3D island (core/english/), loaded when first visited. -->
+  <section id="screen-english" class="screen screen--tunes screen--lab screen--english">
+    <div class="tn-stage" id="english-stage">
+      <div class="tn-labels" id="english-labels"></div>
+    </div>
+    <header class="topbar topbar--island topbar--tunes">
+      <button class="btn btn--round" id="english-leave" aria-label="العودة إلى السفينة">⛵</button>
+      <h2 id="english-title">جزيرة Hello</h2>
+      <button class="btn btn--round" id="english-quests-btn" aria-label="الدروس">📜</button>
+      <button class="btn btn--round" id="english-words-btn" aria-label="دفتر كلماتي">📖</button>
+      <button class="hud-pill tn-notes lb-gems" id="english-gems-btn" title="نجوم الكلمات">⭐ <b id="english-gems">0</b></button>
+    </header>
+    <div class="goal tn-goal" id="english-goal" aria-live="polite"></div>
+    <div class="sr-only lb-places" id="english-places" aria-label="أماكن الجزيرة"></div>
+    <div class="farm-say tn-say" id="english-say" hidden>
+      <button class="farm-say__face" aria-label="المساعد: اضغط لتلميح"><img alt=""></button>
+      <div class="farm-say__body"><p class="farm-say__name"></p><p class="bubble" aria-live="polite"></p></div>
+      <button class="farm-say__voice say-btn" aria-label="اقرأ لي" hidden>🔊</button>
+    </div>
+    <div class="tn-panel" id="english-panel" hidden></div>
+    <div class="farm-modal tn-modal" id="english-modal" hidden></div>
+    <div class="en-host" id="english-words" hidden></div>
+  </section>
+
   <section id="screen-journey" class="screen screen--journey">
     <header class="topbar">
       <button class="btn btn--round" data-go="map" aria-label="رجوع إلى الخريطة">→</button>
