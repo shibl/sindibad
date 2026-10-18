@@ -228,8 +228,8 @@ Inside `Web/`:
   `svg.ts` the helpers the islands draw their lesson pictures with (`svg`,
   `spot`, `lab`…).
 - `core/isle/` — the engine every 3D book island shares (`island.ts`: the
-  stage, camera, places, plinths, the quest panel, rewards; `ground.js` the
-  terraces and the path; `kit.js` small shared models and
+  stage, camera, places, plinths, the quest panel, rewards; `ground.ts` the
+  terraces and the path; `kit.ts` small shared models and
   `canvasTextures()`, pictures drawn once as textures). An island is a
   config of it, checked against its `IslandConfig` type; the lessons it
   plays are typed in `types/content.d.ts` (a quest, a station, a step).
