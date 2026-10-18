@@ -214,13 +214,13 @@ Inside `Web/`:
 - `worlds/chapters.js` — the twelve voyages (one per grade) and the four
   age stages; `core/chapters.ts` draws the voyages chart.
 - `worlds/grade6.js` — the grade-6 islands, positions, unlock rules, badges.
-- `core/farm/` — the 3D farm island (`farm.js` game, `scene.ts` camera and
+- `core/farm/` — the 3D farm island (`farm.ts` game, `scene.ts` camera and
   light, `models.js` every model, made in code); its content (crops, steps,
   helpers, quests, orders) is `worlds/grade6/farm.js`, its quick reviews
   `plugins/agriculture/`.
-- `core/sea/` — the 3D sea map, a preview on the staging copy (`sea.js` the
+- `core/sea/` — the 3D sea map, a preview on the staging copy (`sea.ts` the
   sea, ship, fog and camera; `models.js` the islands' landmarks, made in
-  code). `core/map.js` picks it or the flat map; both share the island labels.
+  code). `core/map.ts` picks it or the flat map; both share the island labels.
 - `core/learn/` — what every 3D island quest is made of: `explore.ts`,
   «أتعلّم», the teaching step every quest opens with (a picture with glowing
   spots; each tap opens one idea; the questions come when every spot is
@@ -265,7 +265,7 @@ Inside `Web/`:
   `plugins/english/reviews.js`.
 - `core/haptics.ts`, `core/touch.ts` — vibrations and how the game answers
   the finger on a phone.
-- `core/tunes/` — the 3D music island (`tunes.js` game, `games.ts` the
+- `core/tunes/` — the 3D music island (`tunes.ts` game, `games.ts` the
   little games each quest step is played with, `synth.ts` the instruments,
   made with Web Audio, `models.js` every model, made in code); its content
   (stations, quests, steps) is `worlds/grade6/tunes.js`, its quick reviews

@@ -257,7 +257,7 @@ starting with the sea map in 3D, in the same style as the farm.
   so they stay crisp and screen readers find them.
 - **Fallbacks:** phones without WebGL, or if the 3D sea fails to load, get
   the flat map. Lite mode: no shadows, about 30 frames a second.
-- Engine: `Web/core/sea/`; switching: `Web/core/map.js`.
+- Engine: `Web/core/sea/`; switching: `Web/core/map.ts`.
 
 ### Characters
 - The player **chooses their hero** at the start: **Sindbad** (سندباد, a boy)
