@@ -217,6 +217,7 @@ function build(step, host, ctx, resolve) {
   const r = rounds(items.length);
   const tr = tracker(step, ctx, () => box.querySelector('[data-ok]')?.classList.add('is-reveal'));
   const markNext = () => {
+    box.querySelectorAll('.en-tile').forEach(b => { b.removeAttribute('data-ok'); b.removeAttribute('data-step'); });
     const btns = [...box.querySelectorAll('.en-tile:not(.is-used)')];
     btns.forEach(b => { b.removeAttribute('data-ok'); b.removeAttribute('data-step'); b.classList.remove('is-reveal'); });
     const want = btns.find(b => b.dataset.t === tiles[pos]);
@@ -274,6 +275,7 @@ function spell(step, host, ctx, resolve) {
   const r = rounds(items.length);
   const tr = tracker(step, ctx, () => box.querySelector('[data-ok]')?.classList.add('is-reveal'));
   const markNext = () => {
+    box.querySelectorAll('.en-letter').forEach(b => { b.removeAttribute('data-ok'); b.removeAttribute('data-step'); });
     const btns = [...box.querySelectorAll('.en-letter:not(.is-used)')];
     btns.forEach(b => { b.removeAttribute('data-ok'); b.removeAttribute('data-step'); b.classList.remove('is-reveal'); });
     const want = btns.find(b => b.dataset.l === word[pos]);

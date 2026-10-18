@@ -65,7 +65,8 @@ function canvasTex(key, w, h, draw) {
 }
 const star5 = (g, cx, cy, r, col) => { g.fillStyle = col; g.beginPath(); for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + (i * Math.PI) / 5, rr = i % 2 ? r * 0.45 : r; g.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr); } g.fill(); };
 const FLAGS = {
-  syria: (g, w, h) => { g.fillStyle = '#ce1126'; g.fillRect(0, 0, w, h / 3); g.fillStyle = '#fff'; g.fillRect(0, h / 3, w, h / 3); g.fillStyle = '#111'; g.fillRect(0, (2 * h) / 3, w, h / 3); star5(g, w * 0.36, h / 2, h * 0.13, '#007a3d'); star5(g, w * 0.64, h / 2, h * 0.13, '#007a3d'); },
+  // as on the atlas island (worlds/atlas/countries.js): green, white, black, three red stars
+  syria: (g, w, h) => { g.fillStyle = '#007a3d'; g.fillRect(0, 0, w, h / 3 + 1); g.fillStyle = '#fff'; g.fillRect(0, h / 3, w, h / 3 + 1); g.fillStyle = '#000'; g.fillRect(0, (2 * h) / 3, w, h / 3); for (const x of [0.28, 0.5, 0.72]) star5(g, w * x, h / 2, h * 0.11, '#ce1126'); },
   italy: (g, w, h) => { ['#009246', '#fff', '#ce2b37'].forEach((c, i) => { g.fillStyle = c; g.fillRect((i * w) / 3, 0, w / 3 + 1, h); }); },
   spain: (g, w, h) => { g.fillStyle = '#aa151b'; g.fillRect(0, 0, w, h); g.fillStyle = '#f1bf00'; g.fillRect(0, h / 4, w, h / 2); },
   canada: (g, w, h) => { g.fillStyle = '#d52b1e'; g.fillRect(0, 0, w, h); g.fillStyle = '#fff'; g.fillRect(w / 4, 0, w / 2, h); star5(g, w / 2, h / 2, h * 0.3, '#d52b1e'); },
