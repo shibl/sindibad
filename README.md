@@ -165,7 +165,7 @@ types (`Web/tsconfig.json`) and the game's (`Web/tsconfig.game.json`).
 
 The game is moving to TypeScript one file at a time. The browser still
 loads plain JavaScript, so playing or previewing needs no build step: for a
-game file written in TypeScript (`core/farm/scene.ts`, `core/atlas/globe.ts`),
+game file written in TypeScript (`core/farm/scene.ts`, `core/learn/steps.ts`),
 the `.js` next to it is made from it by `npm run build`, and both are
 committed. Edit the `.ts`, then run `npm run build`; never edit that `.js`
 (the test fails if it no longer matches).
@@ -212,12 +212,15 @@ Inside `Web/`:
 - `core/sea/` — the 3D sea map, a preview on the staging copy (`sea.js` the
   sea, ship, fog and camera; `models.js` the islands' landmarks, made in
   code). `core/map.js` picks it or the flat map; both share the island labels.
-- `core/learn/` — what every 3D island quest is made of: `explore.js`,
+- `core/learn/` — what every 3D island quest is made of: `explore.ts`,
   «أتعلّم», the teaching step every quest opens with (a picture with glowing
   spots; each tap opens one idea; the questions come when every spot is
-  found), and `steps.js`, the questions any island can use (choice, the
+  found), and `steps.ts`, the questions any island can use (choice, the
   book's «أستنتج» sentences, sort, order, match, true/false, a sum, tap the
-  part). Islands give them their own pictures.
+  part). Islands give them their own pictures. `steps.ts` also holds what
+  every island's own games share: the step types, `tracker()` (a miss: the
+  hint, then the answer glows), `finish()` («تابِع») and `makeRunStep()` (an
+  island's step runner); `util.ts` the small helpers (`shuffle`, `bump`…).
 - `core/isle/` — the engine every 3D book island shares (`island.js`: the
   stage, camera, places, plinths, the quest panel, rewards; `ground.js` the
   terraces and the path; `kit.js` small shared models). An island is a

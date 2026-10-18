@@ -17,17 +17,14 @@
 // carries data-next data-step. ok = the share right on the first try.
 
 import { explore } from '../learn/explore.js';
-import { runQuestion } from '../learn/steps.js';
+import { makeRunStep, tracker, finish as finishStep } from '../learn/steps.js';
+import { later, shuffle, bump } from '../learn/util.js';
 import { canSpeak, speak } from '../voice.js';
 import { num } from '../format.js';
 import { save } from '../save.js';
 import { EN_VIEWS, picHTML, isPicture, escAttr } from './views.js';
 import { QUESTS } from '../../worlds/grade6/english.js';
 
-const TEST = typeof window !== 'undefined' && !!window.__SINDBAD_TEST__;
-const later = (fn, ms) => setTimeout(fn, TEST ? 0 : ms);
-const shuffle = list => { const a = [...list]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-const bump = (el, cls = 'is-shake') => { if (!el) return; el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); };
 const strip = h => String(h).replace(/<[^>]*>/g, '');
 const LATIN = /[A-Za-z]/g, ARABIC = /[؀-ۿ]/g;
 export const isEnglish = t => { const s = strip(t); const l = (s.match(LATIN) || []).length; return l > 0 && l >= (s.match(ARABIC) || []).length * 2; };
@@ -47,33 +44,9 @@ function markSeen(step) {
   });
 }
 
-// ---------- Shared bits ----------
-function tracker(step, ctx, reveal) {
-  let misses = 0;
-  return {
-    get misses() { return misses; },
-    miss(el) {
-      misses += 1;
-      ctx.sfx.bad();
-      bump(el);
-      if (misses === 1) ctx.say(step.hint, 'oops');
-      else { ctx.say(`${step.hint} <b>انظر إلى ما يلمع ✨</b>`, 'think'); reveal?.(); }
-    },
-  };
-}
-function finish(host, step, ctx, resolve, ok) {
-  if (step.explain) ctx.say(step.explain, ok >= 1 ? 'cheer' : 'happy');
-  host.classList.add('is-solved');
-  host.querySelectorAll('[data-ok]').forEach(x => x.removeAttribute('data-ok'));
-  host.querySelectorAll('[data-step]').forEach(x => x.removeAttribute('data-step'));
-  const foot = document.createElement('div');
-  foot.className = 'lq-foot';
-  foot.innerHTML = '<button class="btn btn--gold lq-next" data-next data-step>تابِع ◀</button>';
-  host.firstElementChild.append(foot);
-  const b = foot.querySelector('button');
-  b.focus({ preventScroll: true });
-  b.addEventListener('click', () => { ctx.sfx.tap(); resolve({ ok: Math.max(0, Math.min(1, ok)), total: 1 }); }, { once: true });
-}
+// ---------- Shared bits (tracker and finish: core/learn/steps.ts) ----------
+// «تابِع» goes inside the game's card.
+const finish = (host, step, ctx, resolve, ok) => finishStep(host, step, ctx, resolve, ok, { into: host.firstElementChild });
 const ask = (step, fallback) => `<p class="lq-ask">${step.q || fallback}</p>`;
 const left = (i, n) => `${num(i + 1)} / ${num(n)}`;
 // Rounds: each counts as right if it had no slip.
@@ -567,13 +540,8 @@ function chat(step, host, ctx, resolve) {
 const GAMES = { listen: pick, picture: pick, build, spell, verb, memory, odd, rank, adjorder, chat };
 export const GAME_KINDS = Object.keys(GAMES);
 
+const run = makeRunStep({ games: { ...GAMES, explore: exploreStep }, views: VIEW_HTML, beforeQuestion: watchShared });
 export function runStep(step, host, ctx) {
-  return new Promise(resolve => {
-    host.classList.add('en-step');
-    if (step.kind === 'explore') { exploreStep(step, host, ctx, resolve); return; }
-    const game = GAMES[step.kind];
-    if (game) { game(step, host, ctx, resolve); return; }
-    watchShared(host);
-    runQuestion(step, host, ctx, resolve, { views: VIEW_HTML });
-  });
+  host.classList.add('en-step');
+  return run(step, host, ctx);
 }
