@@ -141,8 +141,9 @@ export function roundBox(w, h, d, r = 0.1) {
 const _m = new THREE.Matrix4(), _q = new THREE.Quaternion(), _e = new THREE.Euler(), _v = new THREE.Vector3(), _s = new THREE.Vector3();
 
 export class Kit {
-  constructor() { this.parts = []; }
+  constructor() { /** @type {THREE.BufferGeometry[]} */ this.parts = []; }
   // add(geometry | GEO name, colour, { p: position, r: rotation (radians), s: scale })
+  /** @param {THREE.BufferGeometry | string} geo @param {string | THREE.Color} color @param {{ p?: number[], r?: number[], s?: number | number[] }} [opts] */
   add(geo, color, { p = [0, 0, 0], r = [0, 0, 0], s = 1 } = {}) {
     const base = typeof geo === 'string' ? GEO[geo] : geo;
     const g = base.index ? base.toNonIndexed() : base.clone();
