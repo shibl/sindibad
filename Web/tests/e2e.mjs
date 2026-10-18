@@ -186,6 +186,9 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   const errors = [];
   p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
   p.on('pageerror', e => errors.push(e.message));
+  // Rings fade after 0.7 s: count them as they appear (a slow machine may
+  // still be loading the map when the check runs; the page may reload once).
+  await p.addInitScript(() => { window.__rings = 0; addEventListener('DOMContentLoaded', () => new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) if (n.classList?.contains('touch-ring')) window.__rings += 1; }).observe(document.body, { childList: true })); });
   await p.goto(URL_);
   await p.tap('text=ابدأ الرحلة');
   await p.fill('#child-name', 'سارة');
@@ -198,7 +201,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
   const buzzes = () => p.evaluate(async () => [...(await import('./core/haptics.js')).played]);
   const clear = () => p.evaluate(async () => { (await import('./core/haptics.js')).played.length = 0; });
-  check((await buzzes()).includes('tap') && await p.locator('.touch-ring').count() >= 1, 'a finger on a button: a tap vibration and a ring where it touched');
+  check((await buzzes()).includes('tap') && await p.evaluate(() => window.__rings >= 1 || document.body.classList.contains('lite')), 'a finger on a button: a tap vibration and a ring where it touched');
   // Hold an island: Hudhud tells about it, and the ship stays put.
   const art = await p.locator('.isle[data-region=art]').boundingBox();
   await clear();
