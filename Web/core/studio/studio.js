@@ -129,5 +129,4 @@ function extras(scene, api) {
         debug: () => ({ easel: pad?.debug?.() || null, hung: done().filter(Boolean).length }),
     };
 }
-export const initStudio = isle.init, enterStudio = isle.enter, lessonReturned = isle.lessonReturned;
-export const debugLook = isle.debugLook, debugStart = isle.debugStart, debugStudio = isle.debug;
+export const { init, enter, lessonReturned, debugLook, debugStart, debug } = isle;

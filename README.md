@@ -197,6 +197,8 @@ Deployments on GitHub (`github-pages` = live, `staging`). Details: step 5 of
 Inside `Web/`:
 
 - `index.html`, `style.css`, `app.js` — app shell: screens, backdrop, boot.
+  `app.js` lists the 3D islands in one table (`ISLANDS_3D`: each one's file,
+  map region and music); a new 3D island is one line there.
 - `about.html` — the project brief as a long-form page for developers and
   founders (self-contained; light/dark; IBM Plex Sans Arabic with system
   fallback offline).

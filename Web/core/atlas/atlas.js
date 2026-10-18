@@ -137,5 +137,4 @@ function extras(scene, api) {
         debug: () => ({ globe: globe?.debug?.() || null }),
     };
 }
-export const initAtlas = isle.init, enterAtlas = isle.enter, lessonReturned = isle.lessonReturned;
-export const debugLook = isle.debugLook, debugStart = isle.debugStart, debugAtlas = isle.debug;
+export const { init, enter, lessonReturned, debugLook, debugStart, debug } = isle;

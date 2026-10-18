@@ -220,5 +220,4 @@ function extras(scene: THREE.Scene, api: IslandApi): Extras {
   };
 }
 
-export const initEnglish = isle.init, enterEnglish = isle.enter, lessonReturned = isle.lessonReturned;
-export const debugLook = isle.debugLook, debugStart = isle.debugStart, debugEnglish = isle.debug;
+export const { init, enter, lessonReturned, debugLook, debugStart, debug } = isle;

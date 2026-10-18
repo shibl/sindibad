@@ -223,97 +223,44 @@ paintShip(document.querySelector('.ship--title'), ['sindbad', 'yasmina']);
 wireNavigation();
 wireHeroSelect();
 const ISLANDS = { arabic: arabicIsland, math: mathIsland, treasure: treasureIsland };
-let lessonFromIsland = false, lessonFromFarm = false, lessonFromTunes = false, lessonFromLab = false, lessonFromAtlas = false, lessonFromStudio = false, lessonFromEnglish = false;
-// The farm is a 3D island: its code (and three.js) loads only when a child
-// first sails there, so the rest of the game starts as fast as before.
-let farm = null;
-const loadFarm = () => (farm ||= import('./core/farm/farm.js').then(m => {
-  m.initFarm({
-    leave: after => wipe(() => showScreen('map', after)),
-    startLesson: id => { lessonFromFarm = true; wipe(() => startLesson(id)); },
-  });
-  return m;
-}));
-function enterFarm(region) {
-  loadFarm().then(m => wipe(() => { showScreen('farm'); m.enterFarm(region); place = 'farm'; playMusic('farm'); }))
-    .catch(err => { console.error('The farm failed to load', err); farm = null; });
+// The 3D islands, by their kind in worlds/grade6.js. Each one's code (and
+// three.js) loads only when a child first sails there, so the rest of the
+// game starts as fast as before. Each module has init(hooks),
+// enter(region), lessonReturned(after) and debug() (core/isle/island.ts);
+// its screen is #screen-<kind>, and `region` is its id on the map, which
+// also names its music.
+const ISLANDS_3D = {
+  farm: { file: './core/farm/farm.js', region: 'farm', name: 'The farm' },
+  tunes: { file: './core/tunes/tunes.js', region: 'music', name: 'The music island' },
+  lab: { file: './core/lab/lab.js', region: 'science', name: 'The science island' },
+  atlas: { file: './core/atlas/atlas.js', region: 'social', name: 'The atlas island' },
+  studio: { file: './core/studio/studio.js', region: 'art', name: 'The art island' },
+  english: { file: './core/english/english.js', region: 'english', name: 'The English island' },
+};
+const loaded3D = {};
+// Where the lesson that is playing was started: a 3D island's kind,
+// 'island' (an island of the overworld) or null (the map).
+let lessonFrom = null;
+function load3D(kind) {
+  return (loaded3D[kind] ||= import(ISLANDS_3D[kind].file).then(m => {
+    m.init({
+      leave: after => wipe(() => showScreen('map', after)),
+      startLesson: id => { lessonFrom = kind; wipe(() => startLesson(id)); },
+    });
+    return m;
+  }).catch(err => { delete loaded3D[kind]; throw err; }));
 }
-// The music island is 3D too (core/tunes/), loaded the same way.
-let tunes = null;
-const loadTunes = () => (tunes ||= import('./core/tunes/tunes.js').then(m => {
-  m.initTunes({
-    leave: after => wipe(() => showScreen('map', after)),
-    startLesson: id => { lessonFromTunes = true; wipe(() => startLesson(id)); },
-  });
-  return m;
-}));
-function enterTunes(region) {
-  loadTunes().then(m => wipe(() => { showScreen('tunes'); m.enterTunes(region); place = 'music'; playMusic('music'); }))
-    .catch(err => { console.error('The music island failed to load', err); tunes = null; });
-}
-// And the science island (core/lab/).
-let lab = null;
-const loadLab = () => (lab ||= import('./core/lab/lab.js').then(m => {
-  m.initLab({
-    leave: after => wipe(() => showScreen('map', after)),
-    startLesson: id => { lessonFromLab = true; wipe(() => startLesson(id)); },
-  });
-  return m;
-}));
-function enterLab(region) {
-  loadLab().then(m => wipe(() => { showScreen('lab'); m.enterLab(region); place = 'science'; playMusic('science'); }))
-    .catch(err => { console.error('The science island failed to load', err); lab = null; });
-}
-// And the atlas island (core/atlas/), with its globe.
-let atlas = null;
-const loadAtlas = () => (atlas ||= import('./core/atlas/atlas.js').then(m => {
-  m.initAtlas({
-    leave: after => wipe(() => showScreen('map', after)),
-    startLesson: id => { lessonFromAtlas = true; wipe(() => startLesson(id)); },
-  });
-  return m;
-}));
-function enterAtlas(region) {
-  loadAtlas().then(m => wipe(() => { showScreen('atlas'); m.enterAtlas(region); place = 'social'; playMusic('social'); }))
-    .catch(err => { console.error('The atlas island failed to load', err); atlas = null; });
-}
-// And the art island (core/studio/), with its easel for free drawing.
-let studio = null;
-const loadStudio = () => (studio ||= import('./core/studio/studio.js').then(m => {
-  m.initStudio({
-    leave: after => wipe(() => showScreen('map', after)),
-    startLesson: id => { lessonFromStudio = true; wipe(() => startLesson(id)); },
-  });
-  return m;
-}));
-function enterStudio(region) {
-  loadStudio().then(m => wipe(() => { showScreen('studio'); m.enterStudio(region); place = 'art'; playMusic('art'); }))
-    .catch(err => { console.error('The art island failed to load', err); studio = null; });
-}
-// And the English island (core/english/), with the child's word book.
-let english = null;
-const loadEnglish = () => (english ||= import('./core/english/english.js').then(m => {
-  m.initEnglish({
-    leave: after => wipe(() => showScreen('map', after)),
-    startLesson: id => { lessonFromEnglish = true; wipe(() => startLesson(id)); },
-  });
-  return m;
-}));
-function enterEnglish(region) {
-  loadEnglish().then(m => wipe(() => { showScreen('english'); m.enterEnglish(region); place = 'english'; playMusic('english'); }))
-    .catch(err => { console.error('The English island failed to load', err); english = null; });
+function enter3D(kind, region) {
+  const { region: music, name } = ISLANDS_3D[kind];
+  load3D(kind).then(m => wipe(() => { showScreen(kind); m.enter(region); place = music; playMusic(music); }))
+    .catch(err => console.error(`${name} failed to load`, err));
 }
 initMap(document.getElementById('map'), world, {
   openTopic: startLesson,
-  islands: { ...ISLANDS, farm: true, music: true, science: true, social: true, art: true, english: true },
+  islands: { ...ISLANDS, ...Object.fromEntries(Object.values(ISLANDS_3D).map(I => [I.region, true])) },
   enterIsland: id => {
     const region = world.regions.find(r => r.id === id);
-    if (region.kind === 'farm') { enterFarm(region); return; }
-    if (region.kind === 'tunes') { enterTunes(region); return; }
-    if (region.kind === 'lab') { enterLab(region); return; }
-    if (region.kind === 'atlas') { enterAtlas(region); return; }
-    if (region.kind === 'studio') { enterStudio(region); return; }
-    if (region.kind === 'english') { enterEnglish(region); return; }
+    if (ISLANDS_3D[region.kind]) { enter3D(region.kind, region); return; }
     wipe(() => { showScreen('island'); enterIsland(ISLANDS[id], region); place = id; playMusic(id); });
   },
 });
@@ -321,19 +268,16 @@ initMap(document.getElementById('map'), world, {
 // screen, so the map is ready when they get there.
 setTimeout(() => preloadMapView(), 800);
 initOverworld({
-  startLesson: (id, host) => { lessonFromIsland = true; wipe(() => startLesson(id, { host })); },
+  startLesson: (id, host) => { lessonFrom = 'island'; wipe(() => startLesson(id, { host })); },
   leave: after => wipe(() => showScreen('map', after)),
 });
 initLesson({
   showScreen,
   onReturn: after => {
-    if (lessonFromIsland) { lessonFromIsland = false; wipe(() => { showScreen('island'); lessonReturned(after); }); }
-    else if (lessonFromFarm) { lessonFromFarm = false; loadFarm().then(m => wipe(() => { showScreen('farm'); m.lessonReturned(after); })); }
-    else if (lessonFromTunes) { lessonFromTunes = false; loadTunes().then(m => wipe(() => { showScreen('tunes'); m.lessonReturned(after); })); }
-    else if (lessonFromLab) { lessonFromLab = false; loadLab().then(m => wipe(() => { showScreen('lab'); m.lessonReturned(after); })); }
-    else if (lessonFromAtlas) { lessonFromAtlas = false; loadAtlas().then(m => wipe(() => { showScreen('atlas'); m.lessonReturned(after); })); }
-    else if (lessonFromStudio) { lessonFromStudio = false; loadStudio().then(m => wipe(() => { showScreen('studio'); m.lessonReturned(after); })); }
-    else if (lessonFromEnglish) { lessonFromEnglish = false; loadEnglish().then(m => wipe(() => { showScreen('english'); m.lessonReturned(after); })); }
+    const from = lessonFrom;
+    lessonFrom = null;
+    if (from === 'island') wipe(() => { showScreen('island'); lessonReturned(after); });
+    else if (from) load3D(from).then(m => wipe(() => { showScreen(from); m.lessonReturned(after); }));
     else showScreen('map', after);
   },
 });
@@ -386,5 +330,12 @@ document.getElementById('screen-title').addEventListener('pointermove', e => {
   scene.style.setProperty('--py', ((e.clientY / innerHeight) - 0.5).toFixed(3));
 });
 
-// Test hook: lets headless tests read the hero's position on an island.
-if (window.__SINDBAD_TEST__) Object.assign(window, { __island: debugState, __blocked: debugBlocked, __place: debugPlace, __lesson: startLesson, __farm: () => loadFarm().then(m => m.debugFarm()), __tunes: () => loadTunes().then(m => m.debugTunes()), __tunesDo: (fn, ...a) => loadTunes().then(m => m[fn](...a)), __lab: () => loadLab().then(m => m.debugLab()), __labDo: (fn, ...a) => loadLab().then(m => m[fn](...a)), __atlas: () => loadAtlas().then(m => m.debugAtlas()), __atlasDo: (fn, ...a) => loadAtlas().then(m => m[fn](...a)), __studio: () => loadStudio().then(m => m.debugStudio()), __studioDo: (fn, ...a) => loadStudio().then(m => m[fn](...a)), __english: () => loadEnglish().then(m => m.debugEnglish()), __englishDo: (fn, ...a) => loadEnglish().then(m => m[fn](...a)), __sea: debugSea, __seaLook: debugSeaLook });
+// Test hooks: the hero's position on an island, and each 3D island's state
+// (__lab()) and test functions (__labDo('debugStart', 'quest id')).
+if (window.__SINDBAD_TEST__) {
+  Object.assign(window, { __island: debugState, __blocked: debugBlocked, __place: debugPlace, __lesson: startLesson, __sea: debugSea, __seaLook: debugSeaLook });
+  for (const kind of Object.keys(ISLANDS_3D)) {
+    window[`__${kind}`] = () => load3D(kind).then(m => m.debug());
+    window[`__${kind}Do`] = (fn, ...a) => load3D(kind).then(m => m[fn](...a));
+  }
+}

@@ -212,5 +212,4 @@ function extras(scene, api) {
         debug: () => ({ book: book?.debug?.() || null, lit: litFor }),
     };
 }
-export const initEnglish = isle.init, enterEnglish = isle.enter, lessonReturned = isle.lessonReturned;
-export const debugLook = isle.debugLook, debugStart = isle.debugStart, debugEnglish = isle.debug;
+export const { init, enter, lessonReturned, debugLook, debugStart, debug } = isle;

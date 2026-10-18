@@ -76,9 +76,9 @@ const starsOf = q => save.get().topics?.[q.topic]?.stars || 0;
 
 // ---------- Setup ----------
 
-export function initTunes(h) { hooks = h; }
+export function init(h) { hooks = h; }
 
-export function enterTunes(region) {
+export function enter(region) {
   T = tunesState();
   sessionGain = { gained: 0, topic: null };
   els ||= grabEls();
@@ -774,7 +774,7 @@ export function debugLook(x, z, dist, yaw) {
 }
 export function debugStart(id) { closeModal(); runQuest(QUESTS.find(q => q.id === id)); }
 
-export function debugTunes() {
+export function debug() {
   const info = stage?.renderer.info.render;
   return { calls: info?.calls, triangles: info?.triangles, T: tunesState(), next: nextQuest()?.id || null, quest: quest?.def.id || null, step: quest?.i ?? null, kind: quest ? quest.def.steps[quest.i].kind : null, places: Object.keys(places), selected };
 }

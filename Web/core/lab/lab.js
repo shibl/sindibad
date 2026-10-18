@@ -157,5 +157,4 @@ function extras(scene, api) {
     }
     return { animate, tap, reward, clickables: [[mu.beam, 'seesaw'], [mu.noria, 'noria'], [mu.hook, 'crane'], [tower, 'tower']] };
 }
-export const initLab = isle.init, enterLab = isle.enter, lessonReturned = isle.lessonReturned;
-export const debugLook = isle.debugLook, debugStart = isle.debugStart, debugLab = isle.debug;
+export const { init, enter, lessonReturned, debugLook, debugStart, debug } = isle;
