@@ -70,9 +70,9 @@ const level = () => { let l = 1; while (l < LEVELS.length && F.xp >= LEVELS[l]) 
 
 // ---------- Setup ----------
 
-export function initFarm(h) { hooks = h; }
+export function init(h) { hooks = h; }
 
-export function enterFarm(region) {
+export function enter(region) {
   F = farmState();
   sessionGain = { gained: 0, topic: null };
   els ||= grabEls();
@@ -1416,6 +1416,6 @@ function openDecor() {
 
 // ---------- Test hooks ----------
 
-export function debugFarm() {
+export function debug() {
   return { F: JSON.parse(JSON.stringify(F || {})), selected, busy, quest: quest()?.id, place: questPlace() };
 }

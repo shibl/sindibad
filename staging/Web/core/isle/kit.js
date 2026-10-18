@@ -1,6 +1,6 @@
-// Small models every 3D quest island shares (core/isle/island.js): a raised
+// Small models every 3D quest island shares (core/isle/island.ts): a raised
 // base for a landmark, toy animals, the golden guide arrow, the selection
-// ring, rising sparks and lamp posts. Made in code like everything else
+// ring, rising sparks, lamp posts, and canvas textures. Made in code like everything else
 // (core/farm/models.js' Kit: shapes merged into one vertex-coloured mesh).
 
 import * as THREE from '../../vendor/three/three.module.min.js';
@@ -112,4 +112,21 @@ export function lampGeo(post = '#3b3640', light = '#fff6c8') {
   k.add('cyl', post, { p: [0, 0.08, 0], s: [0.18, 0.16, 0.18] });
   k.add(new THREE.SphereGeometry(0.2, 10, 8), light, { p: [0, 2.15, 0] });
   return k.geometry();
+}
+
+// Pictures drawn on a canvas once, as textures (flags, screens, the book's
+// paintings…): const canvasTex = canvasTextures(); then
+// canvasTex(key, w, h, draw(g, w, h)) draws one the first time and keeps it
+// by its key. `anisotropy` sharpens them when seen at a slant.
+export function canvasTextures({ anisotropy = 1 } = {}) {
+  const cache = {};
+  return (key, w, h, draw) => {
+    if (cache[key]) return cache[key];
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    draw(c.getContext('2d'), w, h);
+    const t = new THREE.CanvasTexture(c);
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.anisotropy = anisotropy;
+    return (cache[key] = t);
+  };
 }

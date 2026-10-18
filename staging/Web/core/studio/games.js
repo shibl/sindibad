@@ -31,16 +31,12 @@
 // right to tap next carries data-ok, every useful tap data-step, and the
 // «تابِع» button data-next data-step.
 
-import { explore } from '../learn/explore.js';
-import { runQuestion } from '../learn/steps.js';
+import { makeRunStep, tracker, finish } from '../learn/steps.js';
+import { later, shuffle, bump } from '../learn/util.js';
 import { VIEWS, PIECES, STAGES } from './views.js';
 import { ART, artSVG } from './art.js';
 import { num } from '../format.js';
 
-const TEST = typeof window !== 'undefined' && !!window.__SINDBAD_TEST__;
-const later = (fn, ms) => setTimeout(fn, TEST ? 0 : ms);
-const shuffle = list => { const a = [...list]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-const bump = (el, cls = 'is-shake') => { if (!el) return; el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); };
 const mark = (el, on) => { if (!el) return; el.toggleAttribute('data-ok', on); el.toggleAttribute('data-step', on); };
 
 // The colours of the island's paint pots and palettes.
@@ -69,31 +65,6 @@ const MUD = '#8a6d4b';
 const colorOf = id => COLORS[id]?.c || id;
 const fits = (want, id) => want === id || (COLORS[id]?.tags || []).includes(want);
 
-function tracker(step, ctx, reveal) {
-  let misses = 0;
-  return {
-    get misses() { return misses; },
-    miss(el, line) {
-      misses += 1;
-      ctx.sfx.bad();
-      bump(el);
-      if (misses === 1) ctx.say(line || step.hint, 'oops');
-      else { ctx.say(`${step.hint} <b>انظر إلى ما يلمع ✨</b>`, 'think'); reveal?.(); }
-    },
-  };
-}
-function finish(host, step, ctx, resolve, ok) {
-  if (step.explain) ctx.say(step.explain, ok >= 1 ? 'cheer' : 'happy');
-  host.classList.add('is-solved');
-  host.querySelectorAll('[data-ok], [data-step]').forEach(el => { el.removeAttribute('data-ok'); el.removeAttribute('data-step'); });
-  const foot = document.createElement('div');
-  foot.className = 'lq-foot';
-  foot.innerHTML = '<button class="btn btn--gold lq-next" data-next data-step>تابِع ◀</button>';
-  host.append(foot);
-  const b = foot.querySelector('button');
-  b.focus({ preventScroll: true });
-  b.addEventListener('click', () => { ctx.sfx.tap(); resolve({ ok: Math.max(0, Math.min(1, ok)), total: 1 }); }, { once: true });
-}
 const ask = q => `<p class="lq-ask">${q}</p>`;
 const swatch = (id, extra = '') => { const c = COLORS[id]; return `<button class="sg-sw" data-c="${id}" style="--c:${c.c}" aria-label="${c.name}" ${extra}>${c.icon ? `<span class="sg-sw__icon">${c.icon}</span>` : '<i></i>'}<small>${c.name.replace('ال', '')}</small></button>`; };
 
@@ -687,20 +658,6 @@ htmlOf.art = st => `<div class="sg-pic">${artSVG(st.art)}</div>`;
 let ARTS = null;
 const arts = () => (ARTS ||= Object.fromEntries(Object.keys(ART).map(k => [k, artSVG(k)])));
 
-function onSpot(step, ctx) {
-  return (s, el, host) => {
-    const root = host.querySelector('.lx-view > *');
-    if (root && root.contains(el)) { root.classList.add(`st-${s.id}`); root.dataset.st = s.id; }
-    ctx.onSpot?.(step, s);
-  };
-}
-
-export function runStep(step, host, ctx) {
-  return new Promise(resolve => {
-    if (step.kind === 'explore') explore(step, host, ctx, resolve, { views: htmlOf, onSpot: onSpot(step, ctx), art: arts() });
-    else if (KINDS[step.kind]) KINDS[step.kind](step, host, ctx, resolve);
-    else runQuestion(step, host, ctx, resolve, { views: htmlOf });
-  });
-}
+export const runStep = makeRunStep({ games: KINDS, views: htmlOf, exploreOpts: () => ({ art: arts() }) });
 export const CUSTOM_KINDS = Object.keys(KINDS);
 export const VIEW_NAMES = Object.keys(htmlOf);

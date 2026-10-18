@@ -165,7 +165,7 @@ types (`Web/tsconfig.json`) and the game's (`Web/tsconfig.game.json`).
 
 The game is moving to TypeScript one file at a time. The browser still
 loads plain JavaScript, so playing or previewing needs no build step: for a
-game file written in TypeScript (`core/farm/scene.ts`, `core/atlas/globe.ts`),
+game file written in TypeScript (`core/farm/scene.ts`, `core/learn/steps.ts`),
 the `.js` next to it is made from it by `npm run build`, and both are
 committed. Edit the `.ts`, then run `npm run build`; never edit that `.js`
 (the test fails if it no longer matches).
@@ -197,11 +197,15 @@ Deployments on GitHub (`github-pages` = live, `staging`). Details: step 5 of
 Inside `Web/`:
 
 - `index.html`, `style.css`, `app.js` — app shell: screens, backdrop, boot.
+  `app.js` lists the 3D islands in one table (`ISLANDS_3D`: each one's file,
+  map region and music); a new 3D island is one line there.
 - `about.html` — the project brief as a long-form page for developers and
   founders (self-contained; light/dark; IBM Plex Sans Arabic with system
   fallback offline).
 - `core/` — the engine: map, lesson runner, topic registry, save data,
   sounds, journey page, finale. Never changes when content is added.
+  `save.ts` keeps each child's game in the browser; its `GameSave` type
+  lists everything a save holds.
 - `worlds/chapters.js` — the twelve voyages (one per grade) and the four
   age stages; `core/chapters.js` draws the voyages chart.
 - `worlds/grade6.js` — the grade-6 islands, positions, unlock rules, badges.
@@ -212,35 +216,44 @@ Inside `Web/`:
 - `core/sea/` — the 3D sea map, a preview on the staging copy (`sea.js` the
   sea, ship, fog and camera; `models.js` the islands' landmarks, made in
   code). `core/map.js` picks it or the flat map; both share the island labels.
-- `core/learn/` — what every 3D island quest is made of: `explore.js`,
+- `core/learn/` — what every 3D island quest is made of: `explore.ts`,
   «أتعلّم», the teaching step every quest opens with (a picture with glowing
   spots; each tap opens one idea; the questions come when every spot is
-  found), and `steps.js`, the questions any island can use (choice, the
+  found), and `steps.ts`, the questions any island can use (choice, the
   book's «أستنتج» sentences, sort, order, match, true/false, a sum, tap the
-  part). Islands give them their own pictures.
-- `core/isle/` — the engine every 3D book island shares (`island.js`: the
+  part). Islands give them their own pictures. `steps.ts` also holds what
+  every island's own games share: the step types, `tracker()` (a miss: the
+  hint, then the answer glows), `finish()` («تابِع») and `makeRunStep()` (an
+  island's step runner); `util.ts` the small helpers (`shuffle`, `bump`…);
+  `svg.ts` the helpers the islands draw their lesson pictures with (`svg`,
+  `spot`, `lab`…).
+- `core/isle/` — the engine every 3D book island shares (`island.ts`: the
   stage, camera, places, plinths, the quest panel, rewards; `ground.js` the
-  terraces and the path; `kit.js` small shared models). An island is a
-  config of it.
-- `core/lab/` — the 3D science island (`lab.js` its config, `games.js` its
+  terraces and the path; `kit.js` small shared models and
+  `canvasTextures()`, pictures drawn once as textures). An island is a
+  config of it, checked against its `IslandConfig` type; the lessons it
+  plays are typed in `types/content.d.ts` (a quest, a station, a step).
+  `tests/check-content.ts` checks every island's lessons in a second
+  (teaching first, hints, pictures, reviews), as part of `npm test`.
+- `core/lab/` — the 3D science island (`lab.ts` its config, `games.js` its
   steps, `views.js` and `views-machines.js` the book's experiments drawn in
   SVG, `models.js` every model, made in code); its content (stations,
   seventeen quests) is `worlds/grade6/lab.js` and `worlds/grade6/lab/` (one
   file per unit), its quick reviews `plugins/science/reviews.js`.
-- `core/atlas/` — the 3D atlas island (`atlas.js` its config, `games.js` its
+- `core/atlas/` — the 3D atlas island (`atlas.ts` its config, `games.js` its
   steps, `views.js` the maps and timelines, `globe.js` the atlas globe,
   `models.js` every model); its content is `worlds/grade6/atlas.js` and
   `worlds/grade6/atlas/` (one file per unit), the countries
   `worlds/atlas/countries.js` (cards and flags) and `worlds/atlas/shapes.js`
   (the world's shapes, from Natural Earth, made by `tools/make-world.mjs`),
   its quick reviews `plugins/social/reviews.js`.
-- `core/studio/` — the 3D art island (`studio.js` its config, `games.js`
+- `core/studio/` — the 3D art island (`studio.ts` its config, `games.js`
   its hands-on games, `views.js` (with `views-1.js`…`views-3.js`) the
   book's pictures in SVG, `art.js` the little paintings, `easel.ts` the free
   easel, `models.js` every model); its content is `worlds/grade6/studio.js`
   and `worlds/grade6/studio/` (part1–3), its quick reviews
   `plugins/art/reviews.js`.
-- `core/english/` — the 3D English island (`english.js` its config,
+- `core/english/` — the 3D English island (`english.ts` its config,
   `games.js` its games, `words.js` the word book, `views.js` pictures,
   `models.js` every model); its content is `worlds/grade6/english.js` and
   `worlds/grade6/english/` (block1–4), its quick reviews

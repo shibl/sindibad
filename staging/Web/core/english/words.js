@@ -16,11 +16,9 @@ import { num } from '../format.js';
 import { QUESTS, UNITS, BLOCKS, wordsOf } from '../../worlds/grade6/english.js';
 import { picHTML, escAttr } from './views.js';
 import { sayEn, hasVoice } from './games.js';
+import { TEST, shuffle, bump } from '../learn/util.js';
 
-const TEST = typeof window !== 'undefined' && !!window.__SINDBAD_TEST__;
-const shuffle = list => { const a = [...list]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const EN = t => `<bdi class="en" dir="ltr" lang="en">${t}</bdi>`;
-const bump = (el, cls) => { if (!el) return; el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); };
 
 const store = () => save.get().world?.english || {};
 // The quests met so far, in the book's order, and their words (each word once).

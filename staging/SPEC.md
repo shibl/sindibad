@@ -227,7 +227,7 @@ before asking.
   geography, capitals, landmarks, climate, civilisations) was retired with
   this decision; it is in the git history.
 - **One engine for the quest islands:** the science and atlas islands are
-  both configs of `Web/core/isle/island.js` (ground, plinths, toys, the
+  both configs of `Web/core/isle/island.ts` (ground, plinths, toys, the
   camera, the quest panel); a new book island is a config, its models and
   its pictures.
 - Content: `Web/worlds/grade6/atlas.js`, `Web/worlds/grade6/atlas/` (one
@@ -318,7 +318,7 @@ right before anything else:
   `staging` branch publishes a staging copy at `/staging/` on the same
   website; merging into `main` publishes the live game. Both only when the
   tests pass (`.github/workflows/site.yml`). The staging copy keeps its
-  own saves and offline copy (`Web/core/env.js`), and everything is open
+  own saves and offline copy (`Web/core/env.ts`), and everything is open
   there from the start *(decision 2026-10-13)*: every island, the gates on
   the walkable islands and every farm task. So the developers can try any
   of them without earning stars first. The live game keeps its locks.

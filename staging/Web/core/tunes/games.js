@@ -11,12 +11,11 @@
 import { num, frac } from '../format.js';
 import * as S from './synth.js';
 import { explore } from '../learn/explore.js';
+import { makeRunStep, tracker, finish as finishStep } from '../learn/steps.js';
+import { TEST, shuffle, bump } from '../learn/util.js';
 import { SOLFEGE, GLASSES } from '../../worlds/grade6/tunes.js';
 
-const TEST = typeof window !== 'undefined' && !!window.__SINDBAD_TEST__;
 const wait = ms => new Promise(r => setTimeout(r, TEST ? Math.min(ms, 40) : ms));
-const shuffle = list => { const a = [...list]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-const bump = (el, cls = 'is-shake') => { if (!el) return; el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); };
 
 // ---------- Notes ----------
 
@@ -272,41 +271,10 @@ export function playSound(p) {
 }
 const playBtn = (label = '▶ اسمع') => `<button class="tn-play" data-play>${label}</button>`;
 
-// ---------- The runner ----------
-
-export function runStep(step, host, ctx) {
-  const fn = KINDS[step.kind];
-  if (!fn) return Promise.resolve({ ok: 0, total: 0 });
-  return new Promise(resolve => fn(step, host, ctx, resolve));
-}
-
-// Shared bits: a miss (hint first, then show the answer), and the end of a
-// step (the helper explains; «تابِع» moves on).
-function tracker(step, ctx, reveal) {
-  let misses = 0;
-  return {
-    get misses() { return misses; },
-    miss(el) {
-      misses += 1;
-      ctx.sfx.bad();
-      bump(el);
-      if (misses === 1) ctx.say(step.hint, 'oops');
-      else { ctx.say(`${step.hint} <b>انظر إلى ما يلمع ✨</b>`, 'think'); reveal?.(); }
-    },
-    reset() { misses = 0; },
-  };
-}
-function finish(host, step, ctx, resolve, result) {
-  if (step.explain) ctx.say(step.explain, result.ok === result.total ? 'cheer' : 'happy');
-  host.classList.add('is-solved');
-  const foot = document.createElement('div');
-  foot.className = 'tn-foot';
-  foot.innerHTML = '<button class="btn btn--gold tn-next" data-next data-step>تابِع ◀</button>';
-  host.append(foot);
-  const b = foot.querySelector('button');
-  b.focus({ preventScroll: true });
-  b.addEventListener('click', () => { ctx.sfx.tap(); resolve(result); }, { once: true });
-}
+// Shared bits (core/learn/steps.ts): tracker() for a miss (hint first, then
+// show the answer), and finish() for the end of a step (the helper explains;
+// «تابِع» moves on), here with the island's own look.
+const finish = (host, step, ctx, resolve, result) => finishStep(host, step, ctx, resolve, result, { look: 'tn' });
 function wirePlay(host, p, ctx, auto = true) {
   const b = host.querySelector('[data-play]');
   if (!b || !p) return;
@@ -767,3 +735,7 @@ const KINDS = {
 };
 
 export { glassSVG, keyboardHTML, staffSVG, ART, GLASS_COLORS, glassFreq };
+
+// ---------- The runner ----------
+
+export const runStep = makeRunStep({ games: KINDS });

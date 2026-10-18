@@ -14,7 +14,7 @@ import * as THREE from '../../vendor/three/three.module.min.js';
 import { Kit, VC, rng, roundBox } from '../farm/models.js';
 import { treeGeo, bushGeo, rockGeo, personGeo, put, glow } from '../tunes/models.js';
 import { makeGround } from '../isle/ground.js';
-import { plinth as basePlinth, beaconArrow, selectRing, sparkSprite, lampGeo } from '../isle/kit.js';
+import { plinth as basePlinth, beaconArrow, selectRing, sparkSprite, lampGeo, canvasTextures } from '../isle/kit.js';
 import { drawArt, LESSON_ART } from './art.js';
 
 export { treeGeo, bushGeo, rockGeo, personGeo, put, glow, beaconArrow, selectRing, sparkSprite };
@@ -52,17 +52,7 @@ const G = makeGround({
 export const { ISLE, levelAt, pathY, terrain, pathCurve, pathRibbon } = G;
 
 // ---------- Canvas pictures ----------
-const texCache = {};
-function canvasTex(key, w, h, draw) {
-  if (texCache[key]) return texCache[key];
-  const c = document.createElement('canvas'); c.width = w; c.height = h;
-  draw(c.getContext('2d'), w, h);
-  const t = new THREE.CanvasTexture(c);
-  t.colorSpace = THREE.SRGBColorSpace;
-  t.anisotropy = 2;
-  texCache[key] = t;
-  return t;
-}
+const canvasTex = canvasTextures({ anisotropy: 2 });
 // A painting of the book (art.js) as a texture.
 const artTex = key => canvasTex(`art-${key}`, 250, 200, (g, w, h) => drawArt(g, key, 0, 0, w, h));
 const artMat = key => new THREE.MeshLambertMaterial({ map: artTex(key) });
