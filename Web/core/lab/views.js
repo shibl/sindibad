@@ -12,14 +12,8 @@
 // that need no detail; the experiments are drawn.
 
 import { num } from '../format.js';
+import { INK, svg, hitR, spot, emo, lab, txt } from '../learn/svg.js';
 
-const INK = '#3b2414';
-const svg = (name, body, vb = '0 0 320 200') => `<svg class="sv sv-${name}" viewBox="${vb}" role="img" aria-label="صورة الدرس">${body}</svg>`;
-const hitR = (x, y, w, h, r = 10) => `<rect class="lx-hit" x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}"/>`;
-const spot = (id, inner, box) => `<g data-spot="${id}">${box ? hitR(...box) : ''}${inner}</g>`;
-const emo = (ch, x, y, s = 30, cls = '') => `<text class="sv-emo ${cls}" x="${x}" y="${y}" font-size="${s}">${ch}</text>`;
-const lab = (x, y, cls = '') => `<text class="lx-label sv-lab ${cls}" x="${x}" y="${y}"></text>`;
-const txt = (t, x, y, cls = '') => `<text class="sv-t ${cls}" x="${x}" y="${y}">${t}</text>`;
 // An arrow from (x1, y1) to (x2, y2), with a head.
 function arrow(x1, y1, x2, y2, cls = '', head = 9) {
   const a = Math.atan2(y2 - y1, x2 - x1), hx = x2 - Math.cos(a) * head, hy = y2 - Math.sin(a) * head;
