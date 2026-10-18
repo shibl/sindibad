@@ -57,8 +57,6 @@ interface KbOpts { from?: string; to?: string; labels?: KeyLabels; gaps?: boolea
 /** A note head on the grand staff: d = steps from middle C. */
 interface StaffNote { d: number; x?: number; cls?: string; label?: string }
 type Letter = keyof typeof SOLFEGE;
-/** synth.js's playRhythm options (read from its JS, which leaves out `onHit(i)`). */
-type RhythmOpts = Parameters<typeof S.playRhythm>[2];
 
 /** A «أتعلّم» spot on the music island: what it plays when it opens (spotSound). */
 interface TunesSpot extends Spot {
@@ -375,7 +373,7 @@ function spotSound(ctx: TunesCtx) {
 // speed words as it moves.
 function lxMount(ctx: TunesCtx) {
   return (host: HTMLElement, step: TunesExploreStep, tap: (el: HTMLElement) => void) => {
-    host.querySelectorAll<HTMLElement>('.tn-key:not(.lx-spot)').forEach(k => k.addEventListener('click', () => { S.piano(k.dataset.note); bump(k, 'is-down'); ctx.onNote?.(k.dataset.note!); }));
+    host.querySelectorAll<HTMLElement>('.tn-key:not(.lx-spot)').forEach(k => k.addEventListener('click', () => { S.piano(k.dataset.note!); bump(k, 'is-down'); ctx.onNote?.(k.dataset.note!); }));
     const range = host.querySelector<HTMLInputElement>('.lx-tempo__range');
     if (!range) return;
     const out = host.querySelector('.lx-tempo__bpm b')!;
@@ -427,7 +425,7 @@ const KINDS: { [K in TunesStep['kind']]: Game<Extract<TunesStep, { kind: K }>> }
       <div class="tn-row">${step.play ? playBtn() : ''}<button class="btn btn--gold" data-next data-step>فهمت ✓</button></div></div>`;
     if (step.say) ctx.say(step.say);
     wirePlay(host, step.play, ctx);
-    if (step.show === 'keyboard' || step.show === 'range' || step.show === 'tones') host.querySelectorAll<HTMLElement>('.tn-key').forEach(k => k.addEventListener('click', () => { S.piano(k.dataset.note); bump(k, 'is-down'); }));
+    if (step.show === 'keyboard' || step.show === 'range' || step.show === 'tones') host.querySelectorAll<HTMLElement>('.tn-key').forEach(k => k.addEventListener('click', () => { S.piano(k.dataset.note!); bump(k, 'is-down'); }));
     const next = host.querySelector<HTMLElement>('[data-next]')!;
     next.focus({ preventScroll: true });
     next.addEventListener('click', () => { ctx.sfx.tap(); resolve({ ok: 0, total: 0 }); }, { once: true });
@@ -470,7 +468,7 @@ const KINDS: { [K in TunesStep['kind']]: Game<Extract<TunesStep, { kind: K }>> }
     host.querySelector('.tn-kb')!.addEventListener('click', e => {
       const k = (e.target as Element).closest<HTMLElement>('.tn-key');
       if (!k || host.classList.contains('is-solved')) return;
-      S.piano(k.dataset.note);
+      S.piano(k.dataset.note!);
       bump(k, 'is-down');
       ctx.onNote?.(k.dataset.note!);
       if (k.dataset.note !== step.play[i]) { tr.miss(k); return; }
@@ -494,12 +492,12 @@ const KINDS: { [K in TunesStep['kind']]: Game<Extract<TunesStep, { kind: K }>> }
     const tr = tracker(step, ctx, () => gaps.forEach(g => { if (RIGHT.includes(g.dataset.gap!) && !found.has(g.dataset.gap!)) g.classList.add('is-reveal'); }));
     host.querySelector('.tn-kb')!.addEventListener('click', e => {
       const k = (e.target as Element).closest<HTMLElement>('.tn-key');
-      if (k) { S.piano(k.dataset.note); bump(k, 'is-down'); return; }
+      if (k) { S.piano(k.dataset.note!); bump(k, 'is-down'); return; }
       const g = (e.target as Element).closest<HTMLElement>('.tn-gap');
       if (!g || host.classList.contains('is-solved') || found.has(g.dataset.gap!)) return;
       const ws = host.querySelectorAll<HTMLElement>('.tn-key--w');
       const a = ws[+g.dataset.gap!].dataset.note, b = ws[+g.dataset.gap! + 1].dataset.note;
-      S.piano(a); S.piano(b, { at: 0.25 });
+      S.piano(a!); S.piano(b!, { at: 0.25 });
       if (!RIGHT.includes(g.dataset.gap!)) { tr.miss(g); g.textContent = '✗'; setTimeout(() => { g.textContent = '·'; }, 700); return; }
       found.add(g.dataset.gap!);
       g.textContent = '∨'; g.classList.add('is-right'); g.removeAttribute('data-ok'); g.classList.remove('is-reveal');
@@ -522,7 +520,7 @@ const KINDS: { [K in TunesStep['kind']]: Game<Extract<TunesStep, { kind: K }>> }
       gaps.forEach((g, k) => g.classList.toggle('is-now', k === i));
       ws.forEach((w, k) => w.classList.toggle('is-lit', k === i || k === i + 1));
       btns.forEach(b => { b.toggleAttribute('data-ok', b.dataset.v === ANSWER[i]); b.classList.remove('is-reveal'); });
-      S.piano(ws[i].dataset.note); S.piano(ws[i + 1].dataset.note, { at: 0.3 });
+      S.piano(ws[i].dataset.note!); S.piano(ws[i + 1].dataset.note!, { at: 0.3 });
     };
     show();
     host.querySelector('.tn-opts')!.addEventListener('click', e => {
@@ -671,8 +669,8 @@ const KINDS: { [K in TunesStep['kind']]: Game<Extract<TunesStep, { kind: K }>> }
     const lights = [...host.querySelectorAll('.tn-lights i')];
     const flash = (k: number) => { const l = lights[k]; if (l) { l.classList.add('is-on'); setTimeout(() => l.classList.remove('is-on'), 180); } };
     const play = host.querySelector('[data-play]')!, go = host.querySelector<HTMLButtonElement>('[data-turn]')!, drumBtn = host.querySelector<HTMLButtonElement>('.tn-drum')!, count = host.querySelector('.tn-count')!;
-    play.addEventListener('click', () => { ctx.sfx.tap(); S.playRhythm(step.pattern, step.bpm, { onHit: flash } as RhythmOpts); });
-    if (!TEST) setTimeout(() => { if (!ctx.signal.aborted && play.isConnected) S.playRhythm(step.pattern, step.bpm, { onHit: flash } as RhythmOpts); }, 600);
+    play.addEventListener('click', () => { ctx.sfx.tap(); S.playRhythm(step.pattern, step.bpm, { onHit: flash }); });
+    if (!TEST) setTimeout(() => { if (!ctx.signal.aborted && play.isConnected) S.playRhythm(step.pattern, step.bpm, { onHit: flash }); }, 600);
     let misses = 0, taps: number[] | null = null, startAt = 0, timer = 0, guide = false;
     // Time's up `n` beats from now: a slow start or a slow tap is not cut
     // off, because every tap gives time for the rest of the rhythm.
