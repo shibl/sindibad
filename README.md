@@ -259,14 +259,14 @@ Inside `Web/`:
   and `worlds/grade6/studio/` (part1–3), its quick reviews
   `plugins/art/reviews.js`.
 - `core/english/` — the 3D English island (`english.ts` its config,
-  `games.ts` its games, `words.js` the word book, `views.js` pictures,
+  `games.ts` its games, `words.ts` the word book, `views.js` pictures,
   `models.js` every model); its content is `worlds/grade6/english.js` and
   `worlds/grade6/english/` (block1–4), its quick reviews
   `plugins/english/reviews.js`.
 - `core/haptics.ts`, `core/touch.ts` — vibrations and how the game answers
   the finger on a phone.
 - `core/tunes/` — the 3D music island (`tunes.js` game, `games.ts` the
-  little games each quest step is played with, `synth.js` the instruments,
+  little games each quest step is played with, `synth.ts` the instruments,
   made with Web Audio, `models.js` every model, made in code); its content
   (stations, quests, steps) is `worlds/grade6/tunes.js`, its quick reviews
   `plugins/music/`. It reuses the farm's camera and light (`core/farm/scene.ts`).

@@ -48,7 +48,7 @@ Lesson content is what children learn from: questions, answers, hints,
 explanations, mini-lessons, facts. It lives in the topic folders under
 `Web/plugins/` (`arabic/`, `math/`, `science/`, `social/`, `agriculture/`,
 `review/`), in
-`Web/worlds/`, and in the facts in `Web/core/stickers.js`.
+`Web/worlds/`, and in the facts in `Web/core/stickers.ts`.
 
 Mark it as draft ("Draft content, pending review by Syrian educators").
 Teacher review comes later; for now the developers decide what goes live.
