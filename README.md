@@ -21,6 +21,14 @@ Syrian national curriculum (grades 1–12) into an RPG-style adventure.
 
 ## What's playable now
 
+**Native Android:** [`Android/`](./Android/README.md) contains the Kotlin/Compose
+app for Android 13+, including Arabic, mathematics, review, guardians and
+cosmetics. Build instructions and verification are inside that folder.
+[`Shared/Art/`](./Shared/Art/README.md) contains reusable artwork for Kotlin
+and future Swift clients. Full conversion progress: [#3](https://github.com/shibl/sindibad/issues/3).
+
+The following descriptions cover the existing web game.
+
 **Twelve voyages, one per school grade** («خريطة الرحلات»), grouped by the
 brief's four age stages. Voyage 6 is open; the other eleven are locked
 until their worlds are built.
@@ -189,7 +197,8 @@ Deployments on GitHub (`github-pages` = live, `staging`). Details: step 5 of
 
 - `Web/` — the game (a web app that also installs to the home screen).
   Everything below lives in it.
-- `Android/`, `iOS/` — reserved for future native apps; not started.
+- `Android/` — native Kotlin/Compose app; `iOS/` — reserved for Swift.
+- `Shared/Art/` — reusable illustrations, interaction states, models and fonts.
 - `docs/` — the original brief (PDF and Markdown) and screenshots.
 - `index.html`, `service-worker.js` (top level) — only forward the live
   site to `Web/` and clear old offline copies from before the move.

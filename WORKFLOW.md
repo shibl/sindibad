@@ -1,3 +1,11 @@
+# Native Android workflow — owner clarification, 2026-10-20
+
+The owner explicitly requested Android changes directly on `main`.
+The staging/publishing steps below apply to the web game. For native Android,
+use `Android/README.md`: JVM tests, lint and APK assembly. Shared artwork also
+uses `npm run check --prefix Shared/Art/tools`. Do not open or install the game;
+the owner will test on their phone. Android is Kotlin, minimum API 33.
+
 # Workflow — adding or changing something in the game
 
 The steps to follow for every new feature, lesson or fix, for people and

@@ -1,0 +1,11 @@
+<resources>
+    <style name="Theme.Sindibad" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:windowSplashScreenBackground">#0F4F7A</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/shared_launcher</item>
+        <item name="android:windowBackground">#0F4F7A</item>
+    </style>
+</resources>
