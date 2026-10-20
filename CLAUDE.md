@@ -18,7 +18,9 @@ The game lives in `Web/`.
 
 ## Publishing
 
-Push only when the developers ask. Push to `staging` first (tests, then
+Push only when the developers ask. Android work goes directly to `main`
+(owner clarification, 2026-10-20); do not route it through web staging.
+For web changes, push to `staging` first (tests, then
 the staging copy at `/staging/`); merging into `main` publishes the live
 game. Never push to the website branch `claude/sharp-hawking-0380ax`: the
 workflow writes it (WORKFLOW.md step 5).

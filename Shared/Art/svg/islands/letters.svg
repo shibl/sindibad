@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="island-art island-art--letters" viewBox="0 0 240 200" aria-hidden="true" overflow="visible"><defs>
+    <linearGradient id="g-wood" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b06a36"/><stop offset=".55" stop-color="#8a4c24"/><stop offset="1" stop-color="#5e3214"/>
+    </linearGradient>
+    <linearGradient id="g-sail" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fffaf0"/><stop offset=".6" stop-color="#f6e7c8"/><stop offset="1" stop-color="#e2c99a"/>
+    </linearGradient>
+    <linearGradient id="g-skin-shade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#7a3b1c" stop-opacity=".18"/>
+    </linearGradient>
+    <linearGradient id="g-frond" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#2f7d3c"/><stop offset="1" stop-color="#58b04f"/>
+    </linearGradient>
+    <linearGradient id="g-trunk" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7a4a26"/><stop offset=".5" stop-color="#a86e3c"/><stop offset="1" stop-color="#6b3f1f"/>
+    </linearGradient>
+    <linearGradient id="g-brass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe08a"/><stop offset=".5" stop-color="#e0a93a"/><stop offset="1" stop-color="#a8741e"/>
+    </linearGradient>
+    <radialGradient id="g-glow">
+      <stop offset="0" stop-color="#fff2b0" stop-opacity="1"/><stop offset=".4" stop-color="#ffc94a" stop-opacity=".6"/><stop offset="1" stop-color="#ffb030" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="g-cheek">
+      <stop offset="0" stop-color="#ff7f7f" stop-opacity=".55"/><stop offset="1" stop-color="#ff7f7f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="g-hudhud" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4ac6c"/><stop offset="1" stop-color="#d9824a"/>
+    </linearGradient>
+  </defs>
+
+  <ellipse cx="120" cy="150" rx="112" ry="40" fill="#8fe0e6" opacity=".55"/>
+  <path d="M22 140 Q14 108 52 96 Q70 70 118 74 Q170 70 196 94 Q232 106 222 138 Q214 172 160 176 Q120 184 76 176 Q28 170 22 140Z" fill="#f3d596" stroke="#3b2414" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M42 132 Q40 110 66 104 Q84 86 120 88 Q160 86 180 104 Q206 112 198 132 Q190 152 150 154 Q120 160 90 154 Q46 150 42 132Z" fill="#5fa653"/>
+  <path d="M42 128 Q40 106 66 100 Q84 82 120 84 Q160 82 180 100 Q206 108 198 128 Q190 148 150 150 Q120 156 90 150 Q46 146 42 128Z" fill="#86c86a" stroke="#3b2414" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M60 116 q6 -6 12 0 M160 122 q6 -6 12 0 M150 104 q5 -5 10 0" fill="none" stroke="#4f9444" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M70 128 V70 Q70 40 120 36 Q170 40 170 70 V128Z" fill="#fbf1dc" stroke="#3b2414" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M70 60 H170 M70 80 H170 M70 100 H170" stroke="#3b3029" stroke-width="7" opacity=".85"/>
+    <path d="M70 128 V70 Q70 40 120 36 Q170 40 170 70 V128Z" fill="none" stroke="#3b2414" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M94 128 V80 Q94 58 120 56 Q146 58 146 80 V128Z" fill="#2c5e6e" stroke="#3b2414" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M100 124 L100 104 Q120 96 120 104 Q120 96 140 104 L140 124 Q120 118 120 124 Q120 118 100 124Z" fill="#fff" stroke="#3b2414" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M120 104 V122" stroke="#3b2414" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <text x="110" y="117" font-size="12" font-weight="800" text-anchor="middle" fill="#3b2414" font-family="Baloo Bhaijaan 2, sans-serif">ض</text>
+    <text x="131" y="117" font-size="12" font-weight="800" text-anchor="middle" fill="#d0507e" font-family="Baloo Bhaijaan 2, sans-serif">أ</text>
+    <circle cx="120" cy="46" r="5" fill="#f2c14e" stroke="#3b2414" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>
