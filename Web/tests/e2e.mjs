@@ -806,8 +806,10 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   await p.waitForTimeout(300);
   s = await atlas();
   check(!!s.globe?.selected && await p.locator('#atlas-globe .gl-card:not([hidden]) .gl-row').count() >= 4, `tapping the globe opens a country's card: its capital, currency, the meaning of its name (${s.globe?.selected})`);
+  const exploredCountry = s.globe?.selected;
   await p.click('#atlas-globe [data-mode=flag]');
   check(await p.locator('#atlas-globe .gl-ask .gl-flag svg').count() === 1 && await p.locator('#atlas-globe .gl-opt').count() === 3, '«علم مَن هذا؟»: a flag and three names');
+  const flagCountry = await p.locator('#atlas-globe .gl-opt[data-ok]').getAttribute('data-id');
   await p.click('#atlas-globe .gl-opt[data-ok]');
   s = await atlas();
   check(s.globe.score === 1 && await p.locator('#atlas-globe .gl-card:not([hidden])').count() === 1, 'the right name scores a star and opens that country\'s card');
@@ -818,7 +820,10 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   await p.reload();
   await p.waitForTimeout(500);
   const kept = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')).world.atlas);
-  check(kept.done.homeland && kept.done.nilegift && kept.visited.length >= 2, 'the island and the countries visited survive a reload');
+  // The random flag quiz may pick the country we just explored. Visits are
+  // unique countries, so compare their identities rather than assuming two.
+  const expectedCountries = [...new Set([exploredCountry, flagCountry])].sort();
+  check(kept.done.homeland && kept.done.nilegift && JSON.stringify(kept.visited?.slice().sort()) === JSON.stringify(expectedCountries), `the island and the countries visited survive a reload (expected ${expectedCountries}; saved ${kept.visited})`);
   await ctx.setOffline(true);
   await p.reload();
   await p.waitForTimeout(600);

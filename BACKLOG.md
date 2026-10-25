@@ -931,3 +931,21 @@ Next:
   HTTP checks, syntax checks and tests. No runtime or visual pass is claimed.
 - Next: owner review of the intro/hero and scrolling; future studio native
   app and infrastructure work belongs in its corresponding directory.
+
+## Playtest notes — 2026-10-25 (atlas persistence check)
+
+- The Studio import left both `Web/` and `.github/` identical to the preceding
+  successful release. Its failed game check assumed that exploring a country
+  and answering a random flag question always visits two different countries.
+- Reproduced the false failure with Jordan in both activities: one unique
+  country was correctly saved after reload. A different-country round also
+  preserved both visits. The assertion now compares the actual country IDs
+  and still checks that both completed lessons survive the reload.
+- No game runtime files, Studio files, or deployment settings changed.
+- Validation: both duplicate-country and different-country browser cases passed;
+  the full `npm --prefix Web test` suite passed, including all islands, language
+  switching, offline updates, and staging save/cache isolation.
+
+Next:
+- Keep main's full game checks as the publication gate.
+- Continue educator review of the draft English curriculum.
