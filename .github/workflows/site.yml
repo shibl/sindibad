@@ -9,7 +9,7 @@
 # for the live game, staging for the staging copy). Players' devices pick
 # up a new version the next time they open the game online (service
 # worker). The staging copy keeps its own saves and offline copy
-# (Web/core/env.js).
+# (Studio/TheCurriculum/Classes/Grade6/Web/core/env.js).
 #
 # GitHub Pages builds the website from one branch, SITE_BRANCH. This
 # workflow writes that branch; nobody pushes to it by hand. Each publish
@@ -39,12 +39,14 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: Web
+        working-directory: Studio/TheCurriculum/Classes/Grade6/Web
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
           node-version: 22
+      - name: Check publication layout
+        run: python3 "$GITHUB_WORKSPACE/.github/tests/test_pages_layout.py"
       - run: npm install --no-audit --no-fund
       - run: npx playwright install --with-deps chromium
       - run: npm test
@@ -83,6 +85,11 @@ jobs:
       - name: Put the tested version in its place
         run: |
           git fetch --depth=1 origin "$GITHUB_SHA"
+          source_dir=$(mktemp -d)
+          public_dir=$(mktemp -d)
+          trap 'rm -rf "$source_dir" "$public_dir"' EXIT
+          git archive FETCH_HEAD | tar -x -C "$source_dir"
+          python3 "$source_dir/.github/scripts/prepare-pages.py" "$source_dir" "$public_dir"
           if [ "$GITHUB_REF_NAME" = staging ]; then
             dest=staging
             rm -rf staging
@@ -91,8 +98,7 @@ jobs:
             find . -mindepth 1 -maxdepth 1 ! -name .git ! -name staging -exec rm -rf {} +
           fi
           mkdir -p "$dest"
-          git archive FETCH_HEAD | tar -x -C "$dest"
-          rm -rf "$dest/.github"
+          cp -a "$public_dir/." "$dest/"
           touch .nojekyll   # serve the files as they are
           test -f Web/index.html && test -f "$dest/Web/index.html"   # never publish an empty site
 
