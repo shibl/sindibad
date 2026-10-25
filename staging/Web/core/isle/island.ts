@@ -622,6 +622,7 @@ export function makeIsland(cfg: IslandConfig) {
       dots.forEach((d, k) => { d.classList.toggle('is-on', k < i); d.classList.toggle('is-now', k === i); });
       const host = document.createElement('div');
       host.className = 'tn-step';
+      host.dataset.localizedDirection = '';
       body.replaceChildren(host);
       body.scrollTop = 0;
       if (steps[i].kind !== 'explore' && !steps[i].say) els.say.classList.add('is-small');

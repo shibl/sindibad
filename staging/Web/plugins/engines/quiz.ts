@@ -10,6 +10,8 @@ import type { Render } from '../../core/topics.js';
 
 /** A multiple-choice question. */
 export interface QuizQuestion {
+  /** Preserve the target words in mixed Arabic reviews. */
+  curriculum?: 'arabic';
   /** The question (html). */
   q: string;
   /** The choices (html); they are shuffled. */
@@ -34,6 +36,7 @@ export function quiz({ questions, count = 8, intro }: QuizOptions): Render {
     runRounds({
       container, ctx, items, onComplete, intro,
       renderRound(item, round, stage) {
+        if (item.curriculum) stage.dataset.curriculum = item.curriculum;
         const opts = shuffle(item.options.map((html, idx) => ({ html, ok: idx === item.answer })));
         stage.append(h(`<p class="prompt">${item.q}</p>`));
         const grid = h(`<div class="choices ${opts.some(o => o.html.replace(/<[^>]*>/g, '').length > 22) ? 'choices--wide' : ''}"></div>`);

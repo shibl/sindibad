@@ -6,6 +6,7 @@ import { chestSVG, heroSVG, hudhudSVG, HEROES, g } from '../art/art.js';
 import { save, activeProfile } from './save.js';
 import { sfx } from './sound.js';
 import { num } from './format.js';
+import { playerName } from './i18n.js';
 function el() {
     let f = document.getElementById('finale');
     if (!f) {
@@ -36,7 +37,7 @@ export function certificateHTML({ stars, max }) {
           <div class="cert__hero">${heroSVG(hero)}</div>
           <div class="cert__text">
             <p>تشهد هيئة البحّارة بأنّ</p>
-            <p class="cert__name">${activeProfile()?.name || HEROES[hero].name}</p>
+            <p class="cert__name">${playerName(activeProfile()?.name, HEROES[hero].name)}</p>
             <p>${g(hero, 'قد أبحر في بحر الصف السادس، وفكّ شيفرات الحروف، واهتدى بمنارة الأرقام، واكتشف أسرار العلوم، وعرف معالم بلاده، ففتح صندوق الكنز.', 'قد أبحرت في بحر الصف السادس، وفكّت شيفرات الحروف، واهتدت بمنارة الأرقام، واكتشفت أسرار العلوم، وعرفت معالم بلادها، ففتحت صندوق الكنز.')}</p>
           </div>
         </div>

@@ -10,6 +10,7 @@ import { num } from './format.js';
 import { showCertificate } from './finale.js';
 import { showStory } from './story.js';
 import { openAlbum, owned, TOTAL } from './stickers.js';
+import { playerName } from './i18n.js';
 
 /** An island of a voyage's sea map (worlds/grade6.js), as far as these pages read it. */
 export interface Region {
@@ -32,7 +33,7 @@ export function renderJourney(el: HTMLElement, world: World, { showScreen }: { s
   const earned = world.regions.filter(r => badgeState(r.id)).length;
   const played = Object.values(s.topics).filter(t => t.plays).length;
   const { rank, next, to, pct } = rankInfo(hero, stars, max);
-  const child = activeProfile()?.name || HEROES[hero].name;
+  const child = playerName(activeProfile()?.name, HEROES[hero].name);
 
   el.innerHTML = `
     <div class="journey__hero">

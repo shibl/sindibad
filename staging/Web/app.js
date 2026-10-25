@@ -30,6 +30,7 @@ import { num } from './core/format.js';
 import { STAGING, storeKey } from './core/env.js';
 import { stopSpeaking } from './core/voice.js';
 import { initTouch } from './core/touch.js';
+import { initLanguage, playerName } from './core/i18n.js';
 import './plugins/index.js';
 // ---------- Backdrop ----------
 // Day, sunset or night, from the device clock (override with ?time=night).
@@ -218,6 +219,7 @@ document.addEventListener('visibilitychange', () => {
         stopSpeaking(); // sound itself pauses in core/sound.js
 });
 // ---------- Boot ----------
+initLanguage();
 applyStyle();
 initTouch();
 paintScene();
@@ -292,7 +294,6 @@ initLesson({
 // The staging copy wears a ribbon, so nobody mistakes it for the live game.
 if (STAGING) {
     document.documentElement.dataset.env = 'staging';
-    document.title = `🧪 ${document.title}`;
 }
 registerServiceWorker();
 initFamily({ worldDef: world, showScreen });
@@ -330,7 +331,7 @@ if (save.get().hero && profileList().length <= 1) {
     const card = document.createElement('div');
     card.className = 'title-card';
     card.innerHTML = `<span class="title-card__face">${heroSVG(save.get().hero)}</span>
-    <b>${activeProfile()?.name || (save.get().hero === 'yasmina' ? 'ياسمينة' : 'سندباد')}</b>
+    <b>${playerName(activeProfile()?.name, save.get().hero === 'yasmina' ? 'ياسمينة' : 'سندباد')}</b>
     <span class="title-card__stat">★ ${num(stars)}<small>/${num(max)}</small></span>
     ${days ? `<span class="title-card__stat title-card__stat--fire">🔥 ${num(days)}</span>` : ''}`;
     start.before(card);

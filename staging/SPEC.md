@@ -29,6 +29,15 @@ architecture, licensing, and call for contributors).
 
 - Grades 1–12 of the Syrian curriculum, ages ~6–18.
 - Arabic-first, right-to-left UI.
+- **Game language (2026-10-25, issue #18):** Arabic remains the default;
+  players can choose Arabic or English before starting and switch while playing.
+  English uses left-to-right navigation. This is a device preference, stored
+  separately on staging, available offline, and independent of saved progress.
+  Switching updates display text without restarting the current activity.
+  English covers all player-facing curriculum text as well as the interface.
+  Arabic exercises keep their target words, case endings and right-to-left word
+  order, with English instructions and explanations. Original data and answer
+  identifiers remain stable. Translations are draft content for educator review.
 - Visual identity grows with the player:
   - Grade 1–3 (age 6): "الطفل المستكشف" — simple, bright, toddler-friendly art.
   - Grade 4–6 (age 10): "البحار الصغير" — young sailor, adventurous but simple.
