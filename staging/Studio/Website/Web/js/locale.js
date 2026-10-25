@@ -21,7 +21,7 @@ export const siteUrl = (path = '', hash = '') => {
   return url.href;
 };
 export const labUrl = id => {
-  const url = new URL('../../TheCurriculum/Classes/Grade10/Chemistry/Web/lab.html', base);
+  const url = new URL('../../Games/Sindibad-Yasmina/Classes/Grade10/Chemistry/Web/lab.html', base);
   url.searchParams.set('lang', lang);
   if (id) url.searchParams.set('experiment', id);
   return url.href;

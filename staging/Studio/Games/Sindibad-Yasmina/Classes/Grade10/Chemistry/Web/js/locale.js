@@ -13,7 +13,7 @@ export function setLanguage(value) {
 setLanguage(lang);
 export const text = value => typeof value === 'string' ? value : value[lang];
 // The lab has its own entry point; product navigation returns to the studio site.
-const base = new URL('../../../../../../Website/Web/', import.meta.url);
+const base = new URL('../../../../../../../Website/Web/', import.meta.url);
 export const assetUrl = path => new URL(`assets/${path}`, base).href;
 export const siteUrl = (path = '', hash = '') => {
   const url = new URL(path || 'home', base);

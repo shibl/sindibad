@@ -1,6 +1,6 @@
 # Instructions for coding agents (Codex, Claude, …)
 
-Repo: `github.com/shibl/sindibad`. Scope: `Studio/Website/Web/`. The studio website is separate from the games under `Studio/TheCurriculum/Classes/`.
+Repo: `github.com/shibl/sindibad`. Scope: `Studio/Website/Web/`. The studio website is separate from the games under `Studio/Games/Sindibad-Yasmina/Classes/`.
 
 ## Brand and navigation
 
@@ -15,7 +15,7 @@ Build the Sindibad Studios website and present The Curriculam as a game for the 
 
 ## Source ownership after the class split
 
-The studio website's home, products, grades, chemistry introduction, artwork, typography, splash and hero remain here. The playable Chemistry Lab belongs to `Studio/TheCurriculum/Classes/Grade10/Chemistry/Web/`; its instructions are in the Grade10 AGENTS.md. The website imports the lab's data-only experiment catalogue and links to its entry through `js/locale.js`. Do not move the actual lab back into the website.
+The studio website's home, products, grades, chemistry introduction, artwork, typography, splash and hero remain here. The playable Chemistry Lab belongs to `Studio/Games/Sindibad-Yasmina/Classes/Grade10/Chemistry/Web/`; its instructions are in the Grade10 AGENTS.md. The website imports the lab's data-only experiment catalogue and links to its entry through `js/locale.js`. Do not move the actual lab back into the website.
 
 `js/site.js`, `site-motion.js`, `site-splash.js`, `splash-timeline.js`, `site-scenes.js`, `curriculum.js`, and `locale.js` remain the website modules. Lenis remains under `vendor/lenis/`. The website does not load WebGL.
 
