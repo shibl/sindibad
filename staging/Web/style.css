@@ -60,8 +60,8 @@
 
 /* The same language choice is reachable before starting and during a lesson.
    Reserve its space so it never covers a question or an island control. */
-.language-bar { position: fixed; z-index: 95; top: 0; left: 0; right: 0; height: var(--safe-top); padding: env(safe-area-inset-top, 0px) 12px 0; display: flex; align-items: center; justify-content: center; gap: 10px; background: #103d50; color: #fff7e6; font-size: 15px; }
-.language-options { display: flex; direction: ltr; gap: 3px; }
+.language-bar { position: fixed; z-index: 95; top: 0; left: 0; right: 0; height: var(--safe-top); padding: env(safe-area-inset-top, 0px) 12px 0; display: flex; align-items: center; justify-content: flex-end; gap: 10px; background: #103d50; color: #fff7e6; font-size: 15px; }
+.language-options { display: flex; gap: 3px; }
 .language-options button { min-width: 76px; min-height: 40px; padding: 4px 12px; border: 2px solid transparent; border-radius: 999px; font: inherit; font-weight: 800; color: inherit; background: transparent; cursor: pointer; }
 .language-options button[aria-pressed="true"] { background: var(--gold); color: var(--ink); }
 .language-options button:focus-visible { outline: 3px solid white; outline-offset: 1px; }
