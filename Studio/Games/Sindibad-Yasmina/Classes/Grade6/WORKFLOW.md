@@ -13,7 +13,7 @@ for agents. Read it together with [`CLAUDE.md`](./CLAUDE.md) (agent rules),
 [`SPEC.md`](./SPEC.md) (the design) and [`BACKLOG.md`](./BACKLOG.md) (the
 work queue).
 
-Run these commands from `Studio/TheCurriculum/Classes/Grade6/`. The game lives in its `Web/` directory. `Android/` and `iOS/` are reserved for future
+Run these commands from `Studio/Games/Sindibad-Yasmina/Classes/Grade6/`. The game lives in its `Web/` directory. `Android/` and `iOS/` are reserved for future
 native apps. Paths below are inside `Web/` unless they start with `docs/`
 or name a top-level file.
 

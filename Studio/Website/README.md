@@ -4,4 +4,4 @@
 - [Android](Android/README.md) and [iOS](iOS/README.md): reserved studio applications.
 - [Infra](Infra/README.md): website publishing and preview instructions.
 
-Playable curriculum experiences live in the sibling [TheCurriculum](../TheCurriculum/README.md) project. The Chemistry Lab is under Grade 10, not inside this website's web source.
+Playable curriculum experiences live in the [Sindibad & Yasmina](../Games/Sindibad-Yasmina/README.md) project. The Chemistry Lab is under Grade 10, not inside this website's web source.

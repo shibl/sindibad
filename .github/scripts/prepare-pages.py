@@ -7,9 +7,9 @@ import posixpath
 import shutil
 
 
-GRADE6 = Path("Studio/TheCurriculum/Classes/Grade6")
+GRADE6 = Path("Studio/Games/Sindibad-Yasmina/Classes/Grade6")
 WEBSITE = Path("Studio/Website/Web")
-CHEMISTRY = Path("Studio/TheCurriculum/Classes/Grade10/Chemistry/Web")
+CHEMISTRY = Path("Studio/Games/Sindibad-Yasmina/Classes/Grade10/Chemistry/Web")
 IGNORED = shutil.ignore_patterns("node_modules", ".git", ".DS_Store", "__pycache__", ".preview")
 
 
@@ -52,6 +52,8 @@ def prepare(source: Path, output: Path):
         redirect(output, Path("Studio/Web") / relative, WEBSITE / relative)
     redirect(output, Path("Studio/Web/lab.html"), CHEMISTRY / "lab.html")
     redirect(output, WEBSITE / "lab.html", CHEMISTRY / "lab.html")
+    for name in ["index.html", "lab.html"]:
+        redirect(output, Path("Studio/TheCurriculum/Classes/Grade10/Chemistry/Web") / name, CHEMISTRY / name)
     redirect(output, Path("Studio/index.html"), WEBSITE / "home/index.html")
     (output / ".nojekyll").touch()
 

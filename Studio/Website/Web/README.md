@@ -1,6 +1,6 @@
 # Website source location
 
-The studio website is now at `Studio/Website/Web/`. The playable Chemistry Lab, experiment modules, Three.js dependencies, textbook transcriptions and archived prototype have moved to `Studio/TheCurriculum/Classes/Grade10/`. See [Grade 10](../../TheCurriculum/Classes/Grade10/README.md) for their current locations. Existing descriptions below document the product and design; lab implementation paths are relative to the Chemistry `Web/` directory.
+The studio website is now at `Studio/Website/Web/`. The playable Chemistry Lab, experiment modules, Three.js dependencies, textbook transcriptions and archived prototype have moved to `Studio/Games/Sindibad-Yasmina/Classes/Grade10/`. See [Grade 10](../../Games/Sindibad-Yasmina/Classes/Grade10/README.md) for their current locations. Existing descriptions below document the product and design; lab implementation paths are relative to the Chemistry `Web/` directory.
 
 # Sindibad Studios
 
@@ -43,13 +43,13 @@ The language switch remembers its choice across pages. English uses the bundled 
 | `js/curriculum.js` | All twelve grades and broad navigation areas. |
 | `js/locale.js` | Language preference, document language and direction, shared links. |
 | `js/catalogue.js` | Re-exports the class-owned catalogue for the studio presentation. |
-| `../../TheCurriculum/Classes/Grade10/Chemistry/Web/lab.html` | Separate 3D lab entry point. |
-| `../../TheCurriculum/Classes/Grade10/Chemistry/Web/js/lab-locale.js`, `lab-en.json` | English translations of the canonical Arabic lab. |
-| `../../TheCurriculum/Classes/Grade10/Chemistry/Web/js/exp-a.js`, `exp-b.js` | Experiment logic and original Arabic textbook wording. |
+| `../../Games/Sindibad-Yasmina/Classes/Grade10/Chemistry/Web/lab.html` | Separate 3D lab entry point. |
+| `../../Games/Sindibad-Yasmina/Classes/Grade10/Chemistry/Web/js/lab-locale.js`, `lab-en.json` | English translations of the canonical Arabic lab. |
+| `../../Games/Sindibad-Yasmina/Classes/Grade10/Chemistry/Web/js/exp-a.js`, `exp-b.js` | Experiment logic and original Arabic textbook wording. |
 | `assets/` | Studio mark and three generated game-world images; the image and prompt index is `game-art.md`. |
 | `design/reference-study.md` | Complete recording review, reference timings, and the design decisions drawn from both sites. |
-| `../../TheCurriculum/Classes/Grade10/Content/extracted/` | Word-for-word chemistry and physics textbook transcriptions. |
-| `../../TheCurriculum/Classes/Grade10/Chemistry/Archive/game-prototype/` | Retired prototype, kept for reference. |
+| `../../Games/Sindibad-Yasmina/Classes/Grade10/Content/extracted/` | Word-for-word chemistry and physics textbook transcriptions. |
+| `../../Games/Sindibad-Yasmina/Classes/Grade10/Chemistry/Archive/game-prototype/` | Retired prototype, kept for reference. |
 
 Pages use the full viewport width, with edge-to-edge game artwork and modest inner padding. There is no centred max-width page shell. The former `/sindibad-yasmina/` pages remain aliases for existing links; navigation now uses `/products/the-curriculam/`. The product spelling follows the user’s name, **The Curriculam**.
 

@@ -954,7 +954,7 @@ Next:
 
 - Main CI and publication passed for the atlas-test correction (`0783a65`),
   and the public game files matched that release before these moves began.
-- Moved the complete Grade 6 project into `Studio/TheCurriculum/Classes/Grade6`,
+- Moved the complete Grade 6 project into `Studio/Games/Sindibad-Yasmina/Classes/Grade6`,
   keeping Web, Android, iOS, shared artwork, and docs together. Their file trees
   are unchanged; their existing relative imports and native asset paths remain valid.
 - Created Grade 1–12 class directories and platform workspace indexes. Reserved
@@ -978,3 +978,9 @@ Next:
 Next:
 - Developer review of the new project/class organisation.
 - Continue educator review of the draft curriculum translations.
+
+### Game project name and Games directory (2026-10-25)
+
+- The owner requested `Studio/Games/Sindibad-Yasmina/` in place of `Studio/TheCurriculum/`. Classes and their platform folders move together; the website stays at `Studio/Website/`.
+- Updated CI, deployment mapping, catalogue imports, local preview routing, and the lab’s return links for the extra directory level. The public Grade 6 game paths remain unchanged.
+- Old Chemistry Lab URLs under the temporary TheCurriculum location redirect to the renamed project, preserving language, experiment query parameters, and fragments.

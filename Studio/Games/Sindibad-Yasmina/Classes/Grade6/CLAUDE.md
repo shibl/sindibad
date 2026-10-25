@@ -6,7 +6,7 @@ lesson or fix: check the brief, build, test, update the docs.
 
 ## Before every commit
 
-This guide applies only to Grade 6. Run the commands from `Studio/TheCurriculum/Classes/Grade6/`; the game lives in its `Web/` directory.
+This guide applies only to Grade 6. Run the commands from `Studio/Games/Sindibad-Yasmina/Classes/Grade6/`; the game lives in its `Web/` directory.
 
 - Some game files are written in TypeScript: `x.ts` is the source, and
   `x.js` next to it (what the browser loads) is made from it. Edit the

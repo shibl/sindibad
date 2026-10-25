@@ -1,6 +1,6 @@
 # Grade 10 instructions
 
-Scope: `Studio/TheCurriculum/Classes/Grade10/`. The studio website is separate at `Studio/Website/Web/`.
+Scope: `Studio/Games/Sindibad-Yasmina/Classes/Grade10/`. The studio website is separate at `Studio/Website/Web/`.
 
 The user explicitly said to design in source only and **not use computer/browser tools or run tests**. Do not run browser automation, screenshots, HTTP checks, builds, syntax checks, tests, or visual QA unless the user changes this instruction. Source reads and edits are allowed.
 

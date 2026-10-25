@@ -11,7 +11,7 @@ class PreviewHandler(SimpleHTTPRequestHandler):
         parts = urlsplit(self.path)
         if not parts.path.startswith("/Studio/"):
             if parts.path == "/lab.html":
-                target = "/Studio/TheCurriculum/Classes/Grade10/Chemistry/Web/lab.html"
+                target = "/Studio/Games/Sindibad-Yasmina/Classes/Grade10/Chemistry/Web/lab.html"
             else:
                 target = "/Studio/Website/Web" + ("/home/" if parts.path == "/" else parts.path)
             self.send_response(302)

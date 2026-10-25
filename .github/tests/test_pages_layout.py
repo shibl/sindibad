@@ -31,6 +31,7 @@ class PagesLayoutTest(unittest.TestCase):
             publisher.WEBSITE / "products/the-curriculam/grade-10/chemistry/index.html": "intro",
             publisher.WEBSITE / ".preview/ignored.html": "private preview",
             publisher.CHEMISTRY / "lab.html": "lab entry",
+            publisher.CHEMISTRY / "index.html": "lab index",
             publisher.CHEMISTRY / "js/exp-a.js": "experiment fixture",
         }
         for path, body in self.inputs.items():
@@ -57,7 +58,8 @@ class PagesLayoutTest(unittest.TestCase):
         self.assertFalse((self.output / publisher.GRADE6 / "Web").exists())
         self.assertTrue((self.output / ".nojekyll").exists())
         aliases = [Path("Studio/Web/home/index.html"), Path("Studio/Web/lab.html"),
-                   Path("Studio/Web/products/the-curriculam/grade-10/chemistry/index.html")]
+                   Path("Studio/Web/products/the-curriculam/grade-10/chemistry/index.html"),
+                   Path("Studio/TheCurriculum/Classes/Grade10/Chemistry/Web/lab.html")]
         for alias in aliases:
             body = (self.output / alias).read_text()
             target = body.split('content="0; url=', 1)[1].split('"', 1)[0]

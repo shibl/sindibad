@@ -9,7 +9,7 @@
 # for the live game, staging for the staging copy). Players' devices pick
 # up a new version the next time they open the game online (service
 # worker). The staging copy keeps its own saves and offline copy
-# (Studio/TheCurriculum/Classes/Grade6/Web/core/env.js).
+# (Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/env.js).
 #
 # GitHub Pages builds the website from one branch, SITE_BRANCH. This
 # workflow writes that branch; nobody pushes to it by hand. Each publish
@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: Studio/TheCurriculum/Classes/Grade6/Web
+        working-directory: Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7

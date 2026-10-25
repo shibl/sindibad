@@ -1,6 +1,6 @@
 # Grade 6 — Sindibad & Yasmina
 
-This project lives at `Studio/TheCurriculum/Classes/Grade6/`. Commands and relative paths below are relative to this Grade 6 directory. Its public game URL remains `/sindibad/Web/`.
+This project lives at `Studio/Games/Sindibad-Yasmina/Classes/Grade6/`. Commands and relative paths below are relative to this Grade 6 directory. Its public game URL remains `/sindibad/Web/`.
 
 # رحلات سندباد وياسمينة — Sindbad & Yasmina's Journeys
 
@@ -218,7 +218,7 @@ Deployments on GitHub (`github-pages` = live, `staging`). Details: step 5 of
   Everything below lives in it.
 - `Android/` — native Kotlin/Compose app; `iOS/` — reserved for Swift.
 - `Shared/Art/` — reusable illustrations, interaction states, models and fonts.
-- The [studio website](../../../Website/README.md) is a separate sibling project.
+- The [studio website](../../../../Website/README.md) is a separate project under Studio.
 - `docs/` — the original brief (PDF and Markdown) and screenshots.
 - `Infra/Pages/index.html`, `Infra/Pages/service-worker.js` — only forward the live
   site to `Web/` and clear old offline copies from before the move.
