@@ -140,6 +140,7 @@ const rewarded = (p) => (p.quest.letter ? state.letters.includes(p.quest.letter)
 const questDone = (q) => (q.fetch ? state.items.includes(q.fetch) : (save.get().topics[q.topic]?.stars || 0) >= 1);
 // ---------- Enter / leave ----------
 export function enterIsland(def, region) {
+    els.screen.dataset.curriculum = def.id;
     island = def;
     state = islandState(def.id);
     els.name.textContent = def.name;
@@ -1425,7 +1426,7 @@ function advance() {
 function onDialogClick(e) {
     if (e.target.closest('.dialog__say')) {
         e.stopPropagation();
-        speak(dialog.lines[dialog.i]);
+        speak(els.dlg.querySelector('.dialog__text').innerHTML);
         return;
     }
     const c = e.target.closest('[data-choice]');
@@ -1452,7 +1453,7 @@ function askRiddle(p) {
     const r = p.riddles();
     const opts = shuffled(r.options.map((html, k) => ({ html, ok: k === r.answer })));
     say({ person: p, plain: true, lines: [`🧩 ${r.q}`], choices: opts.map(o => ({
-            label: o.html,
+            label: r.curriculum === 'arabic' ? `<span translate="no" lang="ar" dir="rtl">${o.html}</span>` : o.html,
             go: () => {
                 if (o.ok) {
                     const paid = (state.riddles || 0) < 10;
@@ -1746,7 +1747,7 @@ function updateHud() {
     goalText = '';
     updateGoal();
     els.pearls.textContent = num(save.get().pearls || 0);
-    els.letters.innerHTML = tokens().map(l => `<span class="${state.letters.includes(l) ? 'on' : ''}">${l}</span>`).join('');
+    els.letters.innerHTML = tokens().map(l => `<span translate="no" class="${state.letters.includes(l) ? 'on' : ''}">${l}</span>`).join('');
 }
 // A reward card. With `hold`, the hero lifts the item overhead in a burst
 // of light ("you got it!"); `fly` sends a golden token into its HUD slot

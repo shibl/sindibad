@@ -115,6 +115,7 @@ export function enter(region?: { name?: string }): void {
   T = tunesState();
   sessionGain = { gained: 0, topic: null };
   els ||= grabEls();
+  els.screen.dataset.curriculum = 'music';
   if (!built && !failed) build();
   if (failed) { els.goal.innerHTML = '<p>هذه الجزيرة تحتاج إلى رسوم ثلاثية الأبعاد (WebGL)، وجهازك لا يدعمها. جرّب جزيرة أخرى! ⛵</p>'; return; }
   els.title.textContent = region?.name || 'جزيرة الأنغام';
@@ -684,6 +685,7 @@ async function runQuest(def: Quest | undefined) {
     dots.forEach((d, k) => { d.classList.toggle('is-on', k < i); d.classList.toggle('is-now', k === i); });
     const host = document.createElement('div');
     host.className = 'tn-step';
+    host.dataset.localizedDirection = '';
     body.replaceChildren(host);
     body.scrollTop = 0;
     if (steps[i].kind !== 'explore' && !steps[i].say) els.say.classList.add('is-small');

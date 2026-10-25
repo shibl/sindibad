@@ -17,7 +17,7 @@ export interface Guardian { name: string; color: string; hat: string }
 /** The guardian's face: calm, just hit, or won over. */
 export type Mood = 'ok' | 'hit' | 'happy';
 /** A review question (plugins/review/pools.js): options[answer] is right. */
-interface BattleQuestion { q: string; options: string[]; answer: number; explain?: string }
+interface BattleQuestion { curriculum?: 'arabic'; q: string; options: string[]; answer: number; explain?: string }
 
 export const GUARDIANS: Record<string, Guardian> = {
   arabic: { name: 'حارس الحروف', color: '#8a5cd6', hat: 'quill' },
@@ -78,7 +78,7 @@ export function startBattle({ island, subject, onEnd }: { island: string; subjec
         <div class="battle__hearts" aria-label="القلوب"></div>
       </div>
     </div>
-    <div class="battle__panel"><div class="battle__q"></div></div>
+    <div class="battle__panel"><div class="battle__q" data-localized-direction></div></div>
     <button class="btn btn--round battle__quit" aria-label="انسحاب">✕</button>`;
   document.body.append(el);
   const $ = (sel: string) => el.querySelector<HTMLElement>(sel)!;
@@ -99,6 +99,7 @@ export function startBattle({ island, subject, onEnd }: { island: string; subjec
   function ask() {
     if (i >= questions.length) { end(hp <= 0); return; }
     const q = questions[i];
+    $('.battle__q').dataset.curriculum = q.curriculum || subject;
     const opts = shuffle(q.options.map((html, k) => ({ html, ok: k === q.answer })));
     locked = false;
     $('.battle__q').innerHTML = `

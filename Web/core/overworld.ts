@@ -70,7 +70,7 @@ export interface VillagerQuest {
 }
 
 /** A quick riddle (plugins/review/pools.js): options[answer] is right. */
-export interface Riddle { q: string; options: string[]; answer: number; hint?: string; explain?: string }
+export interface Riddle { curriculum?: 'arabic'; q: string; options: string[]; answer: number; hint?: string; explain?: string }
 
 /** Someone who lives on the island. */
 export interface Villager {
@@ -371,6 +371,7 @@ const questDone = (q: VillagerQuest) => (q.fetch ? state.items.includes(q.fetch)
 // ---------- Enter / leave ----------
 
 export function enterIsland(def: IslandDef, region?: IslandRegion): void {
+  els.screen.dataset.curriculum = def.id;
   island = def;
   state = islandState(def.id);
   els.name.textContent = def.name;
@@ -1337,7 +1338,7 @@ function advance() {
 }
 
 function onDialogClick(e: MouseEvent) {
-  if ((e.target as Element).closest('.dialog__say')) { e.stopPropagation(); speak(dialog!.lines[dialog!.i]); return; }
+  if ((e.target as Element).closest('.dialog__say')) { e.stopPropagation(); speak(els.dlg.querySelector('.dialog__text')!.innerHTML); return; }
   const c = (e.target as Element).closest<HTMLElement>('[data-choice]');
   if (c) {
     const choice = dialog!.choices![+c.dataset.choice!];
@@ -1365,7 +1366,7 @@ function askRiddle(p: Person) {
   const r = p.riddles!();
   const opts = shuffled(r.options.map((html, k) => ({ html, ok: k === r.answer })));
   say({ person: p, plain: true, lines: [`🧩 ${r.q}`], choices: opts.map(o => ({
-    label: o.html,
+    label: r.curriculum === 'arabic' ? `<span translate="no" lang="ar" dir="rtl">${o.html}</span>` : o.html,
     go: () => {
       if (o.ok) {
         const paid = (state.riddles || 0) < 10;
@@ -1622,7 +1623,7 @@ function updateHud() {
   goalText = '';
   updateGoal();
   els.pearls.textContent = num(save.get().pearls || 0);
-  els.letters.innerHTML = tokens().map(l => `<span class="${state.letters.includes(l) ? 'on' : ''}">${l}</span>`).join('');
+  els.letters.innerHTML = tokens().map(l => `<span translate="no" class="${state.letters.includes(l) ? 'on' : ''}">${l}</span>`).join('');
 }
 
 // A reward card. With `hold`, the hero lifts the item overhead in a burst

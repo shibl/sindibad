@@ -3,6 +3,7 @@
 // voice (offline on most phones). Arabic for the game's words, English for
 // the English island (core/english/). A button that reads aloud is hidden
 // when the phone has no voice for its language.
+import { getLanguage } from './i18n.js';
 const voices = {};
 const has = typeof window !== 'undefined' && 'speechSynthesis' in window;
 // The end-to-end test (tests/e2e.mjs) plays silently: the device's voice
@@ -18,14 +19,26 @@ function findVoice(lang) {
         return list.find(v => /^en[-_](GB|US)/i.test(v.lang) && v.localService) || list.find(v => re.test(v.lang)) || null;
     return list.find(v => re.test(v.lang)) || null;
 }
-export function canSpeak(lang = 'ar') {
+export function canSpeak(lang) {
+    // The interface and curriculum may use different languages on one screen.
+    if (!lang)
+        return canSpeak(getLanguage()) || canSpeak(getLanguage() === 'en' ? 'ar' : 'en');
     voices[lang] ||= findVoice(lang);
     return !!voices[lang];
 }
 if (has)
     speechSynthesis.addEventListener?.('voiceschanged', () => { voices.ar = findVoice('ar'); voices.en = findVoice('en'); document.dispatchEvent(new Event('voices-ready')); });
 // Strip markup and speak. English is read a little slower, for learners.
-export function speak(html, lang = 'ar', { rate } = {}) {
+export function speak(html, lang, { rate } = {}) {
+    // Explicit English speech in the English lessons keeps its learning voice.
+    // Read a target Arabic word in Arabic, but English guidance with a few
+    // embedded Arabic examples should still use the English voice.
+    if (!lang) {
+        const plain = html.replace(/<[^>]+>/g, '');
+        const ar = (plain.match(/[\u0621-\u064a]/g) || []).length;
+        const en = (plain.match(/[A-Za-z]/g) || []).length;
+        lang = ar > en ? 'ar' : en > ar ? 'en' : getLanguage();
+    }
     if (!canSpeak(lang) || TEST)
         return;
     const voice = voices[lang];

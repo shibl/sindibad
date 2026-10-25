@@ -74,6 +74,7 @@ export function enter(region) {
     T = tunesState();
     sessionGain = { gained: 0, topic: null };
     els ||= grabEls();
+    els.screen.dataset.curriculum = 'music';
     if (!built && !failed)
         build();
     if (failed) {
@@ -783,6 +784,7 @@ async function runQuest(def) {
         dots.forEach((d, k) => { d.classList.toggle('is-on', k < i); d.classList.toggle('is-now', k === i); });
         const host = document.createElement('div');
         host.className = 'tn-step';
+        host.dataset.localizedDirection = '';
         body.replaceChildren(host);
         body.scrollTop = 0;
         if (steps[i].kind !== 'explore' && !steps[i].say)

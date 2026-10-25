@@ -46,7 +46,7 @@
   --horizon-y: 48%;
   --radius: 20px;
   --shadow: 0 10px 24px rgba(40, 20, 5, .28);
-  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-top: calc(env(safe-area-inset-top, 0px) + 48px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 
   font-family: "Baloo Bhaijaan 2", system-ui, "Segoe UI", Tahoma, sans-serif;
@@ -57,6 +57,20 @@
 *, *::before, *::after { box-sizing: border-box; }
 /* `hidden` must always win over component display rules. */
 [hidden] { display: none !important; }
+
+/* The same language choice is reachable before starting and during a lesson.
+   Reserve its space so it never covers a question or an island control. */
+.language-bar { position: fixed; z-index: 95; top: 0; left: 0; right: 0; height: var(--safe-top); padding: env(safe-area-inset-top, 0px) 12px 0; display: flex; align-items: center; justify-content: center; gap: 10px; background: #103d50; color: #fff7e6; font-size: 15px; }
+.language-options { display: flex; direction: ltr; gap: 3px; }
+.language-options button { min-width: 76px; min-height: 40px; padding: 4px 12px; border: 2px solid transparent; border-radius: 999px; font: inherit; font-weight: 800; color: inherit; background: transparent; cursor: pointer; }
+.language-options button[aria-pressed="true"] { background: var(--gold); color: var(--ink); }
+.language-options button:focus-visible { outline: 3px solid white; outline-offset: 1px; }
+html[lang="en"] .logo__big { font-size: clamp(30px, 9.3vw, 64px); }
+html[lang="en"] .logo__small { font-size: clamp(18px, 5.5vw, 30px); }
+html[dir="ltr"] .btn--round:is([data-go="title"], [data-go="map"], #lesson-quit) { transform: scaleX(-1); }
+/* Curriculum remains in its teaching language, including Arabic word order. */
+.prompt, .learn__body, .bubble, .choice, .dialog__text { unicode-bidi: plaintext; }
+@media print { .language-bar { display: none; } }
 
 html, body {
   height: 100%;
@@ -937,6 +951,11 @@ body[data-screen="map"] #scene, body[data-screen="activity"] #scene { visibility
 .learn__body mark { background: #ffd76a; border-radius: 6px; padding: 0 4px; color: var(--ink); }
 .learn__body mark.mark--b { background: #bfe9f5; }
 .learn__nav { display: flex; gap: 12px; justify-content: center; margin-top: 8px; }
+/* Longer English cards scroll their explanation while keeping Next in view. */
+html[lang="en"] .activity:has(> .learn) { overflow: hidden; }
+html[lang="en"] .activity > .learn { flex: 1; overflow: hidden; margin: 0; }
+html[lang="en"] .learn__body { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+html[lang="en"] .learn > :not(.learn__body) { flex-shrink: 0; }
 .c-verb { color: #7a4ac2; } .c-fael { color: #c7373f; } .c-mafool { color: #1f7a9a; } .c-mubtada { color: #c7373f; } .c-khabar { color: #2f8a5f; }
 
 .roles { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
@@ -1832,6 +1851,9 @@ body.lite .map__sea::after { animation: none; }
 .switch.is-on { background: #4cc26a; }
 .switch.is-on i { right: calc(100% - 27px); }
 .settings__note { margin: 12px 16px 0; font-size: 13px; color: var(--ink-soft); text-align: center; }
+.settings { padding-top: calc(var(--safe-top) + 8px); }
+.settings__card { max-height: 100%; overflow-y: auto; }
+.settings__card header { position: sticky; top: 0; z-index: 1; }
 
 /* Large text: the words children read most. */
 body.big-text .bubble, body.big-text .dialog__text { font-size: 23px; }
@@ -1932,9 +1954,26 @@ body.calm .isle__ring, body.calm .shop__stage::before, body.calm .result__rays, 
   .choices { gap: 10px; }
   .choice { min-height: 58px; }
 }
+@media (max-height: 640px) {
+  html[lang="en"] .screen--activity > .coach { flex: 0 0 auto; min-height: 0; }
+  html[lang="en"] .fill__scene { max-width: 145px; }
+  html[lang="en"] .screen--activity > .coach .guide__bird { width: 48px; }
+  html[lang="en"] .screen--activity > .coach .coach__hero { width: 34px; }
+  html[lang="en"] .screen--activity > .coach .bubble { font-size: 13px; }
+}
 
 /* Link to the About page (about.html), opposite the parents' link. */
 .about-link { inset-inline-start: auto; inset-inline-end: 12px; text-decoration: none; }
+.title-links { display: flex; justify-content: center; gap: 8px; margin-top: 6px; flex-shrink: 0; }
+.title-links .parents-link { position: static; font-size: 12px; padding: 4px 10px; white-space: nowrap; }
+#screen-title > .btn--big { margin-bottom: 4px; flex-shrink: 0; }
+@media (max-height: 640px) {
+  #screen-select .hero-card__art { max-width: 100px; }
+  #screen-select .hero-card { padding: 8px 5px; }
+  #screen-select .guide__bird { width: 70px; }
+  #screen-select .bubble { font-size: 15px; line-height: 1.3; padding: 10px; }
+  #screen-select .actions .btn { padding-inline: 18px; font-size: 17px; }
+}
 
 /* ================= Voyages chart (chapters) ================= */
 /* The meta map: one voyage per school grade, grouped by age stage. */
@@ -2017,6 +2056,7 @@ html[data-env="staging"] body::after {
   background: var(--rose); color: #fff; border: 2px solid var(--ink);
   font-size: 12px; font-weight: 800; opacity: .9;
 }
+html[data-env="staging"][lang="en"] body::after { content: 'Staging preview'; }
 
 /* ================= The farm island (3D, core/farm/) ================= */
 
@@ -2281,6 +2321,8 @@ body[data-screen="tunes"] #scene { visibility: hidden; }
 .tn-head { display: flex; align-items: center; gap: 8px; padding: 7px 8px 6px 12px; border-bottom: 2px dashed var(--paper-edge); }
 .tn-head__icon { font-size: 22px; line-height: 1; }
 .tn-head b { font-size: 16px; white-space: nowrap; }
+html[lang="en"] .tn-head b { min-width: 0; white-space: normal; font-size: 14px; line-height: 1.2; }
+html[lang="en"] .tn-dots { min-width: 36px; }
 .tn-dots { flex: 1; display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; }
 .tn-dots i { width: 10px; height: 10px; border-radius: 50%; background: #e3d3ad; border: 2px solid var(--ink); }
 .tn-dots i.is-on { background: var(--green); }

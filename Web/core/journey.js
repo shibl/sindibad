@@ -10,6 +10,7 @@ import { num } from './format.js';
 import { showCertificate } from './finale.js';
 import { showStory } from './story.js';
 import { openAlbum, owned, TOTAL } from './stickers.js';
+import { playerName } from './i18n.js';
 export function renderJourney(el, world, { showScreen }) {
     const s = save.get();
     const hero = s.hero || 'sindbad';
@@ -17,7 +18,7 @@ export function renderJourney(el, world, { showScreen }) {
     const earned = world.regions.filter(r => badgeState(r.id)).length;
     const played = Object.values(s.topics).filter(t => t.plays).length;
     const { rank, next, to, pct } = rankInfo(hero, stars, max);
-    const child = activeProfile()?.name || HEROES[hero].name;
+    const child = playerName(activeProfile()?.name, HEROES[hero].name);
     el.innerHTML = `
     <div class="journey__hero">
       <div class="journey__portrait">${heroSVG(hero)}</div>

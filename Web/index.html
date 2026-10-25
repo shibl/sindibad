@@ -13,6 +13,13 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<nav class="language-bar" aria-label="لغة اللعبة">
+  <span class="language-bar__label">اللغة</span>
+  <div class="language-options" role="group" aria-label="اختر اللغة" data-language-choice>
+    <button type="button" data-language="ar" lang="ar" dir="rtl" aria-pressed="true">العربية</button>
+    <button type="button" data-language="en" lang="en" dir="ltr" aria-pressed="false">English</button>
+  </div>
+</nav>
 <div id="app">
 
   <!-- Shared animated backdrop: sky, sun, clouds, Damascus skyline, sea,
@@ -49,8 +56,10 @@
     </header>
     <div class="ship ship--title" data-crew="sindbad,yasmina"></div>
     <button class="btn btn--gold btn--big" data-go="select">ابدأ الرحلة</button>
-    <button class="parents-link" data-go="parents">👪 للأهل</button>
-    <a class="parents-link about-link" href="about.html">ℹ️ عن المشروع</a>
+    <div class="title-links">
+      <button class="parents-link" data-go="parents">👪 للأهل</button>
+      <a class="parents-link about-link" href="about.html">ℹ️ عن المشروع</a>
+    </div>
   </section>
 
   <section id="screen-who" class="screen screen--who">

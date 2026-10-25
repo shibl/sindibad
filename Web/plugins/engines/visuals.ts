@@ -10,7 +10,7 @@ const ROLE_LABEL: Record<string, string> = {
 // A sentence with each word colour-coded by grammatical role.
 // words: [['كتبَ', 'verb'], ['الطالبُ', 'fael'], …]
 export function roles(words: [text: string, role: string][]): string {
-  return `<div class="roles">${words.map(([t, r]) =>
+  return `<div class="roles" dir="rtl">${words.map(([t, r]) =>
     `<span class="role role--${r}"><b>${t}</b><small>${ROLE_LABEL[r] || ''}</small></span>`).join('')}</div>`;
 }
 

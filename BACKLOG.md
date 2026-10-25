@@ -836,3 +836,35 @@ Next:
 - Two more children's paintings for lesson 24's gallery.
 - Lesson 8's clay mask (p. 28) is not played yet.
 
+## Playtest notes — 2026-10-25 (Arabic / English mode, #18)
+
+- Added a persistent **العربية / English** choice before starting and during
+  play. Arabic is the default; English changes navigation to LTR. The device
+  preference is stored separately for staging and production and cached offline.
+- Added an offline English catalogue for the app shell, island and lesson
+  navigation, settings, parents, story, shop, rewards, the About page and all
+  curriculum display text: questions, hints, explanations, facts and dialogue.
+  Original source questions and answer identifiers stay unchanged. English
+  guidance preserves the target words and endings of Arabic exercises.
+- Language changes update text and accessible labels in place. They preserve
+  current questions, partial answers, 3D scenes, hero choice and saved progress.
+  Player names are escaped and explicitly excluded from translation.
+- Regression coverage: 320×568, 360×740 and tablet; first-run and returning
+  players; both switch directions; a partially filled fraction bucket; original
+  Arabic exercises; in-progress 3D exploration; reload, offline, storage failure
+  and staging isolation. Full existing end-to-end suite is also required.
+- Fixed during visual checks: long English hero controls overflowed at 320 px,
+  title links overlapped the logo, and a tall settings card covered its close
+  button. Compact layout and scrollable settings keep these controls reachable.
+- Long English lesson cards now scroll their explanations while keeping the
+  Next button visible. Translation review corrected anatomy, force/lever and
+  grammar terms, protected mathematical signs and values, and distinguished
+  the answer “No” from the solfège note “La”.
+- Fixed a shared island-test retry race exposed during the full run: a click could
+  advance the lesson before Playwright returned, then the retry waited for an
+  answer that had already been removed. Retries now retain the original element;
+  completion, score and persistence assertions are unchanged.
+
+Next:
+- Confirm the interface wording and layout on the developer's real phone.
+- Educator review of the English curriculum wording (draft); see translation notes.

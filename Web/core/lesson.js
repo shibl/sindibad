@@ -76,6 +76,9 @@ export function startLesson(topicId, opts = {}) {
     const container = $('activity');
     container.innerHTML = '';
     container.className = 'activity';
+    container.dataset.curriculum = topic.region;
+    container.dataset.localizedDirection = '';
+    $('coach-bubble').dataset.curriculum = topic.region;
     $('activity-title').textContent = `${topic.icon} ${topic.title}`;
     $('screen-activity').dataset.subject = topic.region;
     document.querySelector('#screen-activity .combo')?.classList.remove('is-on');

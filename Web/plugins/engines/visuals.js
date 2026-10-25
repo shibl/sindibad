@@ -8,7 +8,7 @@ const ROLE_LABEL = {
 // A sentence with each word colour-coded by grammatical role.
 // words: [['كتبَ', 'verb'], ['الطالبُ', 'fael'], …]
 export function roles(words) {
-    return `<div class="roles">${words.map(([t, r]) => `<span class="role role--${r}"><b>${t}</b><small>${ROLE_LABEL[r] || ''}</small></span>`).join('')}</div>`;
+    return `<div class="roles" dir="rtl">${words.map(([t, r]) => `<span class="role role--${r}"><b>${t}</b><small>${ROLE_LABEL[r] || ''}</small></span>`).join('')}</div>`;
 }
 // A bar split into d equal parts with n shaded, plus the fraction.
 export function fracBar(n, d, color = '#f2c14e') {

@@ -21,6 +21,16 @@ Syrian national curriculum (grades 1–12) into an RPG-style adventure.
 
 ## What's playable now
 
+**Arabic and English modes:** choose **العربية / English** in the
+bar at the top before starting, or change it at any point during play. The
+current question, typed answers, hero and progress stay in place. The choice
+is remembered on this device and works offline; staging has its own preference.
+Arabic is the default. English covers menus, dialogue, lessons, questions, hints,
+explanations, facts and the About page. Arabic exercises keep the Arabic words
+and endings being studied, with English guidance. The English curriculum is a
+draft pending educator review, like the original lesson content. See
+[translation notes](docs/translation-notes.md) for coverage and maintenance.
+
 **Twelve voyages, one per school grade** («خريطة الرحلات»), grouped by the
 brief's four age stages. Voyage 6 is open; the other eleven are locked
 until their worlds are built.
@@ -197,6 +207,11 @@ Deployments on GitHub (`github-pages` = live, `staging`). Details: step 5 of
   site to `Web/` and clear old offline copies from before the move.
 
 Inside `Web/`:
+
+- `core/i18n.ts`, `core/i18n/` — language preference and offline English
+  interface and curriculum catalogues. Display text changes in place, without replacing activity
+  elements or modifying answer keys. `tests/language.mjs` covers switching,
+  progress, original lesson content, offline use and staging isolation.
 
 - `index.html`, `style.css`, `app.ts` — app shell: screens, backdrop, boot.
   `app.ts` lists the 3D islands in one table (`ISLANDS_3D`: each one's file,

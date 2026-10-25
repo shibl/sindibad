@@ -8,6 +8,7 @@ import { allTopics } from './topics.js';
 import { sfx } from './sound.js';
 import { num } from './format.js';
 import { storeKey } from './env.js';
+import { playerName } from './i18n.js';
 import { streak, todayLessons, DAILY_GOAL } from './lesson.js';
 let world, show;
 export function initFamily({ worldDef, showScreen }) {
@@ -30,7 +31,7 @@ export function renderWho(el) {
         const stars = Object.values(s.topics || {}).reduce((a, t) => a + (t.stars || 0), 0);
         return `<button class="who__card" data-who="${p.id}">
           <span class="who__face">${heroSVG(hero)}</span>
-          <b>${p.name || HEROES[hero].name}</b>
+          <b>${playerName(p.name, HEROES[hero].name)}</b>
           <small>★ ${num(stars)}</small>
         </button>`;
     }).join('')}
@@ -134,7 +135,7 @@ export function renderParents(el) {
     const s = save.get();
     const prof = activeProfile();
     const hero = s.hero || 'sindbad';
-    const child = prof?.name || HEROES[hero].name;
+    const child = playerName(prof?.name, HEROES[hero].name);
     const topics = allTopics().filter(t => world.regions.some(r => r.id === t.region));
     const rec = (id) => (s.topics[id]?.plays ? s.topics[id] : null);
     const mastered = topics.filter(t => (rec(t.id)?.stars || 0) >= 3);
@@ -233,7 +234,7 @@ export function renderParents(el) {
         if (b.dataset.p === 'delete') {
             if (!b.dataset.armed) {
                 b.dataset.armed = '1';
-                b.textContent = `⚠️ اضغط مرة أخرى لحذف ${child} نهائياً`;
+                b.innerHTML = `⚠️ اضغط مرة أخرى لحذف ${child} نهائياً`;
                 return;
             }
             deleteProfile(activeProfile()?.id);
