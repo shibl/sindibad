@@ -913,3 +913,39 @@ Next:
 - Verified a transparent, content-width overlay with no logo overlap at 320,
   360 and 1440 px in both languages. The language browser suite passed,
   including partial answers, 3D exploration, offline use and settings access.
+
+
+## Studio website import — 2026-10-25
+
+- Replaced the former `studio/` site with the requested `Studio/Web`,
+  `Studio/Android`, `Studio/iOS`, and `Studio/Infra` layout. Website source
+  lives directly in `Studio/Web`; there is no repository redirect wrapper.
+- Imported the bilingual Sindibad Studios website and The Curriculam pages,
+  including all twelve grade routes and the seven-experiment Chemistry Lab.
+  The existing grade-6 game and root native applications are unchanged.
+- Hero code includes automatic five-second slides, progress pagination and
+  shaped reveals. The splash uses reference vector keyframes and animated
+  text tracking. Vertical scrolling uses Lenis, with native horizontal
+  scrolling in the gallery.
+- Source review only: the owner explicitly prohibited browser use, builds,
+  HTTP checks, syntax checks and tests. No runtime or visual pass is claimed.
+- Next: owner review of the intro/hero and scrolling; future studio native
+  app and infrastructure work belongs in its corresponding directory.
+
+## Playtest notes — 2026-10-25 (atlas persistence check)
+
+- The Studio import left both `Web/` and `.github/` identical to the preceding
+  successful release. Its failed game check assumed that exploring a country
+  and answering a random flag question always visits two different countries.
+- Reproduced the false failure with Jordan in both activities: one unique
+  country was correctly saved after reload. A different-country round also
+  preserved both visits. The assertion now compares the actual country IDs
+  and still checks that both completed lessons survive the reload.
+- No game runtime files, Studio files, or deployment settings changed.
+- Validation: both duplicate-country and different-country browser cases passed;
+  the full `npm --prefix Web test` suite passed, including all islands, language
+  switching, offline updates, and staging save/cache isolation.
+
+Next:
+- Keep main's full game checks as the publication gate.
+- Continue educator review of the draft English curriculum.
