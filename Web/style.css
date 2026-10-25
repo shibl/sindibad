@@ -58,11 +58,10 @@
 /* `hidden` must always win over component display rules. */
 [hidden] { display: none !important; }
 
-/* The same language choice is reachable before starting and during a lesson.
-   Reserve its space so it never covers a question or an island control. */
-.language-bar { position: fixed; z-index: 95; top: 0; left: 0; right: 0; height: var(--safe-top); padding: env(safe-area-inset-top, 0px) 12px 0; display: flex; align-items: center; justify-content: flex-end; gap: 10px; background: #103d50; color: #fff7e6; font-size: 15px; }
+/* Floating language controls over the scene, with no full-width strip. */
+.language-bar { position: fixed; z-index: 95; top: calc(env(safe-area-inset-top, 0px) + 8px); inset-inline-end: 12px; display: flex; color: var(--ink); font-size: 15px; }
 .language-options { display: flex; gap: 3px; }
-.language-options button { min-width: 76px; min-height: 40px; padding: 4px 12px; border: 2px solid transparent; border-radius: 999px; font: inherit; font-weight: 800; color: inherit; background: transparent; cursor: pointer; }
+.language-options button { min-width: 76px; min-height: 40px; padding: 4px 12px; border: 2px solid rgba(59, 36, 20, .2); border-radius: 999px; font: inherit; font-weight: 800; color: inherit; background: rgba(255, 247, 230, .8); box-shadow: 0 2px 5px rgba(16, 61, 80, .15); cursor: pointer; }
 .language-options button[aria-pressed="true"] { background: var(--gold); color: var(--ink); }
 .language-options button:focus-visible { outline: 3px solid white; outline-offset: 1px; }
 html[lang="en"] .logo__big { font-size: clamp(30px, 9.3vw, 64px); }
@@ -293,7 +292,8 @@ body[data-time="night"] .logo__tag { background: rgba(10, 20, 60, .7); }
 
 /* ---------- Title ---------- */
 
-#screen-title { justify-content: space-between; }
+#screen-title { --safe-top: env(safe-area-inset-top, 0px); justify-content: space-between; }
+@media (max-width: 1100px) { #screen-title .logo { margin-top: 48px; } }
 
 .logo { text-align: center; margin-top: 2vh; line-height: 1; filter: drop-shadow(0 6px 0 rgba(59, 36, 20, .25)); }
 .logo__small, .logo__big { display: block; font-weight: 800; paint-order: stroke fill; -webkit-text-stroke: 8px var(--ink); }
