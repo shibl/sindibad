@@ -887,10 +887,19 @@ Next:
   plural map labels, separate click targets in 2D and 3D, Voyages navigation,
   and the two language buttons on the game and About page. Main's workflow
   runs the full gameplay suite before publication.
-- Automatic staging Actions runs are paused at the owner's request; staging
-  remains available for an explicitly requested manual run. The duplicate
-  local full run was stopped after the focused checks passed.
+- Staging Actions tests are paused at the owner's request; automatic staging
+  deployment remains enabled and publishes immediately. Main still requires
+  passing tests. The duplicate local full run was stopped after the focused
+  checks passed.
 
 Next:
 - Developer playtest of the published main version.
 - Educator review of the draft English curriculum.
+
+### Language selector placement (2026-10-25)
+
+- The language buttons sit at the end of the top bar: right in English, left
+  in Arabic. Their order follows LTR/RTL, while each language name keeps its
+  own text direction. The About page uses the same placement.
+- Browser checks passed at 320, 360 and 1440 px for placement, order and
+  viewport fit in both languages on the game and About page.

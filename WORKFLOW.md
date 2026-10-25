@@ -105,10 +105,9 @@ against?
    (never mid-lesson). Elsewhere, reload once more to see it.
 2. Commit only the files of this change; never sweep in unrelated local
    edits.
-3. **Staging**: automatic Actions runs are paused (owner decision,
-   2026-10-25). Pushing to `staging` does not test or publish. A manual
-   `Test and publish` run on `staging`, only when requested, updates
-   <https://shibl.github.io/sindibad/staging/> after its checks. A
+3. **Staging**: push to `staging` to publish immediately without Actions
+   tests (owner clarification, 2026-10-25). The automatic deployment remains
+   enabled at <https://shibl.github.io/sindibad/staging/>. A
    pink «نسخة تجريبية» tag marks it, and it keeps its own saves, separate
    from the live game. Try it on a real phone.
 4. **Live**: merge into `main` (a pull request from `staging`, or a

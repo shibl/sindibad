@@ -30,7 +30,8 @@ and future Swift clients. Full conversion progress: [#3](https://github.com/shib
 The following descriptions cover the existing web game.
 
 **Arabic and English modes:** choose **العربية / English** in the
-bar at the top, with just the two language buttons, before starting or during play. The
+bar at the top, with just the two language buttons, before starting or during play.
+The selector sits on the right in English and mirrors to the left in Arabic. The
 current question, typed answers, hero and progress stay in place. The choice
 is remembered on this device and works offline; staging has its own preference.
 Arabic is the default. English covers menus, dialogue, lessons, questions, hints,
@@ -196,13 +197,13 @@ otherwise).
 
 ## Publishing
 
-- Automatic staging Actions runs are paused (owner decision, 2026-10-25).
-  A requested manual workflow run on `staging` → tests → the staging copy at
+- Push to `staging` → publish immediately without Actions tests (owner
+  clarification, 2026-10-25) → the staging copy at
   <https://shibl.github.io/sindibad/staging/> (marked «نسخة تجريبية»,
   with its own saves, and every island, gate and farm task open).
 - Merge into `main` → tests → the live game.
 
-Nothing is published when tests fail. Each publish shows under
+Main is published only after its tests pass. Each publish shows under
 Deployments on GitHub (`github-pages` = live, `staging`). Details: step 5 of
 [`WORKFLOW.md`](./WORKFLOW.md) and `.github/workflows/site.yml`.
 
