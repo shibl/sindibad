@@ -16,7 +16,7 @@ import * as THREE from '../../vendor/three/three.module.min.js';
 import { Kit, VC, rng, roundBox, dhow, windmill, tractor, barn as farmBarn } from '../farm/models.js';
 import { treeGeo, bushGeo, rockGeo, personGeo, put, glow, bunting } from '../tunes/models.js';
 import { makeGround } from '../isle/ground.js';
-import { plinth as basePlinth, beaconArrow, selectRing, sparkSprite, lampGeo } from '../isle/kit.js';
+import { plinth as basePlinth, beaconArrow, selectRing, sparkSprite, lampGeo, canvasTextures } from '../isle/kit.js';
 
 export { treeGeo, bushGeo, rockGeo, personGeo, put, glow, beaconArrow, selectRing, sparkSprite };
 const lampGeoE = () => lampGeo('#2f4a7a', '#fff3c4');
@@ -53,16 +53,7 @@ const G = makeGround({
 export const { ISLE, levelAt, pathY, terrain, pathCurve, pathRibbon } = G;
 
 // ---------- Canvas pictures (flags, screens, clock faces…) ----------
-const texCache = {};
-function canvasTex(key, w, h, draw) {
-  if (texCache[key]) return texCache[key];
-  const c = document.createElement('canvas'); c.width = w; c.height = h;
-  draw(c.getContext('2d'), w, h);
-  const t = new THREE.CanvasTexture(c);
-  t.colorSpace = THREE.SRGBColorSpace;
-  texCache[key] = t;
-  return t;
-}
+const canvasTex = canvasTextures();
 const star5 = (g, cx, cy, r, col) => { g.fillStyle = col; g.beginPath(); for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + (i * Math.PI) / 5, rr = i % 2 ? r * 0.45 : r; g.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr); } g.fill(); };
 const FLAGS = {
   // as on the atlas island (worlds/atlas/countries.js): green, white, black, three red stars

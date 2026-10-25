@@ -74,8 +74,15 @@ against?
 - `npm test` (in `Web/`) must pass.
 - A new engine needs a test hook: tag the right answer with `data-ok`, and
   each useful tap with `data-step` if it takes several taps (see
-  `plugins/engines/kit.js`). Add the new lesson to the test in
+  `plugins/engines/kit.ts`). Add the new lesson to the test in
   `tests/e2e.mjs`.
+- Every lesson is also checked without a browser by
+  `tests/check-content.ts` (a second; part of `npm test`). A 3D book
+  island's quests: teaching first, four questions or more, a hint and an
+  explanation on each, pictures and places that exist, six review
+  questions (a new island adds itself to its list). Every topic of the
+  lesson screen: its island exists, a hint and an explanation on every
+  item, no more items asked than it has, and answers the engine can show.
 - Play it yourself on a local server before shipping (step 5).
 
 ## 4. Update the docs (every time)
@@ -98,9 +105,10 @@ against?
    (never mid-lesson). Elsewhere, reload once more to see it.
 2. Commit only the files of this change; never sweep in unrelated local
    edits.
-3. **Staging**: push to the `staging` branch. GitHub runs the tests; if
-   they pass, the staging copy updates at
-   <https://shibl.github.io/sindibad/staging/> within a few minutes. A
+3. **Staging**: automatic Actions runs are paused (owner decision,
+   2026-10-25). Pushing to `staging` does not test or publish. A manual
+   `Test and publish` run on `staging`, only when requested, updates
+   <https://shibl.github.io/sindibad/staging/> after its checks. A
    pink «نسخة تجريبية» tag marks it, and it keeps its own saves, separate
    from the live game. Try it on a real phone.
 4. **Live**: merge into `main` (a pull request from `staging`, or a

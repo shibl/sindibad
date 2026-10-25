@@ -77,7 +77,9 @@ async function perfectLesson(p) {
   return false;
 }
 
-const browser = await chromium.launch();
+// The test plays silently: no sound from the game's browser (--mute-audio),
+// and core/voice.ts does not read aloud in a test.
+const browser = await chromium.launch({ args: ['--mute-audio'] });
 for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet', { width: 1024, height: 768 }]]) {
   console.log(`— ${name}`);
   const ctx = await browser.newContext({ viewport });
@@ -359,7 +361,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
 
   // The farm needs WebGL. On a machine without a graphics card (like the
   // test server) Chromium may draw it in software only if allowed to.
-  const gl = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  const gl = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--mute-audio'] });
   const ctx = await gl.newContext({ viewport: { width: 390, height: 844 } });
   await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
   const p = await ctx.newPage();
@@ -471,7 +473,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   check(QUESTS.every(q => q.steps[0].kind === 'explore'), 'music: every lesson teaches first (أتعلّم) before it asks anything');
   check(QUESTS.every(q => reviewOf(q.id).length >= 6) && new Set(QUESTS.map(q => q.topic)).size === QUESTS.length, 'music: every quest has a review quiz of 6+ questions');
 
-  const gl = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  const gl = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--mute-audio'] });
   const ctx = await gl.newContext({ viewport: { width: 390, height: 844 } });
   await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
   const p = await ctx.newPage();
@@ -585,7 +587,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   check(QUESTS.every(q => q.steps[0].kind === 'explore'), 'science: every lesson teaches first (أتعلّم) before it asks anything');
   check(QUESTS.every(q => reviewOf(q.id).length >= 6) && uniq(QUESTS.map(q => q.topic)), 'science: every quest has a review quiz of 6+ questions');
 
-  const gl = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  const gl = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--mute-audio'] });
   const ctx = await gl.newContext({ viewport: { width: 390, height: 844 } });
   await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
   const p = await ctx.newPage();
@@ -720,7 +722,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   const cards = [...Object.values(COUNTRIES), ...Object.values(SMALL)].filter(c => c.flag);
   check(cards.length >= 70 && cards.every(c => c.capital && c.flag.svg.startsWith('<svg') && c.nameMeaning && c.flagMeaning && c.resources?.length) && cards.filter(c => c.arab).length === 22, 'the atlas: 70+ countries with a full card (flag, capital, meanings, resources), all 22 Arab countries among them');
 
-  const gl = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  const gl = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--mute-audio'] });
   const ctx = await gl.newContext({ viewport: { width: 390, height: 844 } });
   await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
   const p = await ctx.newPage();
@@ -762,7 +764,19 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   // Plays to the end: the right answer each time. SVG places are tapped
   // where they are drawn; a country's middle can be sea, so those get the
   // click itself.
-  const tap = async el => { try { await el.click({ timeout: 1500 }); } catch { await el.dispatchEvent('click'); } };
+  const tap = async el => {
+    const [target] = await el.elementHandles();
+    if (!target) return; // The previous answer may already have advanced.
+    try { await el.click({ timeout: 1500 }); }
+    catch {
+      // A click can advance the step before Playwright finishes waiting.
+      // Retry only that same element while it is still a correct answer.
+      // It may have been removed or reused for a different step.
+      await target.evaluate(node => {
+        if (node.isConnected && node.hasAttribute('data-ok')) node.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      });
+    } finally { await target.dispose(); }
+  };
   const play = async () => {
     for (let guard = 0; guard < 500; guard++) {
       if (await p.isVisible('#atlas-modal .fm-done')) return true;
@@ -862,7 +876,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   check(QUESTS.every(q => q.steps[0].kind === 'explore' && q.steps.some(st => CUSTOM_KINDS.includes(st.kind))), 'art: every lesson teaches first (أتعلّم), then plays the book\'s «أحاول» with the fingers');
   check(QUESTS.every(q => reviewOf(q.id).length >= 6) && uniq(QUESTS.map(q => q.topic)), 'art: every quest has a review quiz of 6+ questions');
 
-  const gl = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  const gl = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--mute-audio'] });
   const ctx = await gl.newContext({ viewport: { width: 390, height: 844 } });
   await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
   const p = await ctx.newPage();
@@ -895,7 +909,19 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   check(await p.locator('#studio-panel .lx').count() === 1 && await p.locator('#studio-panel [data-next]').count() === 0, 'the lesson starts by teaching (أتعلّم): the picture to explore, no question, no skipping');
   // Plays to the end, the right answer each time (a ring's middle is another
   // ring, so SVG parts that cannot be clicked in the middle get the click itself).
-  const tap = async el => { try { await el.click({ timeout: 1500 }); } catch { await el.dispatchEvent('click'); } };
+  const tap = async el => {
+    const [target] = await el.elementHandles();
+    if (!target) return; // The previous answer may already have advanced.
+    try { await el.click({ timeout: 1500 }); }
+    catch {
+      // A click can advance the step before Playwright finishes waiting.
+      // Retry only that same element while it is still a correct answer.
+      // It may have been removed or reused for a different step.
+      await target.evaluate(node => {
+        if (node.isConnected && node.hasAttribute('data-ok')) node.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      });
+    } finally { await target.dispose(); }
+  };
   const play = async () => {
     for (let guard = 0; guard < 600; guard++) {
       if (await p.isVisible('#studio-modal .fm-done')) return true;
@@ -974,7 +1000,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   check(QUESTS.every(q => reviewOf(q.id).length >= 6), 'English: every quest has a review quiz of 6+ questions');
   check(QUESTS.reduce((n, q) => n + wordsOf(q).length, 0) >= 200, 'English: the word book holds the book\'s words (200+)');
 
-  const gl = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  const gl = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--mute-audio'] });
   const ctx = await gl.newContext({ viewport: { width: 390, height: 844 } });
   await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
   const p = await ctx.newPage();
@@ -1008,7 +1034,19 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   const english = () => p.evaluate(() => window.__english());
   let s = await english();
   check(s.places.length === 12 && s.next === QUESTS[0].id && (await p.textContent('#english-say .bubble')).length > 10, 'twelve places of the seaside town; the helper says hello; unit 1 comes first');
-  const tap = async el => { try { await el.click({ timeout: 1500 }); } catch { await el.dispatchEvent('click'); } };
+  const tap = async el => {
+    const [target] = await el.elementHandles();
+    if (!target) return; // The previous answer may already have advanced.
+    try { await el.click({ timeout: 1500 }); }
+    catch {
+      // A click can advance the step before Playwright finishes waiting.
+      // Retry only that same element while it is still a correct answer.
+      // It may have been removed or reused for a different step.
+      await target.evaluate(node => {
+        if (node.isConnected && node.hasAttribute('data-ok')) node.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      });
+    } finally { await target.dispose(); }
+  };
   const play = async () => {
     for (let guard = 0; guard < 800; guard++) {
       if (await p.isVisible('#english-modal .fm-done')) return true;
@@ -1053,7 +1091,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
 // The live game keeps the flat map.
 {
   console.log('— 3D sea map');
-  const gl = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  const gl = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--mute-audio'] });
   const ctx = await gl.newContext({ viewport: { width: 390, height: 844 } });
   await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
   const p = await ctx.newPage();

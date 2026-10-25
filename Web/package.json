@@ -11,7 +11,7 @@
     "build": "node tools/build.ts && node tools/update-shell.ts",
     "shell": "node tools/update-shell.ts",
     "typecheck": "tsc && tsc -p tsconfig.game.json",
-    "test": "npm run typecheck && node tests/check-build.ts && node tests/check-shell.ts && node tests/e2e.mjs",
+    "test": "npm run typecheck && node tests/check-build.ts && node tests/check-shell.ts && node tests/check-content.ts && node tests/check-language-content.mjs && node tests/language.mjs && node tests/e2e.mjs",
     "serve": "python3 -m http.server 8000"
   },
   "devDependencies": {

@@ -17,12 +17,14 @@ import { QUESTS as ART, reviewOf as artReview } from '../../worlds/grade6/studio
 import { QUESTS as ENGLISH, reviewOf as englishReview } from '../../worlds/grade6/english.js';
 
 const fromTap = it => ({
+  curriculum: 'arabic',
   q: `في جملة «${it.words.join(' ')}»، ما ${it.ask}؟`,
   options: [it.words[it.answer], ...it.words.filter((_, i) => i !== it.answer)], answer: 0,
   hint: it.hint, explain: it.explain,
 });
 const PLURAL_NAMES = { m: 'جمع مذكر سالم', f: 'جمع مؤنث سالم', b: 'جمع تكسير' };
 const fromPlural = it => ({
+  curriculum: 'arabic',
   q: `ما نوع الجمع في كلمة «${it.text}»؟`,
   options: [PLURAL_NAMES[it.bin], ...Object.entries(PLURAL_NAMES).filter(([k]) => k !== it.bin).map(([, v]) => v)], answer: 0,
   hint: it.hint, explain: it.explain,

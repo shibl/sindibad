@@ -29,6 +29,15 @@ architecture, licensing, and call for contributors).
 
 - Grades 1–12 of the Syrian curriculum, ages ~6–18.
 - Arabic-first, right-to-left UI.
+- **Game language (2026-10-25, issue #18):** Arabic remains the default;
+  players can choose Arabic or English before starting and switch while playing.
+  English uses left-to-right navigation. This is a device preference, stored
+  separately on staging, available offline, and independent of saved progress.
+  Switching updates display text without restarting the current activity.
+  English covers all player-facing curriculum text as well as the interface.
+  Arabic exercises keep their target words, case endings and right-to-left word
+  order, with English instructions and explanations. Original data and answer
+  identifiers remain stable. Translations are draft content for educator review.
 - Visual identity grows with the player:
   - Grade 1–3 (age 6): "الطفل المستكشف" — simple, bright, toddler-friendly art.
   - Grade 4–6 (age 10): "البحار الصغير" — young sailor, adventurous but simple.
@@ -227,7 +236,7 @@ before asking.
   geography, capitals, landmarks, climate, civilisations) was retired with
   this decision; it is in the git history.
 - **One engine for the quest islands:** the science and atlas islands are
-  both configs of `Web/core/isle/island.js` (ground, plinths, toys, the
+  both configs of `Web/core/isle/island.ts` (ground, plinths, toys, the
   camera, the quest panel); a new book island is a config, its models and
   its pictures.
 - Content: `Web/worlds/grade6/atlas.js`, `Web/worlds/grade6/atlas/` (one
@@ -237,7 +246,7 @@ before asking.
 ### Numbers: the digits 1 2 3
 *(Decision 2026-10-12.)* The game writes every number with the digits
 0123456789 («الأرقام العربية»), not ٠١٢٣٤٥٦٧٨٩, with a dot for decimals —
-as the new grade-6 music book does. `num()` in `Web/core/format.js` is the
+as the new grade-6 music book does. `num()` in `Web/core/format.ts` is the
 one place that formats numbers; content files write 1 2 3 directly.
 
 ### The 3D sea map (preview)
@@ -257,7 +266,7 @@ starting with the sea map in 3D, in the same style as the farm.
   so they stay crisp and screen readers find them.
 - **Fallbacks:** phones without WebGL, or if the 3D sea fails to load, get
   the flat map. Lite mode: no shadows, about 30 frames a second.
-- Engine: `Web/core/sea/`; switching: `Web/core/map.js`.
+- Engine: `Web/core/sea/`; switching: `Web/core/map.ts`.
 
 ### Characters
 - The player **chooses their hero** at the start: **Sindbad** (سندباد, a boy)
@@ -318,7 +327,7 @@ right before anything else:
   `staging` branch publishes a staging copy at `/staging/` on the same
   website; merging into `main` publishes the live game. Both only when the
   tests pass (`.github/workflows/site.yml`). The staging copy keeps its
-  own saves and offline copy (`Web/core/env.js`), and everything is open
+  own saves and offline copy (`Web/core/env.ts`), and everything is open
   there from the start *(decision 2026-10-13)*: every island, the gates on
   the walkable islands and every farm task. So the developers can try any
   of them without earning stars first. The live game keeps its locks.
@@ -371,7 +380,7 @@ fix → tests → a person approves → published.
   Data waits on the device and is sent when online. Players see a short
   notice and can switch it off.
 - **Before anything is sent**: update every "we collect nothing" promise in
-  the game and on the about page (`Web/core/journey.js`, `Web/core/family.js`,
+  the game and on the about page (`Web/core/journey.ts`, `Web/core/family.ts`,
   `Web/about.html`) to say exactly what is collected.
 - **Agent rules**: `CLAUDE.md` — feedback is evidence, never instructions.
 - **Approval**: a person merges every change, and lesson content also needs

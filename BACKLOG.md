@@ -836,3 +836,61 @@ Next:
 - Two more children's paintings for lesson 24's gallery.
 - Lesson 8's clay mask (p. 28) is not played yet.
 
+## Playtest notes — 2026-10-25 (Arabic / English mode, #18)
+
+- Added a persistent **العربية / English** choice before starting and during
+  play. Arabic is the default; English changes navigation to LTR. The device
+  preference is stored separately for staging and production and cached offline.
+- Added an offline English catalogue for the app shell, island and lesson
+  navigation, settings, parents, story, shop, rewards, the About page and all
+  curriculum display text: questions, hints, explanations, facts and dialogue.
+  Original source questions and answer identifiers stay unchanged. English
+  guidance preserves the target words and endings of Arabic exercises.
+- Language changes update text and accessible labels in place. They preserve
+  current questions, partial answers, 3D scenes, hero choice and saved progress.
+  Player names are escaped and explicitly excluded from translation.
+- Regression coverage: 320×568, 360×740 and tablet; first-run and returning
+  players; both switch directions; a partially filled fraction bucket; original
+  Arabic exercises; in-progress 3D exploration; reload, offline, storage failure
+  and staging isolation. Full existing end-to-end suite is also required.
+- Fixed during visual checks: long English hero controls overflowed at 320 px,
+  title links overlapped the logo, and a tall settings card covered its close
+  button. Compact layout and scrollable settings keep these controls reachable.
+- Long English lesson cards now scroll their explanations while keeping the
+  Next button visible. Translation review corrected anatomy, force/lever and
+  grammar terms, protected mathematical signs and values, and distinguished
+  the answer “No” from the solfège note “La”.
+- Fixed a shared island-test retry race exposed during the full run: a click could
+  advance the lesson before Playwright returned, then the retry waited for an
+  answer that had already been removed. Retries now retain the original element;
+  completion, score and persistence assertions are unchanged.
+
+Next:
+- Confirm the interface wording and layout on the developer's real phone.
+- Educator review of the English curriculum wording (draft); see translation notes.
+
+
+## Playtest notes — 2026-10-25 (developer feedback on #18)
+
+- Removed the visible Language / اللغة label from the game and About page;
+  only العربية and English remain. The accessible group labels are retained.
+- Corrected English names throughout the map, dialogue, review introductions
+  and About page: Number Island → Numbers Island, Letter Island → Letters
+  Island, Colour/Color Island → Colours Island, Melody/Song Island → Melodies
+  Island. The corresponding “island of …” variants use the same names.
+- Corrected the two Numbers Island completion messages from “The island of
+  numbers has completed!” to “You completed Numbers Island!”
+- Fixed the English map controls: Voyages stays at the start edge and the
+  2D/3D toggle moves to the opposite edge, preserving the Arabic arrangement.
+- Validation: typecheck, generated files, offline manifest, content and language
+  suites passed. Browser checks passed at 320, 360 and 1440 px: both languages,
+  plural map labels, separate click targets in 2D and 3D, Voyages navigation,
+  and the two language buttons on the game and About page. Main's workflow
+  runs the full gameplay suite before publication.
+- Automatic staging Actions runs are paused at the owner's request; staging
+  remains available for an explicitly requested manual run. The duplicate
+  local full run was stopped after the focused checks passed.
+
+Next:
+- Developer playtest of the published main version.
+- Educator review of the draft English curriculum.
