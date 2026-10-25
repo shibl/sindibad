@@ -196,13 +196,13 @@ otherwise).
 
 ## Publishing
 
-- Automatic staging Actions runs are paused (owner decision, 2026-10-25).
-  A requested manual workflow run on `staging` → tests → the staging copy at
+- Push to `staging` → publish immediately without Actions tests (owner
+  clarification, 2026-10-25) → the staging copy at
   <https://shibl.github.io/sindibad/staging/> (marked «نسخة تجريبية»,
   with its own saves, and every island, gate and farm task open).
 - Merge into `main` → tests → the live game.
 
-Nothing is published when tests fail. Each publish shows under
+Main is published only after its tests pass. Each publish shows under
 Deployments on GitHub (`github-pages` = live, `staging`). Details: step 5 of
 [`WORKFLOW.md`](./WORKFLOW.md) and `.github/workflows/site.yml`.
 

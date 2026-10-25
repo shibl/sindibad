@@ -887,9 +887,10 @@ Next:
   plural map labels, separate click targets in 2D and 3D, Voyages navigation,
   and the two language buttons on the game and About page. Main's workflow
   runs the full gameplay suite before publication.
-- Automatic staging Actions runs are paused at the owner's request; staging
-  remains available for an explicitly requested manual run. The duplicate
-  local full run was stopped after the focused checks passed.
+- Staging Actions tests are paused at the owner's request; automatic staging
+  deployment remains enabled and publishes immediately. Main still requires
+  passing tests. The duplicate local full run was stopped after the focused
+  checks passed.
 
 Next:
 - Developer playtest of the published main version.

@@ -1,11 +1,10 @@
-# Tests every pull request and every push to main. Automatic staging runs
-# are paused by the owner (2026-10-25); staging can still be run manually.
-# When the tests pass, publishes the selected branch:
+# Tests every pull request and every push to main. Staging publishes
+# immediately without running tests (owner decision, 2026-10-25).
 #
 #   main     →  the live game      https://shibl.github.io/sindibad/
 #   staging  →  the staging copy   https://shibl.github.io/sindibad/staging/
 #
-# Nothing is published when tests fail. A publish turns green once the
+# Main is never published when tests fail. A publish turns green once the
 # website is rebuilt, and shows under Deployments on GitHub (github-pages
 # for the live game, staging for the staging copy). Players' devices pick
 # up a new version the next time they open the game online (service
@@ -25,7 +24,7 @@ name: Test and publish
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, staging]
   workflow_dispatch:
 
 permissions:
@@ -36,6 +35,7 @@ env:
 
 jobs:
   test:
+    if: github.ref_name != 'staging'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -51,7 +51,7 @@ jobs:
 
   publish:
     needs: test
-    if: github.event_name != 'pull_request' && (github.ref_name == 'main' || github.ref_name == 'staging')
+    if: ${{ !cancelled() && github.event_name != 'pull_request' && ((github.ref_name == 'main' && needs.test.result == 'success') || (github.ref_name == 'staging' && needs.test.result == 'skipped')) }}
     runs-on: ubuntu-latest
     permissions:
       contents: write   # push to SITE_BRANCH
