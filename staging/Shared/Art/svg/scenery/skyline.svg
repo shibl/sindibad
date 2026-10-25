@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="skyline-art" viewBox="0 0 2000 200" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><defs>
+    <linearGradient id="g-wood" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b06a36"/><stop offset=".55" stop-color="#8a4c24"/><stop offset="1" stop-color="#5e3214"/>
+    </linearGradient>
+    <linearGradient id="g-sail" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fffaf0"/><stop offset=".6" stop-color="#f6e7c8"/><stop offset="1" stop-color="#e2c99a"/>
+    </linearGradient>
+    <linearGradient id="g-skin-shade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#7a3b1c" stop-opacity=".18"/>
+    </linearGradient>
+    <linearGradient id="g-frond" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#2f7d3c"/><stop offset="1" stop-color="#58b04f"/>
+    </linearGradient>
+    <linearGradient id="g-trunk" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7a4a26"/><stop offset=".5" stop-color="#a86e3c"/><stop offset="1" stop-color="#6b3f1f"/>
+    </linearGradient>
+    <linearGradient id="g-brass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe08a"/><stop offset=".5" stop-color="#e0a93a"/><stop offset="1" stop-color="#a8741e"/>
+    </linearGradient>
+    <radialGradient id="g-glow">
+      <stop offset="0" stop-color="#fff2b0" stop-opacity="1"/><stop offset=".4" stop-color="#ffc94a" stop-opacity=".6"/><stop offset="1" stop-color="#ffb030" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="g-cheek">
+      <stop offset="0" stop-color="#ff7f7f" stop-opacity=".55"/><stop offset="1" stop-color="#ff7f7f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="g-hudhud" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4ac6c"/><stop offset="1" stop-color="#d9824a"/>
+    </linearGradient>
+  </defs>
+  <path class="sk-far" d="M0 150 Q160 96 330 124 Q500 84 700 116 Q880 70 1060 118 Q1220 92 1400 124 Q1580 80 1760 118 Q1880 104 2000 124 V200 H0Z"/>
+  <path class="sk-near" d="M0 166 Q200 136 420 156 Q640 130 860 154 Q1100 132 1340 156 Q1600 136 2000 160 V200 H0Z"/>
+  <g class="sk-city">
+    <path d="M0 200 V147 H26 V200Z M24 200 V153 H57 V200Z M55 200 V152 H92 V200Z M90 200 V155 H134 V200Z M132 200 V170 H186 V200Z M184 200 V154 H234 V200Z M232 200 V162 H281 V200Z M279 200 V174 H332 V200Z M330 200 V155 H387 V200Z M385 200 V147 H431 V200Z M429 200 V167 H468 V200Z M466 200 V173 H503 V200Z M501 200 V168 H542 V200Z M540 200 V153 H585 V200Z M583 200 V169 H611 V200Z M609 200 V164 H652 V200Z M650 200 V176 H707 V200Z M705 200 V155 H743 V200Z M741 200 V172 H785 V200Z M783 200 V166 H819 V200Z M817 200 V160 H854 V200Z M852 200 V147 H886 V200Z M884 200 V156 H939 V200Z M937 200 V161 H981 V200Z M979 200 V165 H1037 V200Z M1035 200 V158 H1070 V200Z M1068 200 V165 H1105 V200Z M1103 200 V174 H1159 V200Z M1157 200 V164 H1186 V200Z M1184 200 V144 H1213 V200Z M1211 200 V173 H1259 V200Z M1257 200 V173 H1303 V200Z M1301 200 V148 H1357 V200Z M1355 200 V152 H1412 V200Z M1410 200 V170 H1436 V200Z M1434 200 V157 H1460 V200Z M1458 200 V161 H1509 V200Z M1507 200 V148 H1541 V200Z M1539 200 V148 H1578 V200Z M1576 200 V178 H1619 V200Z M1617 200 V147 H1665 V200Z M1663 200 V172 H1720 V200Z M1718 200 V155 H1763 V200Z M1761 200 V171 H1795 V200Z M1793 200 V152 H1821 V200Z M1819 200 V161 H1869 V200Z M1867 200 V147 H1897 V200Z M1895 200 V148 H1944 V200Z M1942 200 V149 H1998 V200Z M1996 200 V152 H2054 V200Z "/>
+    <path d="M956 138 A44 46.2 0 0 1 1044 138Z M952 138 h96 v14 h-96Z M950 152 h100 v48 h-100Z M900 200 V76 H922 V200Z M896 90 h30 v6 h-30Z M904 76 L911 58 L918 76Z M1086 200 V66 H1094 V200Z M1083 82 h14 v4 h-14Z M1086 66 L1090 50 L1094 66Z"/>
+    <path d="M756 200 V98 H764 V200Z M753 114 h14 v4 h-14Z M756 98 L760 82 L764 98Z M1256 200 V92 H1264 V200Z M1253 108 h14 v4 h-14Z M1256 92 L1260 76 L1264 92Z M416 200 V110 H424 V200Z M413 126 h14 v4 h-14Z M416 110 L420 94 L424 110Z M1636 200 V104 H1644 V200Z M1633 120 h14 v4 h-14Z M1636 104 L1640 88 L1644 104Z"/>
+    <path d="M824 172 A16 16.8 0 0 1 856 172Z M820 172 h40 v14 h-40Z M1150 168 A20 21 0 0 1 1190 168Z M1146 168 h48 v14 h-48Z M546 176 A14 14.700000000000001 0 0 1 574 176Z M542 176 h36 v14 h-36Z M1462 172 A18 18.900000000000002 0 0 1 1498 172Z M1458 172 h44 v14 h-44Z M1806 176 A14 14.700000000000001 0 0 1 1834 176Z M1802 176 h36 v14 h-36Z"/>
+  </g>
+  <g class="sk-win"><rect x="37.5" y="161" width="6" height="8" rx="3"/><rect x="70.5" y="160" width="6" height="8" rx="3"/><rect x="109" y="163" width="6" height="8" rx="3"/><rect x="156" y="178" width="6" height="8" rx="3"/><rect x="253.5" y="170" width="6" height="8" rx="3"/><rect x="302.5" y="182" width="6" height="8" rx="3"/><rect x="355.5" y="163" width="6" height="8" rx="3"/><rect x="405" y="155" width="6" height="8" rx="3"/><rect x="445.5" y="175" width="6" height="8" rx="3"/><rect x="518.5" y="176" width="6" height="8" rx="3"/><rect x="559.5" y="161" width="6" height="8" rx="3"/><rect x="594" y="177" width="6" height="8" rx="3"/><rect x="675.5" y="184" width="6" height="8" rx="3"/><rect x="721" y="163" width="6" height="8" rx="3"/><rect x="760" y="180" width="6" height="8" rx="3"/><rect x="798" y="174" width="6" height="8" rx="3"/><rect x="832.5" y="168" width="6" height="8" rx="3"/><rect x="866" y="155" width="6" height="8" rx="3"/><rect x="908.5" y="164" width="6" height="8" rx="3"/><rect x="956" y="169" width="6" height="8" rx="3"/><rect x="1005" y="173" width="6" height="8" rx="3"/><rect x="1049.5" y="166" width="6" height="8" rx="3"/><rect x="1083.5" y="173" width="6" height="8" rx="3"/><rect x="1128" y="182" width="6" height="8" rx="3"/><rect x="1232" y="181" width="6" height="8" rx="3"/><rect x="1277" y="181" width="6" height="8" rx="3"/><rect x="1326" y="156" width="6" height="8" rx="3"/><rect x="1480.5" y="169" width="6" height="8" rx="3"/><rect x="1594.5" y="186" width="6" height="8" rx="3"/><rect x="1688.5" y="180" width="6" height="8" rx="3"/><rect x="1775" y="179" width="6" height="8" rx="3"/><rect x="1804" y="160" width="6" height="8" rx="3"/><rect x="1967" y="157" width="6" height="8" rx="3"/><rect x="2022" y="160" width="6" height="8" rx="3"/></g>
+</svg>

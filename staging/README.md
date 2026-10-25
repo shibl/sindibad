@@ -21,8 +21,16 @@ Syrian national curriculum (grades 1–12) into an RPG-style adventure.
 
 ## What's playable now
 
+**Native Android:** [`Android/`](./Android/README.md) contains the Kotlin/Compose
+app for Android 13+, including Arabic, mathematics, review, guardians and
+cosmetics. Build instructions and verification are inside that folder.
+[`Shared/Art/`](./Shared/Art/README.md) contains reusable artwork for Kotlin
+and future Swift clients. Full conversion progress: [#3](https://github.com/shibl/sindibad/issues/3).
+
+The following descriptions cover the existing web game.
+
 **Arabic and English modes:** choose **العربية / English** in the
-bar at the top before starting, or change it at any point during play. The
+bar at the top, with just the two language buttons, before starting or during play. The
 current question, typed answers, hero and progress stay in place. The choice
 is remembered on this device and works offline; staging has its own preference.
 Arabic is the default. English covers menus, dialogue, lessons, questions, hints,
@@ -188,12 +196,13 @@ otherwise).
 
 ## Publishing
 
-- Push to `staging` → tests → the staging copy at
+- Push to `staging` → publish immediately without Actions tests (owner
+  clarification, 2026-10-25) → the staging copy at
   <https://shibl.github.io/sindibad/staging/> (marked «نسخة تجريبية»,
   with its own saves, and every island, gate and farm task open).
 - Merge into `main` → tests → the live game.
 
-Nothing is published when tests fail. Each publish shows under
+Main is published only after its tests pass. Each publish shows under
 Deployments on GitHub (`github-pages` = live, `staging`). Details: step 5 of
 [`WORKFLOW.md`](./WORKFLOW.md) and `.github/workflows/site.yml`.
 
@@ -201,7 +210,8 @@ Deployments on GitHub (`github-pages` = live, `staging`). Details: step 5 of
 
 - `Web/` — the game (a web app that also installs to the home screen).
   Everything below lives in it.
-- `Android/`, `iOS/` — reserved for future native apps; not started.
+- `Android/` — native Kotlin/Compose app; `iOS/` — reserved for Swift.
+- `Shared/Art/` — reusable illustrations, interaction states, models and fonts.
 - `docs/` — the original brief (PDF and Markdown) and screenshots.
 - `index.html`, `service-worker.js` (top level) — only forward the live
   site to `Web/` and clear old offline copies from before the move.

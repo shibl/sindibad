@@ -2584,6 +2584,7 @@ html[lang="en"] .tn-dots { min-width: 36px; }
   background: var(--paper); border: 3px solid var(--ink); border-radius: 999px; box-shadow: 0 3px 0 var(--ink);
 }
 .map-view[hidden] { display: none; }
+html[dir="ltr"] .map-view { left: auto; right: 12px; }
 .map-view:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
 
 /* ---------- «أتعلّم»: learning by discovery (core/learn/explore.js) ----------
