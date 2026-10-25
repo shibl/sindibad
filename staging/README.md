@@ -29,8 +29,9 @@ and future Swift clients. Full conversion progress: [#3](https://github.com/shib
 
 The following descriptions cover the existing web game.
 
-**Arabic and English modes:** choose **العربية / English** in the
-bar at the top, with just the two language buttons, before starting or during play.
+**Arabic and English modes:** choose **العربية / English** with the two
+floating buttons over the game, before starting or during play. There is no
+full-width language bar; the scene fills the screen behind the controls.
 The selector sits on the right in English and mirrors to the left in Arabic. The
 current question, typed answers, hero and progress stay in place. The choice
 is remembered on this device and works offline; staging has its own preference.

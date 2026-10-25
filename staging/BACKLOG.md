@@ -903,3 +903,13 @@ Next:
   own text direction. The About page uses the same placement.
 - Browser checks passed at 320, 360 and 1440 px for placement, order and
   viewport fit in both languages on the game and About page.
+
+### Floating language controls (2026-10-25)
+
+- Removed the solid full-width language strip. The two buttons float directly
+  over the scene, with a light translucent background on the inactive button.
+- The title no longer reserves the strip's height. Small screens keep the logo
+  below the floating controls; existing gameplay HUD spacing remains intact.
+- Verified a transparent, content-width overlay with no logo overlap at 320,
+  360 and 1440 px in both languages. The language browser suite passed,
+  including partial answers, 3D exploration, offline use and settings access.

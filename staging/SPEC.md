@@ -31,9 +31,9 @@ architecture, licensing, and call for contributors).
 - Arabic-first, right-to-left UI.
 - **Game language (2026-10-25, issue #18):** Arabic remains the default;
   players can choose Arabic or English before starting and switch while playing.
-  English uses left-to-right navigation. The language selector sits on the right
-  in English and the left in Arabic, with the option order following the interface
-  direction. The device preference is stored
+  English uses left-to-right navigation. Two language buttons float over the game,
+  without a full-width bar. They sit on the right in English and the left in Arabic,
+  with the option order following the interface direction. The device preference is stored
   separately on staging, available offline, and independent of saved progress.
   Switching updates display text without restarting the current activity.
   English covers all player-facing curriculum text as well as the interface.
