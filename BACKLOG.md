@@ -913,3 +913,21 @@ Next:
 - Verified a transparent, content-width overlay with no logo overlap at 320,
   360 and 1440 px in both languages. The language browser suite passed,
   including partial answers, 3D exploration, offline use and settings access.
+
+
+## Studio website import — 2026-10-25
+
+- Replaced the former `studio/` site with the requested `Studio/Web`,
+  `Studio/Android`, `Studio/iOS`, and `Studio/Infra` layout. Website source
+  lives directly in `Studio/Web`; there is no repository redirect wrapper.
+- Imported the bilingual Sindibad Studios website and The Curriculam pages,
+  including all twelve grade routes and the seven-experiment Chemistry Lab.
+  The existing grade-6 game and root native applications are unchanged.
+- Hero code includes automatic five-second slides, progress pagination and
+  shaped reveals. The splash uses reference vector keyframes and animated
+  text tracking. Vertical scrolling uses Lenis, with native horizontal
+  scrolling in the gallery.
+- Source review only: the owner explicitly prohibited browser use, builds,
+  HTTP checks, syntax checks and tests. No runtime or visual pass is claimed.
+- Next: owner review of the intro/hero and scrolling; future studio native
+  app and infrastructure work belongs in its corresponding directory.

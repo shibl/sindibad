@@ -1,0 +1,3 @@
+/* Shared named font families; loaded from Google Fonts in both HTML entry points. */
+:root[lang=en]{--font:'Google Sans Flex','Noto Sans Arabic',system-ui,sans-serif;--naskh:var(--font)}
+:root[lang=ar]{--font:'Noto Sans Arabic','Google Sans Flex',system-ui,sans-serif;--naskh:var(--font)}

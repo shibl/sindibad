@@ -214,6 +214,8 @@ Deployments on GitHub (`github-pages` = live, `staging`). Details: step 5 of
   Everything below lives in it.
 - `Android/` — native Kotlin/Compose app; `iOS/` — reserved for Swift.
 - `Shared/Art/` — reusable illustrations, interaction states, models and fonts.
+- `Studio/` — the studio project: `Web/`, `Android/`, `iOS/`, and `Infra/`.
+  The studio website lives directly in [`Studio/Web/`](Studio/Web/README.md).
 - `docs/` — the original brief (PDF and Markdown) and screenshots.
 - `index.html`, `service-worker.js` (top level) — only forward the live
   site to `Web/` and clear old offline copies from before the move.
