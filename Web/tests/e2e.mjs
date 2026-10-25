@@ -765,7 +765,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   // where they are drawn; a country's middle can be sea, so those get the
   // click itself.
   const tap = async el => {
-    const target = await el.elementHandle();
+    const [target] = await el.elementHandles();
     if (!target) return; // The previous answer may already have advanced.
     try { await el.click({ timeout: 1500 }); }
     catch {
@@ -910,7 +910,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   // Plays to the end, the right answer each time (a ring's middle is another
   // ring, so SVG parts that cannot be clicked in the middle get the click itself).
   const tap = async el => {
-    const target = await el.elementHandle();
+    const [target] = await el.elementHandles();
     if (!target) return; // The previous answer may already have advanced.
     try { await el.click({ timeout: 1500 }); }
     catch {
@@ -1035,7 +1035,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
   let s = await english();
   check(s.places.length === 12 && s.next === QUESTS[0].id && (await p.textContent('#english-say .bubble')).length > 10, 'twelve places of the seaside town; the helper says hello; unit 1 comes first');
   const tap = async el => {
-    const target = await el.elementHandle();
+    const [target] = await el.elementHandles();
     if (!target) return; // The previous answer may already have advanced.
     try { await el.click({ timeout: 1500 }); }
     catch {
