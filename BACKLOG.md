@@ -868,3 +868,29 @@ Next:
 Next:
 - Confirm the interface wording and layout on the developer's real phone.
 - Educator review of the English curriculum wording (draft); see translation notes.
+
+
+## Playtest notes — 2026-10-25 (developer feedback on #18)
+
+- Removed the visible Language / اللغة label from the game and About page;
+  only العربية and English remain. The accessible group labels are retained.
+- Corrected English names throughout the map, dialogue, review introductions
+  and About page: Number Island → Numbers Island, Letter Island → Letters
+  Island, Colour/Color Island → Colours Island, Melody/Song Island → Melodies
+  Island. The corresponding “island of …” variants use the same names.
+- Corrected the two Numbers Island completion messages from “The island of
+  numbers has completed!” to “You completed Numbers Island!”
+- Fixed the English map controls: Voyages stays at the start edge and the
+  2D/3D toggle moves to the opposite edge, preserving the Arabic arrangement.
+- Validation: typecheck, generated files, offline manifest, content and language
+  suites passed. Browser checks passed at 320, 360 and 1440 px: both languages,
+  plural map labels, separate click targets in 2D and 3D, Voyages navigation,
+  and the two language buttons on the game and About page. Main's workflow
+  runs the full gameplay suite before publication.
+- Automatic staging Actions runs are paused at the owner's request; staging
+  remains available for an explicitly requested manual run. The duplicate
+  local full run was stopped after the focused checks passed.
+
+Next:
+- Developer playtest of the published main version.
+- Educator review of the draft English curriculum.

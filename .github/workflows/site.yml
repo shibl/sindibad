@@ -1,5 +1,6 @@
-# Tests every pull request and every push to main or staging. Then, if the
-# tests pass, publishes the branch that was pushed:
+# Tests every pull request and every push to main. Automatic staging runs
+# are paused by the owner (2026-10-25); staging can still be run manually.
+# When the tests pass, publishes the selected branch:
 #
 #   main     →  the live game      https://shibl.github.io/sindibad/
 #   staging  →  the staging copy   https://shibl.github.io/sindibad/staging/
@@ -24,7 +25,7 @@ name: Test and publish
 on:
   pull_request:
   push:
-    branches: [main, staging]
+    branches: [main]
   workflow_dispatch:
 
 permissions:

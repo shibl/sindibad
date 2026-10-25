@@ -1,3 +1,11 @@
+# Native Android workflow — owner clarification, 2026-10-20
+
+The owner explicitly requested Android changes directly on `main`.
+The staging/publishing steps below apply to the web game. For native Android,
+use `Android/README.md`: JVM tests, lint and APK assembly. Shared artwork also
+uses `npm run check --prefix Shared/Art/tools`. Do not open or install the game;
+the owner will test on their phone. Android is Kotlin, minimum API 33.
+
 # Workflow — adding or changing something in the game
 
 The steps to follow for every new feature, lesson or fix, for people and
@@ -97,9 +105,10 @@ against?
    (never mid-lesson). Elsewhere, reload once more to see it.
 2. Commit only the files of this change; never sweep in unrelated local
    edits.
-3. **Staging**: push to the `staging` branch. GitHub runs the tests; if
-   they pass, the staging copy updates at
-   <https://shibl.github.io/sindibad/staging/> within a few minutes. A
+3. **Staging**: automatic Actions runs are paused (owner decision,
+   2026-10-25). Pushing to `staging` does not test or publish. A manual
+   `Test and publish` run on `staging`, only when requested, updates
+   <https://shibl.github.io/sindibad/staging/> after its checks. A
    pink «نسخة تجريبية» tag marks it, and it keeps its own saves, separate
    from the live game. Try it on a real phone.
 4. **Live**: merge into `main` (a pull request from `staging`, or a
