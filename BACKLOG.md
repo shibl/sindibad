@@ -895,3 +895,11 @@ Next:
 Next:
 - Developer playtest of the published main version.
 - Educator review of the draft English curriculum.
+
+### Language selector placement (2026-10-25)
+
+- The language buttons sit at the end of the top bar: right in English, left
+  in Arabic. Their order follows LTR/RTL, while each language name keeps its
+  own text direction. The About page uses the same placement.
+- Browser checks passed at 320, 360 and 1440 px for placement, order and
+  viewport fit in both languages on the game and About page.
