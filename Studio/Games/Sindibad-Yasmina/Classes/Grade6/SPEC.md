@@ -57,7 +57,7 @@ architecture, licensing, and call for contributors).
 age stages. Each voyage is a chapter that holds one grade's sea map and
 islands. A voyage opens when its world exists; today only voyage 6 (grade 6)
 is open. In Arabic they are called «الرحلة» rather than «الفصل», which can
-also mean a school term. Content: `Web/worlds/chapters.js`.
+also mean a school term. Content: `Web/worlds/chapters.ts`.
 
 ### World map (per grade level)
 - Each grade level is a "world" the student unlocks step by step — the map
@@ -95,7 +95,7 @@ every step. A finished quest records stars for its topic like a lesson.
   when a child sails to the farm); every model is made in code. Light
   enough for budget phones: merged meshes, no shadows in lite mode. Phones
   without WebGL see a short message instead.
-- Content: `Web/worlds/grade6/farm.js`; engine: `Web/core/farm/`.
+- Content: `Web/worlds/grade6/farm.ts`; engine: `Web/core/farm/`.
 
 ### The music island (3D)
 *(Decision 2026-10-12.)* Off the letters island, open from the start, sits
@@ -231,7 +231,7 @@ before asking.
   quizzed. *(To confirm with the developers.)*
 - **Outside data:** the world's shapes are Natural Earth's 1:110m map
   (public domain), via world-atlas 2.0.2 (ISC), turned into
-  `Web/worlds/atlas/shapes.js` by `Web/tools/make-world.mjs`. It came in
+  `Web/worlds/atlas/shapes.ts` by `Web/tools/make-world.mjs`. It came in
   because the owner asked for a globe of every country. The flags are drawn
   in code (`Web/worlds/atlas/countries.js`).
 - **The old walkable social studies island** (the Citadel of Aleppo; Syrian

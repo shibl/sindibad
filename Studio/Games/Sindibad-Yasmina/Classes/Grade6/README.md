@@ -243,12 +243,12 @@ Inside `Web/`:
   `topics.ts` is the contract with the topic plugins (`TopicDef`, the
   `LessonCtx` a topic gets, its `Result`); `lesson.ts` runs a topic on the
   lesson screen.
-- `worlds/chapters.js` — the twelve voyages (one per grade) and the four
+- `worlds/chapters.ts` — the twelve voyages (one per grade) and the four
   age stages; `core/chapters.ts` draws the voyages chart.
-- `worlds/grade6.js` — the grade-6 islands, positions, unlock rules, badges.
+- `worlds/grade6.ts` — the grade-6 islands, positions, unlock rules, badges.
 - `core/farm/` — the 3D farm island (`farm.ts` game, `scene.ts` camera and
   light, `models.js` every model, made in code); its content (crops, steps,
-  helpers, quests, orders) is `worlds/grade6/farm.js`, its quick reviews
+  helpers, quests, orders) is `worlds/grade6/farm.ts`, its quick reviews
   `plugins/agriculture/`.
 - `core/sea/` — the 3D sea map, a preview on the staging copy (`sea.ts` the
   sea, ship, fog and camera; `models.js` the islands' landmarks, made in
@@ -281,7 +281,7 @@ Inside `Web/`:
   steps, `views.js` the maps and timelines, `globe.js` the atlas globe,
   `models.js` every model); its content is `worlds/grade6/atlas.js` and
   `worlds/grade6/atlas/` (one file per unit), the countries
-  `worlds/atlas/countries.js` (cards and flags) and `worlds/atlas/shapes.js`
+  `worlds/atlas/countries.js` (cards and flags) and `worlds/atlas/shapes.ts`
   (the world's shapes, from Natural Earth, made by `tools/make-world.mjs`),
   its quick reviews `plugins/social/reviews.js`.
 - `core/studio/` — the 3D art island (`studio.ts` its config, `games.ts`
