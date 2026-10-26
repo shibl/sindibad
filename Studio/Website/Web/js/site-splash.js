@@ -44,15 +44,24 @@ function transformAt(motion, frame) {
 export function playReferenceSplash(language, { onStart, onFinish } = {}) {
   const root = document.documentElement;
   const key = 'sindibad-labs-intro-2026-10-25-final';
+  // The intro plays on the first visit and on every refresh of the home page. Arriving from
+  // another page of the site, going back or forward, or following a section link skips it.
+  const reload = performance.getEntriesByType?.('navigation')[0]?.type === 'reload';
   let seen = false;
   try {
     seen = sessionStorage.getItem(key) === 'true';
     sessionStorage.setItem(key, 'true');
   } catch {}
-  if (seen || location.hash || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  if ((!reload && (seen || location.hash)) || matchMedia('(prefers-reduced-motion: reduce)').matches) {
     root.classList.add('site-ready');
     onFinish?.();
     return;
+  }
+  if (reload) {
+    // A refresh starts over at the hero, which the intro opens onto.
+    history.scrollRestoration = 'manual';
+    if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+    window.scrollTo(0, 0);
   }
 
   const data = innerWidth <= 768 ? splashTimeline.mobile : splashTimeline.desktop;
