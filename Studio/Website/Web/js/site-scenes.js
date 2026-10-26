@@ -96,19 +96,23 @@ export function mountScenes(signal) {
       progressAnimation?.cancel();
       const previous = slides[active];
       const incoming = slides[index];
-      const image = incoming.querySelector('img');
-      image.loading = 'eager';
-      try { await image.decode(); } catch {}
+      const image = incoming.querySelector('.feature-media img');
+      if (image) {
+        image.loading = 'eager';
+        try { await image.decode(); } catch {}
+      }
       if (signal.aborted) return;
       const finish = () => {
         previous.classList.remove('is-active');
         previous.setAttribute('aria-hidden', 'true');
+        previous.inert = true;
         previous.style.zIndex = '';
         incoming.classList.add('is-active');
         incoming.style.clipPath = '';
         incoming.style.zIndex = '';
         incoming.style.opacity = '';
         incoming.removeAttribute('aria-hidden');
+        incoming.inert = false;
         active = index;
         busy = false;
         startProgress();
