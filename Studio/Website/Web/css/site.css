@@ -523,8 +523,10 @@ html[dir='rtl'] .feature-controls .circle-button svg { transform: scaleX(-1); }
 @keyframes marquee-rtl { to { transform: translateX(50%); } }
 html[dir='rtl'] .marquee-track { animation-name: marquee-rtl; }
 .studio-strip-kalam { background: var(--yellow); border-top: 0; }
-/* Both bands end in link blocks of one width, so their edges line up. */
-.studio-strip > a { min-width: clamp(176px, 15vw, 236px); justify-content: space-between; }
+/* The two bands share one grid, so both link blocks take the width of the longer label. */
+.studio-strips { display: grid; grid-template-columns: minmax(0, 1fr) max-content; }
+.studio-strips > .studio-strip { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; }
+.studio-strip > a { justify-content: space-between; }
 .studio-strip-kalam .marquee-track { animation-direction: reverse; animation-duration: 54s; }
 
 /* Products: Flowfest title and sticker, then Google's spacious gallery of cards over large shapes. */
