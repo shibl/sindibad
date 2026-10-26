@@ -74,6 +74,10 @@ The gallery arrows step by each card's real position, so Back works from the las
 
 The 2026-10-26 pass was checked with local headless Chromium screenshots at 1440 × 900 and 390 × 844, in English and Arabic, with the owner's permission for this pass: home, product, Grade 10 Sciences and Chemistry pages, the footer pile under pointer, tap and reduced motion, and a language switch. No console errors were reported. The standing source-only rule in `AGENTS.md` is unchanged.
 
+## Kalam (2026-10-26)
+
+Kalam, the studio's second product, joins the home products section after The Curriculam's gallery, the header navigation and the footer, and has its own page at `/products/kalam/`. There is no Kalam artwork yet, so the visual is a labelled illustration scene of a Telltale moment, built in HTML and CSS rather than as a picture: letterboxed night, a stranger's line, four timed answers in the language being learnt with a gloss in the reader's language, and the corner notice (“They will remember that.”, “They noticed your tone.”, “They noticed your silence.”). English readers see the Arabic-learning version and Arabic readers the English one. The timer shrinks from both ends over seven seconds, silence is chosen when it runs out, and the moment resets after 3.2 seconds; it pauses offscreen and in hidden tabs, keys 1–4 answer, and reduced motion removes the timer. A second, yellow band for Kalam sits under the orange Curriculam band on the home page and runs the opposite way, ending in “Explore Kalam”. The page has a cinematic hero whose letterbox bars close in, the scene, four play principles, the two learning directions, an honest “first story is in production” poster, and a pink panel back to The Curriculam. No story titles, characters or lessons were invented.
+
 ## Review boundary
 
 The supplied video was inspected; the website was edited and reviewed in source. No live browser/computer interaction, HTTP checks, builds, syntax checks, automated tests or runtime visual checks were performed, as instructed. This is an implemented reference blend, not a claim of pixel-identical or runtime-verified reproduction.

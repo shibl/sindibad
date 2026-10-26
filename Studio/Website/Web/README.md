@@ -4,7 +4,7 @@ The studio website is now at `Studio/Website/Web/`. The playable Chemistry Lab, 
 
 # Sindibad Studios
 
-**Sindibad Studios** creates games and interactive products. **The Curriculam** (Arabic: **المنهاج**) is one of its products: a bilingual game for the **entire Syrian curriculum, Grades 1–12**. The studio homepage presents the studio and a products section. The Curriculam has its own product page, every school year, and the learning areas within each grade.
+**Sindibad Studios** creates games and interactive products. **Kalam** (Arabic: **كلام**) is its second product: cinematic, Telltale-style story games for learning languages, Arabic ⇄ English, each titled like a film, “<Title> — by Kalam”. It is in development, so the website introduces it with a labelled illustration scene. **The Curriculam** (Arabic: **المنهاج**) is one of its products: a bilingual game for the **entire Syrian curriculum, Grades 1–12**. The studio homepage presents the studio and a products section. The Curriculam has its own product page, every school year, and the learning areas within each grade.
 
 The Chemistry Lab is one learning experience within Grade 10 Sciences. It contains seven experiments from Unit 1, *Matter and its transformations*. Other grade and subject pages have navigation and honest empty states; their game experiences have not yet been implemented.
 
@@ -18,6 +18,7 @@ Open **http://127.0.0.1:5321/Studio/Website/Web/home/**. The preview server disa
 
 - Studio: `/home`.
 - The Curriculam: `/products/the-curriculam/`.
+- Kalam: `/products/kalam/`.
 - All twelve grades: `/products/the-curriculam/#curriculum`.
 - A school year: `/products/the-curriculam/grade-1/` through `/products/the-curriculam/grade-12/`.
 - A learning area: `/products/the-curriculam/grade-10/?lang=en&subject=sciences`.
@@ -34,6 +35,7 @@ The language switch remembers its choice across pages. English uses the bundled 
 |---|---|
 | `home/index.html` | Sindibad Studios home; the root entry forwards to `/home`. |
 | `products/the-curriculam/index.html` | Product page and full curriculum navigation. |
+| `products/kalam/index.html` | Kalam, the studio's second product: Telltale-style story games for learning languages (in development). |
 | `products/the-curriculam/grade-{1..12}/index.html` | Each grade and its learning areas. |
 | `products/the-curriculam/grade-10/chemistry/index.html` | Chemistry Lab introduction and experiment collection. |
 | `js/site.js`, `css/site.css` | Shared website presentation, bilingual content, responsive layouts. |
