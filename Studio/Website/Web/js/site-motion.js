@@ -81,30 +81,35 @@ export function mountSiteMotion() {
     const rtl = document.documentElement.dir === 'rtl';
     let active = 0;
     let ticking = false;
-    const update = () => {
+    // How far each card's start edge is ahead of the track's start (negative: already passed).
+    const offsets = () => {
       const bounds = track.getBoundingClientRect();
       const inset = parseFloat(getComputedStyle(track).scrollPaddingInlineStart) || 0;
-      const distances = slides.map(slide => {
+      return slides.map(slide => {
         const rect = slide.getBoundingClientRect();
-        return Math.abs(rtl ? bounds.right - inset - rect.right : bounds.left + inset - rect.left);
+        return rtl ? bounds.right - inset - rect.right : rect.left - bounds.left - inset;
       });
-      const atEnd = Math.abs(track.scrollLeft) >= track.scrollWidth - track.clientWidth - 3;
-      active = atEnd ? slides.length - 1 : distances.indexOf(Math.min(...distances));
-      previous.disabled = active === 0;
-      next.disabled = active === slides.length - 1;
+    };
+    const atEnd = () => Math.abs(track.scrollLeft) >= track.scrollWidth - track.clientWidth - 3;
+    const update = () => {
+      const distances = offsets().map(Math.abs);
+      active = atEnd() ? slides.length - 1 : distances.indexOf(Math.min(...distances));
+      previous.disabled = Math.abs(track.scrollLeft) < 3;
+      next.disabled = atEnd();
       counter.textContent = `${String(active + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
       ticking = false;
     };
-    const goTo = index => {
-      const target = slides[Math.max(0, Math.min(slides.length - 1, index))];
-      const bounds = track.getBoundingClientRect();
-      const rect = target.getBoundingClientRect();
-      const inset = parseFloat(getComputedStyle(track).scrollPaddingInlineStart) || 0;
-      track.scrollBy({ left: rtl ? rect.right - bounds.right + inset : rect.left - bounds.left - inset, behavior: reducedMotion() ? 'instant' : 'smooth' });
+    const scrollAhead = distance => track.scrollBy({ left: rtl ? -distance : distance, behavior: reducedMotion() ? 'instant' : 'smooth' });
+    // The last cards cannot reach the start edge, so stepping uses each card's real position.
+    const step = direction => {
+      const ahead = offsets();
+      const target = direction > 0 ? ahead.find(distance => distance > 3) : ahead.findLast(distance => distance < -3);
+      if (target !== undefined) scrollAhead(target);
     };
+    const goTo = index => scrollAhead(offsets()[Math.max(0, Math.min(slides.length - 1, index))]);
     gallery.addEventListener('click', event => {
       const button = event.target.closest('[data-gallery-step]');
-      if (button) goTo(active + Number(button.dataset.galleryStep));
+      if (button) step(Number(button.dataset.galleryStep));
     }, { signal });
     track.addEventListener('scroll', () => {
       if (ticking) return;
@@ -117,7 +122,7 @@ export function mountSiteMotion() {
       event.preventDefault();
       if (event.key === 'Home') goTo(0);
       else if (event.key === 'End') goTo(slides.length - 1);
-      else goTo(active + ((event.key === 'ArrowRight') !== rtl ? 1 : -1));
+      else step((event.key === 'ArrowRight') !== rtl ? 1 : -1);
     }, { signal });
     window.addEventListener('resize', update, { signal });
     update();
