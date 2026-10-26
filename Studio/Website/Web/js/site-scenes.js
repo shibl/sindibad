@@ -96,19 +96,23 @@ export function mountScenes(signal) {
       progressAnimation?.cancel();
       const previous = slides[active];
       const incoming = slides[index];
-      const image = incoming.querySelector('img');
-      image.loading = 'eager';
-      try { await image.decode(); } catch {}
+      const image = incoming.querySelector('.feature-media img');
+      if (image) {
+        image.loading = 'eager';
+        try { await image.decode(); } catch {}
+      }
       if (signal.aborted) return;
       const finish = () => {
         previous.classList.remove('is-active');
         previous.setAttribute('aria-hidden', 'true');
+        previous.inert = true;
         previous.style.zIndex = '';
         incoming.classList.add('is-active');
         incoming.style.clipPath = '';
         incoming.style.zIndex = '';
         incoming.style.opacity = '';
         incoming.removeAttribute('aria-hidden');
+        incoming.inert = false;
         active = index;
         busy = false;
         startProgress();
@@ -166,6 +170,7 @@ export function mountScenes(signal) {
   });
 
   document.querySelectorAll('[data-shape-pile]').forEach(pile => mountShapePile(pile, signal, schedule));
+  document.querySelectorAll('[data-kalam-scene]').forEach(scene => mountKalamScene(scene, signal));
 
   if (reduced()) {
     const updateHeader = () => {
@@ -510,4 +515,57 @@ function mountShapePile(pile, signal, schedule) {
     visible = true;
     drop();
   }
+}
+
+// Kalam's mock scene: the timer shrinks from both ends, an answer (or the silence when it runs out)
+// brings the notice in the top corner, then the moment resets. It waits while offscreen.
+function mountKalamScene(scene, signal) {
+  const bar = scene.querySelector('.scene-timer i');
+  const notice = scene.querySelector('.scene-notice');
+  const notices = JSON.parse(notice.dataset.notices);
+  const choices = [...scene.querySelectorAll('.scene-choice')];
+  let timer;
+  let reset;
+  let visible = false;
+  const start = () => {
+    clearTimeout(reset);
+    scene.classList.remove('is-answered');
+    choices.forEach(choice => choice.classList.remove('is-chosen'));
+    notice.classList.remove('is-shown');
+    timer?.cancel();
+    if (reduced()) return;
+    timer = bar.animate([{ transform: 'scaleX(1)' }, { transform: 'scaleX(0)' }], { duration: 7000, easing: 'linear', fill: 'forwards' });
+    if (!visible || document.hidden) timer.pause();
+    timer.finished.then(() => answer(choices.find(choice => choice.dataset.reaction === 'silence')), () => {});
+  };
+  const answer = choice => {
+    if (scene.classList.contains('is-answered')) return;
+    timer?.pause();
+    scene.classList.add('is-answered');
+    choice.classList.add('is-chosen');
+    notice.textContent = notices[choice.dataset.reaction];
+    notice.classList.add('is-shown');
+    reset = setTimeout(start, 3200);
+  };
+  const sync = () => {
+    if (!timer || scene.classList.contains('is-answered')) return;
+    if (visible && !document.hidden) timer.play();
+    else timer.pause();
+  };
+  scene.addEventListener('click', event => {
+    const choice = event.target.closest('.scene-choice');
+    if (choice) answer(choice);
+  }, { signal });
+  scene.addEventListener('keydown', event => {
+    const choice = choices[Number(event.key) - 1];
+    if (choice) { event.preventDefault(); choice.focus(); answer(choice); }
+  }, { signal });
+  document.addEventListener('visibilitychange', sync, { signal });
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; sync(); }, { threshold: .35 });
+    observer.observe(scene);
+    signal.addEventListener('abort', () => observer.disconnect(), { once: true });
+  } else visible = true;
+  signal.addEventListener('abort', () => { clearTimeout(reset); timer?.cancel(); }, { once: true });
+  start();
 }
