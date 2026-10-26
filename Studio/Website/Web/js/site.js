@@ -48,7 +48,7 @@ function marquee(items) {
 function strips() {
   const curriculam = [productName(), t('The whole Syrian curriculum', 'المنهاج السوري بأكمله'), t('Grades 1–12', 'من الصف الأول إلى الثاني عشر'), t('Arabic & English', 'العربية والإنجليزية'), t('Twelve school years, one game', 'اثنا عشر عاماً دراسياً في لعبة واحدة')];
   const kalam = [kalamName(), t('Stories you talk your way through', 'قصص تعيشها بالكلام'), t('Arabic ⇄ English', 'العربية ⇄ الإنجليزية'), t('Every choice is a sentence', 'كلّ خيار جملة'), t('In development', 'قيد التطوير')];
-  return `<div class="studio-strip">${marquee(curriculam)}<p class="visually-hidden">${productName()} · ${t('Syrian curriculum · Grades 1–12', 'المنهاج السوري · من الصف الأول إلى الثاني عشر')}</p><a href="${productUrl()}">${t('Explore the game', 'استكشف اللعبة')}${arrow}</a></div><div class="studio-strip studio-strip-kalam">${marquee(kalam)}<p class="visually-hidden">${kalamName()} · ${t('Story games for learning languages, in development', 'ألعاب قصصية لتعلّم اللغات، قيد التطوير')}</p><a href="${kalamUrl()}">${t('Explore Kalam', 'استكشف كلام')}${arrow}</a></div>`;
+  return `<div class="studio-strips"><div class="studio-strip">${marquee(curriculam)}<p class="visually-hidden">${productName()} · ${t('Syrian curriculum · Grades 1–12', 'المنهاج السوري · من الصف الأول إلى الثاني عشر')}</p><a href="${productUrl()}">${t('Explore the game', 'استكشف اللعبة')}${arrow}</a></div><div class="studio-strip studio-strip-kalam">${marquee(kalam)}<p class="visually-hidden">${kalamName()} · ${t('Story games for learning languages, in development', 'ألعاب قصصية لتعلّم اللغات، قيد التطوير')}</p><a href="${kalamUrl()}">${t('Explore Kalam', 'استكشف كلام')}${arrow}</a></div></div>`;
 }
 function gameGallery() {
   const views = [
