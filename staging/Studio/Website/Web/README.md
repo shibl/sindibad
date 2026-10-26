@@ -4,7 +4,7 @@ The studio website is now at `Studio/Website/Web/`. The playable Chemistry Lab, 
 
 # Sindibad Studios
 
-**Sindibad Studios** creates games and interactive products. **The Curriculam** (Arabic: **المنهاج**) is one of its products: a bilingual game for the **entire Syrian curriculum, Grades 1–12**. The studio homepage presents the studio and a products section. The Curriculam has its own product page, every school year, and the learning areas within each grade.
+**Sindibad Studios** creates games and interactive products. **Kalam** (Arabic: **كلام**) is its second product: cinematic, Telltale-style story games for learning languages, Arabic ⇄ English, each titled like a film, “<Title> — by Kalam”. It is in development, so the website introduces it with a labelled illustration scene. **The Curriculam** (Arabic: **المنهاج**) is one of its products: a bilingual game for the **entire Syrian curriculum, Grades 1–12**. The studio homepage presents the studio and a products section. The Curriculam has its own product page, every school year, and the learning areas within each grade.
 
 The Chemistry Lab is one learning experience within Grade 10 Sciences. It contains seven experiments from Unit 1, *Matter and its transformations*. Other grade and subject pages have navigation and honest empty states; their game experiences have not yet been implemented.
 
@@ -18,6 +18,7 @@ Open **http://127.0.0.1:5321/Studio/Website/Web/home/**. The preview server disa
 
 - Studio: `/home`.
 - The Curriculam: `/products/the-curriculam/`.
+- Kalam: `/products/kalam/`.
 - All twelve grades: `/products/the-curriculam/#curriculum`.
 - A school year: `/products/the-curriculam/grade-1/` through `/products/the-curriculam/grade-12/`.
 - A learning area: `/products/the-curriculam/grade-10/?lang=en&subject=sciences`.
@@ -34,6 +35,7 @@ The language switch remembers its choice across pages. English uses the bundled 
 |---|---|
 | `home/index.html` | Sindibad Studios home; the root entry forwards to `/home`. |
 | `products/the-curriculam/index.html` | Product page and full curriculum navigation. |
+| `products/kalam/index.html` | Kalam, the studio's second product: Telltale-style story games for learning languages (in development). |
 | `products/the-curriculam/grade-{1..12}/index.html` | Each grade and its learning areas. |
 | `products/the-curriculam/grade-10/chemistry/index.html` | Chemistry Lab introduction and experiment collection. |
 | `js/site.js`, `css/site.css` | Shared website presentation, bilingual content, responsive layouts. |
@@ -53,7 +55,9 @@ The language switch remembers its choice across pages. English uses the bundled 
 
 Pages use the full viewport width, with edge-to-edge game artwork and modest inner padding. There is no centred max-width page shell. The former `/sindibad-yasmina/` pages remain aliases for existing links; navigation now uses `/products/the-curriculam/`. The product spelling follows the user’s name, **The Curriculam**.
 
-The 2026-10-25 design combines Flowfest's warm paper, ink outlines and colour bands with the Google Labs intro, full-viewport hero and spacious image browsing. The splash uses the reference's vector paths, transform keyframes and text-tracking curves, with Sindibad text in the requested font. Its timeline lasts 5.33 seconds on desktop and 5.07 seconds on mobile; scroll intent accelerates it. There is no logo image or Skip intro control. Escape ends it, reduced motion bypasses it, and navigation or language changes do not replay it during the session.
+The 2026-10-25 design combines Flowfest's warm paper, ink outlines and colour bands with the Google Labs intro, full-viewport hero and spacious image browsing. The splash uses the reference's vector paths, transform keyframes and text-tracking curves, with Sindibad text in the requested font. Its timeline lasts 5.33 seconds on desktop and 5.07 seconds on mobile; scroll intent accelerates it. There is no logo image or Skip intro control. Escape ends it, reduced motion bypasses it, and it plays on the first visit and on every refresh of the home page, but not when arriving from another page, going back or forward, following a section link or changing language.
+
+The 2026-10-26 refinement keeps the splash, hero and fonts, and adds Flowfest's stickers, moving orange band, dark studio section with colour bars and pink panel, Google's white gallery cards over large shapes, rounded display type from Google Sans Flex's own axes, and a physics pile of outlined shapes in the footer. See `design/reference-study.md`.
 
 The hero centres The Curriculam title, subtitle and CTA over game concept art, with an overlay header and bottom progress pagination. It advances automatically after five seconds using three shaped reveal variants. Autoplay pauses offscreen, in a hidden tab or for keyboard focus. The orange curriculum strip remains below it. Lenis controls vertical scrolling; the gallery retains native horizontal scrolling without bypassing Lenis for vertical gestures. Gallery cards enter upright, disclosure panels expand, and footer shapes react to the pointer. The twelve-grade grid gives every school year equal space.
 

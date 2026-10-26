@@ -18,7 +18,7 @@ plugins/
 
 ## Add a topic in 4 steps
 
-1. **Write the file**, e.g. `plugins/math/ratios.js`:
+1. **Write the file**, e.g. `plugins/math/ratios.ts` (the `.ts` is the source; `npm run build` makes the `.js` the browser loads, and imports keep naming `.js`):
 
    ```js
    import { registerTopic } from '../../core/topics.js';
@@ -26,7 +26,7 @@ plugins/
 
    registerTopic({
      id: 'math-ratios',            // unique, never rename (it's in save data)
-     region: 'math',               // island id from worlds/grade6.js
+     region: 'math',               // island id from worlds/grade6.ts
      order: 5,                     // position in the island's list
      icon: '⚖️',
      title: 'النسبة والتناسب',
@@ -45,7 +45,7 @@ plugins/
    });
    ```
 
-2. **List it** in `plugins/index.js`: `import './math/ratios.js';`
+2. **List it** in `plugins/index.ts`: `import './math/ratios.js';`
 3. **Cache it for offline play**: `node tools/update-shell.ts`
 4. **Test**: `npm test` (its `tests/check-content.ts` checks every topic's
    content in a second: a hint and an explanation on each item, answers
@@ -124,7 +124,7 @@ recordResult('farm-potato', { correct, total });   // → { stars, pearls }
 (`correct` = jobs done right the first time, `total` = all jobs.) The
 topic's own `render` is a short quiz or sort: the review that comes back
 days later. Adding a farm quest: a crop or task in
-`worlds/grade6/farm.js` (steps, choices, the book's facts), a quest in
+`worlds/grade6/farm.ts` (steps, choices, the book's facts), a quest in
 `QUESTS`, and its review topic here.
 
 The music island (`core/tunes/`) works the same way: its quests are in
