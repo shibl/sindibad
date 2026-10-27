@@ -984,3 +984,23 @@ Next:
 - The owner requested `Studio/Games/Sindibad-Yasmina/` in place of `Studio/TheCurriculum/`. Classes and their platform folders move together; the website stays at `Studio/Website/`.
 - Updated CI, deployment mapping, catalogue imports, local preview routing, and the lab’s return links for the extra directory level. The public Grade 6 game paths remain unchanged.
 - Old Chemistry Lab URLs under the temporary TheCurriculum location redirect to the renamed project, preserving language, experiment query parameters, and fragments.
+
+## TypeScript migration — 2026-10-27 (number-line math plugins)
+
+- Added TypeScript sources for integers, decimals, and fractions on the number
+  line. Their item factories use the existing `NumberlineItem` contract, with
+  numeric parameters and typed label tuples. The fractions array also checks
+  the longer-line overrides against the engine contract.
+- Questions, answers, Arabic text, lesson IDs, and runtime imports are unchanged.
+  The normal build generates the adjacent JavaScript, updates `.gitattributes`,
+  and refreshes the offline cache version.
+- Validation: `npm --prefix Web run build` and the full `npm --prefix Web test`
+  suite passed (strict types, generated output, offline shell, content and
+  language checks, browser gameplay, updates, and staging isolation).
+  Compiler-normalized JavaScript matched the original three modules, allowing
+  only the generated banner and equivalent single-parameter arrow parentheses.
+  No lesson content changed. No physical-device or manual visual review claimed.
+
+Next:
+- Continue the remaining math plugins in small batches.
+- Migrate Arabic plugins and world content before their review consumers.
