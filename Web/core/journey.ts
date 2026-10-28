@@ -80,7 +80,7 @@ export function renderJourney(el: HTMLElement, world: World, { showScreen }: { s
       <button class="btn btn--ghost" data-j="who">👨‍👩‍👧 تبديل اللاعب</button>
       <button class="btn btn--ghost btn--danger" data-j="reset">🗑️ ابدأ من جديد</button>
     </div>
-    <p class="journey__privacy">🔒 كل تقدّمك محفوظ على هذا الجهاز فقط. لا نجمع أي بيانات.</p>`;
+    <p class="journey__privacy">💾 تقدّمك محفوظ على هذا الجهاز، ويُنسخ احتياطياً عند الاتصال بالإنترنت.</p>`;
 
   el.onclick = e => {
     const b = (e.target as Element).closest<HTMLElement>('[data-j]');

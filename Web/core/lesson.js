@@ -10,6 +10,7 @@ import { num } from './format.js';
 import { shuffle, itemKey } from '../plugins/engines/kit.js';
 import { shake } from './fx.js';
 import { canSpeak, speak, stopSpeaking } from './voice.js';
+import { track } from './telemetry.js';
 let show; // showScreen from app.js
 let current;
 let onDone; // called when the student returns to the map
@@ -65,7 +66,8 @@ export function startLesson(topicId, opts = {}) {
         return;
     current?.abort.abort();
     const abort = new AbortController();
-    current = { topic, abort, before: save.get().topics[topicId]?.stars || 0, host: opts.host || null };
+    current = { topic, abort, before: save.get().topics[topicId]?.stars || 0, host: opts.host || null, started: Date.now(), answered: 0, done: false };
+    track('lesson_start', { topic: topicId, learn: !!opts.learn, host: !!opts.host, plays: save.get().topics[topicId]?.plays || 0 });
     // Who coaches this lesson: Hudhud, or the villager whose quest it is.
     const host = opts.host;
     document.querySelector('#screen-activity .guide__bird').innerHTML = host
@@ -103,6 +105,8 @@ export function startLesson(topicId, opts = {}) {
         },
         mark(item, ok) {
             const key = itemKey(item);
+            current.answered += 1;
+            track('answer', { topic: topic.id, item: String(key).slice(0, 160), ok });
             save.update(s => {
                 const t = s.topics[topic.id] || (s.topics[topic.id] = { stars: 0, best: 0, plays: 0 });
                 const m = (t.missed || []).filter(k => k !== key);
@@ -210,6 +214,7 @@ export function streak(s = save.get()) {
 export const todayLessons = (s = save.get()) => (s.daily || {})[dayKey()] || 0;
 function record(topic, { correct, total }) {
     const stars = starsFor({ correct, total });
+    const before = save.get().topics[topic.id]?.stars || 0;
     save.update(s => {
         const prev = s.topics[topic.id] || { stars: 0, best: 0, plays: 0 };
         // Every new star is worth 5 pearls for the shop.
@@ -232,6 +237,14 @@ function record(topic, { correct, total }) {
         const r = s.review[topic.id] || { box: 0 };
         const box = stars >= 3 ? Math.min(r.box + 1, REVIEW_DAYS.length - 1) : stars >= 2 ? r.box : 0;
         s.review[topic.id] = { box, due: Date.now() + REVIEW_DAYS[box] * DAY };
+    });
+    const here = current?.topic.id === topic.id && !current.done;
+    if (here)
+        current.done = true;
+    track('lesson_complete', {
+        topic: topic.id, correct, total, pct: total ? Math.round((correct / total) * 100) / 100 : 0,
+        stars, new_stars: Math.max(0, stars - before), pearls: lastPearls, goal: goalHit,
+        secs: here ? Math.round((Date.now() - current.started) / 1000) : null,
     });
 }
 // Record a result played outside the lesson screen (e.g. a farm quest done
@@ -300,6 +313,9 @@ function showResult(topic, result, hero) {
 }
 function quit() {
     sfx.tap();
+    if (current && !current.done) {
+        track('lesson_quit', { topic: current.topic.id, answered: current.answered, secs: Math.round((Date.now() - current.started) / 1000) });
+    }
     current?.abort.abort();
     finish();
 }

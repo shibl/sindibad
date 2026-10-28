@@ -1,8 +1,10 @@
-// Local save data (localStorage). No server, no accounts, nothing leaves the
-// device. Several children can share a device: each has a profile with its
-// own save.
+// Local save data (localStorage). The game always plays from the copy on the
+// device, so it works offline; core/sync.ts backs each child's save up to the
+// server and merges it with other devices' copies when online. Several
+// children can share a device: each has a profile with its own save.
 //
-//   sindbad.profiles        { active: id, list: [{ id, name, created }] }
+//   sindbad.profiles        { active: id, list: [{ id, name, created, uid }] }
+//                           (uid: the profile's id on the server and every device)
 //   sindbad.save.v1:<id>    one child's game:
 //   {
 //     version: 1,
@@ -63,7 +65,7 @@ export interface GameSave {
   [more: string]: unknown;
 }
 
-export interface Profile { id: string; name: string; created: number }
+export interface Profile { id: string; name: string; created: number; uid: string }
 interface Profiles { active: string | null; list: Profile[] }
 
 const LEGACY_KEY = storeKey('save.v1');
@@ -77,6 +79,16 @@ function write(key: string, value: unknown) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* in-memory only */ }
 }
 
+/** A random id (UUID v4). randomUUID needs https or localhost; a phone on the local network gets the fallback. */
+export function uuid(): string {
+  if (typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+  const b = crypto.getRandomValues(new Uint8Array(16));
+  b[6] = (b[6] & 0x0f) | 0x40;
+  b[8] = (b[8] & 0x3f) | 0x80;
+  const h = [...b].map(x => x.toString(16).padStart(2, '0')).join('');
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
+}
+
 function fresh(): GameSave {
   return { version: 1, hero: null, topics: {}, review: {}, muted: false };
 }
@@ -88,9 +100,14 @@ function loadProfiles(): Profiles {
     p = { active: null, list: [] };
     const legacy = read(LEGACY_KEY);
     if (legacy) {
-      p = { active: 'p1', list: [{ id: 'p1', name: '', created: Date.now() }] };
+      p = { active: 'p1', list: [{ id: 'p1', name: '', created: Date.now(), uid: uuid() }] };
       write(keyFor('p1'), legacy);
     }
+    write(PROFILES_KEY, p);
+  }
+  // Profiles from before sync get their uid now.
+  if (p.list.some(x => !x.uid)) {
+    p.list.forEach(x => { x.uid ||= uuid(); });
     write(PROFILES_KEY, p);
   }
   return p;
@@ -110,12 +127,17 @@ let state = loadState();
 function persist() {
   if (!profiles.active) {
     // First save of a brand-new device: create a profile on the fly.
-    profiles = { active: 'p1', list: [{ id: 'p1', name: '', created: Date.now() }] };
+    profiles = { active: 'p1', list: [{ id: 'p1', name: '', created: Date.now(), uid: uuid() }] };
     write(PROFILES_KEY, profiles);
   }
   write(keyFor(profiles.active!), state);
   write(LEGACY_KEY, state);
+  changed.forEach(fn => fn());
 }
+
+// Called after every change to the active child's save (core/sync.ts).
+const changed: (() => void)[] = [];
+export function onSaveChange(fn: () => void) { changed.push(fn); }
 
 export const save = {
   get: () => state,
@@ -139,7 +161,7 @@ export const profileSave = (id: string): GameSave => ({ ...fresh(), ...(read(key
 
 export function createProfile(name: string) {
   const id = `p${Date.now().toString(36)}`;
-  profiles.list.push({ id, name: name.trim().slice(0, 20), created: Date.now() });
+  profiles.list.push({ id, name: name.trim().slice(0, 20), created: Date.now(), uid: uuid() });
   profiles.active = id;
   write(PROFILES_KEY, profiles);
   state = fresh();
@@ -157,6 +179,27 @@ export function switchProfile(id: string) {
 export function renameProfile(id: string, name: string) {
   const p = profiles.list.find(x => x.id === id);
   if (p) { p.name = name.trim().slice(0, 20); write(PROFILES_KEY, profiles); }
+}
+
+// ---------- Sync (core/sync.ts) ----------
+
+/** Replace a child's save with the merged copy (live, if it's the one playing). */
+export function replaceSave(id: string, next: GameSave) {
+  write(keyFor(id), next);
+  if (profiles.active !== id) return;
+  // In place: the game may hold on to the save object.
+  for (const k of Object.keys(state)) delete (state as Record<string, unknown>)[k];
+  Object.assign(state, fresh(), next);
+  write(LEGACY_KEY, state);
+}
+
+/** A child restored from the server onto this device. Returns the local id. */
+export function addRestoredProfile(uid: string, name: string, data: GameSave) {
+  const id = `p${Date.now().toString(36)}`;
+  profiles.list.push({ id, name: name.trim().slice(0, 20), created: Date.now(), uid });
+  write(PROFILES_KEY, profiles);
+  write(keyFor(id), { ...fresh(), ...data });
+  return id;
 }
 
 export function deleteProfile(id: string) {

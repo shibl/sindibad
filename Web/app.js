@@ -31,6 +31,8 @@ import { STAGING, storeKey } from './core/env.js';
 import { stopSpeaking } from './core/voice.js';
 import { initTouch } from './core/touch.js';
 import { initLanguage, playerName } from './core/i18n.js';
+import { initTelemetry, track, sampleFps } from './core/telemetry.js';
+import { initSync } from './core/sync.js';
 import './plugins/index.js';
 // ---------- Backdrop ----------
 // Day, sunset or night, from the device clock (override with ?time=night).
@@ -85,6 +87,7 @@ export function showScreen(name, detail) {
         el.toggleAttribute('data-active', el.id === `screen-${name}`);
     });
     document.body.dataset.screen = name;
+    track('screen', { screen: name });
     if (['island', 'farm', 'tunes', 'lab', 'atlas', 'studio', 'english'].includes(name))
         startAmbience();
     else
@@ -162,6 +165,7 @@ function wireHeroSelect() {
         if (!chosen)
             return;
         save.update(s => { s.hero = chosen.dataset.hero; });
+        track('hero_pick', { hero: chosen.dataset.hero });
         applyStyle();
         if (save.get().storySeen)
             showScreen('chapters');
@@ -219,6 +223,10 @@ document.addEventListener('visibilitychange', () => {
         stopSpeaking(); // sound itself pauses in core/sound.js
 });
 // ---------- Boot ----------
+// First, so errors while starting are reported too. Both do nothing without
+// a server (core/env.ts apiBase), and never hold up play.
+initTelemetry();
+initSync();
 initLanguage();
 applyStyle();
 initTouch();
@@ -256,7 +264,15 @@ function load3D(kind) {
 }
 function enter3D(kind, region) {
     const { region: music, name } = ISLANDS_3D[kind];
-    load3D(kind).then(m => wipe(() => { showScreen(kind); m.enter(region); place = music; playMusic(music); }))
+    const first = !loaded3D[kind], started = performance.now();
+    load3D(kind).then(m => wipe(() => {
+        track('island_enter', { island: kind, load_ms: first ? Math.round(performance.now() - started) : null });
+        showScreen(kind);
+        m.enter(region);
+        place = music;
+        playMusic(music);
+        sampleFps(kind);
+    }))
         .catch(err => console.error(`${name} failed to load`, err));
 }
 initMap(document.getElementById('map'), world, {
@@ -268,6 +284,7 @@ initMap(document.getElementById('map'), world, {
             enter3D(region.kind, region);
             return;
         }
+        track('island_enter', { island: id });
         wipe(() => { showScreen('island'); enterIsland(ISLANDS[id], region); place = id; playMusic(id); });
     },
 });

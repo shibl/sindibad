@@ -5,7 +5,7 @@
 // file run `node tools/update-shell.ts` (tests/check-shell.ts fails if you
 // forget). A new version makes clients download the new files once.
 
-const CACHE_VERSION = '8cc7b460c8';
+const CACHE_VERSION = 'd68bb6fb70';
 // The staging copy (under /staging/, see core/env.js) keeps its own offline
 // copy, so it never clears the live game's, nor the live game its.
 const CACHE_PREFIX = /\/staging\//.test(self.location.pathname) ? 'sindbad-staging-' : 'sindbad-web-';
@@ -22,6 +22,7 @@ const APP_SHELL = [
   'art/art.js',
   'art/sprites.js',
   'core/ambience.js',
+  'core/api.js',
   'core/atlas/atlas.js',
   'core/atlas/games.js',
   'core/atlas/globe.js',
@@ -63,6 +64,7 @@ const APP_SHELL = [
   'core/learn/util.js',
   'core/lesson.js',
   'core/map.js',
+  'core/merge.js',
   'core/music.js',
   'core/overworld.js',
   'core/ranks.js',
@@ -84,6 +86,8 @@ const APP_SHELL = [
   'core/studio/views-2.js',
   'core/studio/views-3.js',
   'core/studio/views.js',
+  'core/sync.js',
+  'core/telemetry.js',
   'core/topics.js',
   'core/touch.js',
   'core/tunes/games.js',
@@ -196,6 +200,11 @@ self.addEventListener('activate', event => {
       ))
       .then(() => self.clients.claim())
   );
+});
+
+// The page asks which version it is running (core/telemetry.js).
+self.addEventListener('message', event => {
+  if (event.data === 'version') event.source?.postMessage({ version: CACHE_VERSION });
 });
 
 self.addEventListener('fetch', event => {

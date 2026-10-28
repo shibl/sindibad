@@ -7,6 +7,7 @@ import { burst } from '../plugins/engines/kit.js';
 import { save } from './save.js';
 import { sfx } from './sound.js';
 import { num } from './format.js';
+import { track } from './telemetry.js';
 import type { GameSave } from './save.js';
 
 /** What a shop item changes: the ship's sail or flag, the hero's outfit, Hudhud's hat. */
@@ -122,6 +123,7 @@ function draw(el: HTMLElement) {
     if (act === 'buy') {
       if (pearls() < item.price) { sfx.bad(); return; }
       save.update(v => { v.pearls! -= item.price; v.owned = [...(v.owned || []), item.id]; v.style = { ...(v.style || {}), [item.slot]: item.value }; });
+      track('shop_buy', { item: item.id, price: item.price, pearls_left: save.get().pearls || 0 });
       trying = null;
       sfx.win();
       applyStyle(); onChange(); draw(el);
