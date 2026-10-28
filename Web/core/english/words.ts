@@ -17,12 +17,9 @@ import { QUESTS, UNITS, BLOCKS, wordsOf } from '../../worlds/grade6/english.js';
 import { picHTML, escAttr } from './views.js';
 import { sayEn, hasVoice } from './games.js';
 import { TEST, shuffle, bump } from '../learn/util.js';
-import type { Quest } from '../../types/content.js';
+import type { Word, EnQuest } from '../../worlds/grade6/english.js';
 
-/** A word of the book: [english, arabic, picture, example sentence]; picture: an emoji, 'art:<name>' or 'p:<who>,<looks…>'. */
-export type Word = [en: string, ar: string, pic: string, ex: string];
-/** An English quest: its unit (1–20), or 'R1'…'R4' for the revision that closes a block. */
-export interface EnQuest extends Quest { unit: number | string }
+export type { Word, EnQuest };
 /** One quest met so far and its words (each word once in the book). */
 export interface WordGroup { q: EnQuest; words: Word[] }
 /** The child's English island save (save.world.english): met and done (quests finished) are the island's; seen (quests opened) and best (the longest run of right cards) the book's. */
@@ -52,7 +49,7 @@ export function metWords(): WordGroup[] {
   }
   return groups;
 }
-const colorOf = (q: EnQuest): string => (typeof q.unit === 'number' ? UNITS[q.unit]?.color : BLOCKS[Number(String(q.unit).slice(1)) as keyof typeof BLOCKS]?.color) || '#2f6fd0';
+const colorOf = (q: EnQuest): string => (typeof q.unit === 'number' ? UNITS[q.unit]?.color : BLOCKS[Number(String(q.unit).slice(1))]?.color) || '#2f6fd0';
 
 export function openWords(host: HTMLElement, { say, sfx, onClose }: WordsOpts): WordBook {
   let mode: Mode = 'list', streak = 0, card: Word | null = null, answered = 0;

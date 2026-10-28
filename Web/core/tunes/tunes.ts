@@ -32,6 +32,7 @@ import { awardSticker } from '../stickers.js';
 import { canSpeak, speak, stopSpeaking } from '../voice.js';
 import { playMusic, stopMusic } from '../music.js';
 import { HELPER, STATIONS, QUESTS, GLASSES, SKY_SONG } from '../../worlds/grade6/tunes.js';
+import type { StationId } from '../../worlds/grade6/tunes.js';
 import type { GameSave } from '../save.js';
 import type { LessonReturn } from '../lesson.js';
 import type { Topic } from '../topics.js';
@@ -66,8 +67,6 @@ interface TunesDebug {
   calls?: number; triangles?: number; T: TunesSave; next: string | null; quest: string | null;
   step: number | null; kind: string | null; places: string[]; selected: string | null;
 }
-/** A place's name on the content's STATIONS. */
-type StationId = keyof typeof STATIONS;
 type Els = ReturnType<typeof grabEls>;
 
 // Where each place stands: [x, z], its turn, and its footprint radius.
@@ -128,7 +127,7 @@ export function enter(region?: { name?: string }): void {
   refresh();
   setTimeout(() => {
     if (!T.met) { T.met = true; persist(); sayHelper(HELPER.hello, 'cheer'); }
-    else sayHelper(`${HELPER.back} ${nextQuest() ? `الدرس التالي: <b>${nextQuest()!.title}</b> في ${STATIONS[nextQuest()!.station as StationId].name}. اتبع السهم الذهبي! ✨` : 'جمعت كل النوتات الذهبية! اضغط 🎵 لتسمع أغنية السماء.'}`);
+    else sayHelper(`${HELPER.back} ${nextQuest() ? `الدرس التالي: <b>${nextQuest()!.title}</b> في ${STATIONS[nextQuest()!.station].name}. اتبع السهم الذهبي! ✨` : 'جمعت كل النوتات الذهبية! اضغط 🎵 لتسمع أغنية السماء.'}`);
   }, TEST ? 0 : 600);
 }
 
@@ -526,7 +525,7 @@ function hint() {
   hopT = 1;
   if (quest) { const st = quest.def.steps[quest.i]; sayHelper(st.hint || st.say || 'اقرأ البطاقة، ثم اضغط «فهمت».', 'think'); return; }
   const q = nextQuest();
-  sayHelper(q ? `الدرس التالي: <b>${q.title}</b> في ${STATIONS[q.station as StationId].name}. اضغط على اسم المكان فوقه السهم الذهبي! ✨` : 'جمعت كل النوتات الذهبية! اضغط 🎵 لتسمع أغنية السماء. 🎶', 'think');
+  sayHelper(q ? `الدرس التالي: <b>${q.title}</b> في ${STATIONS[q.station].name}. اضغط على اسم المكان فوقه السهم الذهبي! ✨` : 'جمعت كل النوتات الذهبية! اضغط 🎵 لتسمع أغنية السماء. 🎶', 'think');
 }
 
 // ---------- Tapping the island ----------
@@ -613,7 +612,7 @@ function openQuests() {
       const s = starsOf(q), done = !!T.done[q.id], now = nextQuest() === q;
       return `<li class="fm-q ${done ? 'is-done' : now ? 'is-now' : ''}">
         <span class="fm-q__icon">${q.icon}</span>
-        <span class="fm-q__text"><b>${q.title}</b><small>${done ? `${'★'.repeat(s)}${'☆'.repeat(3 - s)} • ` : ''}${STATIONS[q.station as StationId].icon} ${STATIONS[q.station as StationId].name}</small></span>
+        <span class="fm-q__text"><b>${q.title}</b><small>${done ? `${'★'.repeat(s)}${'☆'.repeat(3 - s)} • ` : ''}${STATIONS[q.station].icon} ${STATIONS[q.station].name}</small></span>
         <button class="btn ${done ? 'btn--ghost' : 'btn--gold'} fm-q__btn" data-quest="${q.id}">${done ? '↻' : 'ابدأ ▶'}</button>
       </li>`;
     }).join('')}</ul>`, root => {
@@ -754,7 +753,7 @@ async function finishQuest(def: Quest, ok: number, total: number) {
   if (first && def.sticker) awardSticker('music', def.sticker);
   deselect();
   if (first && doneCount() === QUESTS.length) { playSkySong(); toast('🎉 اكتملت أغنية السماء! اضغط 🎵 لتسمعها متى شئت.'); }
-  else if (next) sayHelper(`أحسنت! 🎵 علّقنا نوتة ذهبية على قوس قزح. الدرس التالي: <b>${next.title}</b> في ${STATIONS[next.station as StationId].name}. اتبع السهم الذهبي! ✨`, 'cheer');
+  else if (next) sayHelper(`أحسنت! 🎵 علّقنا نوتة ذهبية على قوس قزح. الدرس التالي: <b>${next.title}</b> في ${STATIONS[next.station].name}. اتبع السهم الذهبي! ✨`, 'cheer');
 }
 
 function fillGlasses() {
@@ -792,7 +791,7 @@ function refresh() {
   GLASSES.forEach(g => M.setWater(w[g.id], T.done.glasses ? g.n / g.d : 0));
   const q = nextQuest();
   const html = q
-    ? `<span>${q.icon}</span><p>الدرس ${num(QUESTS.indexOf(q) + 1)} من ${num(QUESTS.length)}: <b>${q.title}</b> — ${STATIONS[q.station as StationId].name}</p>`
+    ? `<span>${q.icon}</span><p>الدرس ${num(QUESTS.indexOf(q) + 1)} من ${num(QUESTS.length)}: <b>${q.title}</b> — ${STATIONS[q.station].name}</p>`
     : '<span>🌈</span><p><b>أنهيت دروس الجزيرة كلها!</b> العب على الآلات، واسمع أغنية السماء 🎵</p>';
   if (els.goal.dataset.html !== html) { els.goal.innerHTML = html; els.goal.dataset.html = html; }
 }

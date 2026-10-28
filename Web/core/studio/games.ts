@@ -34,6 +34,7 @@
 import { makeRunStep, tracker, finish } from '../learn/steps.js';
 import { later, shuffle, bump } from '../learn/util.js';
 import { VIEWS, PIECES, STAGES } from './views.js';
+import type { ArtView, Piece, FoldStage } from './views.js';
 import { ART, artSVG } from './art.js';
 import { num } from '../format.js';
 import type { StepCtx, Resolve, StepFn, View, RunStep } from '../learn/steps.js';
@@ -117,9 +118,6 @@ export interface CraftStep extends Step {
 }
 
 // What views.js holds (see there).
-interface ArtView { html(step: Step): string }
-interface Piece { label: string; box: number[]; art: string; say?: string }
-interface FoldStage { sheet: string; lines?: { d: string; ok?: boolean }[]; say: string }
 
 const mark = (el: Element | null | undefined, on: boolean) => { if (!el) return; el.toggleAttribute('data-ok', on); el.toggleAttribute('data-step', on); };
 
