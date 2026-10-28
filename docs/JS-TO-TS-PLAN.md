@@ -224,6 +224,9 @@ the owner wants JS near zero in the Grade 6 game.
   `core/overworld.ts` to `art/sprites.ts`), `Picture.html(step: Step)`;
   the walkable islands' data `satisfies IslandDef` (the `as IslandDef` in
   `app.ts` is gone); the assertion in `core/studio/views.ts` is gone.
-* **Next**: `worlds/atlas/countries` (a `Country` type), then the 3D models
+* **`worlds/atlas/countries`**: done 2026-10-28. `Country` is `ShortCard |
+  FullCard` (moved from `core/atlas/globe.ts`), `Continent` comes from
+  `CONTINENTS`; every full card is checked for all its fields.
+* **Next**: the 3D models
   (`core/*/models`, `core/studio/art`) one island at a time, each with a
   look at the island on a phone; then tests, tools and the service workers.

@@ -1082,3 +1082,15 @@ removed from the docs, the about page and the game.
   files, ignoring formatting: the same apart from typed lookups that give
   the same results (explicit `+x` where the atlas already converted
   strings, guards for a missing scale reading or an unknown hero id).
+
+## TypeScript migration — 2026-10-28 (the globe's countries)
+
+- `worlds/atlas/countries.js` → `.ts`. A card is a `ShortCard` (every
+  country on the globe: name, capital, continent, position) or a
+  `FullCard` (flag, official name, currency, language, meanings,
+  resources, fact); `Continent` is a key of `CONTINENTS`. The type moved
+  from `core/atlas/globe.ts`, which now tells the two apart with
+  `if (c.flag)` and lost three casts. The flag helpers are typed (`Pt`,
+  `Flag`). Every full card is now checked for all its fields: all pass.
+- No content changed: the generated `countries.js` is the same code; in
+  `globe.js` one fallback is written without a cast (same colour).
