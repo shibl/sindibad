@@ -12,6 +12,7 @@ Studio/Games/Sindibad-Yasmina/Classes/Grade10/Chemistry/Archive/** linguist-dete
 # Game .js files made from a .ts by tools/build.ts.
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/app.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/ambience.js linguist-generated=true
+Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/api.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/atlas/atlas.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/atlas/games.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/atlas/globe.js linguist-generated=true
@@ -45,6 +46,7 @@ Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/learn/svg.js linguist-gene
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/learn/util.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/lesson.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/map.js linguist-generated=true
+Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/merge.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/music.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/overworld.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/ranks.js linguist-generated=true
@@ -58,6 +60,8 @@ Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/story.js linguist-generate
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/studio/easel.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/studio/games.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/studio/studio.js linguist-generated=true
+Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/sync.js linguist-generated=true
+Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/telemetry.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/topics.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/touch.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/tunes/games.js linguist-generated=true

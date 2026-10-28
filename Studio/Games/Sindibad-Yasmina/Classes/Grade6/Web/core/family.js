@@ -1,7 +1,8 @@
 // Made from family.ts by tools/build.ts. Edit that file, then run: npm run build
 // Family features: choosing who plays (several children per device), adding
-// a child, and the parents' page (لوحة الأهل) behind a simple adult check.
-// Everything stays on the device.
+// a child, bringing a child back from another device with their restore
+// code, and the parents' page (لوحة الأهل) behind a simple adult check.
+// Saves live on the device and are backed up when online (core/sync.ts).
 import { heroSVG, hudhudSVG, HEROES } from '../art/art.js';
 import { save, profileList, activeProfile, profileSave, createProfile, switchProfile, deleteProfile } from './save.js';
 import { allTopics } from './topics.js';
@@ -10,6 +11,8 @@ import { num } from './format.js';
 import { storeKey } from './env.js';
 import { playerName } from './i18n.js';
 import { streak, todayLessons, DAILY_GOAL } from './lesson.js';
+import { track } from './telemetry.js';
+import { syncEnabled, restoreCode, restoreWithCode, lastBackup, profileDeleted } from './sync.js';
 let world, show;
 export function initFamily({ worldDef, showScreen }) {
     world = worldDef;
@@ -36,24 +39,28 @@ export function renderWho(el) {
         </button>`;
     }).join('')}
       <button class="who__card who__card--new" data-who="new"><span class="who__plus">＋</span><b>طفل جديد</b><small>ملف جديد</small></button>
+      ${syncEnabled() ? '<button class="who__card who__card--new" data-who="restore"><span class="who__plus">♻️</span><b>استعادة</b><small>برمز من جهاز آخر</small></button>' : ''}
     </div>
     <form class="who__form" id="who-form" hidden>
       <label for="child-name">ما اسمك؟</label>
       <input id="child-name" maxlength="20" autocomplete="off" placeholder="اكتب اسمك هنا" required>
       <button class="btn btn--gold" type="submit">التالي ←</button>
-    </form>`;
+    </form>
+    ${restoreForm()}`;
     el.onclick = e => {
         const b = e.target.closest('[data-who]');
         if (!b)
             return;
         sfx.tap();
-        if (b.dataset.who === 'new') {
-            const f = el.querySelector('#who-form');
+        if (b.dataset.who === 'new' || b.dataset.who === 'restore') {
+            el.querySelectorAll('.who__form').forEach(f => { f.hidden = true; });
+            const f = el.querySelector(b.dataset.who === 'new' ? '#who-form' : '#restore-form');
             f.hidden = false;
             f.querySelector('input').focus();
             return;
         }
         switchProfile(b.dataset.who);
+        track('profile_switch', { children: list.length });
         bootInto(profileSave(b.dataset.who).hero ? 'chapters' : 'select');
     };
     el.querySelector('#who-form').onsubmit = e => {
@@ -62,7 +69,46 @@ export function renderWho(el) {
         if (!name)
             return;
         createProfile(name);
+        track('profile_create', { children: profileList().length });
         bootInto('select');
+    };
+    wireRestore(el);
+}
+// ---------- Restore with a code ----------
+const RESTORE_FAILED = {
+    offline: 'تحتاج الاستعادة إلى اتصال بالإنترنت.',
+    wrong: 'الرمز غير صحيح. تأكّدوا منه وحاولوا مرة أخرى.',
+    busy: 'محاولات كثيرة. انتظروا ربع ساعة ثم حاولوا.',
+};
+function restoreForm() {
+    if (!syncEnabled())
+        return '';
+    return `<form class="who__form" id="restore-form" hidden>
+      <label for="restore-code">رمز الاستعادة</label>
+      <input id="restore-code" inputmode="numeric" autocomplete="off" dir="ltr" maxlength="20" placeholder="0000-0000-0000" required>
+      <button class="btn btn--gold" type="submit">استعادة ←</button>
+      <p class="who__note" id="restore-msg">تجدونه في لوحة الأهل على الجهاز الآخر.</p>
+    </form>`;
+}
+function wireRestore(el) {
+    const form = el.querySelector('#restore-form');
+    if (!form)
+        return;
+    form.onsubmit = async (e) => {
+        e.preventDefault();
+        const input = form.querySelector('input'), msg = form.querySelector('#restore-msg'), btn = form.querySelector('button');
+        btn.disabled = true;
+        msg.textContent = 'لحظة…';
+        const r = await restoreWithCode(input.value);
+        btn.disabled = false;
+        if (!r.ok) {
+            msg.textContent = RESTORE_FAILED[r.reason];
+            sfx.bad();
+            return;
+        }
+        sfx.good();
+        switchProfile(r.id);
+        bootInto(profileSave(r.id).hero ? 'chapters' : 'select');
     };
 }
 // A brand-new device: Hudhud asks the child's name straight away.
@@ -75,7 +121,16 @@ function renderFirstName(el) {
         <input id="child-name" maxlength="20" autocomplete="off" placeholder="اكتب اسمك هنا" required aria-label="اسمك">
         <button class="btn btn--gold btn--big" type="submit">هذا اسمي ←</button>
       </form>
+      ${syncEnabled() ? '<button class="first-name__restore" type="button" data-restore>لديّ رمز استعادة من جهاز آخر</button>' : ''}
+      ${restoreForm()}
     </div>`;
+    wireRestore(el);
+    el.querySelector('[data-restore]')?.addEventListener('click', () => {
+        sfx.tap();
+        const f = el.querySelector('#restore-form');
+        f.hidden = false;
+        f.querySelector('input').focus();
+    });
     const input = el.querySelector('#child-name');
     setTimeout(() => input.focus(), 300);
     el.querySelector('#who-form').onsubmit = e => {
@@ -89,6 +144,7 @@ function renderFirstName(el) {
         }
         sfx.good();
         createProfile(name);
+        track('profile_create', { children: profileList().length });
         bootInto('select');
     };
 }
@@ -103,7 +159,7 @@ function bootInto(screen) {
 // ---------- Parents' page ----------
 // A small adult check: one multiplication a 6th-grader could do, but written
 // out in words so a quick tap-through is unlikely. (It's a speed bump, not a
-// lock; the data never leaves the device anyway.)
+// lock.)
 const WORDS = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة'];
 export function renderParentGate(el) {
     const a = 3 + Math.floor(Math.random() * 7), b = 3 + Math.floor(Math.random() * 7);
@@ -136,6 +192,7 @@ export function renderParents(el) {
     const prof = activeProfile();
     const hero = s.hero || 'sindbad';
     const child = playerName(prof?.name, HEROES[hero].name);
+    const backedUp = prof ? lastBackup(prof.uid) : null;
     const topics = allTopics().filter(t => world.regions.some(r => r.id === t.region));
     const rec = (id) => (s.topics[id]?.plays ? s.topics[id] : null);
     const mastered = topics.filter(t => (rec(t.id)?.stars || 0) >= 3);
@@ -156,7 +213,7 @@ export function renderParents(el) {
     <div class="parents">
       <header class="parents__head">
         <div class="parents__face">${heroSVG(hero)}</div>
-        <div><h3>لوحة الأهل — ${child}</h3><p>الصف السادس • كل البيانات محفوظة على هذا الجهاز فقط</p></div>
+        <div><h3>لوحة الأهل — ${child}</h3><p>الصف السادس</p></div>
       </header>
       <p class="print-only">تقرير رحلات سندباد وياسمينة — ${new Date().toLocaleDateString('ar-SY-u-nu-latn', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
 
@@ -210,6 +267,14 @@ export function renderParents(el) {
         </ul>
       </section>
 
+      ${syncEnabled() && prof ? `<section class="p-backup">
+        <h4>النسخة الاحتياطية</h4>
+        <p class="p-empty">${backedUp ? `آخر نسخة احتياطية: ${dateAr(backedUp)}` : 'تُحفظ نسخة احتياطية تلقائياً عند الاتصال بالإنترنت.'}</p>
+        <p class="p-empty">بهذا الرمز يعود تقدّم ${child} على أي جهاز آخر: في «مَن سيبحر اليوم؟» اختاروا «استعادة».</p>
+        <div class="p-actions"><button class="btn btn--gold" data-p="code">🔑 رمز الاستعادة</button></div>
+        <p class="p-code" id="p-code" hidden></p>
+      </section>` : ''}
+
       <section class="p-danger">
         <h4>إدارة الملفات</h4>
         <div class="p-actions">
@@ -231,12 +296,27 @@ export function renderParents(el) {
             el.querySelectorAll('details').forEach(d => { d.open = true; });
             window.print();
         }
+        if (b.dataset.p === 'code' && prof) {
+            const out = el.querySelector('#p-code');
+            out.hidden = false;
+            out.textContent = 'لحظة…';
+            b.disabled = true;
+            restoreCode(prof).then(code => {
+                b.disabled = false;
+                out.innerHTML = code
+                    ? `<b dir="ltr">${code}</b><small>اكتبوا الرمز واحفظوه في مكان آمن.</small>`
+                    : 'يحتاج الرمز إلى اتصال بالإنترنت. حاولوا لاحقاً.';
+            });
+        }
         if (b.dataset.p === 'delete') {
             if (!b.dataset.armed) {
                 b.dataset.armed = '1';
                 b.innerHTML = `⚠️ اضغط مرة أخرى لحذف ${child} نهائياً`;
                 return;
             }
+            track('profile_delete', { children: profileList().length });
+            if (prof)
+                profileDeleted(prof.uid);
             deleteProfile(activeProfile()?.id);
             location.reload();
         }

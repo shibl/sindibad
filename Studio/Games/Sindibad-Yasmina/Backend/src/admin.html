@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sindibad Stats</title>
+<style>
+  :root { --bg: #f6f7f9; --card: #fff; --ink: #16202a; --muted: #5d6b78; --line: #e2e6ea; --bar: #2f7d95; --warn: #b4442c; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0f1418; --card: #171e24; --ink: #e6edf2; --muted: #93a1ad; --line: #26313a; --bar: #4fa8c2; --warn: #e07a62; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 system-ui, sans-serif; }
+  header { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--line); background: var(--card); position: sticky; top: 0; }
+  header h1 { font-size: 16px; margin: 0 auto 0 0; }
+  input, select, button { font: inherit; padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); }
+  button { cursor: pointer; }
+  main { padding: 16px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px; min-width: 0; }
+  section.wide { grid-column: 1 / -1; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 0 0 10px; }
+  .tiles { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+  .tile b { display: block; font-size: 22px; font-variant-numeric: tabular-nums; }
+  .tile small { color: var(--muted); }
+  .scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  th, td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { color: var(--muted); font-weight: 600; }
+  td.num, th.num { text-align: right; }
+  td.wrap { white-space: normal; word-break: break-word; }
+  .bar { display: inline-block; height: 8px; background: var(--bar); border-radius: 4px; vertical-align: middle; }
+  .err { color: var(--warn); padding: 16px; }
+  .muted { color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Sindibad &amp; Yasmina — stats</h1>
+  <select id="days" aria-label="Window"><option value="1">1 day</option><option value="7">7 days</option><option value="30" selected>30 days</option><option value="90">90 days</option></select>
+  <input id="token" type="password" placeholder="Admin token" aria-label="Admin token" size="16">
+  <button id="load">Load</button>
+</header>
+<div id="msg" class="muted" style="padding:16px">Enter the admin token (ADMIN_TOKEN) and press Load.</div>
+<main id="out"></main>
+<script>
+const $ = id => document.getElementById(id);
+const esc = v => String(v ?? '—').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+const n = v => v == null ? '—' : Number(v).toLocaleString('en');
+const pct = (a, b) => b ? `${(100 * a / b).toFixed(1)}%` : '—';
+const mins = s => s == null ? '—' : `${(s / 60).toFixed(1)} min`;
+try { $('token').value = localStorage.getItem('sindibad.admin') || ''; } catch {}
+
+const tiles = list => `<div class="tiles">${list.map(([v, label]) => `<div class="tile"><b>${v}</b><small>${esc(label)}</small></div>`).join('')}</div>`;
+function table(rows, cols) {
+  if (!rows?.length) return '<p class="muted">No data yet.</p>';
+  const max = Object.fromEntries(cols.filter(c => c.bar).map(c => [c.key, Math.max(1, ...rows.map(r => Number(r[c.key]) || 0))]));
+  return `<div class="scroll"><table><thead><tr>${cols.map(c => `<th class="${c.num ? 'num' : ''}">${esc(c.label)}</th>`).join('')}</tr></thead><tbody>${
+    rows.map(r => `<tr>${cols.map(c => {
+      const v = c.fmt ? c.fmt(r[c.key], r) : (c.num ? n(r[c.key]) : esc(r[c.key]));
+      const bar = c.bar ? ` <span class="bar" style="width:${Math.round(60 * (Number(r[c.key]) || 0) / max[c.key])}px"></span>` : '';
+      return `<td class="${c.num ? 'num' : ''} ${c.wrap ? 'wrap' : ''}">${v}${bar}</td>`;
+    }).join('')}</tr>`).join('')}</tbody></table></div>`;
+}
+const counts = (rows, label) => table(rows, [{ key: 'k', label }, { key: 'n', label: 'count', num: true, bar: true }]);
+const card = (title, body, wide) => `<section class="${wide ? 'wide' : ''}"><h2>${esc(title)}</h2>${body}</section>`;
+
+async function load() {
+  const token = $('token').value.trim();
+  try { localStorage.setItem('sindibad.admin', token); } catch {}
+  $('msg').textContent = 'Loading…';
+  try {
+    const res = await fetch(`/v1/stats?days=${$('days').value}`, { headers: { authorization: `Bearer ${token}` } });
+    if (!res.ok) throw new Error(res.status === 401 ? 'Wrong admin token.' : res.status === 404 ? 'Stats are off: set ADMIN_TOKEN on the server.' : `Error ${res.status}`);
+    render(await res.json());
+    $('msg').textContent = `Updated ${new Date().toLocaleTimeString()}.`;
+  } catch (e) { $('msg').innerHTML = `<span class="err">${esc(e.message)}</span>`; }
+}
+
+function render(s) {
+  const t = s.totals, e = s.engagement, c = s.churn, r = s.retention, live = s.live || {};
+  const ret = d => r[d] ? `${pct(r[d].returned, r[d].eligible)} <small class="muted">(${n(r[d].returned)}/${n(r[d].eligible)})</small>` : '—';
+  $('out').innerHTML = [
+    card('Now', tiles([
+      [n(live.online), 'devices playing now'], [n(live.devices_today), 'devices today'], [n(live.profiles_today), 'children today'],
+      [n(t.devices), 'devices, all time'], [n(t.active_devices), `devices, last ${s.days} days`], [n(t.profiles), 'children backed up'],
+      [n(t.restores), 'restores with a code'], [n(t.events), 'events stored'],
+    ]), true),
+    card(`Engagement (${s.days} days)`, tiles([
+      [n(e.sessions), 'sessions'], [mins(e.avg_session_secs), 'average session'], [mins(e.median_session_secs), 'median session'],
+      [n(e.lessons_started), 'lessons started'], [pct(e.lessons_completed, e.lessons_started), 'lessons finished'], [pct(e.lessons_quit, e.lessons_started), 'lessons quit'],
+      [n(e.answers), 'answers'], [e.correct_rate == null ? '—' : `${(100 * e.correct_rate).toFixed(1)}%`, 'answered right'],
+      [n(e.profiles_created), 'children added'], [n(e.profiles_restored), 'restored'], [n(e.profile_switches), 'player switches'],
+    ])),
+    card('Retention and churn', tiles([
+      [ret('d1'), 'back on day 1'], [ret('d7'), 'back on day 7'], [ret('d30'), 'back on day 30'],
+      [n(c.active_14d), 'children active, 14 days'], [n(c.new_14d), 'new, 14 days'],
+      [pct(c.churned, c.base), 'churn (stopped in the last 14 days)'], [n(c.dormant), 'dormant (44+ days)'],
+    ])),
+    card('Daily', table(s.daily, [
+      { key: 'day', label: 'day' }, { key: 'devices', label: 'devices', num: true, bar: true }, { key: 'profiles', label: 'children', num: true },
+      { key: 'new_devices', label: 'new', num: true }, { key: 'sessions', label: 'sessions', num: true }, { key: 'lessons', label: 'lessons', num: true },
+      { key: 'answers', label: 'answers', num: true }, { key: 'errors', label: 'errors', num: true },
+    ]), true),
+    card('Errors', table(s.errors, [
+      { key: 'message', label: 'message', wrap: true }, { key: 'source', label: 'where', wrap: true }, { key: 'n', label: 'count', num: true },
+      { key: 'devices', label: 'devices', num: true }, { key: 'version', label: 'build' }, { key: 'last', label: 'last', fmt: v => esc(v && new Date(v).toLocaleString()) },
+    ]), true),
+    card('Lessons', table(s.topics, [
+      { key: 'topic', label: 'topic' }, { key: 'starts', label: 'started', num: true, bar: true }, { key: 'completes', label: 'finished', num: true },
+      { key: 'quits', label: 'quit', num: true }, { key: 'avg_pct', label: 'avg score', num: true, fmt: v => v == null ? '—' : `${Math.round(v * 100)}%` },
+      { key: 'avg_secs', label: 'avg time', num: true, fmt: mins },
+    ]), true),
+    card('Hardest questions', table(s.questions, [
+      { key: 'topic', label: 'topic' }, { key: 'item', label: 'question', wrap: true }, { key: 'n', label: 'answers', num: true },
+      { key: 'correct', label: 'right', num: true, fmt: v => `${Math.round(v * 100)}%` },
+    ]), true),
+    ...Object.entries(s.devices || {}).sort().map(([field, rows]) => card(`Devices: ${field}`, counts(rows, field))),
+    card('Screens', counts(s.usage.screens, 'screen')),
+    card('Taps', counts(s.usage.taps, 'button')),
+    card('Islands', table(s.usage.islands, [{ key: 'k', label: 'island' }, { key: 'n', label: 'visits', num: true, bar: true }, { key: 'load_ms', label: 'first load ms', num: true }])),
+    card('Frame rate', table(s.usage.fps, [{ key: 'k', label: 'island' }, { key: 'n', label: 'samples', num: true }, { key: 'fps', label: 'avg fps', num: true }])),
+    card('Network at session start', counts(s.usage.network, 'connection')),
+    card('All events', counts(s.usage.events, 'event')),
+  ].join('');
+}
+$('load').onclick = load;
+$('days').onchange = load;
+$('token').onkeydown = e => { if (e.key === 'Enter') load(); };
+if ($('token').value) load();
+</script>
+</body>
+</html>

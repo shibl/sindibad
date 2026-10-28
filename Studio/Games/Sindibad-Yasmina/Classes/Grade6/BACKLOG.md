@@ -260,22 +260,19 @@ lesson content also needs a teacher.
     to "GitHub Actions" now also needs `site.yml` updated). Still for the
     owner: protect `main` (passing `test` check) and lock the website
     branch `claude/sharp-hawking-0380ax` so only GitHub Actions can push
-    to it. *On hold (2026-10-12, no outside feedback for now): the Claude
-    GitHub App, the `ANTHROPIC_API_KEY` secret, the `agent-ready` and
-    `lesson` labels, and a teacher in `CODEOWNERS`.*
-24. [on hold — no outside feedback for now, 2026-10-12] Step 2 — in-game feedback and error reports: a Hudhud button on
-    each question with fixed choices (السؤال خطأ / لم أفهم / صعب جداً /
-    شيء لا يعمل); errors caught automatically with the game version;
-    reports wait on the device and are sent when online; a small server
-    (e.g. a Cloudflare Worker) blocks spam and keeps one GitHub issue per
-    question with a counter. First update the "we collect nothing"
-    promises (SPEC "Improving from feedback").
-25. [on hold] Step 3 — anonymous learning stats and a weekly review agent:
+    to it. Later: the Claude GitHub App, the `ANTHROPIC_API_KEY` secret,
+    the `agent-ready` and `lesson` labels, and a teacher in `CODEOWNERS`.
+24. [ ] Step 2 — in-game feedback: a Hudhud button on each question with
+    fixed choices (السؤال خطأ / لم أفهم / صعب جداً / شيء لا يعمل), sent as
+    a telemetry event (`Web/core/telemetry.ts`). Error reports with the game
+    version are done (2026-10-27, SPEC "Server, sync and telemetry").
+25. [ ] Step 3 — learning stats and a weekly review agent (the stats are
+    collected since 2026-10-27):
     per-question counts (tries, chosen answer, mini-lesson opened, where
     kids quit, recall at review time); a plain weekly script sums them; a
     read-only review agent files issues with evidence, plus a weekly list
     of rejected feedback with reasons for the owner to skim.
-26. [on hold] Step 4 — measure and earn autonomy: compare each changed question
+26. [ ] Step 4 — measure and earn autonomy: compare each changed question
     before/after by game version; judge by recall at review time, not
     first-try score; after 10–20 good agent PRs, let crash and layout
     fixes go live without waiting for a person.
@@ -345,12 +342,9 @@ lesson. No console errors.
   "🗺️ كل الرحلات" on the sea map leads back up.
 31. [ ] Voyage 5 or 7: the next world, reusing the engines (was item 13).
 
-**Owner decision (2026-10-12): no outside feedback for now.** Feedback
-comes only from the developers, in Claude Code sessions. Removed the
-public issue forms (`.github/ISSUE_TEMPLATE/`) and the GitHub agent
-workflow (`.github/workflows/claude.yml`); both are in git history for
-later. CLAUDE.md, WORKFLOW.md, SPEC and the brief's status list updated;
-items 24–26 and 29 are on hold.
+**Removed the public issue forms** (`.github/ISSUE_TEMPLATE/`) and the
+GitHub agent workflow (`.github/workflows/claude.yml`); both are in git
+history for later. Item 29 waits for teacher review.
 
 **Staging and test-gated publishing (owner's request, same day).** Before,
 the live site rebuilt whenever someone pushed to its branch, without
@@ -1004,3 +998,46 @@ Next:
 Next:
 - Continue the remaining math plugins in small batches.
 - Migrate Arabic plugins and world content before their review consumers.
+
+## Server, sync and telemetry — 2026-10-27
+
+**Owner decision (2026-10-27):** the game gets a server. The internet is
+often unreliable or missing, so children keep playing offline and the game
+syncs when it is connected. Telemetry is always on, with no opt-in: errors,
+devices, sessions, churn, logins (restores), taps and engagement. The old
+"nothing leaves the device" promises and the 2026-10-12 hold on stats are
+removed from the docs, the about page and the game.
+
+**Built:**
+- `Studio/Games/Sindibad-Yasmina/Backend/`: Rust 1.99.1 (axum, sqlx),
+  PostgreSQL 18.6, Valkey 9.1.3, Docker Compose. Devices register with an
+  id they made up offline and get a token; events are stored once even when
+  sent twice; each child's save is stored with a version (409 + the newer
+  copy when a device wrote from an older one), plus the last copy of each
+  day; 12-digit restore codes; rate limits and live counters in Valkey;
+  `/v1/stats` and the `/admin` stats page. Integration tests against the
+  real database (`docker compose run --rm dev cargo test`).
+- `Web/core/api.ts` (device and token), `Web/core/telemetry.ts` (the event
+  queue, sessions, screens, taps, errors, device details, frame rate),
+  `Web/core/sync.ts` and `Web/core/merge.ts` (per-child sync, the
+  three-way merge). Events from the lesson runner, islands, family screens,
+  shop and settings. The parents' page shows the last backup and the
+  child's restore code; "who is playing?" and the first-name screen can
+  restore a child with a code.
+- `Web/core/env.ts` `apiBase()`: the server on port 8080 of the same host
+  when the game is opened from this computer or the local network;
+  `?api=<url>` to choose another; none for live and staging until the
+  server is deployed (`API_LIVE`, `API_STAGING`).
+- Tests: `Web/tests/merge.mjs` (the merge rules) and `Web/tests/sync.mjs`
+  (the game in a browser against a fake server: offline queue, sending
+  when back online, a conflict merged, a restore on a second device).
+
+**Next items:**
+58. [ ] Deploy the server (a host reachable from Syrian networks, managed
+    PostgreSQL or a volume with backups, TLS) and set `API_LIVE` /
+    `API_STAGING` in `Web/core/env.ts`.
+59. [ ] Android: the same sync and telemetry in Kotlin (`Web/core/merge.ts`
+    rules, `tests/merge.mjs` cases), with the INTERNET permission.
+60. [ ] Partition or roll up `events` by month once it grows; keep the raw
+    rows for a fixed time.
+61. [ ] A weekly report from `/v1/stats` for the review agent (item 25).

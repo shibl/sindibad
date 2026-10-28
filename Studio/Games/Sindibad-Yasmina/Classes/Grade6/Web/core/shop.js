@@ -7,6 +7,7 @@ import { burst } from '../plugins/engines/kit.js';
 import { save } from './save.js';
 import { sfx } from './sound.js';
 import { num } from './format.js';
+import { track } from './telemetry.js';
 export const CATALOG = [
     { id: 'sail-rose', slot: 'sail', value: '#f6c3d3', name: 'شراع وردي', price: 15, swatch: '#f6c3d3' },
     { id: 'sail-sky', slot: 'sail', value: '#c4e6f7', name: 'شراع سماوي', price: 15, swatch: '#c4e6f7' },
@@ -129,6 +130,7 @@ function draw(el) {
                 return;
             }
             save.update(v => { v.pearls -= item.price; v.owned = [...(v.owned || []), item.id]; v.style = { ...(v.style || {}), [item.slot]: item.value }; });
+            track('shop_buy', { item: item.id, price: item.price, pearls_left: save.get().pearls || 0 });
             trying = null;
             sfx.win();
             applyStyle();

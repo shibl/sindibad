@@ -1178,6 +1178,13 @@ body[data-screen="island"] #scene, body[data-screen="journey"] #scene { visibili
 .who__form { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
 .who__form label { font-weight: 800; font-size: 18px; }
 .who__form input, .gate input { font: inherit; font-size: 22px; padding: 8px 14px; border: 3px solid var(--ink); border-radius: 14px; background: #fff; color: var(--ink); }
+/* Restoring a child with their code (core/family.ts). */
+.who__note { margin: 0; font-size: 14px; color: var(--ink-soft); }
+.first-name .who__form { width: 100%; }
+.first-name__restore { font: inherit; font-size: 15px; font-weight: 700; color: var(--ink-soft); background: none; border: 0; padding: 4px; text-decoration: underline; cursor: pointer; }
+.p-code { margin: 10px 0 0; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.p-code b { font-size: 28px; letter-spacing: .08em; font-variant-numeric: tabular-nums; }
+.p-code small { color: #5d6b75; }
 
 .screen--parents { background: #eef3f6; }
 .screen--parents .topbar h2 { color: var(--ink); -webkit-text-stroke: 0; }

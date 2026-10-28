@@ -158,7 +158,8 @@ a number line, steering the ship by an angle, paying at the market,
 filling a waterwheel's buckets, and building sentences from word blocks.
 Stars lift the fog, islands award badges, finished topics come back for
 spaced review, and the treasure island ends with a certificate. Works
-fully offline after the first visit; progress stays on the device.
+fully offline after the first visit; progress is saved on the device and
+synced with the server when connected.
 
 ## Running locally
 
@@ -168,6 +169,10 @@ No build step. Serve this Grade 6 directory over http and open the web app:
 python3 -m http.server 8000
 # then open http://localhost:8000/Web/
 ```
+
+With the server running (`../../Backend/`, `docker compose up -d --build`),
+the game on localhost or the local network sends its telemetry and backups
+to it on port 8080; stats at <http://localhost:8080/admin>.
 
 (Opening `Web/index.html` directly from disk won't work: the app uses ES
 modules and a service worker, which both need http(s) or localhost.)
@@ -239,7 +244,10 @@ Inside `Web/`:
 - `core/` — the engine: map, lesson runner, topic registry, save data,
   sounds, journey page, finale. Never changes when content is added.
   `save.ts` keeps each child's game in the browser; its `GameSave` type
-  lists everything a save holds.
+  lists everything a save holds. `sync.ts` and `merge.ts` back each child
+  up to the server and merge copies from two devices; `telemetry.ts`
+  queues the game's events and sends them when online; `api.ts` registers
+  the device. All of them do nothing without a server (`env.ts`).
   `topics.ts` is the contract with the topic plugins (`TopicDef`, the
   `LessonCtx` a topic gets, its `Result`); `lesson.ts` runs a topic on the
   lesson screen.
@@ -329,7 +337,7 @@ Code sessions; there are no public feedback forms. The agent's rules are in
 - Bundled from others: three.js r170 (MIT), Baloo Bhaijaan 2 (SIL OFL), the
   world map of Natural Earth 1:110m (public domain, via world-atlas 2.0.2,
   ISC).
-- No ads, no personal data, no monetization — ever.
+- No ads, no monetization — ever.
 
 ## Status
 

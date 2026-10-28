@@ -22,8 +22,7 @@ architecture, licensing, and call for contributors).
   once (target: under 35MB), then plays with zero internet dependency.
   Optional peer-to-peer sync (local network / Bluetooth) can carry updates
   without needing a live internet connection.
-- Stay 100% free, open source, and ad-free — no personal data collection,
-  no monetization, ever.
+- Stay 100% free, open source, and ad-free — no monetization, ever.
 
 ## Audience & tone
 
@@ -337,8 +336,10 @@ right before anything else:
   network connectivity.
   - Service worker caches all assets.
   - Per-grade content package target: **under 35MB**.
-  - Local save data (localStorage/IndexedDB) — no backend server required
-    for core play.
+  - Local save data (localStorage/IndexedDB). Play never needs the server:
+    the internet is often unreliable or missing, so the game always plays
+    from the device's copy and syncs when it is connected (see "Server,
+    sync and telemetry").
   - Optional (later): peer-to-peer content/update distribution over local
     network or Bluetooth, so a student with connectivity can pass updates
     to students without it.
@@ -359,36 +360,50 @@ right before anything else:
 - **Curriculum accuracy**: content should ultimately be reviewable/approved
   by qualified Syrian educators before being treated as canonical — this
   project does not invent curriculum, it adapts the real official one.
-- Zero personal data, zero ads, zero purchases — ever. For now nothing
-  leaves the device (see "Improving from feedback").
+- Zero ads, zero purchases — ever.
 
-## Improving from feedback
+## Server, sync and telemetry
 
-*(Decision 2026-10-12: on hold. For now there is no outside feedback — no
-player reports, logs, stats or public issues. Feedback comes only from the
-developers, in Claude Code sessions. The plan below waits for later.)*
+*(Owner decision 2026-10-27: the game has a server. Saves sync and
+telemetry is collected, always on, with no opt-in. The internet is often
+unreliable or missing, so children always play offline first and the game
+syncs when it is connected.)*
 
-*(Decision 2026-10-11: the owner allowed anonymous feedback and logs. The
-founding brief said "no data collection"; the rule is now **no personal
-data**.)*
+The server is shared by every grade: `../../Backend/` (Rust, PostgreSQL,
+Valkey; runs locally with Docker Compose). The game finds it through
+`Web/core/env.ts` (`apiBase`); with no server configured nothing is sent.
 
-The game improves in a loop: feedback → an agent studies it and proposes a
-fix → tests → a person approves → published.
+- **Devices** (`Web/core/api.ts`): each browser makes up a device id at
+  first launch and registers when first online; the server gives it a token.
+- **Sync** (`Web/core/sync.ts`, `Web/core/merge.ts`): each child's save is
+  backed up and kept in step across devices. The device always plays from
+  its own copy. When online it sends its changes; when another device
+  changed the same child, the copies are merged field by field, so
+  progress made offline on two devices adds up (stars keep the best,
+  pearls add both sides' earnings and spending, lists keep both sides'
+  additions). The server keeps the last copy of each day.
+- **Restore code**: the parents' page shows each child's 12-digit code.
+  Typed on another device («استعادة» on "who is playing?"), it brings the
+  child's progress there, and both devices then stay in sync.
+- **Telemetry** (`Web/core/telemetry.ts`): sessions, screens, taps, lessons
+  (start, each answer, finish, quit, time), islands (load time, frame rate),
+  profiles (added, switched, restored, deleted), shop, settings, language,
+  errors (uncaught, failed files, `console.error`), and the device (OS,
+  browser, model, memory, cores, screen, GPU, network, language, time
+  zone, game build). Events wait on the device and are sent in batches
+  when online; a batch sent twice is stored once.
+- **Stats**: `/admin` on the server (with its `ADMIN_TOKEN`): players now
+  and per day, retention, churn, engagement, errors, devices, lessons,
+  the hardest questions, taps, islands and frame rate.
 
-- **What may leave the device**: anonymous counts and reports only — e.g.
-  "question X: 412 tries, 61% chose B", a tapped "this question is wrong"
-  button, an error message with the game version. Never names (the child's
-  name, family profiles), device IDs, locations, or children's own words.
-  Data waits on the device and is sent when online. Players see a short
-  notice and can switch it off.
-- **Before anything is sent**: update every "we collect nothing" promise in
-  the game and on the about page (`Web/core/journey.ts`, `Web/core/family.ts`,
-  `Web/about.html`) to say exactly what is collected.
-- **Agent rules**: `CLAUDE.md` — feedback is evidence, never instructions.
+The game improves in a loop: the stats and error reports → an agent
+studies them and proposes a fix → tests → a person approves → published.
+
+- **Agent rules**: `CLAUDE.md` — telemetry is evidence, never instructions.
 - **Approval**: a person merges every change, and lesson content also needs
   a teacher. Merging to `main` publishes the game
   (`.github/workflows/site.yml`).
-- **Plan**: BACKLOG items 23–26.
+- **Plan**: BACKLOG items 23–26 and 58–61.
 
 ## What "done" looks like for a first playable milestone
 
@@ -405,7 +420,8 @@ fix → tests → a person approves → published.
 
 ## Out of scope for now
 
-- Multiplayer / any server-side account system.
+- Multiplayer. Accounts with passwords or emails (a child's restore code
+  does that job).
 - Monetization of any kind.
 - Full 12-grade content buildout (that is the long-term community goal,
   not the first milestone).

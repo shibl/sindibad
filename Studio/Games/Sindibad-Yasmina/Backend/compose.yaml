@@ -1,0 +1,66 @@
+# Local server: docker compose up -d --build
+#   API and stats page   http://localhost:8080   (/admin, token: ADMIN_TOKEN)
+#   PostgreSQL           localhost:5432  (sindibad / sindibad)
+#   Valkey               localhost:6379
+# Tests: docker compose run --rm dev cargo test
+name: sindibad
+
+services:
+  postgres:
+    image: postgres:18.6-alpine
+    environment:
+      POSTGRES_USER: sindibad
+      POSTGRES_PASSWORD: sindibad
+      POSTGRES_DB: sindibad
+    ports: ["127.0.0.1:5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sindibad -d sindibad"]
+      interval: 2s
+      retries: 30
+
+  valkey:
+    image: valkey/valkey:9.1.3-alpine
+    ports: ["127.0.0.1:6379:6379"]
+    volumes: [valkeydata:/data]
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 2s
+      retries: 30
+
+  api:
+    build: .
+    environment:
+      DATABASE_URL: postgres://sindibad:sindibad@postgres:5432/sindibad
+      VALKEY_URL: redis://valkey:6379
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-dev-admin}
+      RUST_LOG: ${RUST_LOG:-info,tower_http=info}
+    # On every interface, so a phone on the same Wi-Fi can reach it.
+    ports: ["8080:8080"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      valkey: { condition: service_healthy }
+    restart: unless-stopped
+
+  # Build, check and test with the pinned toolchain, without Rust on the host.
+  dev:
+    profiles: [dev]
+    image: rust:1.99.1-slim-trixie
+    working_dir: /app
+    volumes:
+      - .:/app
+      - cargo-registry:/usr/local/cargo/registry
+      - cargo-target:/app/target
+    environment:
+      DATABASE_URL: postgres://sindibad:sindibad@postgres:5432/sindibad
+      VALKEY_URL: redis://valkey:6379
+    depends_on:
+      postgres: { condition: service_healthy }
+      valkey: { condition: service_healthy }
+    command: ["cargo", "test"]
+
+volumes:
+  pgdata:
+  valkeydata:
+  cargo-registry:
+  cargo-target:
