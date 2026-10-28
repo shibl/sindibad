@@ -169,7 +169,7 @@ export function openGlobe(host, { onClose, say, sfx, visited = new Set(), onVisi
         g2.setLineDash([]);
         for (const [id, rings] of Object.entries(RINGS)) {
             const c = ALL[id];
-            const fill = id === sel ? '#ff7a3c' : id === mark ? '#ffe36b' : c?.arab ? ARAB_FILL : PAL[c?.continent] || '#e9e4d8';
+            const fill = id === sel ? '#ff7a3c' : id === mark ? '#ffe36b' : c?.arab ? ARAB_FILL : (c && PAL[c.continent]) || '#e9e4d8';
             g2.fillStyle = fill;
             g2.strokeStyle = id === sel ? '#7a2a0a' : 'rgba(80,70,50,.55)';
             g2.lineWidth = id === sel ? 3 : 1.1;

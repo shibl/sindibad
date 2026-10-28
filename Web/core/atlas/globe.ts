@@ -13,15 +13,9 @@
 import * as THREE from '../../vendor/three/three.module.min.js';
 import { SHAPES } from '../../worlds/atlas/shapes.js';
 import { COUNTRIES, SMALL, CONTINENTS } from '../../worlds/atlas/countries.js';
+import type { Country } from '../../worlds/atlas/countries.js';
 import { num } from '../format.js';
 
-interface Country {
-  ar: string; official?: string; capital?: string | null; continent?: string; arab?: boolean;
-  territory?: boolean; note?: string;
-  currency?: { ar: string; code: string }; language?: string;
-  flag?: { svg: string }; nameMeaning?: string; flagMeaning?: string; resources?: string[]; fact?: string;
-  lat: number; lon: number;
-}
 interface GlobeOptions {
   onClose?: () => void;
   say: (html: string, mood?: string) => void;
@@ -136,7 +130,7 @@ export function openGlobe(host: HTMLElement, { onClose, say, sfx, visited = new 
     g2.beginPath(); g2.moveTo(0, Y(0)); g2.lineTo(W, Y(0)); g2.stroke(); g2.setLineDash([]);
     for (const [id, rings] of Object.entries(RINGS)) {
       const c = ALL[id];
-      const fill = id === sel ? '#ff7a3c' : id === mark ? '#ffe36b' : c?.arab ? ARAB_FILL : PAL[c?.continent as string] || '#e9e4d8';
+      const fill = id === sel ? '#ff7a3c' : id === mark ? '#ffe36b' : c?.arab ? ARAB_FILL : (c && PAL[c.continent]) || '#e9e4d8';
       g2.fillStyle = fill;
       g2.strokeStyle = id === sel ? '#7a2a0a' : 'rgba(80,70,50,.55)';
       g2.lineWidth = id === sel ? 3 : 1.1;
@@ -217,12 +211,12 @@ export function openGlobe(host: HTMLElement, { onClose, say, sfx, visited = new 
   function cardHTML(id: string) {
     const c = ALL[id];
     if (!c) return '';
-    if (!c.flag) return `<div class="gl-card__head"><b>${c.ar}</b><small>${CONTINENTS[c.continent as keyof typeof CONTINENTS] || ''}${c.capital ? ` • العاصمة: ${c.capital}` : ''}</small></div><button class="gl-card__x" aria-label="إغلاق">✕</button>`;
+    if (!c.flag) return `<div class="gl-card__head"><b>${c.ar}</b><small>${CONTINENTS[c.continent] || ''}${c.capital ? ` • العاصمة: ${c.capital}` : ''}</small></div><button class="gl-card__x" aria-label="إغلاق">✕</button>`;
     const row = (icon: string, k: string, v: string | null | undefined) => (v ? `<div class="gl-row"><span>${icon}</span><div><small>${k}</small><p>${v}</p></div></div>` : '');
     return `<button class="gl-card__x" aria-label="إغلاق">✕</button>
       <div class="gl-card__head"><span class="gl-flag">${c.flag.svg}</span><div><b>${c.ar}</b><small>${c.official || ''}</small></div></div>
       <div class="gl-facts">
-        ${row('🏛️', 'العاصمة', c.capital)}${row('🌍', 'القارّة', CONTINENTS[c.continent as keyof typeof CONTINENTS])}
+        ${row('🏛️', 'العاصمة', c.capital)}${row('🌍', 'القارّة', CONTINENTS[c.continent])}
         ${row('💰', 'العملة', c.currency ? `${c.currency.ar} <span dir="ltr" class="gl-code">${c.currency.code}</span>` : '')}${row('🗣️', 'اللغة', c.language)}
         ${row('📛', 'معنى الاسم', c.nameMeaning)}${row('🚩', 'معنى العلم', c.flagMeaning)}
         ${row('⛏️', 'من مواردها', (c.resources || []).join('، '))}${row('💡', 'هل تعلم؟', c.fact)}
