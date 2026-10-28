@@ -1,7 +1,7 @@
+// Made from pools.ts by tools/build.ts. Edit that file, then run: npm run build
 // Question pools per subject, built from the topics' own content and turned
 // into multiple choice. Used by the treasure review and by villagers' riddles
 // on the islands (worlds/grade6/*.js). CC-BY-SA.
-
 import { pick } from '../engines/kit.js';
 import { ITEMS as FAEL } from '../arabic/fael-mafool.js';
 import { ITEMS as MUBTADA } from '../arabic/mubtada-khabar.js';
@@ -15,19 +15,19 @@ import { QUESTIONS as RATIO } from '../math/ratio.js';
 import { QUESTS as SOCIAL, reviewOf as socialReview } from '../../worlds/grade6/atlas.js';
 import { QUESTS as ART, reviewOf as artReview } from '../../worlds/grade6/studio.js';
 import { QUESTS as ENGLISH, reviewOf as englishReview } from '../../worlds/grade6/english.js';
-
-const fromTap = it => ({
-  curriculum: 'arabic',
-  q: `في جملة «${it.words.join(' ')}»، ما ${it.ask}؟`,
-  options: [it.words[it.answer], ...it.words.filter((_, i) => i !== it.answer)], answer: 0,
-  hint: it.hint, explain: it.explain,
+const fromTap = (it) => ({
+    curriculum: 'arabic',
+    q: `في جملة «${it.words.join(' ')}»، ما ${it.ask}؟`,
+    options: [it.words[it.answer], ...it.words.filter((_, i) => i !== it.answer)], answer: 0,
+    hint: it.hint, explain: it.explain,
 });
+// The plural baskets of plugins/arabic/plurals.js, by id.
 const PLURAL_NAMES = { m: 'جمع مذكر سالم', f: 'جمع مؤنث سالم', b: 'جمع تكسير' };
-const fromPlural = it => ({
-  curriculum: 'arabic',
-  q: `ما نوع الجمع في كلمة «${it.text}»؟`,
-  options: [PLURAL_NAMES[it.bin], ...Object.entries(PLURAL_NAMES).filter(([k]) => k !== it.bin).map(([, v]) => v)], answer: 0,
-  hint: it.hint, explain: it.explain,
+const fromPlural = (it) => ({
+    curriculum: 'arabic',
+    q: `ما نوع الجمع في كلمة «${it.text}»؟`,
+    options: [PLURAL_NAMES[it.bin], ...Object.entries(PLURAL_NAMES).filter(([k]) => k !== it.bin).map(([, v]) => v)], answer: 0,
+    hint: it.hint, explain: it.explain,
 });
 // The science island's quick-review questions (worlds/grade6/lab.js).
 const sciencePool = () => SCIENCE.flatMap(q => scienceReview(q.id));
@@ -36,39 +36,37 @@ const socialPool = () => SOCIAL.flatMap(q => socialReview(q.id));
 // The art island's and the English island's (worlds/grade6/studio.js, english.js).
 const artPool = () => ART.flatMap(q => artReview(q.id));
 const englishPool = () => ENGLISH.flatMap(q => englishReview(q.id));
-
 function mixed() {
-  return [
-    ...pick(FAEL, 2).map(fromTap), ...pick(MUBTADA, 1).map(fromTap), ...pick(PLURALS, 1).map(fromPlural),
-    ...pick(percent(), 1), ...pick(FRACOPS, 1),
-    ...pick(sciencePool(), 3),
-    ...pick(socialPool(), 2),
-    ...pick(englishPool(), 2), ...pick(artPool(), 1),
-    ...pick([...KANA, ...INNA], 1).map(fromTap), ...pick(RATIO, 1),
-  ];
+    return [
+        ...pick(FAEL, 2).map(fromTap), ...pick(MUBTADA, 1).map(fromTap), ...pick(PLURALS, 1).map(fromPlural),
+        ...pick(percent(), 1), ...pick(FRACOPS, 1),
+        ...pick(sciencePool(), 3),
+        ...pick(socialPool(), 2),
+        ...pick(englishPool(), 2), ...pick(artPool(), 1),
+        ...pick([...KANA, ...INNA], 1).map(fromTap), ...pick(RATIO, 1),
+    ];
 }
-
-
 const POOLS = {
-  arabic: () => [...FAEL.map(fromTap), ...MUBTADA.map(fromTap), ...PLURALS.map(fromPlural), ...KANA.map(fromTap), ...INNA.map(fromTap)],
-  math: () => [...percent(), ...FRACOPS, ...RATIO],
-  science: sciencePool,
-  social: socialPool,
-  art: artPool,
-  english: englishPool,
+    arabic: () => [...FAEL.map(fromTap), ...MUBTADA.map(fromTap), ...PLURALS.map(fromPlural), ...KANA.map(fromTap), ...INNA.map(fromTap)],
+    math: () => [...percent(), ...FRACOPS, ...RATIO],
+    science: sciencePool,
+    social: socialPool,
+    art: artPool,
+    english: englishPool,
 };
-
+// (Not Object.hasOwn: older Safari on the iPads the game runs on lacks it.)
+const isSubject = (s) => Object.prototype.hasOwnProperty.call(POOLS, s);
+const everything = () => Object.values(POOLS).flatMap(f => f());
 // One random question from a subject (or from everything).
 export function riddle(subject) {
-  const list = subject && POOLS[subject] ? POOLS[subject]() : Object.values(POOLS).flatMap(f => f());
-  return pick(list, 1)[0];
+    const list = subject && isSubject(subject) ? POOLS[subject]() : everything();
+    return pick(list, 1)[0];
 }
-
 // The treasure island's mixed review: a little of everything.
 export { mixed };
-
 // Every question for a subject ('treasure' → the mixed review).
 export function pool(subject) {
-  if (subject === 'treasure') return [...mixed(), ...mixed()];
-  return POOLS[subject] ? POOLS[subject]() : Object.values(POOLS).flatMap(f => f());
+    if (subject === 'treasure')
+        return [...mixed(), ...mixed()];
+    return isSubject(subject) ? POOLS[subject]() : everything();
 }

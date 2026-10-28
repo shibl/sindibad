@@ -1041,3 +1041,23 @@ removed from the docs, the about page and the game.
 60. [ ] Partition or roll up `events` by month once it grows; keep the raw
     rows for a fixed time.
 61. [ ] A weekly report from `/v1/stats` for the review agent (item 25).
+
+## TypeScript migration — 2026-10-28 (small plugins and island indexes)
+
+- 23 files from JavaScript to TypeScript, typed rather than renamed: the
+  math plugins (angles, area, divisibility, equivalent, fraction-ops,
+  market, percent, ratio), `arabic/build` and `five-verbs`, `review/pools`,
+  the five `*/reviews` stubs, the island indexes `worlds/grade6/{english,
+  studio, lab, atlas, tunes}`, `core/studio/views` and `svg`.
+- Types now come from where the data lives: the island indexes use
+  `types/content.d.ts` (every quest of the five islands is checked against
+  `Quest`); `Word` and `EnQuest` moved from `core/english/words.ts` to
+  `worlds/grade6/english.ts`; `StationId` and `TunesQuest` come from
+  `worlds/grade6/tunes.ts`, removing six casts in `core/tunes/tunes.ts`;
+  the art island's picture types moved from `core/studio/games.ts` to
+  `views.ts`.
+- No lesson content changed. Generated JavaScript compared with the old
+  files, ignoring formatting: identical except named constants for three
+  inline tables, a clear error for an unknown quest id in `reviewOf`, and
+  `Object.fromEntries` for merging the art pictures (same result).
+- Validation: `npm --prefix Web test`.

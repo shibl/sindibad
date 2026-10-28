@@ -36,6 +36,7 @@ import { later, shuffle, bump } from '../learn/util.js';
 import { VIEWS, PIECES, STAGES } from './views.js';
 import { ART, artSVG } from './art.js';
 import { num } from '../format.js';
+// What views.js holds (see there).
 const mark = (el, on) => { if (!el)
     return; el.toggleAttribute('data-ok', on); el.toggleAttribute('data-step', on); };
 // The colours of the island's paint pots and palettes.

@@ -204,3 +204,19 @@ code and `(mat, shader)` in three.js setup). Do not use `any` as a blanket.
 Recommended order for value per risk: 0, then 1, then 2a; stop there and
 re-measure on GitHub (JS about 1.0 MB). Phase 2b and 3 are the next step if
 the owner wants JS near zero in the Grade 6 game.
+
+## Progress
+
+* **Phase 0 and 1**: done (`tools/attributes.ts` keeps `.gitattributes` in
+  step; every data file is TypeScript).
+* **Phase 2a**: done 2026-10-28, with `worlds/grade6/tunes` from the list.
+  Each file is typed, not just renamed: the engines' item types
+  (`QuizQuestion`, `HelmItem`, `FillItem`, `MarketItem`, `BlocksItem`),
+  named tuples for the data tables, the island indexes against
+  `types/content.d.ts` (`QUESTS: Quest[]` now checks every quest of the five
+  islands), `Word` / `EnQuest` / `StationId` exported from the data that
+  defines them, and `ArtView` / `Piece` / `FoldStage` from `core/studio/views.ts`.
+  One assertion is left, in `core/studio/views.ts`, for the still-JavaScript
+  `views-1…3` (remove it in 2b).
+* **Next**: 2a's remaining large files (`art/art`, `art/sprites`,
+  `core/lab/views-machines`), then 2b one island at a time.
