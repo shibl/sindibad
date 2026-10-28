@@ -2,6 +2,8 @@
 // His challenge is the mixed review of the whole grade.
 // Draft content, pending review by Syrian educators. CC-BY-SA.
 
+import type { IslandDef } from '../../core/overworld.js';
+
 export default {
   id: 'treasure',
   name: 'جزيرة الكنز',
@@ -72,4 +74,4 @@ export default {
       },
     },
   ],
-};
+} satisfies IslandDef;

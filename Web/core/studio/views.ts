@@ -33,11 +33,7 @@ interface Part {
   PIECES?: Record<string, Record<string, Piece>>;
   STAGES?: Record<string, FoldStage[]>;
 }
-// views-1…3 are still JavaScript (to convert: the heavy batch of
-// docs/JS-TO-TS-PLAN.md), so their shapes are only inferred from the object
-// literals, and views-2 gives each collage piece its `art` after the literal.
-// Until they are TypeScript, this is where their exports are declared.
-const parts = [P1, P2, P3] as Part[];
+const parts: Part[] = [P1, P2, P3];
 // One record from the parts (a later part's entry wins, as with Object.assign).
 const merged = <T>(of: (p: Part) => Record<string, T> | undefined): Record<string, T> =>
   Object.fromEntries(parts.flatMap(p => Object.entries(of(p) ?? {})));
