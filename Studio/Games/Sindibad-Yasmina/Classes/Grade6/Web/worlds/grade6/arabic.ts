@@ -15,6 +15,7 @@
 // Draft content, pending review by Syrian educators. CC-BY-SA.
 
 import { riddle } from '../../plugins/review/pools.js';
+import type { IslandDef } from '../../core/overworld.js';
 
 export default {
   id: 'arabic',
@@ -257,4 +258,4 @@ export default {
       },
     },
   ],
-};
+} satisfies IslandDef;

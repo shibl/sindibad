@@ -1061,3 +1061,24 @@ removed from the docs, the about page and the game.
   inline tables, a clear error for an unknown quest id in `reviewOf`, and
   `Object.fromEntries` for merging the art pictures (same result).
 - Validation: `npm --prefix Web test`.
+
+## TypeScript migration — 2026-10-28 (the shared art and the island pictures)
+
+- 11 files from JavaScript to TypeScript, typed: `art/art`, `art/sprites`,
+  `worlds/grade6/english/kit`, `core/lab/views` and `views-machines`,
+  `core/atlas/views`, `core/english/views`, `core/studio/views-1…3`.
+- New shared types: `HeroId` and `isHero()` (the hero ids, checked where
+  they come from the page), `Style`/`StyleSlot` (the shop's looks), `Hat`,
+  `Prop`, `Look` and `Sprite` (moved from `core/overworld.ts` to
+  `art/sprites.ts`, where they are made). `Picture.html` takes a `Step`.
+  The atlas map has `LonLat`, `XY` (projected points stay one-decimal
+  strings, as before), `Box`, `MapStep`, `TimelineStep`; the English
+  pictures `RuleStep`, `ReadStep`, `Planet`.
+- The walkable islands' data (`worlds/grade6/{arabic, math, treasure}`)
+  is checked with `satisfies IslandDef`, so `app.ts` no longer casts it.
+  The art island's collage pieces are built whole (`hamaPiece`), so the
+  assertion left in `core/studio/views.ts` by the last batch is gone.
+- No lesson content changed. Generated JavaScript compared with the old
+  files, ignoring formatting: the same apart from typed lookups that give
+  the same results (explicit `+x` where the atlas already converted
+  strings, guards for a missing scale reading or an unknown hero id).

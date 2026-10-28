@@ -216,7 +216,14 @@ the owner wants JS near zero in the Grade 6 game.
   `types/content.d.ts` (`QUESTS: Quest[]` now checks every quest of the five
   islands), `Word` / `EnQuest` / `StationId` exported from the data that
   defines them, and `ArtView` / `Piece` / `FoldStage` from `core/studio/views.ts`.
-  One assertion is left, in `core/studio/views.ts`, for the still-JavaScript
-  `views-1…3` (remove it in 2b).
-* **Next**: 2a's remaining large files (`art/art`, `art/sprites`,
-  `core/lab/views-machines`), then 2b one island at a time.
+* **Rest of 2a and the island pictures**: done 2026-10-28 (11 files):
+  `art/art`, `art/sprites`, `core/lab/views-machines`,
+  `worlds/grade6/english/kit`, and the pictures of four islands
+  (`core/{lab, atlas, english}/views`, `core/studio/views-1…3`). Shared
+  types: `HeroId` / `isHero`, `Style`, `Look` and `Sprite` (moved from
+  `core/overworld.ts` to `art/sprites.ts`), `Picture.html(step: Step)`;
+  the walkable islands' data `satisfies IslandDef` (the `as IslandDef` in
+  `app.ts` is gone); the assertion in `core/studio/views.ts` is gone.
+* **Next**: `worlds/atlas/countries` (a `Country` type), then the 3D models
+  (`core/*/models`, `core/studio/art`) one island at a time, each with a
+  look at the island on a phone; then tests, tools and the service workers.

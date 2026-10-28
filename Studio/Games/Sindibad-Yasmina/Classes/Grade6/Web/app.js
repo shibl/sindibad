@@ -8,7 +8,7 @@
 import { wipe } from './core/fx.js';
 import { openSettings, applySettings } from './core/settings.js';
 import { startAmbience, stopAmbience } from './core/ambience.js';
-import { defsSVG, shipSVG, palmSVG, gullSVG, cloudSVG, skylineSVG, shoreSVG, heroSVG, hudhudSVG } from './art/art.js';
+import { defsSVG, shipSVG, palmSVG, gullSVG, cloudSVG, skylineSVG, shoreSVG, heroSVG, hudhudSVG, isHero } from './art/art.js';
 import { save } from './core/save.js';
 import { initMap, enter as enterMap, totalStars, badgeState, preloadMapView, debugSea, debugSeaLook } from './core/map.js';
 import { renderChapters } from './core/chapters.js';
@@ -146,7 +146,9 @@ function wireHeroSelect() {
     const go = document.getElementById('select-go');
     const bubble = document.getElementById('select-bubble');
     cards.forEach(card => {
-        card.querySelector('.hero-card__art').innerHTML = heroSVG(card.dataset.hero);
+        const hero = card.dataset.hero;
+        if (isHero(hero))
+            card.querySelector('.hero-card__art').innerHTML = heroSVG(hero);
     });
     function choose(id, { announce = true } = {}) {
         cards.forEach(c => c.setAttribute('aria-checked', String(c.dataset.hero === id)));

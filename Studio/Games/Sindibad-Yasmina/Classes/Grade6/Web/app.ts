@@ -8,7 +8,8 @@
 import { wipe } from './core/fx.js';
 import { openSettings, applySettings } from './core/settings.js';
 import { startAmbience, stopAmbience } from './core/ambience.js';
-import { defsSVG, shipSVG, palmSVG, gullSVG, cloudSVG, skylineSVG, shoreSVG, heroSVG, hudhudSVG } from './art/art.js';
+import { defsSVG, shipSVG, palmSVG, gullSVG, cloudSVG, skylineSVG, shoreSVG, heroSVG, hudhudSVG, isHero } from './art/art.js';
+import type { HeroId } from './art/art.js';
 import { save } from './core/save.js';
 import { initMap, enter as enterMap, totalStars, badgeState, preloadMapView, debugSea, debugSeaLook } from './core/map.js';
 import { renderChapters } from './core/chapters.js';
@@ -85,7 +86,7 @@ function paintScene() {
 }
 
 // Draw a ship into `el` with the given crew; wraps it so it can bob.
-function paintShip(el: Element, crew: string[]) {
+function paintShip(el: Element, crew: HeroId[]) {
   el.innerHTML = `<div class="ship__bob">${shipSVG({ crew })}</div>`;
 }
 
@@ -151,7 +152,8 @@ function wireHeroSelect() {
   const bubble = document.getElementById('select-bubble')!;
 
   cards.forEach(card => {
-    card.querySelector('.hero-card__art')!.innerHTML = heroSVG(card.dataset.hero!);
+    const hero = card.dataset.hero;
+    if (isHero(hero)) card.querySelector('.hero-card__art')!.innerHTML = heroSVG(hero);
   });
 
   function choose(id: string, { announce = true } = {}) {
@@ -235,7 +237,7 @@ paintScene();
 paintShip(document.querySelector('.ship--title')!, ['sindbad', 'yasmina']);
 wireNavigation();
 wireHeroSelect();
-const ISLANDS = { arabic: arabicIsland, math: mathIsland, treasure: treasureIsland };
+const ISLANDS: Record<string, IslandDef> = { arabic: arabicIsland, math: mathIsland, treasure: treasureIsland };
 /** What every 3D island's module exports (core/isle/island.ts; the farm and the music island alike). */
 interface Island3D {
   init(hooks: IslandHooks): void;
@@ -289,7 +291,7 @@ initMap(document.getElementById('map')!, world, {
     const region = world.regions.find(r => r.id === id)!;
     if (ISLANDS_3D[region.kind as Kind3D]) { enter3D(region.kind as Kind3D, region); return; }
     track('island_enter', { island: id });
-    wipe(() => { showScreen('island'); enterIsland(ISLANDS[id as keyof typeof ISLANDS] as IslandDef, region); place = id; playMusic(id); });
+    wipe(() => { showScreen('island'); enterIsland(ISLANDS[id], region); place = id; playMusic(id); });
   },
 });
 // The 3D sea map (staging) loads while the child is still on the title

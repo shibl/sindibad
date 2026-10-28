@@ -53,7 +53,7 @@ export interface StepCtx {
 export type View = (step: any) => string;
 /** An island's picture module entry: its html, and what it does when a spot opens. */
 export interface Picture {
-  html(step: any): string;
+  html(step: Step): string;
   spot?(spot: Spot, el: HTMLElement, root: HTMLElement | null, ctx: StepCtx): void;
 }
 export type StepFn<S extends Step = Step> = (step: S, host: HTMLElement, ctx: StepCtx, resolve: Resolve) => void;
