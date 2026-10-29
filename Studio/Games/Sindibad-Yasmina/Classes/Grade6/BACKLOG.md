@@ -1132,3 +1132,14 @@ removed from the docs, the about page and the game.
   one tour the page holds 7 at once, a likely cause of the browser blocking
   3D on phones short of graphics memory. Next: release a 3D view when the
   child leaves its island.
+
+## Playtest notes — 2026-10-29 (one 3D view at a time, #21)
+
+- Leaving a 3D island now gives its 3D view back to the phone
+  (`release()` in `core/farm/scene.ts`, called by the farm, music and quest
+  islands). The island's scene stays in memory; the next visit makes a new
+  view for it, as after a lost one, without rebuilding the island.
+- Counted in a browser touring every 3D island twice: at most 2 live 3D
+  views (the sea map and the current island), down from 7. Every island,
+  the farm with its chosen helper included, draws the same on the second
+  visit, with no errors. Not checked on a phone yet.

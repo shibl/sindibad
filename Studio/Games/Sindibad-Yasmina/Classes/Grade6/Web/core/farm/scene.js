@@ -348,6 +348,14 @@ export function createStage(host, { lite = false, fov = [40, 32], sky = '#9fd9ee
         raf = requestAnimationFrame(frame);
     }
     function stop() { running = false; cancelAnimationFrame(raf); }
+    // The child sailed away: give the 3D view (and the graphics memory behind
+    // it) back to the phone, so it never holds one per island visited. The
+    // scene stays; start() makes a new view for it, like after a lost one.
+    function release() {
+        stop();
+        if (!renderer.getContext().isContextLost())
+            renderer.forceContextLoss();
+    }
     // ---------- When the 3D view is lost ----------
     // The browser can take the 3D drawing (the WebGL context) away from the
     // page: too many 3D views at once, low memory, a long time in the
@@ -441,7 +449,7 @@ export function createStage(host, { lite = false, fov = [40, 32], sky = '#9fd9ee
             pointers.clear();
             tapStart = null;
         } },
-        start, stop, resize,
+        start, stop, release, resize,
         get time() { return time; },
         get lapsing() { return !!lapse; },
     };

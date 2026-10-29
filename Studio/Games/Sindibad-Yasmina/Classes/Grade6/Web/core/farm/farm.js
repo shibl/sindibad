@@ -106,7 +106,7 @@ export function lessonReturned(after) {
 }
 function leave() {
     stopSpeaking();
-    stage?.stop();
+    stage?.release();
     closeModal();
     closePick();
     hooks.leave(sessionGain.gained > 0 ? sessionGain : undefined);
