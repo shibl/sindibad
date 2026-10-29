@@ -115,7 +115,7 @@ export function enter(region?: { name?: string }): void {
   sessionGain = { gained: 0, topic: null };
   els ||= grabEls();
   els.screen.dataset.curriculum = 'music';
-  if (!built && !failed) build();
+  if (!built) { failed = false; build(); }  // a failed 3D view is tried again on the next visit
   if (failed) { els.goal.innerHTML = '<p>هذه الجزيرة تحتاج إلى رسوم ثلاثية الأبعاد (WebGL)، وجهازك لا يدعمها. جرّب جزيرة أخرى! ⛵</p>'; return; }
   els.title.textContent = region?.name || 'جزيرة الأنغام';
   stage.start();
