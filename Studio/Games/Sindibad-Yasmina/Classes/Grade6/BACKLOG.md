@@ -1094,3 +1094,23 @@ removed from the docs, the about page and the game.
   `Flag`). Every full card is now checked for all its fields: all pass.
 - No content changed: the generated `countries.js` is the same code; in
   `globe.js` one fallback is written without a cast (same colour).
+
+## Playtest notes — 2026-10-29 (3D on more phones)
+
+- Owner report: on some phones the farm said it needs 3D (WebGL), while a
+  weaker phone with the same browser played it. Reproduced in a browser
+  with WebGL 1 but no WebGL 2: three.js r170 needs WebGL 2, so every 3D
+  island showed that message and the sea map stayed flat.
+- Fix: `index.html` checks for WebGL 2 before the game loads; on WebGL 1
+  phones an import map loads three.js r162 (`vendor/three-webgl1/`)
+  instead. If a phone refuses the full 3D look (smooth edges, the fast
+  graphics chip), the renderer is made again with the lightest one
+  (`newRenderer` in `core/farm/scene.ts`), and a failed island tries again
+  on the next visit instead of for the rest of the session.
+- Checked in a desktop browser: on simulated WebGL 1, WebGL 2, and a phone
+  refusing the full look, the 3D sea and all six 3D islands draw, with no
+  errors. Not checked on the owner's phone yet.
+- Also found: each 3D island keeps its 3D view after the child leaves; after
+  one tour the page holds 7 at once, a likely cause of the browser blocking
+  3D on phones short of graphics memory. Next: release a 3D view when the
+  child leaves its island.

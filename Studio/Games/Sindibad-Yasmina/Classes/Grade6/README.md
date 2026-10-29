@@ -313,6 +313,9 @@ Inside `Web/`:
 - `vendor/three/` — three.js r170 (MIT), kept in the game so the farm, the
   music island and the 3D sea work offline. Loaded only when a child sails
   to one of them (or, on staging, when the 3D sea map is on).
+- `vendor/three-webgl1/` — three.js r162 (MIT), the last version that draws
+  with WebGL 1. `index.html` loads it instead of r170 only on phones without
+  WebGL 2, so their 3D islands still work.
 - `plugins/` — topics and reusable game engines. **Adding a lesson:** see
   [`Web/plugins/README.md`](./Web/plugins/README.md).
 - `art/art.js` — all art as inline SVG (heroes, Hudhud, dhow, islands…).
@@ -334,7 +337,7 @@ Code sessions; there are no public feedback forms. The agent's rules are in
 
 - Code: MIT or GPL (open source).
 - Educational content & art: CC-BY-SA.
-- Bundled from others: three.js r170 (MIT), Baloo Bhaijaan 2 (SIL OFL), the
+- Bundled from others: three.js r170 and r162 (MIT), Baloo Bhaijaan 2 (SIL OFL), the
   world map of Natural Earth 1:110m (public domain, via world-atlas 2.0.2,
   ISC).
 - No ads, no monetization — ever.

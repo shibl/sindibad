@@ -152,7 +152,8 @@ let webgl: boolean | undefined;
 function hasWebGL() {
   if (webgl === undefined) {
     try {
-      const gl = document.createElement('canvas').getContext('webgl2');
+      // WebGL 1 is enough when index.html loaded the older three.js for it.
+      const gl = document.createElement('canvas').getContext(window.__SINDBAD_WEBGL1__ ? 'webgl' : 'webgl2') as WebGLRenderingContext | null;
       webgl = !!gl;
       gl?.getExtension('WEBGL_lose_context')?.loseContext();
     } catch { webgl = false; }
