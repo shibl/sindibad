@@ -230,7 +230,7 @@ export function makeIsland(cfg: IslandConfig) {
     if (quest) closeQuest();
     closeModal();
     extra.close?.();
-    stage?.stop();
+    stage?.release();
     hooks.leave(sessionGain.gained > 0 ? sessionGain : undefined);
   }
 
