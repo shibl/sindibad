@@ -1108,4 +1108,8 @@ removed from the docs, the about page and the game.
 - Checked in a desktop browser at 360×740, 320×568 and 1024×768, flat and 3D
   maps. Not checked on a real phone. At 320×568 the map is still crowded,
   as before, and Hudhud's welcome covers the bottom until it fades.
+- The map's top bar no longer has its own colour (at night it stood apart
+  from the dark 3D sea): the sea fills the whole screen and the bar's
+  buttons float over it, on a soft shade so they stay easy to see. Both
+  maps keep the islands below the floating buttons (`mapTopInset`).
 - Next: try it on a real phone; consider a slimmer top bar on the map.
