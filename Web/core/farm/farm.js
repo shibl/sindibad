@@ -70,8 +70,10 @@ export function enter(region) {
     F = farmState();
     sessionGain = { gained: 0, topic: null };
     els ||= grabEls();
-    if (!built && !failed)
+    if (!built) {
+        failed = false;
         build();
+    } // a failed 3D view is tried again on the next visit
     if (failed) {
         showNoGL();
         return;

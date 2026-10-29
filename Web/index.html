@@ -11,6 +11,27 @@
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="preload" href="fonts/baloo-bhaijaan-2-arabic-800-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="style.css">
+<script>
+  // 3D on phones without WebGL 2: three.js r170 (vendor/three/) needs it, so
+  // there the game loads r162 (vendor/three-webgl1/), the last version that
+  // still draws with WebGL 1. Must run before any module loads.
+  (function () {
+    function has(type) {
+      try {
+        var gl = document.createElement('canvas').getContext(type);
+        var lose = gl && gl.getExtension('WEBGL_lose_context');
+        if (lose) lose.loseContext();
+        return !!gl;
+      } catch (e) { return false; }
+    }
+    if (has('webgl2') || !has('webgl')) return;
+    window.__SINDBAD_WEBGL1__ = true;
+    var map = document.createElement('script');
+    map.type = 'importmap';
+    map.textContent = JSON.stringify({ imports: { './vendor/three/three.module.min.js': './vendor/three-webgl1/three.module.min.js' } });
+    document.currentScript.after(map);
+  })();
+</script>
 </head>
 <body>
 <nav class="language-bar" aria-label="لغة اللعبة">
