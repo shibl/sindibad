@@ -1143,3 +1143,14 @@ removed from the docs, the about page and the game.
   notes-only changes run no game tests. A newer push to a pull request
   cancels the older run. A final `test` job still gates publishing.
 - No check was removed; `npm test` still runs everything locally.
+
+## Playtest notes — 2026-10-29 (one 3D view at a time, #21)
+
+- Leaving a 3D island now gives its 3D view back to the phone
+  (`release()` in `core/farm/scene.ts`, called by the farm, music and quest
+  islands). The island's scene stays in memory; the next visit makes a new
+  view for it, as after a lost one, without rebuilding the island.
+- Counted in a browser touring every 3D island twice: at most 2 live 3D
+  views (the sea map and the current island), down from 7. Every island,
+  the farm with its chosen helper included, draws the same on the second
+  visit, with no errors. Not checked on a phone yet.

@@ -142,7 +142,7 @@ function leave() {
   stopSpeaking();
   if (quest) closeQuest();
   closeModal();
-  stage?.stop();
+  stage?.release();
   hooks.leave(sessionGain.gained > 0 ? sessionGain : undefined);
 }
 

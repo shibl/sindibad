@@ -116,7 +116,7 @@ function leave() {
     if (quest)
         closeQuest();
     closeModal();
-    stage?.stop();
+    stage?.release();
     hooks.leave(sessionGain.gained > 0 ? sessionGain : undefined);
 }
 function grabEls() {
