@@ -36,6 +36,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.sindibad.android.*
 import org.sindibad.android.content.Topics
 import org.sindibad.android.domain.*
+import org.sindibad.android.ui.sea.Sea3DMap
 
 @Composable
 fun SindibadApp(vm: GameViewModel) {
@@ -75,7 +76,7 @@ fun SindibadApp(vm: GameViewModel) {
                             Screen.Home -> Home(state, vm)
                             Screen.Profiles -> Profiles(state, vm)
                             Screen.Voyages -> Voyages { vm.navigate(Screen.Sea) }
-                            Screen.Sea -> SeaMap(state.store.active ?: return@Box) { region ->
+                            Screen.Sea -> SeaMap(state.store.active ?: return@Box, prefs.calm) { region ->
                                 vm.navigate(when (region) { "math" -> Screen.Math; "treasure" -> Screen.Treasure; else -> Screen.Arabic })
                             }
                             Screen.Arabic -> SubjectIsland("arabic", state.store.active ?: return@Box, vm::startTopic)
@@ -254,9 +255,35 @@ private fun Voyages(open: () -> Unit) {
     }
 }
 
+/** The sea in 3D (issue #8), or the flat list of islands on phones that cannot draw 3D, or by choice. */
 @Composable
-private fun SeaMap(profile: Profile, openIsland: (String) -> Unit) {
+private fun SeaMap(profile: Profile, calm: Boolean, openIsland: (String) -> Unit) {
     var selected by remember { mutableStateOf<Island?>(null) }
+    var flat by rememberSaveable { mutableStateOf(false) }
+    var failed by rememberSaveable { mutableStateOf(false) }
+    val onIsland: (Island) -> Unit = { island -> if (island.nativeReady && island.unlocked(profile)) openIsland(island.id) else selected = island }
+    Box(Modifier.fillMaxSize()) {
+        if (flat || failed) FlatSeaMap(profile, onIsland)
+        else Sea3DMap(profile, calm, onIsland, onFailed = { failed = true })
+        if (!failed) Surface(onClick = { flat = !flat }, color = Paper, shape = RoundedCornerShape(50),
+            shadowElevation = 2.dp, modifier = Modifier.align(Alignment.TopStart).padding(12.dp)) {
+            Text(if (flat) "3D" else "2D", Modifier.padding(horizontal = 14.dp, vertical = 6.dp), style = MaterialTheme.typography.labelLarge)
+        }
+    }
+    selected?.let { island ->
+        AlertDialog(onDismissRequest = { selected = null },
+            title = { Text(island.name) },
+            text = { Column {
+                SharedArt("islands/${island.art}", null, Modifier.fillMaxWidth().height(160.dp))
+                Text(if (!island.nativeReady) "تنتظرك مغامرات ${island.subject} هنا قريباً."
+                    else "اجمع نجمتين في ${islands.first { it.id == island.requires }.name} لتفتح هذه الجزيرة. لا تُفتح الجزر باللآلئ.")
+            } },
+            confirmButton = { TextButton(onClick = { selected = null }) { Text("حسناً") } })
+    }
+}
+
+@Composable
+private fun FlatSeaMap(profile: Profile, onIsland: (Island) -> Unit) {
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -270,7 +297,7 @@ private fun SeaMap(profile: Profile, openIsland: (String) -> Unit) {
         items(islands.chunked(2)) { row ->
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 row.forEach { island ->
-                    Surface(onClick = { if (island.nativeReady && island.unlocked(profile)) openIsland(island.id) else selected = island },
+                    Surface(onClick = { onIsland(island) },
                         modifier = Modifier.weight(1f), color = Paper, shape = RoundedCornerShape(24.dp)) {
                         Column(Modifier.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                             SharedArt("islands/${island.art}", null, Modifier.fillMaxWidth().height(110.dp))
@@ -286,16 +313,6 @@ private fun SeaMap(profile: Profile, openIsland: (String) -> Unit) {
                 if (row.size == 1) Spacer(Modifier.weight(1f))
             }
         }
-    }
-    selected?.let { island ->
-        AlertDialog(onDismissRequest = { selected = null },
-            title = { Text(island.name) },
-            text = { Column {
-                SharedArt("islands/${island.art}", null, Modifier.fillMaxWidth().height(160.dp))
-                Text(if (!island.nativeReady) "تنتظرك مغامرات ${island.subject} هنا قريباً."
-                    else "اجمع نجمتين في ${islands.first { it.id == island.requires }.name} لتفتح هذه الجزيرة. لا تُفتح الجزر باللآلئ.")
-            } },
-            confirmButton = { TextButton(onClick = { selected = null }) { Text("حسناً") } })
     }
 }
 

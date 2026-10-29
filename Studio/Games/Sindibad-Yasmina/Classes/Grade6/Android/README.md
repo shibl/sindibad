@@ -7,6 +7,25 @@ through real GitHub sub-issues assigned to `sam-a1a`.
 
 This is an incremental native implementation; full website parity remains in the tracker.
 
+## New in 0.3: the 3D sea (#8)
+
+- The sea map is drawn in 3D with [Filament](https://github.com/google/filament)
+  1.77.3 (Google's native renderer; no WebView): the port of Arwad and the
+  nine islands from the shared GLB models, the ship rocking at the port,
+  gulls circling, and clouds with dimmed colours over the islands still to
+  discover. The water is a native grid coloured by distance to the beaches,
+  as the web sea's shader does. Island positions follow `Web/worlds/grade6.ts`
+  (a unit test keeps them in step); the layout and camera math is pure Kotlin
+  in `ui/sea/SeaLayout.kt`, so it is unit-tested.
+- Island names and stars are Compose text placed over the 3D view; a tap on an
+  island or its name opens it, with the same unlock rules as before.
+- A **2D** button switches to the flat island list; phones that cannot draw
+  in 3D get it automatically. Calm mode stills the ship and the gulls.
+- Only the 13 models the sea needs are bundled (`copySharedModels` in
+  `app/build.gradle.kts`), and native libraries ship for ARM phones only
+  (arm64-v8a, armeabi-v7a). Debug APK: about 52 MB (was 38 MB).
+- Not yet: islands to walk on in 3D, night and sunset looks, the whale.
+
 ## Available in 0.2
 
 - Sindbad/Yasmina selection and independent local profiles.
@@ -43,7 +62,7 @@ This is an incremental native implementation; full website parity remains in the
 Six specialized islands remain marked as coming soon. Native 3D, those
 subject games, stickers, scheduled review and the full family dashboard
 remain in the tracker. Review in this slice has no timers or daily pressure.
-The first map is a Compose illustration map; it is not the finished 3D sea.
+Since 0.3 the map is a 3D sea (above); the island screens themselves are not 3D yet.
 
 ## Shared artwork
 
@@ -97,6 +116,7 @@ release service; exact coordinates are in `gradle/libs.versions.toml`.
 | Coroutines | 1.11.0 |
 | Kotlin serialization JSON | 1.12.0 |
 | JUnit Jupiter / platform | 6.1.3 |
+| Filament / gltfio | 1.77.3 |
 
 AGP's built-in Kotlin is enabled; the Compose and serialization plugins
 resolve the Kotlin compiler at the catalog version. No legacy
