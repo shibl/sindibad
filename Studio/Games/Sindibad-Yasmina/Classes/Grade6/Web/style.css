@@ -564,6 +564,16 @@ body[data-screen="map"] #scene, body[data-screen="activity"] #scene { visibility
 @keyframes toast-in { from { transform: translateY(120%); } }
 .map__toast .guide__bird { width: clamp(70px, 20vw, 100px); }
 .map__toast .bubble { margin-bottom: 18px; font-size: clamp(15px, 4.2vw, 19px); }
+/* Phones: one-line labels on open islands (stars beside the name; a locked
+   island keeps its second line, what opens it) and a smaller Hudhud, so the
+   sea map keeps room between the islands. */
+@media (max-width: 480px) {
+  .isle__label { padding: 1px 9px 2px; font-size: 12.5px; border-width: 2px; bottom: -1%; }
+  .isle:not(.isle--locked) .isle__label { flex-direction: row; gap: 5px; }
+  .isle__stars { font-size: .75em; letter-spacing: 0; }
+  .map__toast .guide__bird { width: 64px; }
+  .map__toast .bubble { max-width: 72%; padding: 8px 12px 10px; font-size: 14px; }
+}
 
 .isle__badge {
   position: absolute; top: -18px; inset-inline-end: -18px; width: 34px; height: 34px;

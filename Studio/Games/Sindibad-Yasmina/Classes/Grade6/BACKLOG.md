@@ -1094,3 +1094,18 @@ removed from the docs, the about page and the game.
   `Flag`). Every full card is now checked for all its fields: all pass.
 - No content changed: the generated `countries.js` is the same code; in
   `globe.js` one fallback is written without a cast (same colour).
+
+## Playtest notes — 2026-10-29 (the sea map on phones)
+
+- The developers compared three layout drafts of the grade-6 sea map at
+  360×740 and chose a winding trail. Islands moved in from the screen edges
+  and now zigzag along the sailing order (`worlds/grade6.ts` positions), so
+  labels no longer clip and the «هنا!» marker is not hidden.
+- Phones (≤480 px): open islands get one-line labels (stars beside the
+  name); locked islands keep their second line (what opens them), since one
+  line made them overlap on the flat map. Hudhud's map bubble is smaller.
+  Hudhud's messages stay (holding an island still tells what is there).
+- Checked in a desktop browser at 360×740, 320×568 and 1024×768, flat and 3D
+  maps. Not checked on a real phone. At 320×568 the map is still crowded,
+  as before, and Hudhud's welcome covers the bottom until it fades.
+- Next: try it on a real phone; consider a slimmer top bar on the map.
