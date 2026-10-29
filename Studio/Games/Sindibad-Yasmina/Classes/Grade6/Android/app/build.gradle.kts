@@ -14,9 +14,9 @@ android {
         targetSdk = 37
         versionCode = 3
         versionName = "0.3.0"
-        // Phones only: Filament's native 3D libraries for 64- and 32-bit ARM
-        // (x86 builds are for emulators and would add about 6 MB each).
-        ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
+        // 64-bit ARM phones only: Filament's native 3D libraries are about
+        // 6 MB per processor type, and 32-bit and x86 phones are rare.
+        ndk { abiFilters += listOf("arm64-v8a") }
     }
     buildFeatures { compose = true }
     compileOptions {

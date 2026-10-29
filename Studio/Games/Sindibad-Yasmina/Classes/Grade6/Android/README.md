@@ -10,7 +10,8 @@ This is an incremental native implementation; full website parity remains in the
 ## New in 0.3: the 3D sea (#8)
 
 - The sea map is drawn in 3D with [Filament](https://github.com/google/filament)
-  1.77.3 (Google's native renderer; no WebView): the port of Arwad and the
+  1.77.3 (Google's native 3D engine for Android, called from Kotlin; no
+  WebView, no three.js): the port of Arwad and the
   nine islands from the shared GLB models, the ship rocking at the port,
   gulls circling, and clouds with dimmed colours over the islands still to
   discover. The water is a native grid coloured by distance to the beaches,
@@ -22,8 +23,8 @@ This is an incremental native implementation; full website parity remains in the
 - A **2D** button switches to the flat island list; phones that cannot draw
   in 3D get it automatically. Calm mode stills the ship and the gulls.
 - Only the 13 models the sea needs are bundled (`copySharedModels` in
-  `app/build.gradle.kts`), and native libraries ship for ARM phones only
-  (arm64-v8a, armeabi-v7a). Debug APK: about 52 MB (was 38 MB).
+  `app/build.gradle.kts`), and native libraries ship for 64-bit ARM phones only
+  (arm64-v8a). Debug APK: about 47 MB (was 38 MB).
 - Not yet: islands to walk on in 3D, night and sunset looks, the whale.
 
 ## Available in 0.2

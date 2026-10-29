@@ -81,7 +81,7 @@ all remaining subjects and complete phone acceptance remain tracked in
   the right island, every island placed, and positions equal to
   `Web/worlds/grade6.ts`.
 - `:app:lintDebug`: passed (lint aborts on error). `:app:assembleDebug`:
-  about 52 MB, with the 13 sea models and Filament's ARM libraries.
+  about 47 MB, with the 13 sea models and Filament's 64-bit ARM libraries.
 - Not verified here: no emulator could run in the build container (no
   hardware virtualisation), so the 3D drawing itself was first seen on the
   owner's phone. Nothing above claims how it looks or performs on a device.
