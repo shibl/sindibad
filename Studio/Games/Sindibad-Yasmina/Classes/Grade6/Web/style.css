@@ -428,7 +428,13 @@ body[data-time="night"] .logo__tag { background: rgba(10, 20, 60, .7); }
 /* ================= World map ================= */
 
 body[data-screen="map"] #scene, body[data-screen="activity"] #scene { visibility: hidden; }
-.screen--map { padding-inline: 0; padding-bottom: 0; background: #1f86b0; }
+/* The top bar takes the colour of the sea just below it (the flat map's
+   top, or the 3D sea by the time of day), and fades into the map. */
+.screen--map { --sea-top: #5cc6dd; padding-inline: 0; padding-bottom: 0; background: var(--sea-top); }
+.screen--map:has(.map--3d) { --sea-top: #2794c6; }
+body[data-time="sunset"] .screen--map:has(.map--3d) { --sea-top: #2f7aaa; }
+body[data-time="night"] .screen--map:has(.map--3d) { --sea-top: #0e2b52; }
+.screen--map .map::after { content: ""; position: absolute; inset: 0 0 auto; z-index: 1; height: 48px; background: linear-gradient(var(--sea-top), transparent); pointer-events: none; }
 .screen--map .topbar { padding-inline: 12px; }
 
 .map { position: relative; flex: 1; width: 100%; margin-top: 8px; overflow: hidden; }
