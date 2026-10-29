@@ -1162,3 +1162,7 @@ removed from the docs, the about page and the game.
   `english1` and `english2`, two lessons each, side by side in CI; the
   book's data checks run once, in the first. Next slowest: the art island
   (4–7 minutes), which could be split the same way.
+- The art island's browser test (4–7 minutes) is split the same way:
+  `art1` plays the first lesson, two hands-on games and the easel; `art2`
+  three more games, a reload and offline play. The book's data checks run
+  once, in the first.
