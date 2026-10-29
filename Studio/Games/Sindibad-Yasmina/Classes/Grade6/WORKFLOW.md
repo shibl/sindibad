@@ -72,7 +72,13 @@ against?
 
 ## 3. Test
 
-- `npm test` (in `Web/`) must pass.
+- `npm test` (in `Web/`) must pass. It is `npm run test:fast` (types,
+  content, language, sync) and `npm run test:e2e` (the browser test). To
+  run only some parts of the browser test while working on them:
+  `E2E_PARTS=farm,music npm run test:e2e` (the parts are listed in
+  `tests/e2e-groups.json`). CI runs each group of that file as its own
+  job, side by side, and only when Grade 6 files changed; a new part of
+  `tests/e2e.mjs` goes in that file too (the test fails otherwise).
 - A new engine needs a test hook: tag the right answer with `data-ok`, and
   each useful tap with `data-step` if it takes several taps (see
   `plugins/engines/kit.ts`). Add the new lesson to the test in

@@ -1,5 +1,6 @@
-# Tests every pull request and every push to main. Staging publishes
-# immediately without running tests (owner decision, 2026-10-25).
+# Tests every pull request and every push to main: only the grades a
+# change touches, in parallel jobs (see the plan job below). Staging
+# publishes immediately without running tests (owner decision, 2026-10-25).
 #
 #   main     →  the live game      https://shibl.github.io/sindibad/
 #   staging  →  the staging copy   https://shibl.github.io/sindibad/staging/
@@ -33,23 +34,64 @@ permissions:
 env:
   SITE_BRANCH: claude/sharp-hawking-0380ax
 
+# A newer push to the same pull request cancels the tests of the older one.
+concurrency:
+  group: tests-${{ github.event.pull_request.number || format('{0}-{1}', github.ref_name, github.sha) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
-  test:
+  # Only the grades a change touches are tested, each as parallel jobs
+  # (.github/scripts/test-plan.mjs): a website-only change runs no game
+  # tests, and adding a grade adds jobs side by side, not minutes in a row.
+  plan:
     if: github.ref_name != 'staging'
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      any: ${{ steps.plan.outputs.any }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0   # to compare with the base
+      - name: Check publication layout
+        run: python3 .github/tests/test_pages_layout.py
+      - name: Choose the tests
+        id: plan
+        run: node .github/scripts/test-plan.mjs "${{ github.event.pull_request.base.sha || github.event.before }}" "${{ github.event.pull_request.head.sha || github.sha }}"
+
+  checks:
+    needs: plan
+    if: needs.plan.outputs.any == 'true'
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
     defaults:
       run:
-        working-directory: Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web
+        working-directory: ${{ matrix.dir }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
           node-version: 22
-      - name: Check publication layout
-        run: python3 "$GITHUB_WORKSPACE/.github/tests/test_pages_layout.py"
       - run: npm install --no-audit --no-fund
-      - run: npx playwright install --with-deps chromium
-      - run: npm test
+      - run: npx playwright install --with-deps --only-shell chromium
+      - run: ${{ matrix.run }}
+        env:
+          E2E_PARTS: ${{ matrix.parts }}
+
+  # One result for the whole run: publishing waits for it.
+  test:
+    needs: [plan, checks]
+    if: ${{ !cancelled() && github.ref_name != 'staging' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Every needed test passed
+        run: |
+          echo "plan: ${{ needs.plan.result }}, checks: ${{ needs.checks.result }}"
+          test "${{ needs.plan.result }}" = success
+          case "${{ needs.checks.result }}" in success|skipped) ;; *) exit 1 ;; esac
 
   publish:
     needs: test

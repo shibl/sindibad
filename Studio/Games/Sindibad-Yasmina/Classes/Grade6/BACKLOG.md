@@ -1113,3 +1113,14 @@ removed from the docs, the about page and the game.
   buttons float over it, on a soft shade so they stay easy to see. Both
   maps keep the islands below the floating buttons (`mapTopInset`).
 - Next: try it on a real phone; consider a slimmer top bar on the map.
+## Notes — 2026-10-29 (faster CI, #22)
+
+- CI took about 20 minutes per push, the whole suite in one job, even for
+  website-only changes, and would grow with every grade. Now a first job
+  (`.github/scripts/test-plan.mjs`) picks the grades a change touches;
+  each runs as parallel jobs: the fast checks, plus one job per group of
+  `tests/e2e-groups.json` (`E2E_PARTS`). The slowest group (English) sets
+  the time: about 6 minutes expected. Website, Grade 10, native-app and
+  notes-only changes run no game tests. A newer push to a pull request
+  cancels the older run. A final `test` job still gates publishing.
+- No check was removed; `npm test` still runs everything locally.
