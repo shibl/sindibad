@@ -1114,3 +1114,32 @@ removed from the docs, the about page and the game.
   one tour the page holds 7 at once, a likely cause of the browser blocking
   3D on phones short of graphics memory. Next: release a 3D view when the
   child leaves its island.
+## Playtest notes — 2026-10-29 (the sea map on phones)
+
+- The developers compared three layout drafts of the grade-6 sea map at
+  360×740 and chose a winding trail. Islands moved in from the screen edges
+  and now zigzag along the sailing order (`worlds/grade6.ts` positions), so
+  labels no longer clip and the «هنا!» marker is not hidden.
+- Phones (≤480 px): open islands get one-line labels (stars beside the
+  name); locked islands keep their second line (what opens them), since one
+  line made them overlap on the flat map. Hudhud's map bubble is smaller.
+  Hudhud's messages stay (holding an island still tells what is there).
+- Checked in a desktop browser at 360×740, 320×568 and 1024×768, flat and 3D
+  maps. Not checked on a real phone. At 320×568 the map is still crowded,
+  as before, and Hudhud's welcome covers the bottom until it fades.
+- The map's top bar no longer has its own colour (at night it stood apart
+  from the dark 3D sea): the sea fills the whole screen and the bar's
+  buttons float over it, on a soft shade so they stay easy to see. Both
+  maps keep the islands below the floating buttons (`mapTopInset`).
+- Next: try it on a real phone; consider a slimmer top bar on the map.
+## Notes — 2026-10-29 (faster CI, #22)
+
+- CI took about 20 minutes per push, the whole suite in one job, even for
+  website-only changes, and would grow with every grade. Now a first job
+  (`.github/scripts/test-plan.mjs`) picks the grades a change touches;
+  each runs as parallel jobs: the fast checks, plus one job per group of
+  `tests/e2e-groups.json` (`E2E_PARTS`). The slowest group (English) sets
+  the time: about 6 minutes expected. Website, Grade 10, native-app and
+  notes-only changes run no game tests. A newer push to a pull request
+  cancels the older run. A final `test` job still gates publishing.
+- No check was removed; `npm test` still runs everything locally.
