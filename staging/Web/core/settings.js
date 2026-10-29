@@ -7,6 +7,7 @@ import { sfx } from './sound.js';
 import { buzz, hapticsAvailable } from './haptics.js';
 import { refreshMusicVolume } from './music.js';
 import { refreshAmbience } from './ambience.js';
+import { track } from './telemetry.js';
 const OPTIONS = [
     ['muted', '🔊', 'المؤثّرات الصوتية', true],
     ['musicOff', '🎵', 'الموسيقى', true],
@@ -54,6 +55,7 @@ export function openSettings() {
             return;
         const key = row.dataset.key;
         save.update((v) => { v[key] = !v[key]; });
+        track('setting', { key, value: !!save.get()[key] });
         applySettings();
         sfx.tap();
         // Turning vibration on: feel it straight away.

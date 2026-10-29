@@ -10,6 +10,7 @@
 // Syrian educators. CC-BY-SA.
 
 import { riddle } from '../../plugins/review/pools.js';
+import type { IslandDef } from '../../core/overworld.js';
 
 export default {
   id: 'math',
@@ -283,4 +284,4 @@ export default {
       },
     },
   ],
-};
+} satisfies IslandDef;

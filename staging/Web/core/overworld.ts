@@ -15,6 +15,7 @@
 // or thing walks there and interacts.
 
 import { objectSprite, villagerSprite, heroSprite, hudhudSprite, portraitSVG, drawPearl } from '../art/sprites.js';
+import type { Look, Sprite } from '../art/sprites.js';
 import { hudhudSVG } from '../art/art.js';
 const hudhudPortrait = () => hudhudSVG();
 import { HEROES, g, heroSVG } from '../art/art.js';
@@ -35,20 +36,7 @@ import type { GameSave } from './save.js';
 
 /** A point in tiles: [x, y] (x grows right, y grows down); people and things stand with their feet there. */
 export type At = [x: number, y: number];
-
-/** How a villager looks (art/sprites.js villagerBody). */
-export interface Look {
-  skin?: string; robe?: string; trim?: string; sash?: string;
-  /** 'fez', 'kufiya', 'hijab', 'cap', 'turban' or 'none'. */
-  hat?: string;
-  headColor?: string; hair?: string;
-  /** 'white', 'dark' or none. */
-  beard?: string | null;
-  glasses?: boolean;
-  /** 'pen', 'book', 'staff', 'basket', 'flask' or none. */
-  prop?: string | null;
-  lashes?: boolean;
-}
+export type { Look };
 
 /** A villager's quest: talk → lesson (or find a lost thing) → a golden token or pearls. */
 export interface VillagerQuest {
@@ -192,7 +180,6 @@ interface IslandSave {
 }
 
 /** A rasterised sprite (art/sprites.js): its image, viewBox size and feet. */
-interface Sprite { img: HTMLImageElement; w: number; h: number; ax: number; ay: number; flat?: boolean }
 interface DrawOpts { flip?: boolean; bob?: number; tilt?: number; alpha?: number; sqx?: number; sqy?: number }
 
 interface Player { x: number; y: number; face: number; moving: boolean; step: number; sprite: Sprite }
