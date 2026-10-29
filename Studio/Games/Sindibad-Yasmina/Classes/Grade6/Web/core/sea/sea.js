@@ -9,6 +9,7 @@
 import * as THREE from '../../vendor/three/three.module.min.js';
 import { wind, dhow } from '../farm/models.js';
 import * as M from './models.js';
+import { mapTopInset } from '../map.js';
 // Map positions (worlds/grade6.js, in % of the map) → world units: y% runs
 // up the voyage (SZ), x% across it, spread to suit the screen (arrange()).
 const SZ = 0.75;
@@ -391,7 +392,9 @@ export function createSea(world, { lite = false } = {}) {
             if (it.fog)
                 it.fog.rotation.y = cam.yaw;
         });
-        const safe = { l: 14, r: W - 14, t: Math.min(70, H * 0.12), b: H - Math.min(56, H * 0.1) };
+        // The top bar floats over the sea: keep the islands below its buttons.
+        const host = canvas.parentElement, inset = host ? mapTopInset(host) : 0;
+        const safe = { l: 14, r: W - 14, t: Math.max(Math.min(70, H * 0.12), inset + 8), b: H - Math.min(56, H * 0.1) };
         const pts = framePoints();
         const bounds = () => {
             const b = { l: Infinity, r: -Infinity, t: Infinity, b: -Infinity, ok: true };
