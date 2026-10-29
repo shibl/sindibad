@@ -857,8 +857,10 @@ if (part('atlas')) {
 
 // The art island: the art book played in 3D (core/studio/).
 // <studio-e2e>
-if (part('art')) {
-  console.log('— art island');
+// Two halves, run side by side in CI (art1, art2): the first lesson, two
+// hands-on games and the easel; then three more games, a reload, offline.
+async function artIsland(half) {
+  console.log(`— art island (${half} of 2)`);
   const { QUESTS, STATIONS, reviewOf } = await import('../worlds/grade6/studio.js');
   const { VIEWS, PIECES, STAGES } = await import('../core/studio/views.js');
   const { ART } = await import('../core/studio/art.js');
@@ -886,14 +888,16 @@ if (part('art')) {
     press: () => st.tasks.length >= 2 && st.tasks.every(t => t.want === 'in' || t.want === 'on'),
     craft: () => !!VIEWS[st.view] && st.seq.every(x => st.tools.some(t => t.id === x.tool)),
   }[st.kind]?.() && (st.kind === 'explore' || (!!st.hint && !!st.explain)));
-  const bad = QUESTS.flatMap(q => q.steps.map((st, i) => [q.id, i, st]).filter(([, , st]) => !okStep(st)).map(([id, i, st]) => `${id}#${i} ${st.kind}`));
-  // The book has 25 lessons; they are being written (PARTIAL until all are in).
-  const PARTIAL = false;
-  check((PARTIAL ? QUESTS.length >= 2 && QUESTS.length <= 25 : QUESTS.length === 25) && QUESTS.every(q => STATIONS[q.station]) && !bad.length, `art: ${QUESTS.length} of the book's 25 lessons, one quest each; every step is well formed (a right answer, a hint, its picture)${bad.length ? `: ${bad.join(', ')}` : ''}`);
-  const order = Object.keys(STATIONS);
-  check(QUESTS.every((q, i) => !i || order.indexOf(q.station) >= order.indexOf(QUESTS[i - 1].station)), 'art: the places follow the book\'s order');
-  check(QUESTS.every(q => q.steps[0].kind === 'explore' && q.steps.some(st => CUSTOM_KINDS.includes(st.kind))), 'art: every lesson teaches first (أتعلّم), then plays the book\'s «أحاول» with the fingers');
-  check(QUESTS.every(q => reviewOf(q.id).length >= 6) && uniq(QUESTS.map(q => q.topic)), 'art: every quest has a review quiz of 6+ questions');
+  if (half === 1) {
+    const bad = QUESTS.flatMap(q => q.steps.map((st, i) => [q.id, i, st]).filter(([, , st]) => !okStep(st)).map(([id, i, st]) => `${id}#${i} ${st.kind}`));
+    // The book has 25 lessons; they are being written (PARTIAL until all are in).
+    const PARTIAL = false;
+    check((PARTIAL ? QUESTS.length >= 2 && QUESTS.length <= 25 : QUESTS.length === 25) && QUESTS.every(q => STATIONS[q.station]) && !bad.length, `art: ${QUESTS.length} of the book's 25 lessons, one quest each; every step is well formed (a right answer, a hint, its picture)${bad.length ? `: ${bad.join(', ')}` : ''}`);
+    const order = Object.keys(STATIONS);
+    check(QUESTS.every((q, i) => !i || order.indexOf(q.station) >= order.indexOf(QUESTS[i - 1].station)), 'art: the places follow the book\'s order');
+    check(QUESTS.every(q => q.steps[0].kind === 'explore' && q.steps.some(st => CUSTOM_KINDS.includes(st.kind))), 'art: every lesson teaches first (أتعلّم), then plays the book\'s «أحاول» with the fingers');
+    check(QUESTS.every(q => reviewOf(q.id).length >= 6) && uniq(QUESTS.map(q => q.topic)), 'art: every quest has a review quiz of 6+ questions');
+  }
 
   const gl = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--mute-audio'] });
   const ctx = await gl.newContext({ viewport: { width: 390, height: 844 } });
@@ -921,11 +925,13 @@ if (part('art')) {
   const studio = () => p.evaluate(() => window.__studio());
   let s = await studio();
   check(s.places.length === 15 && s.next === 'circles' && (await p.textContent('#studio-say .bubble')).includes('ريشة'), 'fifteen places; the helper «ريشة» says hello; the book\'s first lesson comes first');
-  await p.locator('#studio-places [data-place=circles]').dispatchEvent('click');
-  check(await p.locator('#studio-modal [data-start]').count() === 2, 'the square of circles holds the book\'s first two lessons');
-  await p.click('#studio-modal [data-start="circles"]');
-  await p.waitForSelector('#studio-panel:not([hidden]) .tn-step', { timeout: 5000 });
-  check(await p.locator('#studio-panel .lx').count() === 1 && await p.locator('#studio-panel [data-next]').count() === 0, 'the lesson starts by teaching (أتعلّم): the picture to explore, no question, no skipping');
+  if (half === 1) {
+    await p.locator('#studio-places [data-place=circles]').dispatchEvent('click');
+    check(await p.locator('#studio-modal [data-start]').count() === 2, 'the square of circles holds the book\'s first two lessons');
+    await p.click('#studio-modal [data-start="circles"]');
+    await p.waitForSelector('#studio-panel:not([hidden]) .tn-step', { timeout: 5000 });
+    check(await p.locator('#studio-panel .lx').count() === 1 && await p.locator('#studio-panel [data-next]').count() === 0, 'the lesson starts by teaching (أتعلّم): the picture to explore, no question, no skipping');
+  }
   // Plays to the end, the right answer each time (a ring's middle is another
   // ring, so SVG parts that cannot be clicked in the middle get the click itself).
   const tap = async el => {
@@ -953,54 +959,63 @@ if (part('art')) {
     return false;
   };
   const stars = id => p.evaluate(t => JSON.parse(localStorage.getItem('sindbad.save.v1')).topics[t]?.stars, id);
-  check(await play() && await stars('art-circles') === 3, 'the colour circles lesson (warm and cold, painting the rings) played perfectly: 3 stars');
-  await p.click('#studio-modal [data-close]');
-  s = await studio();
-  check(s.L.done.circles && s.next === QUESTS[1].id && s.hung === 1 && (await p.textContent('#studio-gems')) === '1', 'its painting hangs in the gallery at the harbour; the next lesson waits');
+  if (half === 1) {
+    check(await play() && await stars('art-circles') === 3, 'the colour circles lesson (warm and cold, painting the rings) played perfectly: 3 stars');
+    await p.click('#studio-modal [data-close]');
+    s = await studio();
+    check(s.L.done.circles && s.next === QUESTS[1].id && s.hung === 1 && (await p.textContent('#studio-gems')) === '1', 'its painting hangs in the gallery at the harbour; the next lesson waits');
+  }
   // Every hands-on game, each in a lesson of the book.
   const games = ['street', 'origami', 'surfaces', 'collage', 'africa', 'cardboard', 'lines'].filter(id => QUESTS.some(q => q.id === id)).slice(0, 5);
-  for (const id of games) {
+  const mine = half === 1 ? games.slice(0, 2) : games.slice(2), first = half === 1 ? 1 : 0;
+  for (const id of mine) {
     await p.evaluate(q => window.__studioDo('debugStart', q), id);
     await p.waitForSelector('#studio-panel:not([hidden]) .tn-step', { timeout: 5000 });
     const kinds = QUESTS.find(q => q.id === id).steps.map(st => st.kind).filter(k => CUSTOM_KINDS.includes(k));
     check(await play() && await stars(`art-${id}`) === 3, `the «${QUESTS.find(q => q.id === id).title}» lesson (${kinds.join(', ')}) played perfectly: 3 stars`);
     await p.click('#studio-modal [data-close]');
   }
-  check((await studio()).hung === 1 + games.length, 'each finished lesson hangs one more painting');
-  // «مرسمي»: draw with a finger, mirrored.
-  await p.click('#studio-easel-btn');
-  await p.waitForSelector('#studio-easel .ez-canvas', { timeout: 5000 });
-  await p.waitForTimeout(300);
-  await p.click('#studio-easel [data-mode=mirror]');
-  const box = await p.locator('#studio-easel .ez-canvas').boundingBox();
-  await p.mouse.move(box.x + box.width * 0.2, box.y + box.height * 0.3);
-  await p.mouse.down();
-  await p.mouse.move(box.x + box.width * 0.35, box.y + box.height * 0.5, { steps: 8 });
-  await p.mouse.up();
-  const painted = await p.evaluate(() => { const c = document.querySelector('#studio-easel .ez-canvas'), g = c.getContext('2d'), w = c.width; const at = x => [...g.getImageData(Math.round(x * w), Math.round(c.height * 0.4), 1, 1).data].slice(0, 3).join(); return [at(0.275), at(0.725)]; });
-  s = await studio();
-  check(s.easel?.strokes === 1 && s.easel.mode === 'mirror' && painted[0] === painted[1] && painted[0] !== '255,253,246', `«مرسمي»: a finger draws a line, and the mirror draws its other half (${painted.join(' / ')})`);
-  await p.click('#studio-easel [data-undo]');
-  check((await studio()).easel.strokes === 0, 'undo takes the line back');
-  await p.click('#studio-easel [data-close]');
-  check(await p.locator('#studio-easel[hidden]').count() === 1 && (await studio()).easel === null, 'the easel closes back to the island');
-  await p.reload();
-  await p.waitForTimeout(500);
-  const kept = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')).world.studio);
-  check(kept.done.circles && games.every(id => kept.done[id]), 'the island survives a reload');
-  await ctx.setOffline(true);
-  await p.reload();
-  await p.waitForTimeout(600);
-  await p.click('#screen-title [data-go]');
-  await p.click('.voyage--open');
-  await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
-  await p.click('.isle[data-region=art]');
-  await p.waitForSelector('#screen-studio[data-active]', { timeout: 20000 });
-  check(await p.locator('#studio-stage canvas').count() === 1 && (await p.textContent('#studio-gems')) === String(1 + games.length), 'the art island works offline, with its gallery');
+  check((await studio()).hung === first + mine.length, 'each finished lesson hangs one more painting');
+  if (half === 1) {
+    // «مرسمي»: draw with a finger, mirrored.
+    await p.click('#studio-easel-btn');
+    await p.waitForSelector('#studio-easel .ez-canvas', { timeout: 5000 });
+    await p.waitForTimeout(300);
+    await p.click('#studio-easel [data-mode=mirror]');
+    const box = await p.locator('#studio-easel .ez-canvas').boundingBox();
+    await p.mouse.move(box.x + box.width * 0.2, box.y + box.height * 0.3);
+    await p.mouse.down();
+    await p.mouse.move(box.x + box.width * 0.35, box.y + box.height * 0.5, { steps: 8 });
+    await p.mouse.up();
+    const painted = await p.evaluate(() => { const c = document.querySelector('#studio-easel .ez-canvas'), g = c.getContext('2d'), w = c.width; const at = x => [...g.getImageData(Math.round(x * w), Math.round(c.height * 0.4), 1, 1).data].slice(0, 3).join(); return [at(0.275), at(0.725)]; });
+    s = await studio();
+    check(s.easel?.strokes === 1 && s.easel.mode === 'mirror' && painted[0] === painted[1] && painted[0] !== '255,253,246', `«مرسمي»: a finger draws a line, and the mirror draws its other half (${painted.join(' / ')})`);
+    await p.click('#studio-easel [data-undo]');
+    check((await studio()).easel.strokes === 0, 'undo takes the line back');
+    await p.click('#studio-easel [data-close]');
+    check(await p.locator('#studio-easel[hidden]').count() === 1 && (await studio()).easel === null, 'the easel closes back to the island');
+  }
+  if (half === 2) {
+    await p.reload();
+    await p.waitForTimeout(500);
+    const kept = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')).world.studio);
+    check(mine.every(id => kept.done[id]), 'the island survives a reload');
+    await ctx.setOffline(true);
+    await p.reload();
+    await p.waitForTimeout(600);
+    await p.click('#screen-title [data-go]');
+    await p.click('.voyage--open');
+    await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
+    await p.click('.isle[data-region=art]');
+    await p.waitForSelector('#screen-studio[data-active]', { timeout: 20000 });
+    check(await p.locator('#studio-stage canvas').count() === 1 && (await p.textContent('#studio-gems')) === String(first + mine.length), 'the art island works offline, with its gallery');
+  }
   check(errors.length === 0, `no console errors${errors.length ? `: ${errors.join(' | ')}` : ''}`);
   await ctx.close();
   await gl.close();
 }
+if (part('art1')) await artIsland(1);
+if (part('art2')) await artIsland(2);
 // </studio-e2e>
 
 // ---------------------------------------------------------------------------
