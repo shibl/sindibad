@@ -33,6 +33,8 @@ class PagesLayoutTest(unittest.TestCase):
             publisher.CHEMISTRY / "lab.html": "lab entry",
             publisher.CHEMISTRY / "index.html": "lab index",
             publisher.CHEMISTRY / "js/exp-a.js": "experiment fixture",
+            publisher.DESIGNS / "index.html": "design drafts",
+            publisher.DESIGNS / "ar/index.html": "arabic design drafts",
         }
         for path, body in self.inputs.items():
             target = self.source / path
@@ -40,6 +42,9 @@ class PagesLayoutTest(unittest.TestCase):
             target.write_text(body)
 
     def test_public_paths_preserve_game_bytes_and_link_targets(self):
+        (self.root / "case").touch()
+        if (self.root / "CASE").exists():
+            self.skipTest("studio/ sits next to Studio/: needs a case-sensitive file system, as on the Actions runner")
         publisher.prepare(self.source, self.output)
         for public, original in {
             Path("Web/index.html"): publisher.GRADE6 / "Web/index.html",
@@ -51,6 +56,8 @@ class PagesLayoutTest(unittest.TestCase):
             Path("docs/screens/1-title.jpg"): publisher.GRADE6 / "docs/screens/1-title.jpg",
             publisher.WEBSITE / "home/index.html": publisher.WEBSITE / "home/index.html",
             publisher.CHEMISTRY / "js/exp-a.js": publisher.CHEMISTRY / "js/exp-a.js",
+            Path("studio/index.html"): publisher.DESIGNS / "index.html",
+            Path("studio/ar/index.html"): publisher.DESIGNS / "ar/index.html",
         }.items():
             self.assertEqual((self.output / public).read_bytes(), (self.source / original).read_bytes())
         self.assertFalse((self.output / "Web/node_modules").exists())
@@ -65,6 +72,14 @@ class PagesLayoutTest(unittest.TestCase):
             target = body.split('content="0; url=', 1)[1].split('"', 1)[0]
             self.assertTrue((self.output / alias.parent / target).is_file(), alias)
             self.assertIn("location.search + location.hash", body)
+
+    def test_publishes_the_game_without_the_design_drafts(self):
+        for path in [publisher.DESIGNS / "index.html", publisher.DESIGNS / "ar/index.html"]:
+            (self.source / path).unlink()
+        publisher.prepare(self.source, self.output)
+        self.assertTrue((self.output / "Web/index.html").is_file())
+        # By exact name: on a case-insensitive file system studio would match Studio/.
+        self.assertNotIn("studio", [p.name for p in self.output.iterdir()])
 
     def test_refuses_incomplete_source_without_writing_output(self):
         (self.source / publisher.GRADE6 / "Web/index.html").unlink()

@@ -4,6 +4,7 @@ The owner approved this layout on 2026-10-25: separate `Studio/Website` and `Stu
 
 - Grade 6 game: read `Studio/Games/Sindibad-Yasmina/Classes/Grade6/CLAUDE.md`, `WORKFLOW.md`, `SPEC.md`, and `BACKLOG.md`. Run its commands from the Grade 6 directory.
 - Studio website: read `Studio/Website/Web/AGENTS.md`.
+- Studio website design drafts: `Studio/Website/Designs/Web/` is a build published at `/studio/`. Never edit it by hand; see `Studio/Website/Designs/README.md`.
 - Grade 10 Chemistry Lab and textbook sources: read `Studio/Games/Sindibad-Yasmina/Classes/Grade10/AGENTS.md`. The website and Grade 10 retain the owner's source-only instruction: no browser use, builds, or app tests.
 - Preserve unrelated worktrees and native app work. Native clients stay native; do not replace them with WebViews.
 - Repository automation lives in `.github/`. Main requires passing Grade 6 checks; staging deploys automatically without Actions tests. Never push the website branch directly.

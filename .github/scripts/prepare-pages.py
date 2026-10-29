@@ -10,6 +10,10 @@ import shutil
 GRADE6 = Path("Studio/Games/Sindibad-Yasmina/Classes/Grade6")
 WEBSITE = Path("Studio/Website/Web")
 CHEMISTRY = Path("Studio/Games/Sindibad-Yasmina/Classes/Grade10/Chemistry/Web")
+# Built design drafts for the studio website (Studio/Website/Designs/README.md), published at
+# /studio/ when present; the game publishes without them. studio/ sits next to the Studio/
+# folder, so this needs a case-sensitive file system, as on the Actions runner.
+DESIGNS = Path("Studio/Website/Designs/Web")
 IGNORED = shutil.ignore_patterns("node_modules", ".git", ".DS_Store", "__pycache__", ".preview")
 
 
@@ -44,6 +48,8 @@ def prepare(source: Path, output: Path):
                                 (GRADE6 / "docs", Path("docs")),
                                 (WEBSITE, WEBSITE), (CHEMISTRY, CHEMISTRY)]:
         shutil.copytree(source / origin, output / destination, ignore=IGNORED)
+    if (source / DESIGNS / "index.html").is_file():
+        shutil.copytree(source / DESIGNS, output / "studio", ignore=IGNORED)
     for name in ["index.html", "service-worker.js"]:
         shutil.copyfile(source / GRADE6 / "Infra/Pages" / name, output / name)
     # Keep bookmarks for the previous Studio/Web tree, including deep pages.
@@ -64,4 +70,4 @@ if __name__ == "__main__":
     parser.add_argument("output", type=Path)
     args = parser.parse_args()
     prepare(args.source, args.output)
-    print(f"Prepared public Web/, studio website and Grade 10 Chemistry Lab in {args.output}")
+    print(f"Prepared public Web/, studio website, design drafts and Grade 10 Chemistry Lab in {args.output}")

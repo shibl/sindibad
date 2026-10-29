@@ -25,7 +25,7 @@ Studio/
 │           │   └── Content/extracted/
 │           └── Grade11/  Grade12/
 └── Website/
-    └── Web/  Android/  iOS/  Infra/
+    └── Web/  Designs/  Android/  iOS/  Infra/
 ```
 
 Grade folders that have no implementation are labelled as reserved. The platform indexes point to class-owned source; they do not duplicate the applications.
@@ -35,6 +35,7 @@ Grade folders that have no implementation are labelled as reserved. The platform
 - [Live game](https://shibl.github.io/sindibad/Web/)
 - [Staging game](https://shibl.github.io/sindibad/staging/Web/)
 - [Studio website](https://shibl.github.io/sindibad/Studio/Website/Web/home/)
+- [Studio website design drafts](https://shibl.github.io/sindibad/studio/)
 
 The game URLs, local saves, and offline-worker locations remain unchanged. The repository-wide workflow in `.github/workflows/site.yml` runs Grade 6 checks on main, then assembles the public files using `.github/scripts/prepare-pages.py`. Staging deploys without Actions tests. Existing `Studio/Web/` page links redirect to the new website and lab locations.
 
