@@ -8,6 +8,7 @@
 
 import * as THREE from '../../vendor/three/three.module.min.js';
 import { wind, dhow } from '../farm/models.js';
+import { newRenderer } from '../farm/scene.js';
 import * as M from './models.js';
 import { mapTopInset } from '../map.js';
 import type { MapWorld } from '../map.js';
@@ -129,10 +130,10 @@ const LOOKS: Record<string, Look> = {
 };
 
 export function createSea(world: MapWorld, { lite = false }: { lite?: boolean } = {}): Sea {
-  const renderer = new THREE.WebGLRenderer({ antialias: !lite, powerPreference: 'high-performance', preserveDrawingBuffer: !!window.__SINDBAD_TEST__ });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, lite ? 1 : 1.75));
+  const { renderer, light } = newRenderer(lite, { preserveDrawingBuffer: !!window.__SINDBAD_TEST__ });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, light ? 1 : 1.75));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.shadowMap.enabled = !lite;
+  renderer.shadowMap.enabled = !light;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const canvas = renderer.domElement;
   canvas.className = 'sea-canvas';

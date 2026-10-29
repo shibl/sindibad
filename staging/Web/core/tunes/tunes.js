@@ -75,8 +75,10 @@ export function enter(region) {
     sessionGain = { gained: 0, topic: null };
     els ||= grabEls();
     els.screen.dataset.curriculum = 'music';
-    if (!built && !failed)
+    if (!built) {
+        failed = false;
         build();
+    } // a failed 3D view is tried again on the next visit
     if (failed) {
         els.goal.innerHTML = '<p>هذه الجزيرة تحتاج إلى رسوم ثلاثية الأبعاد (WebGL)، وجهازك لا يدعمها. جرّب جزيرة أخرى! ⛵</p>';
         return;

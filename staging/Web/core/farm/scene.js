@@ -26,6 +26,20 @@ const KINDS = {
 // Options (the music island uses them; the farm keeps the defaults): fov
 // [portrait, landscape], the sky colour, the fog's near and far, the canvas's
 // CSS class.
+// A renderer for a 3D view. Some phones refuse the full look (smooth edges,
+// the fast graphics chip): then try once more with the lightest one before
+// giving up. `light` says which one it got (light: no shadows, pixel ratio 1).
+export function newRenderer(lite, opts = {}) {
+    if (!lite) {
+        try {
+            return { renderer: new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', ...opts }), light: false };
+        }
+        catch (err) {
+            console.warn('3D: trying lighter settings', err);
+        }
+    }
+    return { renderer: new THREE.WebGLRenderer({ antialias: false, ...opts }), light: true };
+}
 export function createStage(host, { lite = false, fov = [40, 32], sky = '#9fd9ee', fog = [90, 190], cls = 'farm-canvas' } = {}) {
     // The renderer can be made anew (see renew, below), so the code that runs
     // later always reads `renderer` and `canvas`, never a copy kept from here.
@@ -341,10 +355,10 @@ export function createStage(host, { lite = false, fov = [40, 32], sky = '#9fd9ee
     // the island stayed white: instead, make a new renderer for the same scene
     // (three.js sends the models to it again by itself).
     function makeRenderer() {
-        const r = new THREE.WebGLRenderer({ antialias: !lite, powerPreference: 'high-performance', preserveDrawingBuffer: !!window.__SINDBAD_TEST__ });
-        r.setPixelRatio(Math.min(window.devicePixelRatio || 1, lite ? 1 : 1.75));
+        const { renderer: r, light } = newRenderer(lite, { preserveDrawingBuffer: !!window.__SINDBAD_TEST__ });
+        r.setPixelRatio(Math.min(window.devicePixelRatio || 1, light ? 1 : 1.75));
         r.outputColorSpace = THREE.SRGBColorSpace;
-        r.shadowMap.enabled = !lite;
+        r.shadowMap.enabled = !light;
         r.shadowMap.type = THREE.PCFSoftShadowMap;
         const c = r.domElement;
         c.className = cls;
