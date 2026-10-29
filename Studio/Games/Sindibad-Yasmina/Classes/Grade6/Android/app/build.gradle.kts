@@ -12,8 +12,11 @@ android {
         applicationId = "org.sindibad.android"
         minSdk = 33
         targetSdk = 37
-        versionCode = 2
-        versionName = "0.2.0"
+        versionCode = 3
+        versionName = "0.3.0"
+        // 64-bit ARM phones only: Filament's native 3D libraries are about
+        // 6 MB per processor type, and 32-bit and x86 phones are rare.
+        ndk { abiFilters += listOf("arm64-v8a") }
     }
     buildFeatures { compose = true }
     compileOptions {
@@ -54,8 +57,26 @@ val sharedFonts = tasks.register<GenerateSharedFonts>("generateSharedArt") {
     monochrome.set(layout.projectDirectory.file("../../Shared/Art/runtime/png/ships/empty.png"))
     output.set(layout.buildDirectory.dir("generated/sharedArt"))
 }
+
+/** Only the shared 3D models the native sea map draws go into the APK, not the whole catalog. */
+abstract class CopySharedModels : DefaultTask() {
+    @get:InputDirectory abstract val source: DirectoryProperty
+    @get:Input abstract val models: ListProperty<String>
+    @get:OutputDirectory abstract val output: DirectoryProperty
+    @TaskAction fun copy() {
+        val out = output.get().asFile.apply { deleteRecursively() }
+        models.get().forEach { id -> source.get().file("$id.glb").asFile.copyTo(out.resolve("models/$id.glb")) }
+    }
+}
+val sharedModels = tasks.register<CopySharedModels>("copySharedModels") {
+    source.set(layout.projectDirectory.dir("../../Shared/Art/models"))
+    // The sea map (ui/sea/SeaRenderer.kt): the port, the nine islands, gulls, clouds and the ship.
+    models.set(listOf("port", "letters", "farm", "music", "numbers", "palette", "science", "atlas", "english", "treasure", "gull", "cloud").map { "sea/$it" } + "farm/dhow")
+    output.set(layout.buildDirectory.dir("generated/sharedModels"))
+}
 androidComponents.onVariants { variant ->
     variant.sources.res?.addGeneratedSourceDirectory(sharedFonts, GenerateSharedFonts::output)
+    variant.sources.assets?.addGeneratedSourceDirectory(sharedModels, CopySharedModels::output)
 }
 tasks.withType<Test>().configureEach { useJUnitPlatform() }
 
@@ -71,6 +92,8 @@ dependencies {
     implementation(libs.datastore.preferences)
     implementation(libs.coroutines.android)
     implementation(libs.serialization.json)
+    implementation(libs.filament.android)
+    implementation(libs.filament.gltfio)
     debugImplementation(libs.compose.tooling)
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.coroutines.test)
