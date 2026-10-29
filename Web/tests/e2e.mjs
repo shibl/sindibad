@@ -52,7 +52,7 @@ const URL_ = `http://localhost:${server.address().port}/`;
 // parts; without it, every part runs. A new part goes in that file too.
 const PARTS = JSON.parse(await readFile(join(ROOT, 'tests/e2e-groups.json'), 'utf8')).flat();
 // Every part of this file is in a CI group, so none is quietly left out.
-const used = [...(await readFile(fileURLToPath(import.meta.url), 'utf8')).matchAll(/if \(part\('([a-z]+)'\)\)/g)].map(m => m[1]);
+const used = [...(await readFile(fileURLToPath(import.meta.url), 'utf8')).matchAll(/if \(part\('([a-z0-9]+)'\)\)/g)].map(m => m[1]);
 const missing = used.filter(x => !PARTS.includes(x)).concat(PARTS.filter(x => !used.includes(x)));
 if (missing.length || new Set(PARTS).size !== PARTS.length) { console.error(`tests/e2e-groups.json and the parts of tests/e2e.mjs differ: ${missing.join(', ') || 'a part is listed twice'}`); process.exit(1); }
 const ONLY = process.env.E2E_PARTS ? process.env.E2E_PARTS.split(',').map(s => s.trim()).filter(Boolean) : null;
@@ -1007,17 +1007,20 @@ if (part('art')) {
 
 // The English island: the English book played in 3D (core/english/).
 // <english-e2e>
-if (part('english')) {
-  console.log('— English island');
+// Two halves, two lessons each, run side by side in CI (english1, english2).
+async function englishIsland(half) {
+  console.log(`— English island (${half} of 2)`);
   const { QUESTS, STATIONS, reviewOf, wordsOf } = await import('../worlds/grade6/english.js');
   // The island's own games (core/english/games.js; it needs a browser to load).
   const GAME_KINDS = ['listen', 'picture', 'build', 'spell', 'verb', 'memory', 'odd', 'rank', 'adjorder', 'chat'];
   const uniq = a => new Set(a).size === a.length;
-  check(QUESTS.length === 24 && QUESTS.every(q => STATIONS[q.station]) && uniq(QUESTS.map(q => q.id)) && uniq(QUESTS.map(q => q.topic)), 'English: 24 quests (twenty units and four revisions), each at a place of the town');
-  check(QUESTS.every(q => q.steps[0].kind === 'explore' && q.steps.every(st => st.kind === 'explore' || !!st.hint)), 'English: every lesson teaches first (the words, the rule), and every question has a hint');
-  check(QUESTS.every(q => q.steps.some(st => GAME_KINDS.includes(st.kind))), 'English: every lesson plays at least one of the island\'s games');
-  check(QUESTS.every(q => reviewOf(q.id).length >= 6), 'English: every quest has a review quiz of 6+ questions');
-  check(QUESTS.reduce((n, q) => n + wordsOf(q).length, 0) >= 200, 'English: the word book holds the book\'s words (200+)');
+  if (half === 1) {
+    check(QUESTS.length === 24 && QUESTS.every(q => STATIONS[q.station]) && uniq(QUESTS.map(q => q.id)) && uniq(QUESTS.map(q => q.topic)), 'English: 24 quests (twenty units and four revisions), each at a place of the town');
+    check(QUESTS.every(q => q.steps[0].kind === 'explore' && q.steps.every(st => st.kind === 'explore' || !!st.hint)), 'English: every lesson teaches first (the words, the rule), and every question has a hint');
+    check(QUESTS.every(q => q.steps.some(st => GAME_KINDS.includes(st.kind))), 'English: every lesson plays at least one of the island\'s games');
+    check(QUESTS.every(q => reviewOf(q.id).length >= 6), 'English: every quest has a review quiz of 6+ questions');
+    check(QUESTS.reduce((n, q) => n + wordsOf(q).length, 0) >= 200, 'English: the word book holds the book\'s words (200+)');
+  }
 
   const gl = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--mute-audio'] });
   const ctx = await gl.newContext({ viewport: { width: 390, height: 844 } });
@@ -1078,8 +1081,10 @@ if (part('english')) {
     return false;
   };
   const stars = id => p.evaluate(t => JSON.parse(localStorage.getItem('sindbad.save.v1')).topics[t]?.stars, id);
-  // Three lessons from three parts of the book, then a revision.
-  const picks = [QUESTS[0], QUESTS[8], QUESTS[16], QUESTS.find(q => /revision/i.test(q.id) || /Revision/.test(q.title)) || QUESTS[23]];
+  // Three lessons from three parts of the book, then a revision: the first
+  // two in one half, the other two in the other.
+  const all = [QUESTS[0], QUESTS[8], QUESTS[16], QUESTS.find(q => /revision/i.test(q.id) || /Revision/.test(q.title)) || QUESTS[23]];
+  const picks = half === 1 ? all.slice(0, 2) : all.slice(2);
   for (const q of picks) {
     await p.evaluate(id => window.__englishDo('debugStart', id), q.id);
     await p.waitForSelector('#english-panel:not([hidden]) .tn-step', { timeout: 5000 });
@@ -1104,6 +1109,8 @@ if (part('english')) {
   await ctx.close();
   await gl.close();
 }
+if (part('english1')) await englishIsland(1);
+if (part('english2')) await englishIsland(2);
 // </english-e2e>
 
 // The 3D sea map: a preview on the staging copy (?map=3d shows it here too).
