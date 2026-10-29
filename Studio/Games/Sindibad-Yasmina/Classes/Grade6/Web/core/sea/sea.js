@@ -8,6 +8,7 @@
 // and the loop sleeps whenever the map is not on screen.
 import * as THREE from '../../vendor/three/three.module.min.js';
 import { wind, dhow } from '../farm/models.js';
+import { newRenderer } from '../farm/scene.js';
 import * as M from './models.js';
 import { mapTopInset } from '../map.js';
 // Map positions (worlds/grade6.js, in % of the map) → world units: y% runs
@@ -25,10 +26,10 @@ const LOOKS = {
     night: { sky: '#16223f', deep: '#0e2b52', shallow: '#256f8a', hemi: ['#7c8fd6', '#2a2a4a', 1.7], sun: ['#b9cbff', 1.3], sunDir: [0.4, 0.8, -0.4], night: 1 },
 };
 export function createSea(world, { lite = false } = {}) {
-    const renderer = new THREE.WebGLRenderer({ antialias: !lite, powerPreference: 'high-performance', preserveDrawingBuffer: !!window.__SINDBAD_TEST__ });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, lite ? 1 : 1.75));
+    const { renderer, light } = newRenderer(lite, { preserveDrawingBuffer: !!window.__SINDBAD_TEST__ });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, light ? 1 : 1.75));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.shadowMap.enabled = !lite;
+    renderer.shadowMap.enabled = !light;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     const canvas = renderer.domElement;
     canvas.className = 'sea-canvas';
