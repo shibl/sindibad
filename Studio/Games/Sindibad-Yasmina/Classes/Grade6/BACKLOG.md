@@ -1154,3 +1154,11 @@ removed from the docs, the about page and the game.
   views (the sea map and the current island), down from 7. Every island,
   the farm with its chosen helper included, draws the same on the second
   visit, with no errors. Not checked on a phone yet.
+
+## Notes — 2026-10-29 (English tests in two jobs)
+
+- The English island's browser test was the slowest CI job (5–8 minutes:
+  four lessons of about 70 seconds each). It now runs as two parts,
+  `english1` and `english2`, two lessons each, side by side in CI; the
+  book's data checks run once, in the first. Next slowest: the art island
+  (4–7 minutes), which could be split the same way.
