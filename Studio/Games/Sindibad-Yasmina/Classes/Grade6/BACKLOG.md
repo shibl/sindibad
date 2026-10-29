@@ -1094,3 +1094,15 @@ removed from the docs, the about page and the game.
   `Flag`). Every full card is now checked for all its fields: all pass.
 - No content changed: the generated `countries.js` is the same code; in
   `globe.js` one fallback is written without a cast (same colour).
+
+## Notes — 2026-10-29 (faster CI, #22)
+
+- CI took about 20 minutes per push, the whole suite in one job, even for
+  website-only changes, and would grow with every grade. Now a first job
+  (`.github/scripts/test-plan.mjs`) picks the grades a change touches;
+  each runs as parallel jobs: the fast checks, plus one job per group of
+  `tests/e2e-groups.json` (`E2E_PARTS`). The slowest group (English) sets
+  the time: about 6 minutes expected. Website, Grade 10, native-app and
+  notes-only changes run no game tests. A newer push to a pull request
+  cancels the older run. A final `test` job still gates publishing.
+- No check was removed; `npm test` still runs everything locally.
