@@ -46,6 +46,20 @@ const server = createServer(async (req, res) => {
 }).listen(0);
 const URL_ = `http://localhost:${server.address().port}/`;
 
+// The sections below can run on their own: CI runs them side by side, one
+// job per group of tests/e2e-groups.json (.github/scripts/test-plan.mjs;
+// each group takes a few minutes). E2E_PARTS=farm,music runs only those
+// parts; without it, every part runs. A new part goes in that file too.
+const PARTS = JSON.parse(await readFile(join(ROOT, 'tests/e2e-groups.json'), 'utf8')).flat();
+// Every part of this file is in a CI group, so none is quietly left out.
+const used = [...(await readFile(fileURLToPath(import.meta.url), 'utf8')).matchAll(/if \(part\('([a-z]+)'\)\)/g)].map(m => m[1]);
+const missing = used.filter(x => !PARTS.includes(x)).concat(PARTS.filter(x => !used.includes(x)));
+if (missing.length || new Set(PARTS).size !== PARTS.length) { console.error(`tests/e2e-groups.json and the parts of tests/e2e.mjs differ: ${missing.join(', ') || 'a part is listed twice'}`); process.exit(1); }
+const ONLY = process.env.E2E_PARTS ? process.env.E2E_PARTS.split(',').map(s => s.trim()).filter(Boolean) : null;
+const unknown = (ONLY || []).filter(x => !PARTS.includes(x));
+if (unknown.length) { console.error(`Unknown E2E_PARTS: ${unknown.join(', ')} (known: ${PARTS.join(', ')})`); process.exit(1); }
+const part = name => !ONLY || ONLY.includes(name);
+
 let failures = 0;
 const check = (ok, msg) => { console.log(`${ok ? '✓' : '✗'} ${msg}`); if (!ok) failures += 1; };
 
@@ -80,7 +94,7 @@ async function perfectLesson(p) {
 // The test plays silently: no sound from the game's browser (--mute-audio),
 // and core/voice.ts does not read aloud in a test.
 const browser = await chromium.launch({ args: ['--mute-audio'] });
-for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet', { width: 1024, height: 768 }]]) {
+if (part('journey')) for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet', { width: 1024, height: 768 }]]) {
   console.log(`— ${name}`);
   const ctx = await browser.newContext({ viewport });
   await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
@@ -180,7 +194,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
 // touches, right and wrong answers; their switch in the settings; the soft
 // ring where a finger touched; holding an island on the map to hear about
 // it; the sea's ripple; the phone's back button going back in the game.
-{
+if (part('feel')) {
   console.log('— phone feel');
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
   await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
@@ -249,7 +263,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
 // no area the hero can only reach by squeezing through a gap barely wider
 // than itself (it gets stuck there). Explores every spot the hero can stand
 // on a fine grid, with the engine's own collision.
-{
+if (part('maps')) {
   console.log('— island maps');
   const ctx = await browser.newContext({ viewport: { width: 1024, height: 768 } });
   await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
@@ -306,7 +320,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
 // The newer kinds of play: every answer can be reached with the controls the
 // engine offers, each lesson can be played to three stars, and the first
 // round fits a phone screen without scrolling.
-{
+if (part('kinds')) {
   console.log('— new kinds of play');
   const { ITEMS: ANGLES } = await import('../plugins/math/angles.js');
   const { ITEMS: MARKET } = await import('../plugins/math/market.js');
@@ -350,7 +364,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
 }
 
 // The farm island: a 3D farm where the agriculture book is played.
-{
+if (part('farm')) {
   console.log('— farm island');
   const { CROPS, TASKS, QUESTS } = await import('../worlds/grade6/farm.js');
   const tools = Object.keys((await import('../worlds/grade6/farm.js')).TOOLS);
@@ -450,7 +464,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
 }
 
 // The music island: a 3D toy island where the music book is played.
-{
+if (part('music')) {
   console.log('— music island');
   const { QUESTS, STATIONS, GLASSES, reviewOf } = await import('../worlds/grade6/tunes.js');
   const glassIds = GLASSES.map(g => g.id);
@@ -564,7 +578,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
 
 // The science island: a 3D island where the science book (semester 1) is
 // played; every quest teaches first («أتعلّم»), then asks.
-{
+if (part('science')) {
   console.log('— science island');
   const { QUESTS, STATIONS, reviewOf } = await import('../worlds/grade6/lab.js');
   const { VIEWS } = await import('../core/lab/views.js');
@@ -698,7 +712,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
 // timelines to explore first, then questions), and the atlas globe of every
 // country with its flag, capital, currency and the meanings of its name and
 // flag.
-{
+if (part('atlas')) {
   console.log('— atlas island');
   const { QUESTS, STATIONS, reviewOf } = await import('../worlds/grade6/atlas.js');
   const { ATLAS_VIEWS, FEATURES } = await import('../core/atlas/views.js');
@@ -843,7 +857,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
 
 // The art island: the art book played in 3D (core/studio/).
 // <studio-e2e>
-{
+if (part('art')) {
   console.log('— art island');
   const { QUESTS, STATIONS, reviewOf } = await import('../worlds/grade6/studio.js');
   const { VIEWS, PIECES, STAGES } = await import('../core/studio/views.js');
@@ -993,7 +1007,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
 
 // The English island: the English book played in 3D (core/english/).
 // <english-e2e>
-{
+if (part('english')) {
   console.log('— English island');
   const { QUESTS, STATIONS, reviewOf, wordsOf } = await import('../worlds/grade6/english.js');
   // The island's own games (core/english/games.js; it needs a browser to load).
@@ -1094,7 +1108,7 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
 
 // The 3D sea map: a preview on the staging copy (?map=3d shows it here too).
 // The live game keeps the flat map.
-{
+if (part('sea')) {
   console.log('— 3D sea map');
   const gl = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--mute-audio'] });
   const ctx = await gl.newContext({ viewport: { width: 390, height: 844 } });
@@ -1178,8 +1192,9 @@ for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet
 // A new version reaches players who already have the game: it shows up by
 // itself (a reload between activities), not only after closing the tab.
 // And the game falls silent in the background.
-console.log('— updates and background');
-{
+
+if (part('updates')) {
+  console.log('— updates and background');
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const p = await ctx.newPage();
   const errors = [];
@@ -1215,8 +1230,9 @@ console.log('— updates and background');
 }
 
 // The staging copy shares the website with the live game, under /staging/.
-console.log('— staging copy');
-{
+
+if (part('staging')) {
+  console.log('— staging copy');
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const p = await ctx.newPage();
   const errors = [];

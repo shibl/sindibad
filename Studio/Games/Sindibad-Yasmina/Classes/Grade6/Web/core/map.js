@@ -210,16 +210,24 @@ function render3D() {
     paintToggle();
 }
 // ---------- Layout ----------
+// The map fills the screen under the top bar (style.css): how far down from
+// the map's top its floating buttons reach. 0 when the map is not shown.
+export function mapTopInset(map) {
+    const b = document.querySelector('.map-voyages')?.getBoundingClientRect();
+    return b?.height ? Math.max(0, b.bottom - map.getBoundingClientRect().top) : 0;
+}
 function computeLayout() {
     const w = el.clientWidth, h = el.clientHeight;
     const portrait = h >= w * 0.9;
     const size = Math.min(portrait ? w * 0.38 : w * 0.2, portrait ? h * 0.2 : h * 0.34, 240);
     const padX = size * 0.55, padY = size * 0.5;
+    // The top bar floats over the sea: islands start below its buttons.
+    const top = Math.max(padY, mapTopInset(el) + size * 0.3);
     const place = ([px, py]) => {
         // Portrait uses the authored positions; landscape turns the map so the
         // voyage runs right → left (RTL reading order).
         const [x, y] = portrait ? [px, py] : [py, px];
-        return { x: padX + (x / 100) * (w - 2 * padX), y: padY + (y / 100) * (h - 2 * padY) };
+        return { x: padX + (x / 100) * (w - 2 * padX), y: top + (y / 100) * (h - top - padY) };
     };
     const points = { home: place(world.home.pos) };
     world.regions.forEach(r => { points[r.id] = place(r.pos); });
