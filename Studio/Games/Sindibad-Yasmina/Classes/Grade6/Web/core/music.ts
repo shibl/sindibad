@@ -40,7 +40,7 @@ const THEMES: Record<string, Theme> = {
 // Maqsum: dum tak - tak dum - tak -  (8 eighth notes)
 const MAQSUM: ('D' | 'T' | '')[] = ['D', 'T', '', 'T', 'D', '', 'T', ''];
 
-let theme: Theme | null = null, timer: number | null = null, nextTime = 0, step = 0, degree = 2, master: GainNode | null = null;
+let theme: Theme | null = null, timer: ReturnType<typeof setInterval> | null = null, nextTime = 0, step = 0, degree = 2, master: GainNode | null = null;
 
 function pluck(a: AudioContext, freq: number, t: number, dur: number, vol: number): void {
   const o1 = a.createOscillator(), o2 = a.createOscillator(), g = a.createGain(), f = a.createBiquadFilter();

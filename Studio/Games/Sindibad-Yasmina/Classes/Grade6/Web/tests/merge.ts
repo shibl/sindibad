@@ -4,9 +4,20 @@ import assert from 'node:assert/strict';
 import { merge, same } from '../core/merge.js';
 
 let n = 0;
-const check = (label, fn) => { fn(); n += 1; console.log(`✓ ${label}`); };
+const check = (label: string, fn: () => void) => { fn(); n += 1; console.log(`✓ ${label}`); };
 
-const base = {
+/** The parts of a save these checks use (core/save.ts). */
+interface TopicSave { stars: number; best: number; plays: number; last: number; missed: string[]; history: { t: number; pct: number }[] }
+interface FarmSave { coins: number; xp: number; quest: number; inv: Record<string, number>; plots: { run: { crop: string; at: number } | null }[] }
+interface Save {
+  version: number; hero: string; pearls: number; time: number; muted: boolean;
+  days: Record<string, number>; daily: Record<string, number>;
+  topics: { t1: TopicSave; t2?: Pick<TopicSave, 'stars' | 'best' | 'plays'> }; review: Record<string, { box: number; due: number }>;
+  owned: string[]; stickers: string[]; badges: Record<string, string>;
+  world: { farm: FarmSave; atlas?: { visited: string[] } };
+}
+
+const base: Save = {
   version: 1, hero: 'sindbad', pearls: 20, time: 100, muted: false,
   days: { '2026-10-26': 100 }, daily: { '2026-10-26': 2 },
   topics: { t1: { stars: 1, best: 0.5, plays: 2, last: 10, missed: ['a', 'b'], history: [{ t: 1, pct: 0.4 }, { t: 2, pct: 0.5 }] } },
@@ -14,7 +25,7 @@ const base = {
   owned: ['sail-rose'], stickers: ['s1'], badges: { arabic: 'bronze' },
   world: { farm: { coins: 10, xp: 5, quest: 1, inv: { tomato: 3 }, plots: [{ run: null }, { run: null }] } },
 };
-const copy = v => structuredClone(v);
+const copy = <T>(v: T): T => structuredClone(v);
 
 check('same() ignores key order', () => {
   assert.ok(same({ a: 1, b: [1, { c: 2, d: 3 }] }, { b: [1, { d: 3, c: 2 }], a: 1 }));

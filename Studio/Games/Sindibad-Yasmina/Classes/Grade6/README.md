@@ -232,7 +232,7 @@ Inside `Web/`:
 
 - `core/i18n.ts`, `core/i18n/` — language preference and offline English
   interface and curriculum catalogues. Display text changes in place, without replacing activity
-  elements or modifying answer keys. `tests/language.mjs` covers switching,
+  elements or modifying answer keys. `tests/language.ts` covers switching,
   progress, original lesson content, offline use and staging isolation.
 
 - `index.html`, `style.css`, `app.ts` — app shell: screens, backdrop, boot.

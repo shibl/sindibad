@@ -5,7 +5,7 @@
 import { ac } from './sound.js';
 import { save } from './save.js';
 
-let bus: GainNode | null = null, waveGain: GainNode | null = null, noiseSrc: AudioBufferSourceNode | null = null, timer: number | null = null;
+let bus: GainNode | null = null, waveGain: GainNode | null = null, noiseSrc: AudioBufferSourceNode | null = null, timer: ReturnType<typeof setInterval> | null = null;
 let on = false, seaLevel = 0.5, nextCall = 0, t0 = 0;
 
 function noiseBuffer(a: AudioContext, seconds = 2): AudioBuffer {

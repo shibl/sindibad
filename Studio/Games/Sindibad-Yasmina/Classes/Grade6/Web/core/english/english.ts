@@ -84,7 +84,9 @@ const isle = makeIsland({
 /** A see-through mesh whose opacity changes (a beam, a lantern…). */
 type Faded = THREE.Mesh<THREE.BufferGeometry, THREE.Material>;
 
-function extras(scene: THREE.Scene, api: IslandApi): Extras {
+/** What the end-to-end test reads: the word book's state, and how many letters are lit. */
+type EnglishDebug = { book: ReturnType<ReturnType<typeof openWords>['debug']> | null; lit: number };
+function extras(scene: THREE.Scene, api: IslandApi): Extras<EnglishDebug> {
   const P = api.places;
   const sign = M.helloSign(QUESTS.length);
   sign.position.set(SIGN[0], M.levelAt(SIGN[1]), SIGN[1]);

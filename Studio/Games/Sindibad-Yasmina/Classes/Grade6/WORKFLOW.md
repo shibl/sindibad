@@ -78,11 +78,19 @@ against?
   `E2E_PARTS=farm,music npm run test:e2e` (the parts are listed in
   `tests/e2e-groups.json`). CI runs each group of that file as its own
   job, side by side, and only when Grade 6 files changed; a new part of
-  `tests/e2e.mjs` goes in that file too (the test fails otherwise).
+  `tests/e2e.ts` goes in that file too (the test fails otherwise).
+- The tests are TypeScript too, run by Node as they are (no build step)
+  and type-checked by `npm run typecheck` (`tsconfig.json`). What they read
+  on the page's `window` (the game's test hooks, `__farm()`, `__labDo()`…)
+  is typed in `tests/browser.d.ts` from the game's own functions, so a test
+  that reads something the game no longer has fails the type check. A
+  game module loaded inside the page keeps its page path and borrows its
+  types: `import('./core/save.js' as string) as Promise<typeof
+  import('../core/save.js')>`.
 - A new engine needs a test hook: tag the right answer with `data-ok`, and
   each useful tap with `data-step` if it takes several taps (see
   `plugins/engines/kit.ts`). Add the new lesson to the test in
-  `tests/e2e.mjs`.
+  `tests/e2e.ts`.
 - Every lesson is also checked without a browser by
   `tests/check-content.ts` (a second; part of `npm test`). A 3D book
   island's quests: teaching first, four questions or more, a hint and an

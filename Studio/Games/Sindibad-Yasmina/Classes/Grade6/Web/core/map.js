@@ -691,7 +691,7 @@ function openSheet(region) {
     requestAnimationFrame(() => sheet.classList.add('is-open'));
     sheet.querySelector('.topic-card')?.focus({ preventScroll: true });
 }
-// Test hook (tests/e2e.mjs): the 3D sea's state, or null on the flat map.
+// Test hook (tests/e2e.ts): the 3D sea's state, or null on the flat map.
 export const debugSea = () => (is3D() ? view.debug() : null);
 export const debugSeaLook = (...a) => view?.look(...a);
 export function closeSheet() {

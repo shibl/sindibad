@@ -12,8 +12,8 @@
     "shell": "node tools/update-shell.ts",
     "typecheck": "tsc && tsc -p tsconfig.game.json",
     "test": "npm run test:fast && npm run test:e2e",
-    "test:fast": "npm run typecheck && node tests/check-build.ts && node tests/check-shell.ts && node tests/check-content.ts && node tests/check-language-content.mjs && node tests/language.mjs && node tests/merge.mjs && node tests/sync.mjs",
-    "test:e2e": "node tests/e2e.mjs",
+    "test:fast": "npm run typecheck && node tests/check-build.ts && node tests/check-shell.ts && node tests/check-content.ts && node tests/check-language-content.ts && node tests/language.ts && node tests/merge.ts && node tests/sync.ts",
+    "test:e2e": "node tests/e2e.ts",
     "serve": "python3 -m http.server 8000"
   },
   "devDependencies": {
