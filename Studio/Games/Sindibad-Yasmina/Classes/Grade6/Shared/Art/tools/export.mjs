@@ -152,11 +152,19 @@ const factories = {
   studio: ['terrain', 'circlesSquare', 'fatnaHouse', 'perspectiveStreet', 'cubistStudio', 'palmyra', 'africanVillage', 'noria', 'cardboardWorkshop', 'realistStudio', 'mandalaGarden', 'damasceneHouse', 'ideasHouse', 'linesWall', 'craftsMarket', 'artistsGallery', 'helperBrush'],
   english: ['terrain', 'harbour', 'theatre', 'aquarium', 'arts', 'hospital', 'park', 'farm', 'souq', 'garden', 'school', 'square', 'space', 'helloSign', 'helperParrot'],
 };
+// The glass pavilion as the game builds it (core/tunes/tunes.ts): each glass
+// with its id and colour, its water at the book's level (all lessons done).
+async function glassPavilion(mod) {
+  const { GLASSES, GLASS_COLORS } = await import('../../../Web/worlds/grade6/tunes.js');
+  const g = mod.glassPavilion(GLASSES.map(x => ({ id: x.id, color: GLASS_COLORS[x.id] })));
+  for (const x of GLASSES) mod.setWater(g.userData.waters[x.id], x.n / x.d);
+  return g;
+}
 const failures = [];
 for (const [island, names] of Object.entries(factories)) {
   const mod = await import(`../../../Web/core/${island}/models.js`);
   for (const name of names) {
-    try { await model(`${island}/${name}`, name === 'glassPavilion' ? mod[name]([1, 7/8, 3/4, 2/3, 1/2, 3/8, 1/4, 1/8]) : mod[name](), `Web/core/${island}/models.js`); }
+    try { await model(`${island}/${name}`, name === 'glassPavilion' ? await glassPavilion(mod) : mod[name](), `Web/core/${island}/models.js`); }
     catch (error) { failures.push({ id: `${island}/${name}`, reason: error.message }); }
   }
 }

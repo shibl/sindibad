@@ -1559,8 +1559,8 @@
       "variants": [
         {
           "path": "models/tunes/glassPavilion.glb",
-          "bytes": 1158760,
-          "sha256": "649d5a5015b29ca69578186c928f824b82221c8fdf7ad654b370eef36fd8d21d"
+          "bytes": 1160612,
+          "sha256": "536b7c8c5d35dda3d0ac8b2eb7128fb3964c1999d64ecb74e24cdef1cdb88b0f"
         }
       ],
       "coordinateSystem": "right-handed, Y-up, +Z forward",
