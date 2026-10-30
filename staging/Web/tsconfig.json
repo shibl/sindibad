@@ -5,7 +5,7 @@
 {
   "compilerOptions": {
     "target": "es2023",
-    "lib": ["es2023"],
+    "lib": ["es2023", "dom", "dom.iterable"],
     "module": "nodenext",
     "types": ["node"],
     "strict": true,
@@ -17,5 +17,5 @@
     "allowImportingTsExtensions": true,
     "skipLibCheck": true
   },
-  "include": ["tools/**/*.ts", "tests/**/*.ts"]
+  "include": ["tools/**/*.ts", "tests/**/*.ts", "types/**/*.d.ts"]
 }

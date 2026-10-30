@@ -18,12 +18,14 @@ const { CONTENT_EN } = await import('../core/i18n/content-en.js');
 const { ARABIC_EN } = await import('../core/i18n/arabic-en.js');
 const { MATH_EN } = await import('../core/i18n/math-en.js');
 const arabic = /[\u0621-\u064a]/;
-const normalize = s => s.replace(/\s+/g, ' ').trim();
-const parts = html => String(html).split(/<[^>]*>/).map(normalize).filter(s => arabic.test(s));
-const missing = new Map(), duplicates = [];
+const normalize = (s: string) => s.replace(/\s+/g, ' ').trim();
+const parts = (html: unknown) => String(html).split(/<[^>]*>/).map(normalize).filter(s => arabic.test(s));
+const missing = new Map<string, string>(), duplicates: { where: string; original: unknown[]; english: string[] }[] = [];
 let count = 0, questions = 0;
-const english = (html, subject) => String(html).split(/(<[^>]*>)/).map(p => p.startsWith('<') ? '' : translate(p, 'en', 0, subject)).join('');
-function check(value, where, subject) {
+const english = (html: unknown, subject: string) => String(html).split(/(<[^>]*>)/).map(p => p.startsWith('<') ? '' : translate(p, 'en', 0, subject)).join('');
+/** Curriculum data, walked field by field: questions, options, pairs… */
+type Data = { [key: string]: unknown; curriculum?: string; options?: unknown[]; kind?: string; pairs?: unknown[][] };
+function check(value: unknown, where: string, subject: string) {
   if (typeof value === 'string') {
     for (const s of parts(value)) {
       // The Arabic subject's literal words/examples stay Arabic. Every
@@ -34,32 +36,33 @@ function check(value, where, subject) {
     }
   } else if (Array.isArray(value)) value.forEach((x, i) => check(x, `${where}[${i}]`, subject));
   else if (value && typeof value === 'object') {
-    subject = value.curriculum || subject;
-    for (const [key, v] of Object.entries(value)) {
+    const data = value as Data;
+    subject = data.curriculum || subject;
+    for (const [key, v] of Object.entries(data)) {
       if (key === 'render') continue;
       check(v, `${where}.${key}`, subject);
     }
-    if (value.options?.every(o => typeof o === 'string') && subject !== 'arabic') {
+    if (data.options?.every(o => typeof o === 'string') && subject !== 'arabic') {
       questions++;
-      const options = value.options.map(o => normalize(english(o, subject)).toLowerCase());
-      if (new Set(options).size !== options.length) duplicates.push({ where, original: value.options, english: options });
+      const options = data.options.map(o => normalize(english(o, subject)).toLowerCase());
+      if (new Set(options).size !== options.length) duplicates.push({ where, original: data.options, english: options });
     }
-    if (value.kind === 'match' && value.pairs) {
-      const answers = value.pairs.map(p => normalize(english(p[1], subject)).toLowerCase());
-      if (new Set(answers).size !== answers.length) duplicates.push({ where, original: value.pairs.map(p => p[1]), english: answers });
+    if (data.kind === 'match' && data.pairs) {
+      const answers = data.pairs.map(p => normalize(english(p[1], subject)).toLowerCase());
+      if (new Set(answers).size !== answers.length) duplicates.push({ where, original: data.pairs.map(p => p[1]), english: answers });
     }
   }
 }
 for (const [file, subject] of [['lab', 'science'], ['atlas', 'social'], ['studio', 'art'], ['english', 'english'], ['tunes', 'music'], ['farm', 'agriculture'], ['math', 'math'], ['arabic', 'arabic'], ['treasure', 'treasure']]) {
   const data = await import(`../worlds/grade6/${file}.js`);
   check(data, file, subject);
-  const viewModules = {
+  const viewModules: Record<string, [string, string][]> = {
     lab: [['core/lab/views.js', 'VIEWS'], ['core/lab/views-machines.js', 'MACHINE_VIEWS']],
     atlas: [['core/atlas/views.js', 'ATLAS_VIEWS']],
     studio: [['core/studio/views.js', 'VIEWS']],
     english: [['core/english/views.js', 'EN_VIEWS']],
   };
-  const views = {};
+  const views: Record<string, { html(step: unknown): string }> = {};
   for (const [path, name] of viewModules[file] || []) Object.assign(views, (await import(`../${path}`))[name]);
   for (const quest of data.QUESTS || []) for (const step of quest.steps || []) {
     for (const key of new Set([step.view, step.pic])) if (key && views[key]) check(views[key].html(step), `${file}/${quest.id}/${key}`, subject);
@@ -70,14 +73,16 @@ await import('../plugins/index.js');
 const { allTopics } = await import('../core/topics.js');
 for (const topic of allTopics()) {
   check(topic, topic.id, topic.region);
-  const opts = topic.render.opts;
+  // The loader above swaps each engine for a stub that keeps its options.
+  const opts = (topic.render as { opts?: Record<string, unknown> }).opts;
   check(opts, topic.id, topic.region);
   for (const field of ['questions', 'items', 'pairs']) {
-    if (typeof opts?.[field] === 'function') for (let i = 0; i < 3; i++) check(opts[field](), topic.id, topic.region);
+    const make = opts?.[field];
+    if (typeof make === 'function') for (let i = 0; i < 3; i++) check(make(), topic.id, topic.region);
   }
 }
-const placeholder = s => [...s.matchAll(/\{\w+\}/g)].map(m => m[0]).sort();
-const badVariables = [];
+const placeholder = (s: string) => [...s.matchAll(/\{\w+\}/g)].map(m => m[0]).sort();
+const badVariables: string[] = [];
 for (const [name, data] of Object.entries({ EN, CONTENT_EN, ARABIC_EN, MATH_EN })) {
   for (const [ar, en] of Object.entries(data)) {
     if (!en.trim()) badVariables.push(`${name}: empty translation for ${ar}`);
