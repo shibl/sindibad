@@ -199,8 +199,6 @@ export interface FarmSave {
 type Stage = ReturnType<typeof createStage>;
 type Els = ReturnType<typeof grabEls>;
 type Table<T> = Record<string, T>;
-/** models.js's fence (its JS default of `gate = null` reads as always null). */
-type Fence = (x1: number, z1: number, x2: number, z2: number, opts?: { gate?: [number, number] | null }) => THREE.Object3D;
 
 /** A plot, built: its base and the instanced plants, weeds, mounds and stakes on it. */
 interface Plot {
@@ -391,7 +389,7 @@ function build() {
   PLOTS_AT.forEach(([x, z], i) => {
     const base = add(M.plotBase(), x, z);
     const plot = { i, base, x, z, grow: 1, key: null, layout: null } as Plot;
-    plot.plants = inst(M.plantGeometry('sprout'), M.VC_SWAY, 16, base);
+    plot.plants = inst(M.plantGeometry('sprout')!, M.VC_SWAY, 16, base);
     plot.weeds = inst(M.weedGeometry(), M.VC_SWAY, 6, base);
     plot.mounds = inst(M.moundGeometry(), M.VC, 9, base);
     plot.stakes = inst(M.stakeGeometry(), M.VC, 9, base);
@@ -413,7 +411,7 @@ function build() {
   stage.addClickable(dairy, 'dairy');
   places.dairy = { kind: 'task', task: 'cheese', anchor: new THREE.Vector3(2, 0, -8.8), label: 'معمل الألبان', radius: 3.4, top: 5.2 };
 
-  scene.add((M.fence as Fence)(6.2, -1.2, 14.6, 6.0, { gate: [10.4, 6.0] }));
+  scene.add(M.fence(6.2, -1.2, 14.6, 6.0, { gate: [10.4, 6.0] }));
   cow = add(M.shamiCow(), 10.6, 2.0, 0.25);
   feederObj = add(M.feeder(), 8.0, 4.4, 0.1);
   add(M.trough(), 12.9, 4.6, -0.1);
@@ -444,7 +442,7 @@ function build() {
   stage.addClickable(dhowObj, 'board');
 
   windmillObj = add(M.windmill(), -15.2, -9.4, 0.5);
-  ([['apple', -19, -3], ['apple', -17.4, 1.8], ['lemon', 17.4, 9.6], ['lemon', 19.2, 4.6], ['olive', -6, -11.4], ['olive', 18.6, -2.6], ['apple', -3.4, -12.2]] as [string, number, number][])
+  ([['apple', -19, -3], ['apple', -17.4, 1.8], ['lemon', 17.4, 9.6], ['lemon', 19.2, 4.6], ['olive', -6, -11.4], ['olive', 18.6, -2.6], ['apple', -3.4, -12.2]] as [M.TreeKind, number, number][])
     .forEach(([k, x, z], i) => add(M.tree(k, i + 1), x, z, i));
   [[-22.5, 14.5], [21.5, 15.5], [-24.5, -6], [24.5, -11], [-4, 20.4], [23.5, 3]].forEach(([x, z], i) => add(M.palm(i + 2), x, z, i * 1.3, 0));
   [[-20, 18], [14, 19.5], [25, -2], [-25, 4], [-10, -19.5], [9, -19.8]].forEach(([x, z], i) => add(M.rock(i + 1, 0.5 + (i % 3) * 0.2), x, z, i));
@@ -469,7 +467,7 @@ function build() {
 
   // Icons for menus: products and the helpers' faces.
   icons = stage.snapshots([
-    ...Object.keys(M.PRODUCTS).map(id => ({ id, object: M.product(id), yaw: 0.6, pitch: 0.45, pad: 1.25 })),
+    ...(Object.keys(M.PRODUCTS) as M.ProductId[]).map(id => ({ id, object: M.product(id), yaw: 0.6, pitch: 0.45, pad: 1.25 })),
     ...HELPERS.map(h => ({ id: `helper-${h.id}`, object: M.helper(h.id), yaw: 0.35, pitch: 0.2, pad: 1.05 })),
   ]);
 
@@ -886,7 +884,7 @@ function layPlants(p: Plot) {
   const run = F.plots[p.i].run;
   if (!run || !run.stage) { p.plants.count = 0; return; }
   const key = run.stage === 'planted' ? 'planted' : `${run.id}:${run.stage}`;
-  const geo = M.plantGeometry(key) || M.plantGeometry('sprout');
+  const geo = M.plantGeometry(key) || M.plantGeometry('sprout')!;
   if (p.plants.geometry !== geo) p.plants.geometry = geo;
   const spots = plantSpots(run.dense && run.stage === 'young');
   const e = p.grow < 1 ? 1 - (1 - p.grow) ** 3 : 1;
@@ -1225,7 +1223,7 @@ function placeHelper(snap?: boolean) {
   if (!helperDef) return;
   if (helperObj?.userData.kind !== F.helper) {
     if (helperObj) { stage.scene.remove(helperObj); stage.removeClickable(helperObj); }
-    helperObj = M.helper(F.helper);
+    helperObj = M.helper(helperDef.id);
     helperObj.userData.kind = F.helper;
     helperObj.scale.setScalar(1.25);
     stage.scene.add(helperObj);

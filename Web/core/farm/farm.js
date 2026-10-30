@@ -1301,7 +1301,7 @@ function placeHelper(snap) {
             stage.scene.remove(helperObj);
             stage.removeClickable(helperObj);
         }
-        helperObj = M.helper(F.helper);
+        helperObj = M.helper(helperDef.id);
         helperObj.userData.kind = F.helper;
         helperObj.scale.setScalar(1.25);
         stage.scene.add(helperObj);
