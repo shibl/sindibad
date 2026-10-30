@@ -1,5 +1,5 @@
 // Checks the game's lessons in a second, without a browser: what the full
-// test (e2e.mjs) would only find by playing every lesson, or never. Part of
+// test (e2e.ts) would only find by playing every lesson, or never. Part of
 // npm test.
 //
 // The 3D book islands (art, English, science, atlas):

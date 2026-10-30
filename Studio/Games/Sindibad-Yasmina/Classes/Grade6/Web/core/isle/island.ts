@@ -85,7 +85,7 @@ export interface IslandApi {
 }
 
 /** What an island adds: its toys, animations and reward (cfg.extras(scene, api)). */
-export interface Extras {
+export interface Extras<D extends object = object> {
   /** A tap on one of its clickables; true when it handled it. */
   tap?(id: string): boolean | void;
   animate?(dt: number, t: number): void;
@@ -98,10 +98,11 @@ export interface Extras {
   close?(): void;
   /** True while its own overlay covers the island (the labels hide). */
   covering?(): boolean;
-  debug?(): object;
+  /** What the end-to-end test reads besides the island's own state (debug()). */
+  debug?(): D;
 }
 
-export interface IslandConfig {
+export interface IslandConfig<D extends object = object> {
   /** 'lab': DOM ids (#screen-lab, #lab-stage…) and the save (save.world.lab = { met, done }). */
   key: string;
   title: string;
@@ -137,7 +138,7 @@ export interface IslandConfig {
     visitors?: [place: string, lx: number, lz: number, ry: number, seed: number, opts?: object][];
   };
   places: Record<string, { at: [x: number, z: number]; ry: number; r: number; make(): THREE.Object3D }>;
-  extras?(scene: THREE.Scene, api: IslandApi): Extras;
+  extras?(scene: THREE.Scene, api: IslandApi): Extras<D>;
   /** The island's own lines. */
   text: {
     quit: string; allDone: string; goalDone: string; gainChip: string; gained: string; allDoneNext: string;
@@ -161,12 +162,12 @@ const topicStars = (topic: string) => save.get().topics[topic]?.stars || 0;
 /** A mesh that casts and takes shadows (not a see-through one). */
 export const solid = (o: THREE.Object3D): o is THREE.Mesh => (o as THREE.Mesh).isMesh && !((o as THREE.Mesh).material as THREE.Material).transparent;
 
-export function makeIsland(cfg: IslandConfig) {
+export function makeIsland<D extends object = object>(cfg: IslandConfig<D>) {
   const { key, content: { HELPER, STATIONS, UNITS, QUESTS }, ground: M, text: T } = cfg;
   const _v = new THREE.Vector3();
   let els: Els, stage: Stage, hooks: IslandHooks, built = false, failed = false;
   let S: IslandSave;                    // this child's island save (save.world[key])
-  let curve: Curve, helperObj: THREE.Object3D, beacon: THREE.Object3D, ring: THREE.Mesh<Geo, THREE.Material>, extra: Extras = {};
+  let curve: Curve, helperObj: THREE.Object3D, beacon: THREE.Object3D, ring: THREE.Mesh<Geo, THREE.Material>, extra: Extras<D> = {};
   const places: Record<string, Place> = {}, walkers: THREE.Mesh[] = [], sparks: THREE.Sprite[] = [];
   let quest: QuestRun | null = null, selected: string | null = null, icons: Record<string, string> = {};
   let sessionGain: Gain = { gained: 0, topic: null };
@@ -701,7 +702,7 @@ export function makeIsland(cfg: IslandConfig) {
   function debugStart(id: string) { closeModal(); runQuest(QUESTS.find(q => q.id === id)); }
   function debug() {
     const info = stage?.renderer.info.render;
-    return { calls: info?.calls, triangles: info?.triangles, L: state(), next: nextQuest()?.id || null, quest: quest?.def.id || null, step: quest?.i ?? null, kind: quest ? quest.def.steps[quest.i].kind : null, places: Object.keys(places), selected, ...(extra.debug?.() || {}) };
+    return { calls: info?.calls, triangles: info?.triangles, L: state(), next: nextQuest()?.id || null, quest: quest?.def.id || null, step: quest?.i ?? null, kind: quest ? quest.def.steps[quest.i].kind : null, places: Object.keys(places), selected, ...(extra.debug?.() || {} as Partial<D>) };
   }
 
   return { init, enter, lessonReturned, debugLook, debugStart, debug, api };

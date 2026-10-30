@@ -75,7 +75,9 @@ const isle = makeIsland({
 const visitedSet = () => new Set<string>(save.get().world?.atlas?.visited || []);
 function remember(id: string) { save.update(s => { const w = (s.world ||= {}); const a = (w.atlas ||= {}); a.visited = [...new Set([...(a.visited || []), id])]; }); }
 
-function extras(scene: THREE.Scene, api: IslandApi): Extras {
+/** What the end-to-end test reads: the globe's state, while it is open. */
+type AtlasDebug = { globe: ReturnType<ReturnType<typeof import('./globe.js').openGlobe>['debug']> | null };
+function extras(scene: THREE.Scene, api: IslandApi): Extras<AtlasDebug> {
   const P = api.places;
   const compass = M.travellersCompass(QUESTS.length);
   compass.position.set(COMPASS[0], M.levelAt(COMPASS[1]), COMPASS[1]);

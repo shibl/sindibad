@@ -27,43 +27,51 @@ import { readFile } from 'node:fs/promises';
 import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
+import type { AddressInfo } from 'node:net';
+import type { Locator, Page } from 'playwright';
+import type { Step } from '../types/content.js';
+import type { FullCard } from '../worlds/atlas/countries.js';
+import type { IslandDef } from '../core/overworld.js';
+
+/** A lesson step, as the islands' books write it (types/content.d.ts): the checks below validate its shape. */
+type Loose = Step;
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
-const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.woff2': 'font/woff2' };
+const TYPES: Record<string, string> = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.woff2': 'font/woff2' };
 
-let nextVersion = null;
+let nextVersion: string | null = null;
 const server = createServer(async (req, res) => {
   // /staging/… serves the same files, like the staging copy on the website.
-  const path = normalize(decodeURIComponent(new URL(req.url, 'http://x').pathname)).replace(/^([/\\])+/, '').replace(/^staging[/\\]/, '');
+  const path = normalize(decodeURIComponent(new URL(req.url!, 'http://x').pathname)).replace(/^([/\\])+/, '').replace(/^staging[/\\]/, '');
   const file = path || 'index.html';
   try {
-    let body = await readFile(join(ROOT, file));
+    let body: Buffer | string = await readFile(join(ROOT, file));
     // Tests can publish a "new version": same files, another version number.
     if (file === 'service-worker.js' && nextVersion) body = String(body).replace(/const CACHE_VERSION = '[^']*';/, `const CACHE_VERSION = '${nextVersion}';`);
     res.writeHead(200, { 'content-type': TYPES[extname(file)] || 'application/octet-stream' });
     res.end(body);
   } catch { res.writeHead(404); res.end(); }
 }).listen(0);
-const URL_ = `http://localhost:${server.address().port}/`;
+const URL_ = `http://localhost:${(server.address() as AddressInfo).port}/`;
 
 // The sections below can run on their own: CI runs them side by side, one
 // job per group of tests/e2e-groups.json (.github/scripts/test-plan.mjs;
 // each group takes a few minutes). E2E_PARTS=farm,music runs only those
 // parts; without it, every part runs. A new part goes in that file too.
-const PARTS = JSON.parse(await readFile(join(ROOT, 'tests/e2e-groups.json'), 'utf8')).flat();
+const PARTS: string[] = JSON.parse(await readFile(join(ROOT, 'tests/e2e-groups.json'), 'utf8')).flat();
 // Every part of this file is in a CI group, so none is quietly left out.
 const used = [...(await readFile(fileURLToPath(import.meta.url), 'utf8')).matchAll(/if \(part\('([a-z0-9]+)'\)\)/g)].map(m => m[1]);
 const missing = used.filter(x => !PARTS.includes(x)).concat(PARTS.filter(x => !used.includes(x)));
-if (missing.length || new Set(PARTS).size !== PARTS.length) { console.error(`tests/e2e-groups.json and the parts of tests/e2e.mjs differ: ${missing.join(', ') || 'a part is listed twice'}`); process.exit(1); }
+if (missing.length || new Set(PARTS).size !== PARTS.length) { console.error(`tests/e2e-groups.json and the parts of tests/e2e.ts differ: ${missing.join(', ') || 'a part is listed twice'}`); process.exit(1); }
 const ONLY = process.env.E2E_PARTS ? process.env.E2E_PARTS.split(',').map(s => s.trim()).filter(Boolean) : null;
 const unknown = (ONLY || []).filter(x => !PARTS.includes(x));
 if (unknown.length) { console.error(`Unknown E2E_PARTS: ${unknown.join(', ')} (known: ${PARTS.join(', ')})`); process.exit(1); }
-const part = name => !ONLY || ONLY.includes(name);
+const part = (name: string) => !ONLY || ONLY.includes(name);
 
 let failures = 0;
-const check = (ok, msg) => { console.log(`${ok ? '✓' : '✗'} ${msg}`); if (!ok) failures += 1; };
+const check = (ok: unknown, msg: string) => { console.log(`${ok ? '✓' : '✗'} ${msg}`); if (!ok) failures += 1; };
 
-async function perfectLesson(p) {
+async function perfectLesson(p: Page) {
   for (let step = 0; step < 800; step++) {   // the helm can take ~36 small turns a question
     if (await p.isVisible('#result:not([hidden])')) return true;
     if (await p.locator('[data-learn=next]').count()) { await p.click('[data-learn=next]'); continue; }
@@ -75,7 +83,7 @@ async function perfectLesson(p) {
     const nl = p.locator('.round:not(.is-solved) .nl[data-ok]');
     if (await nl.count()) {
       const f = Number(await nl.getAttribute('data-ok'));
-      const b = await nl.locator('svg').boundingBox();
+      const b = (await nl.locator('svg').boundingBox())!;
       await p.mouse.click(b.x + b.width * (0.06 + f * 0.88), b.y + b.height * 0.6);
       await p.waitForTimeout(1250); continue;
     }
@@ -94,12 +102,12 @@ async function perfectLesson(p) {
 // The test plays silently: no sound from the game's browser (--mute-audio),
 // and core/voice.ts does not read aloud in a test.
 const browser = await chromium.launch({ args: ['--mute-audio'] });
-if (part('journey')) for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet', { width: 1024, height: 768 }]]) {
+if (part('journey')) for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['tablet', { width: 1024, height: 768 }]] as const) {
   console.log(`— ${name}`);
   const ctx = await browser.newContext({ viewport });
   await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
   const p = await ctx.newPage();
-  const errors = [];
+  const errors: string[] = [];
   p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
   p.on('pageerror', e => errors.push(e.message));
 
@@ -133,12 +141,12 @@ if (part('journey')) for (const [name, viewport] of [['phone', { width: 390, hei
   await p.click('.isle[data-region=arabic]');
   await p.waitForSelector('#screen-island[data-active]', { timeout: 6000 });
   check(true, 'sailing to the Arabic island goes ashore');
-  const pos = () => p.evaluate(() => window.__island());
+  const pos = async () => (await p.evaluate(() => window.__island()))!;
   const start = await pos();
   await p.keyboard.down('ArrowUp'); await p.waitForTimeout(700); await p.keyboard.up('ArrowUp');
   check((await pos()).y < start.y - 0.5, 'the hero walks with the arrow keys');
   // Walk to the calligrapher by the gate and accept his quest.
-  async function walkTo(x, y) {
+  async function walkTo(x: number, y: number) {
     for (let i = 0; i < 120; i++) {
       const s = await pos(); const dx = x - s.x, dy = y - s.y;
       if (Math.hypot(dx, dy) < 0.4) return;
@@ -172,7 +180,7 @@ if (part('journey')) for (const [name, viewport] of [['phone', { width: 390, hei
   check(await p.locator('.isle[data-region=math]:not(.isle--locked)').count() === 1, '3 stars lift the fog from the maths island');
 
   await p.reload();
-  const saved = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')));
+  const saved = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')!));
   check(saved.hero === 'yasmina' && saved.topics['arabic-fael-mafool'].stars === 3, 'progress survives a reload');
 
   await ctx.setOffline(true);
@@ -199,12 +207,12 @@ if (part('feel')) {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
   await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
   const p = await ctx.newPage();
-  const errors = [];
+  const errors: string[] = [];
   p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
   p.on('pageerror', e => errors.push(e.message));
   // Rings fade after 0.7 s: count them as they appear (a slow machine may
   // still be loading the map when the check runs; the page may reload once).
-  await p.addInitScript(() => { window.__rings = 0; addEventListener('DOMContentLoaded', () => new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) if (n.classList?.contains('touch-ring')) window.__rings += 1; }).observe(document.body, { childList: true })); });
+  await p.addInitScript(() => { window.__rings = 0; addEventListener('DOMContentLoaded', () => new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) if ((n as Element).classList?.contains('touch-ring')) window.__rings += 1; }).observe(document.body, { childList: true })); });
   await p.goto(URL_);
   await p.tap('text=ابدأ الرحلة');
   await p.fill('#child-name', 'سارة');
@@ -215,16 +223,16 @@ if (part('feel')) {
   await p.tap('[data-st=skip]');
   await p.tap('.voyage--open');
   await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
-  const buzzes = () => p.evaluate(async () => [...(await import('./core/haptics.js')).played]);
-  const clear = () => p.evaluate(async () => { (await import('./core/haptics.js')).played.length = 0; });
+  const buzzes = () => p.evaluate(async () => [...(await (import('./core/haptics.js' as string) as Promise<typeof import('../core/haptics.js')>)).played]);
+  const clear = () => p.evaluate(async () => { (await (import('./core/haptics.js' as string) as Promise<typeof import('../core/haptics.js')>)).played.length = 0; });
   check((await buzzes()).includes('tap') && await p.evaluate(() => window.__rings >= 1 || document.body.classList.contains('lite')), 'a finger on a button: a tap vibration and a ring where it touched');
   // Hold an island: Hudhud tells about it, and the ship stays put.
-  const art = await p.locator('.isle[data-region=art]').boundingBox();
+  const art = (await p.locator('.isle[data-region=art]').boundingBox())!;
   await clear();
   await p.mouse.move(art.x + art.width / 2, art.y + art.height / 2);
   await p.mouse.down(); await p.waitForTimeout(700); await p.mouse.up();
   await p.waitForTimeout(200);
-  check((await buzzes()).includes('long') && (await p.textContent('#map-toast .bubble')).includes('جزيرة الألوان') && await p.isVisible('#screen-map[data-active]'), 'holding an island on the map tells what is there (a long vibration), without sailing');
+  check((await buzzes()).includes('long') && (await p.textContent('#map-toast .bubble'))!.includes('جزيرة الألوان') && await p.isVisible('#screen-map[data-active]'), 'holding an island on the map tells what is there (a long vibration), without sailing');
   // The sea ripples where it is tapped.
   const sea = await p.evaluate(() => {
     for (let y = 200; y < innerHeight - 160; y += 23) for (let x = 12; x < innerWidth - 12; x += 19) if (document.elementFromPoint(x, y)?.classList.contains('map__sea')) return { x, y };
@@ -253,7 +261,7 @@ if (part('feel')) {
   await row.tap();
   await p.tap('.settings [data-close]');
   await clear();
-  await p.evaluate(async () => (await import('./core/sound.js')).sfx.bad());
+  await p.evaluate(async () => (await (import('./core/sound.js' as string) as Promise<typeof import('../core/sound.js')>)).sfx.bad());
   check((await buzzes()).length === 0, 'with vibration off, nothing vibrates');
   check(errors.length === 0, `no console errors${errors.length ? `: ${errors.join(' | ')}` : ''}`);
   await ctx.close();
@@ -284,28 +292,28 @@ if (part('maps')) {
     const STEP = 0.05;  // grid spacing, in tiles
     const PAD = 0.1;    // a gap must leave this much room on each side
     const SMALL = 0.1;  // squeeze-only nooks up to this area (tiles²) can't trap anyone
-    const { enterIsland, debugFits } = await import('/core/overworld.js');
-    const world = (await import('/worlds/grade6.js')).default;
-    const out = [];
+    const { enterIsland, debugFits } = await (import('/core/overworld.js' as string) as Promise<typeof import('../core/overworld.js')>);
+    const world = (await (import('/worlds/grade6.js' as string) as Promise<typeof import('../worlds/grade6.js')>)).default;
+    const out: { id: string; gates: { at: string; passable: boolean }[]; squeezedArea: number; near: string | null; small: number }[] = [];
     for (const { id } of world.regions.filter(r => !r.kind)) {
-      const def = (await import(`/worlds/grade6/${id}.js`)).default;
+      const def: IslandDef = (await import(`/worlds/grade6/${id}.js`)).default;
       enterIsland(def, world.regions.find(r => r.id === id));
       const nx = Math.round(def.tiles[0].length / STEP), ny = Math.round(def.tiles.length / STEP);
-      const cell = (x, y) => Math.floor(y / STEP) * nx + Math.floor(x / STEP);
-      const free = pad => Uint8Array.from({ length: nx * ny }, (_, k) => debugFits((k % nx + 0.5) * STEP, (Math.floor(k / nx) + 0.5) * STEP, pad));
-      const reach = (ok, from) => {
+      const cell = (x: number, y: number) => Math.floor(y / STEP) * nx + Math.floor(x / STEP);
+      const free = (pad: number) => Uint8Array.from({ length: nx * ny }, (_, k) => +debugFits((k % nx + 0.5) * STEP, (Math.floor(k / nx) + 0.5) * STEP, pad));
+      const reach = (ok: Uint8Array, from: number) => {
         const seen = new Uint8Array(nx * ny), todo = ok[from] ? [from] : [];
         if (todo.length) seen[from] = 1;
         while (todo.length) {
-          const k = todo.pop(), i = k % nx;
+          const k = todo.pop()!, i = k % nx;
           for (const n of [i > 0 && k - 1, i < nx - 1 && k + 1, k - nx, k + nx]) if (n !== false && ok[n] && !seen[n]) { seen[n] = 1; todo.push(n); }
         }
         return seen;
       };
-      const roomy = free(PAD), anywhere = reach(free(0), cell(...def.spawn)), comfortably = reach(roomy, cell(...def.spawn));
+      const roomy = free(PAD), anywhere = reach(free(0), cell(def.spawn[0], def.spawn[1])), comfortably = reach(roomy, cell(def.spawn[0], def.spawn[1]));
       const gates = def.objects.filter(o => o.kind === 'gate')
-        .map(o => ({ at: o.at.join(','), passable: !!anywhere[cell(o.at[0], o.at[1] - o.block[1] - 0.6)] }));
-      let squeezed = 0, near = null;
+        .map(o => ({ at: o.at.join(','), passable: !!anywhere[cell(o.at[0], o.at[1] - o.block![1] - 0.6)] }));
+      let squeezed = 0, near: string | null = null;
       for (let k = 0; k < nx * ny; k++) if (anywhere[k] && roomy[k] && !comfortably[k]) { squeezed += 1; near ??= `${((k % nx) * STEP).toFixed(1)},${(Math.floor(k / nx) * STEP).toFixed(1)}`; }
       out.push({ id, gates, squeezedArea: squeezed * STEP * STEP, near, small: SMALL });
     }
@@ -327,16 +335,16 @@ if (part('kinds')) {
   const { ITEMS: FILL } = await import('../plugins/math/equivalent.js');
   const { ITEMS: BUILD } = await import('../plugins/arabic/build.js');
   const { change } = await import('../plugins/engines/market.js');
-  const on5 = a => Number.isInteger(a / 5) && a >= 0 && a <= 180;
-  check(ANGLES.every(it => (it.range ? on5(it.show) && it.show >= it.range[0] && it.show <= it.range[1] : on5(it.angle))), 'angles: every answer is on the helm (0–180, steps of 5)');
+  const on5 = (a: number) => Number.isInteger(a / 5) && a >= 0 && a <= 180;
+  check(ANGLES.every(it => (it.range ? on5(it.show!) && it.show! >= it.range[0] && it.show! <= it.range[1] : on5(it.angle!))), 'angles: every answer is on the helm (0–180, steps of 5)');
   check(MARKET.every(it => it.target > 0 && change(it.target, [100, 50, 20, 10, 5, 1])), 'market: every price can be paid exactly');
   check(FILL.every(it => Number.isInteger(it.answer) && it.answer > 0 && it.answer <= it.parts), 'equivalent fractions: every answer fits its bucket');
-  check(BUILD.every(it => it.words.length === it.slots.length && it.extra.every(x => !it.words.includes(x))), 'build: one slot per word, look-alikes differ from the words');
+  check(BUILD.every(it => it.words.length === it.slots.length && it.extra!.every(x => !it.words.includes(x))), 'build: one slot per word, look-alikes differ from the words');
 
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
   await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
   const p = await ctx.newPage();
-  const errors = [];
+  const errors: string[] = [];
   p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
   p.on('pageerror', e => errors.push(e.message));
   await p.goto(URL_);
@@ -348,12 +356,12 @@ if (part('kinds')) {
   await p.click('#select-go');
   await p.click('[data-st=skip]');
   for (const id of ['math-angles', 'math-market', 'math-equivalent', 'arabic-build', 'farm-cow', 'farm-cheese']) {
-    await p.evaluate(id => import('/core/lesson.js').then(m => m.startLesson(id)), id);
+    await p.evaluate(id => (import('/core/lesson.js' as string) as Promise<typeof import('../core/lesson.js')>).then(m => m.startLesson(id)), id);
     await p.waitForSelector('#screen-activity[data-active]', { timeout: 5000 });
     while (await p.locator('[data-learn=next]').count()) await p.click('[data-learn=next]');
     await p.waitForSelector('#activity .round', { timeout: 5000 });
     await p.waitForTimeout(500);
-    const fits = await p.evaluate(() => { const a = document.getElementById('activity'); return a.scrollHeight <= a.clientHeight + 2; });
+    const fits = await p.evaluate(() => { const a = document.getElementById('activity')!; return a.scrollHeight <= a.clientHeight + 2; });
     check(fits, `${id}: the first round fits a phone screen`);
     const played = await perfectLesson(p);
     check(played && (await p.locator('.rstar.is-on').count()) === 3, `${id}: played perfectly → 3 stars`);
@@ -368,10 +376,11 @@ if (part('farm')) {
   console.log('— farm island');
   const { CROPS, TASKS, QUESTS } = await import('../worlds/grade6/farm.js');
   const tools = Object.keys((await import('../worlds/grade6/farm.js')).TOOLS);
-  const all = [...Object.values(CROPS), ...Object.values(TASKS)];
-  check(all.every(d => d.steps.every(st => [].concat(st.do).every(t => tools.includes(t) && d.tools.includes(t)))), 'farm: every step\'s job is in its tool tray');
-  check(all.every(d => d.steps.every(st => !st.pick || (st.pick.type === 'dial' ? st.pick.target >= st.pick.min && st.pick.target <= st.pick.max : st.pick.type === 'order' || st.pick.type === 'oneEach' || st.pick.options.some(o => o.ok)))), 'farm: every choice has a right answer');
-  check(QUESTS.every(q => (q.crop ? CROPS[q.crop] : TASKS[q.task])), 'farm: every quest has its crop or task');
+  // The jobs of every crop and task, read loosely: the checks below validate their shape.
+  const all: { steps: Partial<Step>[]; tools: string[] }[] = [...Object.values(CROPS), ...Object.values(TASKS)];
+  check(all.every(d => d.steps.every(st => ([] as string[]).concat(st.do).every(t => tools.includes(t) && d.tools.includes(t)))), 'farm: every step\'s job is in its tool tray');
+  check(all.every(d => d.steps.every(st => !st.pick || (st.pick.type === 'dial' ? st.pick.target >= st.pick.min && st.pick.target <= st.pick.max : st.pick.type === 'order' || st.pick.type === 'oneEach' || st.pick.options.some((o: { ok?: boolean }) => o.ok)))), 'farm: every choice has a right answer');
+  check(QUESTS.every(q => (q.crop ? (CROPS as Record<string, unknown>)[q.crop] : (TASKS as Record<string, unknown>)[q.task!])), 'farm: every quest has its crop or task');
 
   // The farm needs WebGL. On a machine without a graphics card (like the
   // test server) Chromium may draw it in software only if allowed to.
@@ -379,7 +388,7 @@ if (part('farm')) {
   const ctx = await gl.newContext({ viewport: { width: 390, height: 844 } });
   await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
   const p = await ctx.newPage();
-  const errors = [];
+  const errors: string[] = [];
   p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
   p.on('pageerror', e => errors.push(e.message));
   await p.goto(URL_);
@@ -402,15 +411,15 @@ if (part('farm')) {
   await p.click('#farm-modal [data-helper][data-ok]');
   const farm = () => p.evaluate(() => window.__farm());
   check((await farm()).F.helper === 'kitty', 'the chosen helper is saved');
-  const place = id => p.locator(`#farm-places [data-place="${id}"]`).dispatchEvent('click');
-  await place((await farm()).place);
+  const place = (id: string) => p.locator(`#farm-places [data-place="${id}"]`).dispatchEvent('click');
+  await place((await farm()).place!);
   await p.waitForSelector('#farm-tray:not([hidden]) [data-tool]', { timeout: 5000 });
   await p.click('#farm-tray [data-tool=harvest]');
   let s = await farm();
-  const plot = s.F.plots.find(x => x.run);
-  check(plot?.run.step === 0 && (await p.textContent('#farm-say .bubble')).length > 10, 'a wrong job: the helper explains, the field waits');
+  const plot = s.F.plots!.find(x => x.run);
+  check(plot?.run?.step === 0 && (await p.textContent('#farm-say .bubble'))!.length > 10, 'a wrong job: the helper explains, the field waits');
   const fits = await p.evaluate(() => {
-    const b = document.querySelector('#farm-say .bubble').getBoundingClientRect(), t = document.getElementById('farm-tray').getBoundingClientRect();
+    const b = document.querySelector('#farm-say .bubble')!.getBoundingClientRect(), t = document.getElementById('farm-tray')!.getBoundingClientRect();
     return b.bottom <= t.top + 1 && t.bottom <= innerHeight + 1;
   });
   check(fits, 'the tool tray and the helper\'s words fit a phone screen');
@@ -425,29 +434,29 @@ if (part('farm')) {
     await p.waitForTimeout(120);
   }
   check(done, 'the potato quest can be played to the end');
-  const stars = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')).topics['farm-potato']?.stars);
+  const stars = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')!).topics['farm-potato']?.stars);
   check(stars === 2, `one wrong job, then all right: 2 stars (got ${stars})`);
   await p.click('#farm-modal [data-close]');
   s = await farm();
-  check(s.quest === 'tomato' && s.F.inv.potato >= 6, 'harvest in the barn; the next quest opens');
+  check(s.quest === 'tomato' && s.F.inv!.potato >= 6, 'harvest in the barn; the next quest opens');
   await p.click('[data-bar=orders]');
   const before = s.F.coins;
   await p.click('#farm-modal [data-deliver]:not([disabled])');
   s = await farm();
-  check(s.F.coins > before && s.F.inv.potato < 6, 'an order sold by ship earns coins');
+  check(s.F.coins! > before! && s.F.inv!.potato < 6, 'an order sold by ship earns coins');
   // A phone can take a 3D view away (too many at once, low memory) and not
   // give it back: the farm then makes a new one, and never stays white.
-  await p.evaluate(() => window.__farmStage.renderer.getContext().getExtension('WEBGL_lose_context').loseContext());
+  await p.evaluate(() => window.__farmStage!.renderer.getContext().getExtension('WEBGL_lose_context')!.loseContext());
   await p.waitForTimeout(1500);
   const drawing = await p.evaluate(async () => {
-    const st = window.__farmStage, f0 = st.renderer.info.render.frame;
+    const st = window.__farmStage!, f0 = st.renderer.info.render.frame;
     await new Promise(r => setTimeout(r, 500));
     return !st.renderer.getContext().isContextLost() && st.renderer.info.render.frame > f0 && document.querySelectorAll('#farm-stage canvas').length === 1;
   });
   check(drawing, 'a lost 3D view comes back by itself: the farm draws again, not a white screen');
   await p.reload();
   await p.waitForTimeout(500);
-  const kept = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')).world.farm);
+  const kept = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')!).world.farm);
   check(kept.helper === 'kitty' && kept.quest === 1, 'the farm survives a reload');
   await ctx.setOffline(true);
   await p.reload();
@@ -468,21 +477,21 @@ if (part('music')) {
   console.log('— music island');
   const { QUESTS, STATIONS, GLASSES, reviewOf } = await import('../worlds/grade6/tunes.js');
   const glassIds = GLASSES.map(g => g.id);
-  const piano = n => /^(C|C#|D|D#|E|F|F#|G|G#|A|A#|B)4$|^C5$/.test(n);
-  const okStep = s => ({
-    explore: () => !!s.title && s.spots.length >= 2 && new Set(s.spots.map(x => x.id)).size === s.spots.length && s.spots.every(x => x.title && typeof x.text === 'string'),
+  const piano = (n: string) => /^(C|C#|D|D#|E|F|F#|G|G#|A|A#|B)4$|^C5$/.test(n);
+  const okStep = (s: Loose) => (({
+    explore: () => !!s.title && s.spots.length >= 2 && new Set(s.spots.map((x: Loose) => x.id)).size === s.spots.length && s.spots.every((x: Loose) => x.title && typeof x.text === 'string'),
     choice: () => s.options.length >= 2 && new Set(s.options).size === s.options.length && (!s.art || s.art.length === s.options.length),
     keys: () => s.play.length > 0 && s.play.every(piano),
     gaps: () => true, pattern: () => true,
-    staff: () => s.drops.every(([n]) => /^[A-G][2-5]$/.test(n)),
+    staff: () => s.drops.every(([n]: string[]) => /^[A-G][2-5]$/.test(n)),
     name: () => /^[A-G][2-5]$/.test(s.note) && s.options.length >= 2,
     order: () => s.items.length >= 3 && new Set(s.items).size === s.items.length && (!s.sound || s.sound.length === s.items.length),
     rhythm: () => !s.others.includes(s.pattern), drum: () => !!s.pattern,
-    measure: () => s.given.reduce((b, t) => b + ({ w: 4, h: 2 }[t] || 1), 0) < s.beats,
-    sort: () => s.items.every(([, b]) => s.bins.some(x => x.id === b)),
+    measure: () => s.given.reduce((b: number, t: string) => b + (({ w: 4, h: 2 } as Record<string, number>)[t] || 1), 0) < s.beats,
+    sort: () => s.items.every(([, b]: string[]) => s.bins.some((x: Loose) => x.id === b)),
     fill: () => glassIds.includes(s.glass) && s.n > 0 && s.n <= s.d,
-    glasses: () => s.play.every(g => glassIds.includes(g)),
-  }[s.kind]?.() && (s.kind === 'explore' || !!s.hint));
+    glasses: () => s.play.every((g: string) => glassIds.includes(g)),
+  } as Record<string, () => unknown>)[s.kind]?.() && (s.kind === 'explore' || !!s.hint));
   check(QUESTS.every(q => STATIONS[q.station] && q.steps.every(okStep)), 'music: every step is well formed (notes on the piano, a right answer, a hint)');
   check(QUESTS.every(q => q.steps[0].kind === 'explore'), 'music: every lesson teaches first (أتعلّم) before it asks anything');
   check(QUESTS.every(q => reviewOf(q.id).length >= 6) && new Set(QUESTS.map(q => q.topic)).size === QUESTS.length, 'music: every quest has a review quiz of 6+ questions');
@@ -491,7 +500,7 @@ if (part('music')) {
   const ctx = await gl.newContext({ viewport: { width: 390, height: 844 } });
   await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
   const p = await ctx.newPage();
-  const errors = [];
+  const errors: string[] = [];
   p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
   p.on('pageerror', e => errors.push(e.message));
   await p.goto(URL_);
@@ -512,7 +521,7 @@ if (part('music')) {
   await p.waitForTimeout(800);
   const tunes = () => p.evaluate(() => window.__tunes());
   let s = await tunes();
-  check(s.places.length === 8 && s.next === 'scale' && (await p.textContent('#tunes-say .bubble')).includes('نغمة'), 'eight places; the helper «نغمة» says hello; the piano lesson comes first');
+  check(s.places.length === 8 && s.next === 'scale' && (await p.textContent('#tunes-say .bubble'))!.includes('نغمة'), 'eight places; the helper «نغمة» says hello; the piano lesson comes first');
   check(await p.locator('.tn-tag:not([hidden])').count() >= 2, 'name tags float over the places');
   await p.locator('#tunes-places [data-place=piano]').dispatchEvent('click');
   check(await p.locator('#tunes-modal [data-start]').count() === 2, 'the giant piano holds two lessons');
@@ -524,13 +533,13 @@ if (part('music')) {
   check(await p.locator('#tunes-panel .lx-spot.is-found').count() === 0, 'the tour opens one glowing key at a time, in order');
   for (let i = 0; i < 8; i++) await p.click('#tunes-panel [data-ok]');
   await p.waitForSelector('#tunes-panel [data-next]', { timeout: 3000 });
-  check((await p.textContent('#tunes-panel .lx-note')).includes('دو العالية') && await p.locator('#tunes-panel .tn-key.is-found').count() === 8, 'each glowing key tells its name; with all eight found, «فهمت» appears');
+  check((await p.textContent('#tunes-panel .lx-note'))!.includes('دو العالية') && await p.locator('#tunes-panel .tn-key.is-found').count() === 8, 'each glowing key tells its name; with all eight found, «فهمت» appears');
   await p.click('#tunes-panel [data-next]');
   // A wrong key: the helper explains, the step waits.
   await p.click('#tunes-panel .tn-key[data-note="G4"]');
   s = await tunes();
-  check(s.step === 1 && (await p.textContent('#tunes-say .bubble')).includes('ابدأ من دو'), 'a wrong key: the helper gives a hint, the step waits');
-  const fits = await p.evaluate(() => { const r = document.querySelector('.tn-sheet').getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight + 1; });
+  check(s.step === 1 && (await p.textContent('#tunes-say .bubble'))!.includes('ابدأ من دو'), 'a wrong key: the helper gives a hint, the step waits');
+  const fits = await p.evaluate(() => { const r = document.querySelector('.tn-sheet')!.getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight + 1; });
   check(fits, 'the lesson card fits a phone screen');
   const play = async () => {
     for (let guard = 0; guard < 400; guard++) {
@@ -540,7 +549,7 @@ if (part('music')) {
       const turn = p.locator('#tunes-panel [data-turn]:not([disabled])');
       if (await turn.count() && await p.locator('#tunes-panel .tn-drum[disabled]').count()) { await turn.click(); await p.waitForTimeout(100); continue; }
       const drum = p.locator('#tunes-panel .tn-drum:not([disabled])');
-      if (await drum.count()) { const n = +(await drum.getAttribute('data-taps')); for (let i = 0; i < n && await drum.count(); i++) { await drum.click({ timeout: 5000 }); await p.waitForTimeout(70); } await p.waitForTimeout(150); continue; }
+      if (await drum.count()) { const n = +(await drum.getAttribute('data-taps'))!; for (let i = 0; i < n && await drum.count(); i++) { await drum.click({ timeout: 5000 }); await p.waitForTimeout(70); } await p.waitForTimeout(150); continue; }
       const ok = p.locator('#tunes-panel [data-ok]');
       if (await ok.count()) { await ok.first().click(); continue; }
       await p.waitForTimeout(80);
@@ -548,7 +557,7 @@ if (part('music')) {
     return false;
   };
   check(await play(), 'the scale lesson can be played to the end');
-  const stars = id => p.evaluate(t => JSON.parse(localStorage.getItem('sindbad.save.v1')).topics[t]?.stars, id);
+  const stars = (id: string) => p.evaluate((t: string) => JSON.parse(localStorage.getItem('sindbad.save.v1')!).topics[t]?.stars, id);
   check(await stars('music-scale') === 2, `one wrong key, then all right: 2 stars (got ${await stars('music-scale')})`);
   await p.click('#tunes-modal [data-close]');
   s = await tunes();
@@ -560,7 +569,7 @@ if (part('music')) {
   await p.click('#tunes-modal [data-close]');
   await p.reload();
   await p.waitForTimeout(500);
-  const kept = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')).world.tunes);
+  const kept = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')!).world.tunes);
   check(kept.done.scale && kept.done.rhythm, 'the island survives a reload');
   await ctx.setOffline(true);
   await p.reload();
@@ -584,19 +593,19 @@ if (part('science')) {
   const { VIEWS } = await import('../core/lab/views.js');
   const { MACHINE_VIEWS } = await import('../core/lab/views-machines.js');
   const VIEWS_ALL = { ...VIEWS, ...MACHINE_VIEWS };
-  const uniq = a => new Set(a).size === a.length;
-  const drawn = (st, id) => VIEWS_ALL[st.view].html(st).includes(`data-spot="${id}"`);
-  const okStep = st => ({
-    explore: () => !!st.title && st.spots.length >= 2 && uniq(st.spots.map(x => x.id)) && st.spots.every(x => x.title && typeof x.text === 'string') && (!st.view || !!VIEWS_ALL[st.view]),
+  const uniq = (a: unknown[]) => new Set(a).size === a.length;
+  const drawn = (st: Loose, id: string) => VIEWS_ALL[st.view!].html(st).includes(`data-spot="${id}"`);
+  const okStep = (st: Loose) => (({
+    explore: () => !!st.title && st.spots.length >= 2 && uniq(st.spots.map((x: Loose) => x.id)) && st.spots.every((x: Loose) => x.title && typeof x.text === 'string') && (!st.view || !!VIEWS_ALL[st.view]),
     choice: () => st.options.length >= 2 && uniq(st.options) && (!st.pic || !!VIEWS_ALL[st.pic]),
-    twoway: () => st.lines.length >= 2 && st.lines.every(([t, a, b]) => t.includes('___') && a && b && a !== b),
-    sort: () => st.items.length >= 3 && st.items.every(([, b]) => st.bins.some(x => x.id === b)) && st.bins.every(x => st.items.some(([, b]) => b === x.id)),
+    twoway: () => st.lines.length >= 2 && st.lines.every(([t, a, b]: string[]) => t.includes('___') && a && b && a !== b),
+    sort: () => st.items.length >= 3 && st.items.every(([, b]: string[]) => st.bins.some((x: Loose) => x.id === b)) && st.bins.every((x: Loose) => st.items.some(([, b]: string[]) => b === x.id)),
     order: () => st.items.length >= 3 && uniq(st.items),
-    match: () => st.pairs.length >= 3 && uniq(st.pairs.map(x => x[1])),
-    tf: () => st.items.length >= 2 && st.items.every(([t, v, fix]) => t && typeof v === 'boolean' && (v || !!fix)),
+    match: () => st.pairs.length >= 3 && uniq(st.pairs.map((x: string[]) => x[1])),
+    tf: () => st.items.length >= 2 && st.items.every(([t, v, fix]: [string, boolean, string?]) => t && typeof v === 'boolean' && (v || !!fix)),
     number: () => Number.isFinite(st.answer) && st.answer >= 0,
-    label: () => !!VIEWS_ALL[st.view] && st.ask.length >= 2 && st.ask.every(([id]) => drawn(st, id)),
-  }[st.kind]?.() && (st.kind === 'explore' || !!st.hint));
+    label: () => !!VIEWS_ALL[st.view!] && st.ask.length >= 2 && st.ask.every(([id]: string[]) => drawn(st, id)),
+  } as Record<string, () => unknown>)[st.kind]?.() && (st.kind === 'explore' || !!st.hint));
   check(QUESTS.length === 17 && QUESTS.every(q => STATIONS[q.station] && q.steps.every(okStep)), 'science: 17 quests; every step is well formed (a right answer, a hint, its picture)');
   check(QUESTS.every(q => q.steps[0].kind === 'explore'), 'science: every lesson teaches first (أتعلّم) before it asks anything');
   check(QUESTS.every(q => reviewOf(q.id).length >= 6) && uniq(QUESTS.map(q => q.topic)), 'science: every quest has a review quiz of 6+ questions');
@@ -605,7 +614,7 @@ if (part('science')) {
   const ctx = await gl.newContext({ viewport: { width: 390, height: 844 } });
   await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
   const p = await ctx.newPage();
-  const errors = [];
+  const errors: string[] = [];
   p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
   p.on('pageerror', e => errors.push(e.message));
   await p.goto(URL_);
@@ -621,8 +630,8 @@ if (part('science')) {
   await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
   check(await p.locator('.isle[data-region=science].isle--locked').count() === 1, 'the science island waits behind the numbers island');
   await p.evaluate(async () => {
-    const { save } = await import('./core/save.js');
-    const { topicsIn } = await import('./core/topics.js');
+    const { save } = await (import('./core/save.js' as string) as Promise<typeof import('../core/save.js')>);
+    const { topicsIn } = await (import('./core/topics.js' as string) as Promise<typeof import('../core/topics.js')>);
     save.update(v => { for (const r of ['arabic', 'math']) for (const t of topicsIn(r)) v.topics[t.id] = { stars: 3, best: 1, plays: 1 }; });
   });
   await p.click('.map-voyages');
@@ -634,19 +643,19 @@ if (part('science')) {
   await p.waitForTimeout(800);
   const lab = () => p.evaluate(() => window.__lab());
   let s = await lab();
-  check(s.places.length === 10 && s.next === 'hunters' && (await p.textContent('#lab-say .bubble')).includes('شرارة'), 'ten places; the helper «شرارة» says hello; the forest lesson comes first');
+  check(s.places.length === 10 && s.next === 'hunters' && (await p.textContent('#lab-say .bubble'))!.includes('شرارة'), 'ten places; the helper «شرارة» says hello; the forest lesson comes first');
   check(await p.locator('.lb-tag:not([hidden])').count() >= 2, 'name tags in their unit colours float over the places');
   await p.locator('#lab-places [data-place=forest]').dispatchEvent('click');
   check(await p.locator('#lab-modal [data-start]').count() === 2, 'the forest holds two lessons');
   await p.click('#lab-modal [data-start="hunters"]');
   await p.waitForSelector('#lab-panel:not([hidden]) .tn-step', { timeout: 5000 });
   check(await p.locator('#lab-panel .lx .sv-valley').count() === 1 && await p.locator('#lab-panel [data-next]').count() === 0, 'the lesson starts by teaching (أتعلّم): a picture to explore, no question, no skipping');
-  const fits = await p.evaluate(() => { const r = document.querySelector('#lab-panel .tn-sheet').getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight + 1; });
+  const fits = await p.evaluate(() => { const r = document.querySelector('#lab-panel .tn-sheet')!.getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight + 1; });
   check(fits, 'the lesson card fits a phone screen');
   // Plays to the end: the right answer each time, except `wrong` (one slip).
   // With `drag`, sorting cards are dragged into their bins with the finger.
   let dragged = 0;
-  const play = async ({ wrong = null, drag = false } = {}) => {
+  const play = async ({ wrong = null, drag = false }: { wrong?: string | null; drag?: boolean } = {}) => {
     let slipped = false;
     for (let guard = 0; guard < 500; guard++) {
       if (await p.isVisible('#lab-modal .fm-done')) return true;
@@ -654,7 +663,7 @@ if (part('science')) {
       if (await next.count()) { await next.first().click(); continue; }
       if (drag && await p.locator('#lab-panel .lq-item.lq-drag').count() && await p.locator('#lab-panel .lq-bin[data-ok]').count()) {
         await p.locator('#lab-panel .lq-bin[data-ok]').scrollIntoViewIfNeeded();
-        const a = await p.locator('#lab-panel .lq-item').boundingBox(), b = await p.locator('#lab-panel .lq-bin[data-ok]').boundingBox();
+        const a = (await p.locator('#lab-panel .lq-item').boundingBox())!, b = (await p.locator('#lab-panel .lq-bin[data-ok]').boundingBox())!;
         await p.mouse.move(a.x + a.width / 2, a.y + a.height / 2);
         await p.mouse.down();
         await p.mouse.move(a.x + a.width / 2 + 12, a.y + a.height / 2 + 12, { steps: 3 });
@@ -674,7 +683,7 @@ if (part('science')) {
     }
     return false;
   };
-  const stars = id => p.evaluate(t => JSON.parse(localStorage.getItem('sindbad.save.v1')).topics[t]?.stars, id);
+  const stars = (id: string) => p.evaluate((t: string) => JSON.parse(localStorage.getItem('sindbad.save.v1')!).topics[t]?.stars, id);
   check(await play({ drag: true }) && await stars('sci-hunters') === 3 && dragged >= 3, `the forest lesson (a picture to explore, cards, sorting by dragging each card into its bin, choices) played perfectly: 3 stars (${dragged} cards dragged)`);
   await p.click('#lab-modal [data-close]');
   s = await lab();
@@ -692,7 +701,7 @@ if (part('science')) {
   await p.click('#lab-modal [data-close]');
   await p.reload();
   await p.waitForTimeout(500);
-  const kept = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')).world.lab);
+  const kept = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')!).world.lab);
   check(kept.done.hunters && kept.done.measure && kept.done.excretion, 'the island survives a reload');
   await ctx.setOffline(true);
   await p.reload();
@@ -717,30 +726,30 @@ if (part('atlas')) {
   const { QUESTS, STATIONS, reviewOf } = await import('../worlds/grade6/atlas.js');
   const { ATLAS_VIEWS, FEATURES } = await import('../core/atlas/views.js');
   const { COUNTRIES, SMALL } = await import('../worlds/atlas/countries.js');
-  const uniq = a => new Set(a).size === a.length;
-  const drawn = (st, id) => ATLAS_VIEWS[st.view].html(st).includes(`data-spot="${id}"`);
-  const okStep = st => ({
-    explore: () => !!st.title && st.spots.length >= 2 && uniq(st.spots.map(x => x.id)) && st.spots.every(x => x.title && typeof x.text === 'string') && (!st.view || !!ATLAS_VIEWS[st.view]) && (st.view !== 'timeline' || st.spots.every(x => st.events.some(e => e.id === x.id))),
+  const uniq = (a: unknown[]) => new Set(a).size === a.length;
+  const drawn = (st: Loose, id: string) => ATLAS_VIEWS[st.view!].html(st).includes(`data-spot="${id}"`);
+  const okStep = (st: Loose) => (({
+    explore: () => !!st.title && st.spots.length >= 2 && uniq(st.spots.map((x: Loose) => x.id)) && st.spots.every((x: Loose) => x.title && typeof x.text === 'string') && (!st.view || !!ATLAS_VIEWS[st.view]) && (st.view !== 'timeline' || st.spots.every((x: Loose) => st.events.some((e: Loose) => e.id === x.id))),
     choice: () => st.options.length >= 2 && uniq(st.options),
-    twoway: () => st.lines.length >= 2 && st.lines.every(([t, a, b]) => t.includes('___') && a && b && a !== b),
-    sort: () => st.items.length >= 3 && st.items.every(([, b]) => st.bins.some(x => x.id === b)) && st.bins.every(x => st.items.some(([, b]) => b === x.id)),
+    twoway: () => st.lines.length >= 2 && st.lines.every(([t, a, b]: string[]) => t.includes('___') && a && b && a !== b),
+    sort: () => st.items.length >= 3 && st.items.every(([, b]: string[]) => st.bins.some((x: Loose) => x.id === b)) && st.bins.every((x: Loose) => st.items.some(([, b]: string[]) => b === x.id)),
     order: () => st.items.length >= 3 && uniq(st.items),
-    match: () => st.pairs.length >= 3 && uniq(st.pairs.map(x => x[1])),
-    tf: () => st.items.length >= 2 && st.items.every(([t, v, fix]) => t && typeof v === 'boolean' && (v || !!fix)),
+    match: () => st.pairs.length >= 3 && uniq(st.pairs.map((x: string[]) => x[1])),
+    tf: () => st.items.length >= 2 && st.items.every(([t, v, fix]: [string, boolean, string?]) => t && typeof v === 'boolean' && (v || !!fix)),
     number: () => Number.isFinite(st.answer) && st.answer >= 0,
-    label: () => !!ATLAS_VIEWS[st.view] && st.ask.length >= 2 && st.ask.every(([id]) => FEATURES.has(id) && drawn(st, id)),
-  }[st.kind]?.() && (st.kind === 'explore' || !!st.hint));
+    label: () => !!ATLAS_VIEWS[st.view!] && st.ask.length >= 2 && st.ask.every(([id]: string[]) => FEATURES.has(id) && drawn(st, id)),
+  } as Record<string, () => unknown>)[st.kind]?.() && (st.kind === 'explore' || !!st.hint));
   check(QUESTS.length === 25 && QUESTS.every(q => STATIONS[q.station] && q.steps.every(okStep)), 'atlas: 25 quests; every step is well formed (a right answer, a hint, its map)');
   check(QUESTS.every(q => q.steps[0].kind === 'explore'), 'atlas: every lesson teaches first (أتعلّم) before it asks anything');
   check(QUESTS.every(q => reviewOf(q.id).length >= 6) && uniq(QUESTS.map(q => q.topic)), 'atlas: every quest has a review quiz of 6+ questions');
-  const cards = [...Object.values(COUNTRIES), ...Object.values(SMALL)].filter(c => c.flag);
+  const cards = [...Object.values(COUNTRIES), ...Object.values(SMALL)].filter((c): c is FullCard => !!c.flag);
   check(cards.length >= 70 && cards.every(c => c.capital && c.flag.svg.startsWith('<svg') && c.nameMeaning && c.flagMeaning && c.resources?.length) && cards.filter(c => c.arab).length === 22, 'the atlas: 70+ countries with a full card (flag, capital, meanings, resources), all 22 Arab countries among them');
 
   const gl = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--mute-audio'] });
   const ctx = await gl.newContext({ viewport: { width: 390, height: 844 } });
   await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
   const p = await ctx.newPage();
-  const errors = [];
+  const errors: string[] = [];
   p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
   p.on('pageerror', e => errors.push(e.message));
   await p.goto(URL_);
@@ -756,8 +765,8 @@ if (part('atlas')) {
   await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
   check(await p.locator('.isle[data-region=social].isle--locked').count() === 1, 'the atlas island waits behind the science island');
   await p.evaluate(async () => {
-    const { save } = await import('./core/save.js');
-    const { topicsIn } = await import('./core/topics.js');
+    const { save } = await (import('./core/save.js' as string) as Promise<typeof import('../core/save.js')>);
+    const { topicsIn } = await (import('./core/topics.js' as string) as Promise<typeof import('../core/topics.js')>);
     save.update(v => { for (const r of ['arabic', 'math', 'science']) for (const t of topicsIn(r)) v.topics[t.id] = { stars: 3, best: 1, plays: 1 }; });
   });
   await p.click('.map-voyages');
@@ -769,7 +778,7 @@ if (part('atlas')) {
   await p.waitForTimeout(800);
   const atlas = () => p.evaluate(() => window.__atlas());
   let s = await atlas();
-  check(s.places.length === 13 && s.next === 'homeland' && (await p.textContent('#atlas-say .bubble')).includes('سهيل'), 'thirteen places; the helper «سهيل» says hello; the homeland lesson comes first');
+  check(s.places.length === 13 && s.next === 'homeland' && (await p.textContent('#atlas-say .bubble'))!.includes('سهيل'), 'thirteen places; the helper «سهيل» says hello; the homeland lesson comes first');
   await p.locator('#atlas-places [data-place=atlas]').dispatchEvent('click');
   check(await p.locator('#atlas-modal [data-start]').count() === 2, 'the observatory holds two lessons');
   await p.click('#atlas-modal [data-start="homeland"]');
@@ -778,7 +787,7 @@ if (part('atlas')) {
   // Plays to the end: the right answer each time. SVG places are tapped
   // where they are drawn; a country's middle can be sea, so those get the
   // click itself.
-  const tap = async el => {
+  const tap = async (el: Locator) => {
     const [target] = await el.elementHandles();
     if (!target) return; // The previous answer may already have advanced.
     try { await el.click({ timeout: 1500 }); }
@@ -786,7 +795,7 @@ if (part('atlas')) {
       // A click can advance the step before Playwright finishes waiting.
       // Retry only that same element while it is still a correct answer.
       // It may have been removed or reused for a different step.
-      await target.evaluate(node => {
+      await target.evaluate((node: Element) => {
         if (node.isConnected && node.hasAttribute('data-ok')) node.dispatchEvent(new MouseEvent('click', { bubbles: true }));
       });
     } finally { await target.dispose(); }
@@ -802,7 +811,7 @@ if (part('atlas')) {
     }
     return false;
   };
-  const stars = id => p.evaluate(t => JSON.parse(localStorage.getItem('sindbad.save.v1')).topics[t]?.stars, id);
+  const stars = (id: string) => p.evaluate((t: string) => JSON.parse(localStorage.getItem('sindbad.save.v1')!).topics[t]?.stars, id);
   check(await play() && await stars('soc-homeland') === 3, 'the homeland lesson (a map to explore, sentences, an order, a sum, places to find on the map) played perfectly: 3 stars');
   await p.click('#atlas-modal [data-close]');
   s = await atlas();
@@ -826,14 +835,14 @@ if (part('atlas')) {
   const flagCountry = await p.locator('#atlas-globe .gl-opt[data-ok]').getAttribute('data-id');
   await p.click('#atlas-globe .gl-opt[data-ok]');
   s = await atlas();
-  check(s.globe.score === 1 && await p.locator('#atlas-globe .gl-card:not([hidden])').count() === 1, 'the right name scores a star and opens that country\'s card');
+  check(s.globe?.score === 1 && await p.locator('#atlas-globe .gl-card:not([hidden])').count() === 1, 'the right name scores a star and opens that country\'s card');
   await p.evaluate(() => { window.__globeCanvas = document.querySelector('#atlas-globe .gl canvas'); });
   await p.click('#atlas-globe .gl-x');
   check(await p.locator('#atlas-globe[hidden]').count() === 1 && (await atlas()).globe === null, 'the globe closes back to the island');
-  check(await p.evaluate(() => window.__globeCanvas.getContext('webgl2').isContextLost()), 'closing the globe gives its 3D view back (a phone allows only a few; the oldest, the farm\'s, went white)');
+  check(await p.evaluate(() => window.__globeCanvas!.getContext('webgl2')!.isContextLost()), 'closing the globe gives its 3D view back (a phone allows only a few; the oldest, the farm\'s, went white)');
   await p.reload();
   await p.waitForTimeout(500);
-  const kept = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')).world.atlas);
+  const kept = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')!).world.atlas);
   // The random flag quiz may pick the country we just explored. Visits are
   // unique countries, so compare their identities rather than assuming two.
   const expectedCountries = [...new Set([exploredCountry, flagCountry])].sort();
@@ -859,37 +868,37 @@ if (part('atlas')) {
 // <studio-e2e>
 // Two halves, run side by side in CI (art1, art2): the first lesson, two
 // hands-on games and the easel; then three more games, a reload, offline.
-async function artIsland(half) {
+async function artIsland(half: 1 | 2) {
   console.log(`— art island (${half} of 2)`);
   const { QUESTS, STATIONS, reviewOf } = await import('../worlds/grade6/studio.js');
   const { VIEWS, PIECES, STAGES } = await import('../core/studio/views.js');
   const { ART } = await import('../core/studio/art.js');
   const { CUSTOM_KINDS, TILES } = await import('../core/studio/games.js');
-  const uniq = a => new Set(a).size === a.length;
-  const html = st => (VIEWS[st.view] ? VIEWS[st.view].html(st) : '');
-  const okStep = st => ({
-    explore: () => !!st.title && st.spots.length >= 2 && uniq(st.spots.map(x => x.id)) && st.spots.every(x => x.title && typeof x.text === 'string') && (!st.view || st.view === 'art' || !!VIEWS[st.view]) && (st.view !== 'art' || !!ART[st.art]),
+  const uniq = (a: unknown[]) => new Set(a).size === a.length;
+  const html = (st: Loose) => (st.view && VIEWS[st.view] ? VIEWS[st.view].html(st) : '');
+  const okStep = (st: Loose) => (({
+    explore: () => !!st.title && st.spots.length >= 2 && uniq(st.spots.map((x: Loose) => x.id)) && st.spots.every((x: Loose) => x.title && typeof x.text === 'string') && (!st.view || st.view === 'art' || !!VIEWS[st.view]) && (st.view !== 'art' || !!ART[st.art]),
     choice: () => st.options.length >= 2 && uniq(st.options) && (st.pic !== 'art' || !!ART[st.art]),
-    twoway: () => st.lines.length >= 2 && st.lines.every(([t, a, b]) => t.includes('___') && a && b && a !== b),
-    sort: () => st.items.length >= 3 && st.items.every(([, b]) => st.bins.some(x => x.id === b)),
+    twoway: () => st.lines.length >= 2 && st.lines.every(([t, a, b]: string[]) => t.includes('___') && a && b && a !== b),
+    sort: () => st.items.length >= 3 && st.items.every(([, b]: string[]) => st.bins.some((x: Loose) => x.id === b)),
     order: () => st.items.length >= 3 && uniq(st.items),
-    match: () => st.pairs.length >= 3 && uniq(st.pairs.map(x => x[1])),
-    tf: () => st.items.length >= 2 && st.items.every(([t, v, fix]) => t && typeof v === 'boolean' && (v || !!fix)),
+    match: () => st.pairs.length >= 3 && uniq(st.pairs.map((x: string[]) => x[1])),
+    tf: () => st.items.length >= 2 && st.items.every(([t, v, fix]: [string, boolean, string?]) => t && typeof v === 'boolean' && (v || !!fix)),
     number: () => Number.isFinite(st.answer),
-    label: () => !!VIEWS[st.view] && st.ask.every(([id]) => html(st).includes(`data-spot="${id}"`)),
-    mix: () => st.rounds.length >= 1 && st.rounds.every(r => r.from.length >= 2),
+    label: () => !!VIEWS[st.view!] && st.ask.every(([id]: string[]) => html(st).includes(`data-spot="${id}"`)),
+    mix: () => st.rounds.length >= 1 && st.rounds.every((r: Loose) => r.from.length >= 2),
     paint: () => Object.keys(st.regions).length >= 2 && Object.keys(st.regions).every(id => html(st).includes(`data-region="${id}"`)),
     vanish: () => true,
-    fold: () => !!STAGES[st.model || 'butterfly']?.length && STAGES[st.model || 'butterfly'].filter(x => x.lines).every(x => x.lines.filter(l => l.ok).length === 1),
-    collage: () => !!PIECES[st.view] && Object.keys(PIECES[st.view]).every(id => html(st).includes(`data-slot="${id}"`)),
+    fold: () => !!STAGES[st.model || 'butterfly']?.length && STAGES[st.model || 'butterfly'].filter(x => x.lines).every(x => x.lines!.filter(l => l.ok).length === 1),
+    collage: () => !!PIECES[st.view!] && Object.keys(PIECES[st.view!]).every(id => html(st).includes(`data-slot="${id}"`)),
     pattern: () => st.seq.length > (st.hide || 2) && [...st.seq, ...(st.extra || [])].every(t => TILES[t]),
-    mirror: () => st.grid.length >= 2 && st.grid.every(r => r.length === st.grid[0].length),
-    gallery: () => st.frames.every(f => ART[f.art]) && st.ask.every(([id]) => st.frames.some(f => f.id === id)),
-    press: () => st.tasks.length >= 2 && st.tasks.every(t => t.want === 'in' || t.want === 'on'),
-    craft: () => !!VIEWS[st.view] && st.seq.every(x => st.tools.some(t => t.id === x.tool)),
-  }[st.kind]?.() && (st.kind === 'explore' || (!!st.hint && !!st.explain)));
+    mirror: () => st.grid.length >= 2 && st.grid.every((r: unknown[]) => r.length === st.grid[0].length),
+    gallery: () => st.frames.every((f: Loose) => ART[f.art]) && st.ask.every(([id]: string[]) => st.frames.some((f: Loose) => f.id === id)),
+    press: () => st.tasks.length >= 2 && st.tasks.every((t: Loose) => t.want === 'in' || t.want === 'on'),
+    craft: () => !!VIEWS[st.view!] && st.seq.every((x: Loose) => st.tools.some((t: Loose) => t.id === x.tool)),
+  } as Record<string, () => unknown>)[st.kind]?.() && (st.kind === 'explore' || (!!st.hint && !!st.explain)));
   if (half === 1) {
-    const bad = QUESTS.flatMap(q => q.steps.map((st, i) => [q.id, i, st]).filter(([, , st]) => !okStep(st)).map(([id, i, st]) => `${id}#${i} ${st.kind}`));
+    const bad = QUESTS.flatMap(q => q.steps.map((st, i) => [q.id, i, st] as const).filter(([, , st]) => !okStep(st)).map(([id, i, st]) => `${id}#${i} ${st.kind}`));
     // The book has 25 lessons; they are being written (PARTIAL until all are in).
     const PARTIAL = false;
     check((PARTIAL ? QUESTS.length >= 2 && QUESTS.length <= 25 : QUESTS.length === 25) && QUESTS.every(q => STATIONS[q.station]) && !bad.length, `art: ${QUESTS.length} of the book's 25 lessons, one quest each; every step is well formed (a right answer, a hint, its picture)${bad.length ? `: ${bad.join(', ')}` : ''}`);
@@ -903,7 +912,7 @@ async function artIsland(half) {
   const ctx = await gl.newContext({ viewport: { width: 390, height: 844 } });
   await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
   const p = await ctx.newPage();
-  const errors = [];
+  const errors: string[] = [];
   p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
   p.on('pageerror', e => errors.push(e.message));
   await p.goto(URL_);
@@ -924,7 +933,7 @@ async function artIsland(half) {
   await p.waitForTimeout(800);
   const studio = () => p.evaluate(() => window.__studio());
   let s = await studio();
-  check(s.places.length === 15 && s.next === 'circles' && (await p.textContent('#studio-say .bubble')).includes('ريشة'), 'fifteen places; the helper «ريشة» says hello; the book\'s first lesson comes first');
+  check(s.places.length === 15 && s.next === 'circles' && (await p.textContent('#studio-say .bubble'))!.includes('ريشة'), 'fifteen places; the helper «ريشة» says hello; the book\'s first lesson comes first');
   if (half === 1) {
     await p.locator('#studio-places [data-place=circles]').dispatchEvent('click');
     check(await p.locator('#studio-modal [data-start]').count() === 2, 'the square of circles holds the book\'s first two lessons');
@@ -934,7 +943,7 @@ async function artIsland(half) {
   }
   // Plays to the end, the right answer each time (a ring's middle is another
   // ring, so SVG parts that cannot be clicked in the middle get the click itself).
-  const tap = async el => {
+  const tap = async (el: Locator) => {
     const [target] = await el.elementHandles();
     if (!target) return; // The previous answer may already have advanced.
     try { await el.click({ timeout: 1500 }); }
@@ -942,7 +951,7 @@ async function artIsland(half) {
       // A click can advance the step before Playwright finishes waiting.
       // Retry only that same element while it is still a correct answer.
       // It may have been removed or reused for a different step.
-      await target.evaluate(node => {
+      await target.evaluate((node: Element) => {
         if (node.isConnected && node.hasAttribute('data-ok')) node.dispatchEvent(new MouseEvent('click', { bubbles: true }));
       });
     } finally { await target.dispose(); }
@@ -958,7 +967,7 @@ async function artIsland(half) {
     }
     return false;
   };
-  const stars = id => p.evaluate(t => JSON.parse(localStorage.getItem('sindbad.save.v1')).topics[t]?.stars, id);
+  const stars = (id: string) => p.evaluate((t: string) => JSON.parse(localStorage.getItem('sindbad.save.v1')!).topics[t]?.stars, id);
   if (half === 1) {
     check(await play() && await stars('art-circles') === 3, 'the colour circles lesson (warm and cold, painting the rings) played perfectly: 3 stars');
     await p.click('#studio-modal [data-close]');
@@ -971,8 +980,8 @@ async function artIsland(half) {
   for (const id of mine) {
     await p.evaluate(q => window.__studioDo('debugStart', q), id);
     await p.waitForSelector('#studio-panel:not([hidden]) .tn-step', { timeout: 5000 });
-    const kinds = QUESTS.find(q => q.id === id).steps.map(st => st.kind).filter(k => CUSTOM_KINDS.includes(k));
-    check(await play() && await stars(`art-${id}`) === 3, `the «${QUESTS.find(q => q.id === id).title}» lesson (${kinds.join(', ')}) played perfectly: 3 stars`);
+    const kinds = QUESTS.find(q => q.id === id)!.steps.map(st => st.kind).filter(k => CUSTOM_KINDS.includes(k));
+    check(await play() && await stars(`art-${id}`) === 3, `the «${QUESTS.find(q => q.id === id)!.title}» lesson (${kinds.join(', ')}) played perfectly: 3 stars`);
     await p.click('#studio-modal [data-close]');
   }
   check((await studio()).hung === first + mine.length, 'each finished lesson hangs one more painting');
@@ -982,23 +991,23 @@ async function artIsland(half) {
     await p.waitForSelector('#studio-easel .ez-canvas', { timeout: 5000 });
     await p.waitForTimeout(300);
     await p.click('#studio-easel [data-mode=mirror]');
-    const box = await p.locator('#studio-easel .ez-canvas').boundingBox();
+    const box = (await p.locator('#studio-easel .ez-canvas').boundingBox())!;
     await p.mouse.move(box.x + box.width * 0.2, box.y + box.height * 0.3);
     await p.mouse.down();
     await p.mouse.move(box.x + box.width * 0.35, box.y + box.height * 0.5, { steps: 8 });
     await p.mouse.up();
-    const painted = await p.evaluate(() => { const c = document.querySelector('#studio-easel .ez-canvas'), g = c.getContext('2d'), w = c.width; const at = x => [...g.getImageData(Math.round(x * w), Math.round(c.height * 0.4), 1, 1).data].slice(0, 3).join(); return [at(0.275), at(0.725)]; });
+    const painted = await p.evaluate(() => { const c = document.querySelector<HTMLCanvasElement>('#studio-easel .ez-canvas')!, g = c.getContext('2d')!, w = c.width; const at = (x: number) => [...g.getImageData(Math.round(x * w), Math.round(c.height * 0.4), 1, 1).data].slice(0, 3).join(); return [at(0.275), at(0.725)]; });
     s = await studio();
     check(s.easel?.strokes === 1 && s.easel.mode === 'mirror' && painted[0] === painted[1] && painted[0] !== '255,253,246', `«مرسمي»: a finger draws a line, and the mirror draws its other half (${painted.join(' / ')})`);
     await p.click('#studio-easel [data-undo]');
-    check((await studio()).easel.strokes === 0, 'undo takes the line back');
+    check((await studio()).easel?.strokes === 0, 'undo takes the line back');
     await p.click('#studio-easel [data-close]');
     check(await p.locator('#studio-easel[hidden]').count() === 1 && (await studio()).easel === null, 'the easel closes back to the island');
   }
   if (half === 2) {
     await p.reload();
     await p.waitForTimeout(500);
-    const kept = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')).world.studio);
+    const kept = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')!).world.studio);
     check(mine.every(id => kept.done[id]), 'the island survives a reload');
     await ctx.setOffline(true);
     await p.reload();
@@ -1023,12 +1032,12 @@ if (part('art2')) await artIsland(2);
 // The English island: the English book played in 3D (core/english/).
 // <english-e2e>
 // Two halves, two lessons each, run side by side in CI (english1, english2).
-async function englishIsland(half) {
+async function englishIsland(half: 1 | 2) {
   console.log(`— English island (${half} of 2)`);
   const { QUESTS, STATIONS, reviewOf, wordsOf } = await import('../worlds/grade6/english.js');
   // The island's own games (core/english/games.js; it needs a browser to load).
   const GAME_KINDS = ['listen', 'picture', 'build', 'spell', 'verb', 'memory', 'odd', 'rank', 'adjorder', 'chat'];
-  const uniq = a => new Set(a).size === a.length;
+  const uniq = (a: unknown[]) => new Set(a).size === a.length;
   if (half === 1) {
     check(QUESTS.length === 24 && QUESTS.every(q => STATIONS[q.station]) && uniq(QUESTS.map(q => q.id)) && uniq(QUESTS.map(q => q.topic)), 'English: 24 quests (twenty units and four revisions), each at a place of the town');
     check(QUESTS.every(q => q.steps[0].kind === 'explore' && q.steps.every(st => st.kind === 'explore' || !!st.hint)), 'English: every lesson teaches first (the words, the rule), and every question has a hint');
@@ -1041,7 +1050,7 @@ async function englishIsland(half) {
   const ctx = await gl.newContext({ viewport: { width: 390, height: 844 } });
   await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
   const p = await ctx.newPage();
-  const errors = [];
+  const errors: string[] = [];
   p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
   p.on('pageerror', e => errors.push(e.message));
   await p.goto(URL_);
@@ -1057,8 +1066,8 @@ async function englishIsland(half) {
   await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
   check(await p.locator('.isle[data-region=english].isle--locked').count() === 1, 'the English island waits for stars on the numbers island');
   await p.evaluate(async () => {
-    const { save } = await import('./core/save.js');
-    const { topicsIn } = await import('./core/topics.js');
+    const { save } = await (import('./core/save.js' as string) as Promise<typeof import('../core/save.js')>);
+    const { topicsIn } = await (import('./core/topics.js' as string) as Promise<typeof import('../core/topics.js')>);
     save.update(v => { for (const r of ['arabic', 'math']) for (const t of topicsIn(r)) v.topics[t.id] = { stars: 3, best: 1, plays: 1 }; });
   });
   await p.click('.map-voyages');
@@ -1070,8 +1079,8 @@ async function englishIsland(half) {
   await p.waitForTimeout(800);
   const english = () => p.evaluate(() => window.__english());
   let s = await english();
-  check(s.places.length === 12 && s.next === QUESTS[0].id && (await p.textContent('#english-say .bubble')).length > 10, 'twelve places of the seaside town; the helper says hello; unit 1 comes first');
-  const tap = async el => {
+  check(s.places.length === 12 && s.next === QUESTS[0].id && (await p.textContent('#english-say .bubble'))!.length > 10, 'twelve places of the seaside town; the helper says hello; unit 1 comes first');
+  const tap = async (el: Locator) => {
     const [target] = await el.elementHandles();
     if (!target) return; // The previous answer may already have advanced.
     try { await el.click({ timeout: 1500 }); }
@@ -1079,7 +1088,7 @@ async function englishIsland(half) {
       // A click can advance the step before Playwright finishes waiting.
       // Retry only that same element while it is still a correct answer.
       // It may have been removed or reused for a different step.
-      await target.evaluate(node => {
+      await target.evaluate((node: Element) => {
         if (node.isConnected && node.hasAttribute('data-ok')) node.dispatchEvent(new MouseEvent('click', { bubbles: true }));
       });
     } finally { await target.dispose(); }
@@ -1095,7 +1104,7 @@ async function englishIsland(half) {
     }
     return false;
   };
-  const stars = id => p.evaluate(t => JSON.parse(localStorage.getItem('sindbad.save.v1')).topics[t]?.stars, id);
+  const stars = (id: string) => p.evaluate((t: string) => JSON.parse(localStorage.getItem('sindbad.save.v1')!).topics[t]?.stars, id);
   // Three lessons from three parts of the book, then a revision: the first
   // two in one half, the other two in the other.
   const all = [QUESTS[0], QUESTS[8], QUESTS[16], QUESTS.find(q => /revision/i.test(q.id) || /Revision/.test(q.title)) || QUESTS[23]];
@@ -1118,7 +1127,7 @@ async function englishIsland(half) {
   check((await english()).book === null, 'the word book closes back to the island');
   await p.reload();
   await p.waitForTimeout(500);
-  const kept = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')).world.english);
+  const kept = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')!).world.english);
   check(picks.every(q => kept.done[q.id]), 'the island survives a reload');
   check(errors.length === 0, `no console errors${errors.length ? `: ${errors.join(' | ')}` : ''}`);
   await ctx.close();
@@ -1136,7 +1145,7 @@ if (part('sea')) {
   const ctx = await gl.newContext({ viewport: { width: 390, height: 844 } });
   await ctx.addInitScript(() => { window.__SINDBAD_TEST__ = true; });
   const p = await ctx.newPage();
-  const errors = [];
+  const errors: string[] = [];
   p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
   p.on('pageerror', e => errors.push(e.message));
   const toMap = async () => {
@@ -1163,7 +1172,7 @@ if (part('sea')) {
   let s = await sea();
   check(s?.fog.length === 5 && s.next === 'arabic', 'the 3D sea: fog over the five locked islands, the letters island first');
   const boxes = await p.evaluate(() => {
-    const m = document.getElementById('map').getBoundingClientRect();
+    const m = document.getElementById('map')!.getBoundingClientRect();
     return [...document.querySelectorAll('#map .isle')].map(b => { const r = b.getBoundingClientRect(); return r.width > 40 && r.left >= m.left - 1 && r.right <= m.right + 1 && r.top >= m.top - 1 && r.bottom <= m.bottom + 1; });
   });
   const ISLES = (await import('../worlds/grade6.js')).default.regions.length + 1;
@@ -1175,24 +1184,24 @@ if (part('sea')) {
   check(await p.locator('#map .isle__art').count() === 0, '…and back to the 3D sea');
   await p.click('.isle[data-region=math]');
   await p.waitForTimeout(400);
-  check(await p.isVisible('#map-toast') && (await sea()).at === 'home', 'a foggy island explains how to open it; the ship stays');
+  check(await p.isVisible('#map-toast') && (await sea())!.at === 'home', 'a foggy island explains how to open it; the ship stays');
   await p.click('.isle[data-region=arabic]');
   await p.waitForSelector('#screen-island[data-active]', { timeout: 10000 });
   check(true, 'tapping an island sails there and goes ashore');
   await p.click('#island-leave');
   await p.waitForSelector('#map .sea-canvas', { timeout: 10000 });
-  check((await sea()).at === 'arabic', 'back at sea, the ship waits by the letters island');
+  check((await sea())!.at === 'arabic', 'back at sea, the ship waits by the letters island');
   // Stars on the letters island: the fog lifts from the numbers island.
   await p.evaluate(async () => {
-    const { save } = await import('./core/save.js');
-    const { topicsIn } = await import('./core/topics.js');
+    const { save } = await (import('./core/save.js' as string) as Promise<typeof import('../core/save.js')>);
+    const { topicsIn } = await (import('./core/topics.js' as string) as Promise<typeof import('../core/topics.js')>);
     save.update(v => { v.topics[topicsIn('arabic')[0].id] = { stars: 3, best: 1, plays: 1 }; });
   });
   await p.click('.map-voyages');
   await p.click('.voyage--open');
   await p.waitForTimeout(4500);
   s = await sea();
-  check(!s.fog.includes('math') && await p.locator('.isle[data-region=math]:not(.isle--locked)').count() === 1, 'stars earned: the fog lifts from the numbers island');
+  check(!s!.fog.includes('math') && await p.locator('.isle[data-region=math]:not(.isle--locked)').count() === 1, 'stars earned: the fog lifts from the numbers island');
   await ctx.setOffline(true);
   await p.reload();
   await p.waitForTimeout(600);
@@ -1219,7 +1228,7 @@ if (part('updates')) {
   console.log('— updates and background');
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const p = await ctx.newPage();
-  const errors = [];
+  const errors: string[] = [];
   p.on('pageerror', e => errors.push(e.message));
   await p.goto(URL_);
   await p.evaluate(() => navigator.serviceWorker.ready);
@@ -1229,7 +1238,7 @@ if (part('updates')) {
   nextVersion = 'next-version';   // the website now has a new version
   await p.evaluate(() => { window.__before = true; });
   const reloaded = p.waitForEvent('load', { timeout: 15000 }).then(() => true, () => false);
-  await p.evaluate(() => navigator.serviceWorker.getRegistration().then(r => r.update()));
+  await p.evaluate(() => navigator.serviceWorker.getRegistration().then(r => r!.update()));
   check(await reloaded && !(await p.evaluate(() => window.__before)), 'a new version reloads the title screen by itself');
   const now = await p.evaluate(() => caches.keys());
   check(now.length === 1 && now[0].endsWith('next-version') && !oldCaches.includes(now[0]), 'the old offline copy is replaced by the new one');
@@ -1237,8 +1246,8 @@ if (part('updates')) {
 
   // Background: pretend the child switched to another tab.
   await p.click('text=ابدأ الرحلة');   // a tap allows sound
-  const state = () => p.evaluate(() => import('/core/sound.js').then(m => m.ac()?.state));
-  const setHidden = h => p.evaluate(h => { Object.defineProperty(document, 'hidden', { value: h, configurable: true }); document.dispatchEvent(new Event('visibilitychange')); }, h);
+  const state = () => p.evaluate(() => (import('/core/sound.js' as string) as Promise<typeof import('../core/sound.js')>).then(m => m.ac()?.state));
+  const setHidden = (h: boolean) => p.evaluate((h: boolean) => { Object.defineProperty(document, 'hidden', { value: h, configurable: true }); document.dispatchEvent(new Event('visibilitychange')); }, h);
   await p.waitForTimeout(300);
   check(await state() === 'running', 'sound plays while the game is in front');
   await setHidden(true);
@@ -1257,7 +1266,7 @@ if (part('staging')) {
   console.log('— staging copy');
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const p = await ctx.newPage();
-  const errors = [];
+  const errors: string[] = [];
   p.on('pageerror', e => errors.push(e.message));
   const stored = () => p.evaluate(async () => ({ keys: Object.keys(localStorage), caches: await caches.keys() }));
 
