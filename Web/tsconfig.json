@@ -17,5 +17,7 @@
     "allowImportingTsExtensions": true,
     "skipLibCheck": true
   },
-  "include": ["tools/**/*.ts", "tests/**/*.ts", "types/**/*.d.ts"]
+  // And the repository's CI test plan (.github/scripts), checked here: it is
+  // TypeScript run by Node too, and this is the TypeScript setup CI installs.
+  "include": ["tools/**/*.ts", "tests/**/*.ts", "types/**/*.d.ts", "../../../../../../.github/scripts/*.ts"]
 }
