@@ -7,10 +7,12 @@ import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
 import { Resvg } from '@resvg/resvg-js';
 import * as art from '../../../Web/art/art.js';
-import { captureMath, mathFiles, plain } from './math-source.mjs';
+import { captureMath, mathFiles, plain } from './math-source.ts';
+import type { MathCard, MathQuestion } from './math-source.ts';
+import type { Manifest, Variant } from './manifest.ts';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const manifest = JSON.parse(await fs.readFile(path.join(root, 'manifest.json'), 'utf8'));
+const manifest: Manifest = JSON.parse(await fs.readFile(path.join(root, 'manifest.json'), 'utf8'));
 manifest.assets = manifest.assets.filter(a => a.collection !== 'learning');
 const fonts = (await fs.readdir(path.join(root, 'fonts'))).filter(f => f.endsWith('.ttf')).map(f => path.join(root, 'fonts', f));
 const css = await fs.readFile(new URL('../../../Web/style.css', import.meta.url), 'utf8');
@@ -22,13 +24,13 @@ const styles = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
   .replace(/var\(--gold\)/g, '#f2c14e').replace(/var\(--subj, var\(--rose\)\)/g, '#d0507e')
   .replace(/var\(--[^)]+\)/g, '#d0507e');
 
-async function asset(id, svg, source, extra = {}) {
+async function asset(id: string, svg: string, source: string, extra = {}) {
   svg = svg.replace(/<svg\b/, '<svg xmlns="http://www.w3.org/2000/svg"')
     .replace(/(<svg[^>]*>)/, `$1<defs>${art.DEFS}</defs><style>${styles}</style>`);
   const rendered = new Resvg(svg, { fitTo: { mode: 'width', value: 600 },
     font: { fontFiles: fonts, loadSystemFonts: false, defaultFontFamily: 'Baloo Bhaijaan 2' } }).render();
-  const variants = [];
-  for (const [file, data] of [[`svg/${id}.svg`, Buffer.from(svg)], [`runtime/png/${id}.png`, rendered.asPng()]]) {
+  const variants: Variant[] = [];
+  for (const [file, data] of [[`svg/${id}.svg`, Buffer.from(svg)], [`runtime/png/${id}.png`, rendered.asPng()]] as const) {
     await fs.mkdir(path.dirname(path.join(root, file)), { recursive: true });
     await fs.writeFile(path.join(root, file), data);
     variants.push({ path: file, bytes: data.length, sha256: crypto.createHash('sha256').update(data).digest('hex') });
@@ -38,12 +40,12 @@ async function asset(id, svg, source, extra = {}) {
     width: rendered.width, height: rendered.height, variants, ...extra });
 }
 
-const diagrams = {};
+const diagrams: Record<string, string[]> = {};
 for (const name of mathFiles) {
   const topic = await captureMath(name);
-  for (const [section, items] of [['card', topic.learn], ['question', topic.questions]]) {
-    for (const [index, item] of items.entries()) {
-      const ids = [];
+  for (const [section, items] of [['card', topic.learn], ['question', topic.questions]] as const) {
+    for (const [index, item] of (items as (Partial<MathCard> & MathQuestion)[]).entries()) {
+      const ids: string[] = [];
       for (const [i, match] of [...(item.html || item.q || '').matchAll(/<svg\b[\s\S]*?<\/svg>/g)].entries()) {
         const id = `lessons/${topic.id}/${section}-${index}-${i}`;
         await asset(id, match[0], `Web/plugins/math/${name}.js`,
@@ -57,15 +59,16 @@ for (const name of mathFiles) {
 
 // Capture a pure SVG emitted by an engine without mounting it. The first SVG
 // ends execution before DOM event binding, timers, audio, or gameplay can run.
-async function engineSvg(engine, item) {
+async function engineSvg(engine: string, item: object) {
   const source = await fs.readFile(new URL(`../../../Web/plugins/engines/${engine}.js`, import.meta.url), 'utf8');
-  let captured;
+  let captured: string | undefined;
   const stop = {};
+  // The engine runs in a bare context: these stand in for what it imports.
   const context = vm.createContext({
-    runRounds: options => options.renderRound(item, {}, { classList: { add() {} }, append() {} }),
-    draw: (_, items) => items, TEST: false,
-    frac: (n, d) => `${n}/${d}`,
-    h: html => {
+    runRounds: (options: { renderRound: (...a: unknown[]) => unknown }) => options.renderRound(item, {}, { classList: { add() {} }, append() {} }),
+    draw: (_: unknown, items: unknown) => items, TEST: false,
+    frac: (n: number, d: number) => `${n}/${d}`,
+    h: (html: string) => {
       const svg = html.match(/<svg\b[\s\S]*?<\/svg>/)?.[0];
       if (svg) { captured = svg; throw stop; }
       return {};
@@ -73,12 +76,12 @@ async function engineSvg(engine, item) {
   });
   vm.runInContext(source.replace(/^import .*;\s*$/gm, '').replace(/\bexport /g, '') +
     `;globalThis.render=${engine}({items:[{}]});`, context);
-  try { context.render({}, () => {}, { num: n => String(n).replace(/-/g, '−') }); }
+  try { context.render({}, () => {}, { num: (n: number) => String(n).replace(/-/g, '−') }); }
   catch (e) { if (e !== stop) throw e; }
   if (!captured) throw new Error(`No SVG captured from ${engine}`);
   return captured;
 }
-const lineSpecs = new Map();
+const lineSpecs = new Map<string, MathQuestion>();
 for (const name of ['fractions-line', 'decimals', 'integers']) {
   for (const q of (await captureMath(name)).questions) {
     const key = `${q.min}_${q.max}_${q.ticks}`;
@@ -100,7 +103,7 @@ for (let degrees = 0; degrees <= 180; degrees += 5) {
     .replace('<g class="helm__ship">', `<g class="helm__ship" transform="translate(${200 + Math.cos(radians) * 36} ${206 - Math.sin(radians) * 36}) rotate(${-degrees})">`);
   await asset(`controls/helm/${degrees}`, raw, 'Web/plugins/engines/helm.ts');
 }
-const parts = new Set((await captureMath('equivalent')).questions.map(q => q.parts));
+const parts = new Set((await captureMath('equivalent')).questions.map(q => q.parts!));
 for (const n of parts) for (let level = 0; level <= n; level++) {
   let raw = await engineSvg('fill', { parts: n, answer: 0, q: '' });
   raw = raw.replace('0 0 352 262', '-8 -8 380 280');
@@ -110,9 +113,9 @@ for (const n of parts) for (let level = 0; level <= n; level++) {
 
 // The ship has painter-ordered authoring sections. Export them on one identical
 // padded canvas so every combination can be composed without redrawing anything.
-const wrapShip = body => `<svg viewBox="-4 -6 378 270">${body}</svg>`;
+const wrapShip = (body: string) => `<svg viewBox="-4 -6 378 270">${body}</svg>`;
 const ship = () => art.shipSVG({ crew: ['sindbad'], hudhud: true });
-const section = (raw, start, end) => {
+const section = (raw: string, start: string, end: string) => {
   const a = raw.indexOf(start), b = raw.indexOf(end, a + start.length);
   if (a < 0 || b < 0) throw new Error(`Authoring section changed: ${start}`);
   return raw.slice(a + start.length, b);
@@ -131,7 +134,7 @@ for (const [key, value] of Object.entries(flags)) {
   art.setStyle({ flag: value });
   await asset(`layers/ship/flag-${key}`, wrapShip('<g class="flag">' + section(ship(), '<g class="flag">', '<!-- crew -->')), 'Web/art/art.js');
 }
-for (const hero of ['sindbad', 'yasmina']) for (const [key, value] of Object.entries(outfits)) {
+for (const hero of ['sindbad', 'yasmina'] as const) for (const [key, value] of Object.entries(outfits)) {
   art.setStyle({ outfit: value });
   const raw = art.shipSVG({ crew: [hero], hudhud: false });
   await asset(`layers/ship/${hero}-${key}`, wrapShip(section(raw, '<!-- crew -->', '<!-- hull -->')), 'Web/art/art.js');

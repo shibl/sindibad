@@ -11,25 +11,31 @@
 // the fast checks plus one job per group of browser tests (E2E_PARTS);
 // otherwise as one "npm test" job.
 //
-//   node .github/scripts/test-plan.mjs <base commit> <head commit>
+//   node .github/scripts/test-plan.ts <base commit> <head commit>
 //   (no base, or a base git doesn't know: test every grade)
 //
 // Writes matrix=… and any=true|false to $GITHUB_OUTPUT (or prints them).
+// Node runs this TypeScript as it is (22.18+); Grade 6's `npm run
+// typecheck` checks it (its Web/tsconfig.json includes it).
 
 import { execFileSync } from 'node:child_process';
 import { appendFileSync, existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const [base = '', head = 'HEAD'] = process.argv.slice(2);
-const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
+const git = (...args: string[]) => execFileSync('git', args, { encoding: 'utf8' }).trim();
 
-let changed = null;   // null: test everything
+let changed: string[] | null = null;   // null: test everything
 if (base && !/^0+$/.test(base)) {
   try { changed = git('diff', '--name-only', `${base}...${head}`).split('\n').filter(Boolean); }
   catch { console.log(`Cannot compare with ${base}: testing every grade.`); }
 }
 
-const grades = [];
+/** A grade with browser tests: its name, its folder and its Web/ folder. */
+interface Grade { name: string; root: string; dir: string }
+/** A job of the checks matrix: its name, folder, command and E2E_PARTS. */
+interface Job { name: string; dir: string; run: string; parts: string }
+const grades: Grade[] = [];
 for (const game of readdirSync('Studio/Games')) {
   const classes = join('Studio/Games', game, 'Classes');
   if (!existsSync(classes)) continue;
@@ -40,17 +46,17 @@ for (const game of readdirSync('Studio/Games')) {
   }
 }
 
-const touches = g => changed === null
+const touches = (g: Grade) => changed === null
   || changed.some(f => f.startsWith('.github/'))
   || changed.some(f => f.startsWith(`${g.root}/`) && !/^(Android|iOS)\//.test(f.slice(g.root.length + 1)) && !f.endsWith('.md'));
 
-const include = [];
+const include: Job[] = [];
 for (const g of grades.filter(touches)) {
   const scripts = JSON.parse(readFileSync(join(g.dir, 'package.json'), 'utf8')).scripts;
   const groups = join(g.dir, 'tests/e2e-groups.json');
   if (scripts['test:fast'] && existsSync(groups)) {
     include.push({ name: `${g.name}: fast checks`, dir: g.dir, run: 'npm run test:fast', parts: '' });
-    for (const group of JSON.parse(readFileSync(groups, 'utf8')))
+    for (const group of JSON.parse(readFileSync(groups, 'utf8')) as string[][])
       include.push({ name: `${g.name}: ${group.join(', ')}`, dir: g.dir, run: 'npm run test:e2e', parts: group.join(',') });
   } else {
     include.push({ name: `${g.name}: npm test`, dir: g.dir, run: 'npm test', parts: '' });

@@ -10,7 +10,7 @@
   "scripts": {
     "build": "node tools/build.ts && node tools/attributes.ts && node tools/update-shell.ts",
     "shell": "node tools/update-shell.ts",
-    "typecheck": "tsc && tsc -p tsconfig.game.json",
+    "typecheck": "tsc && tsc -p tsconfig.game.json && tsc -p tsconfig.sw.json && tsc -p ../Infra/Pages/tsconfig.json",
     "test": "npm run test:fast && npm run test:e2e",
     "test:fast": "npm run typecheck && node tests/check-build.ts && node tests/check-shell.ts && node tests/check-content.ts && node tests/check-language-content.ts && node tests/language.ts && node tests/merge.ts && node tests/sync.ts",
     "test:e2e": "node tests/e2e.ts",

@@ -42,6 +42,9 @@ uv run --with fonttools==4.67.0 --with brotli==1.2.0 Shared/Art/tools/fonts.py
 npm ci --prefix Shared/Art/tools
 npm run export --prefix Shared/Art/tools
 npm run check --prefix Shared/Art/tools
+# The tools are TypeScript, run by Node as they are; type-check them
+# (needs npm ci in Web/ too, for the game's types they import):
+npm run typecheck --prefix Shared/Art/tools
 # Only refresh learning/controls/cosmetics, keeping existing GLBs:
 npm run export:learning --prefix Shared/Art/tools
 ```
@@ -66,7 +69,7 @@ Input, scoring and state changes stay native.
 
 Ship layers share the same canvas and painter order: rigging, sail, flag,
 hero, Hudhud, hull. This represents **1,000 combinations** without exporting
-1,000 full ship pictures. `check-learning.mjs` verifies every combination's
+1,000 full ship pictures. `check-learning.ts` verifies every combination's
 SVG geometry against the original authoring factory. It also checks every
 SVG diagram in all eleven math topics is represented. The extractions retain
 source hashes; fixed five-degree helm poses and bucket levels are exported

@@ -226,11 +226,11 @@ before asking.
 - **The map follows the Syrian textbook:** Palestine is drawn whole,
   Western Sahara as part of Morocco, Somaliland as part of Somalia, northern
   Cyprus with Cyprus, Kosovo with Serbia, Taiwan with China
-  (`Web/tools/make-world.mjs`). The book's lists of "usurped lands" are not
+  (`Web/tools/make-world.ts`). The book's lists of "usurped lands" are not
   quizzed. *(To confirm with the developers.)*
 - **Outside data:** the world's shapes are Natural Earth's 1:110m map
   (public domain), via world-atlas 2.0.2 (ISC), turned into
-  `Web/worlds/atlas/shapes.ts` by `Web/tools/make-world.mjs`. It came in
+  `Web/worlds/atlas/shapes.ts` by `Web/tools/make-world.ts`. It came in
   because the owner asked for a globe of every country. The flags are drawn
   in code (`Web/worlds/atlas/countries.js`).
 - **The old walkable social studies island** (the Citadel of Aleppo; Syrian

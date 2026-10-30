@@ -1246,3 +1246,41 @@ art island's paintings; (4) the service worker and the browser tests;
 - Why not Rust: the browser tests' time is spent waiting on Chromium and
   the game, not in the test code, and Playwright has no maintained Rust
   version. TypeScript keeps them in the language of the code they test.
+
+## TypeScript migration — 2026-10-30 (phase 5: tools and service workers)
+
+- **Fixed, found by phase 1's types:** the art export built the music
+  island's glass pavilion from a list of numbers, but the model takes each
+  glass as `{ id, color }`: the exported model (used by the Android app)
+  had colourless glasses with no ids, the water at full height. The glass
+  colours moved beside `GLASSES` (worlds/grade6/tunes.ts) and the export
+  builds the pavilion as the game does; `models/tunes/glassPavilion.glb`
+  re-exported (eight coloured waters, where it had none).
+- `Shared/Art/tools/*.mjs` (export, export-learning, check, check-learning,
+  math-source) and `Android/tools/import-{math,review}.mjs` → `.ts`, checked
+  by `npm run typecheck` in `Shared/Art/tools` (its own `tsconfig.json`;
+  TypeScript, `@types/node` and `@types/three` as dev dependencies).
+  `manifest.ts` types `manifest.json`; `gltf-validator.d.ts` the validator.
+  The typed exporters write the same 582 files as before, byte for byte;
+  the Android imports the same Kotlin.
+- `Web/tools/make-world.mjs` → `.ts`; it writes `shapes.ts`'s type too, so
+  the regenerated file matches the one in the repository.
+- `.github/scripts/test-plan.mjs` → `.ts`, checked with Grade 6's tools
+  (`Web/tsconfig.json` includes it). The plan job now sets up Node 22 to
+  run it; it prints the same plan.
+- The service worker: `service-worker.ts` is the source, with its own
+  types (`tsconfig.sw.json`, the web worker's library; `sw-globals.d.ts`).
+  `npm run build` makes `service-worker.js` from it and fills in the
+  offline list and version (update-shell.ts, unchanged), and
+  `tests/check-build.ts` checks it. The compiled worker starts with
+  "use strict". One fix the types asked for: offline, a page that is not
+  cached falls back to index.html, and if that is missing too the worker
+  now answers with an explicit error (it answered with undefined, which the
+  browser turns into the same error).
+- `Infra/Pages/service-worker.ts` (the site's old-copy cleanup) is built
+  the same way, with its own `tsconfig.json`.
+- Not changed: the website and Grade 10 (source-only, by the owner's
+  instruction). With this, Grade 6 has no handwritten JavaScript left.
+- Stale assets noticed, not refreshed here: re-running the full art export
+  also updates 209 lesson/cosmetic SVGs (the game's CSS they embed gained a
+  rule) and `models/sea/numbers.glb` (changed before these phases).
