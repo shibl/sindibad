@@ -13,7 +13,7 @@ import * as S from './synth.js';
 import { explore } from '../learn/explore.js';
 import { makeRunStep, tracker, finish as finishStep } from '../learn/steps.js';
 import { TEST, shuffle, bump } from '../learn/util.js';
-import { SOLFEGE, GLASSES } from '../../worlds/grade6/tunes.js';
+import { SOLFEGE, GLASSES, GLASS_COLORS } from '../../worlds/grade6/tunes.js';
 import type { Step, StepCtx, Resolve, View, StepResult, RunStep } from '../learn/steps.js';
 import type { ExploreOpts } from '../learn/explore.js';
 import type { Spot, ExploreStep } from '../../types/content.js';
@@ -169,7 +169,6 @@ const whitesBetween = (from: string, to: string) => {
 };
 const glassOf = (id: string) => GLASSES.find(g => g.id === id)!;
 const glassFreq = (id: string): number => { const g = glassOf(id); return S.freq('C4') * g.d / g.n; };
-const GLASS_COLORS: Record<string, string> = { C: '#8a63c9', D: '#e86aa0', E: '#3fbdb6', F: '#3faa5a', G: '#93c94f', A: '#f2b631', B: '#f08a3c', C2: '#8a63c9' };
 const glassLetter = (id: string) => id.replace('2', '');
 // A note name ('C4') sounds on the piano; a glass id ('C', 'C2') on its glass.
 const tone = (s: string, o?: { at?: number; dur?: number; vol?: number }) => (GLASS_COLORS[s] ? S.glass(glassFreq(s), o) : S.piano(s, o));
