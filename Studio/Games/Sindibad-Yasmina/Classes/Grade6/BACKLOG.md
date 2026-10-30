@@ -1203,3 +1203,19 @@ art island's paintings; (4) the service worker and the browser tests;
   plinth's options, unit colours are a `Record<number, string>`.
 - No lesson content changed. Generated JavaScript is the same as before
   apart from formatting and one equivalent lookup (`materialIndex ?? 0`).
+
+## TypeScript migration — 2026-10-30 (phase 3: the English and art islands)
+
+- `core/english/models`, `core/studio/models` and `core/studio/art` → `.ts`.
+  With phases 1–2, every file the game loads is now made from TypeScript
+  (apart from the service worker, phase 4).
+- The art island's paintings: `ArtShape` (path, fill, stroke, width,
+  opacity) and `ART: Record<string, ArtShape[]>`, so every painting's
+  shapes are checked. Canvas pictures (flags, screens, line tiles) are
+  typed `Draw` functions; `faceTex` takes the four moods.
+- `M.parrots` is typed, so `core/english/english.ts` reads the parrot's
+  wings without an implicit `any`.
+- No lesson content changed. Generated JavaScript is the same as before
+  apart from formatting and two equivalent rewrites: `.filter(sh => sh
+  !== null)` for `.filter(Boolean)` (shapes are objects), and a stroke
+  width defaulting to 1.5 (every stroke shape already had one).
