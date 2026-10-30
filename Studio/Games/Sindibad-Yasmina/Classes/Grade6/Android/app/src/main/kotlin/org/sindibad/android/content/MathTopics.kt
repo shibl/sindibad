@@ -1,5 +1,5 @@
 // Draft content, pending review by Syrian educators. CC-BY-SA.
-// Curriculum data from Web/plugins/math; regenerate: node Android/tools/import-math.mjs
+// Curriculum data from Web/plugins/math; regenerate: node Android/tools/import-math.ts
 // No browser HTML or gameplay code is executed by Android.
 package org.sindibad.android.content
 

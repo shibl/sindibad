@@ -143,7 +143,7 @@ Content remains **draft, pending review by Syrian educators**. Question
 wording, answers, hints and rules come from the existing web banks;
 HTML teaching cards become native text, labeled word tiles and exported
 illustrations. Geometry measurements also have native text for TalkBack.
-`tools/import-math.mjs` and `tools/import-review.mjs` preserve curriculum data
+`tools/import-math.ts` and `tools/import-review.ts` preserve curriculum data
 at development time; no JavaScript or HTML is bundled or interpreted in the app.
 Divisibility generation and all interaction/scoring rules are native Kotlin. The source
 web curriculum files were not edited.

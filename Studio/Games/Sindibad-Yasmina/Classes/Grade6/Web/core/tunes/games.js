@@ -13,7 +13,7 @@ import * as S from './synth.js';
 import { explore } from '../learn/explore.js';
 import { makeRunStep, tracker, finish as finishStep } from '../learn/steps.js';
 import { TEST, shuffle, bump } from '../learn/util.js';
-import { SOLFEGE, GLASSES } from '../../worlds/grade6/tunes.js';
+import { SOLFEGE, GLASSES, GLASS_COLORS } from '../../worlds/grade6/tunes.js';
 const wait = (ms) => new Promise(r => setTimeout(r, TEST ? Math.min(ms, 40) : ms));
 // ---------- Notes ----------
 const WHITE = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
@@ -40,7 +40,6 @@ const whitesBetween = (from, to) => {
 };
 const glassOf = (id) => GLASSES.find(g => g.id === id);
 const glassFreq = (id) => { const g = glassOf(id); return S.freq('C4') * g.d / g.n; };
-const GLASS_COLORS = { C: '#8a63c9', D: '#e86aa0', E: '#3fbdb6', F: '#3faa5a', G: '#93c94f', A: '#f2b631', B: '#f08a3c', C2: '#8a63c9' };
 const glassLetter = (id) => id.replace('2', '');
 // A note name ('C4') sounds on the piano; a glass id ('C', 'C2') on its glass.
 const tone = (s, o) => (GLASS_COLORS[s] ? S.glass(glassFreq(s), o) : S.piano(s, o));

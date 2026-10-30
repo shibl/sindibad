@@ -3,14 +3,20 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "export": "node export.mjs && node export-learning.mjs",
-    "export:learning": "node export-learning.mjs",
-    "check": "node check.mjs && node check-learning.mjs"
+    "export": "node export.ts && node export-learning.ts",
+    "export:learning": "node export-learning.ts",
+    "check": "node check.ts && node check-learning.ts",
+    "typecheck": "tsc"
   },
   "dependencies": {
     "@napi-rs/canvas": "1.0.11",
     "@resvg/resvg-js": "2.6.2",
     "gltf-validator": "2.0.0-dev.3.10",
     "three": "0.170.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "@types/three": "0.170.0",
+    "typescript": "7.0.2"
   }
 }

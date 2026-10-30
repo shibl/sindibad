@@ -3,10 +3,11 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import validator from 'gltf-validator';
+import type { Manifest } from './manifest.ts';
 const root = fileURLToPath(new URL('../', import.meta.url));
-const manifest = JSON.parse(await fs.readFile(path.join(root, 'manifest.json'), 'utf8'));
+const manifest: Manifest = JSON.parse(await fs.readFile(path.join(root, 'manifest.json'), 'utf8'));
 if (manifest.pending.length) throw new Error(`Unresolved exports: ${JSON.stringify(manifest.pending)}`);
-const ids = new Set();
+const ids = new Set<string>();
 let warnings = 0;
 for (const asset of manifest.assets) {
   if (ids.has(asset.id)) throw new Error(`Duplicate asset ${asset.id}`);
@@ -22,8 +23,8 @@ for (const asset of manifest.assets) {
       const jsonLength = bytes.readUInt32LE(12);
       const data = JSON.parse(bytes.subarray(20, 20 + jsonLength).toString());
       if (!data.meshes?.length || !data.nodes?.length) throw new Error(`Empty model: ${variant.path}`);
-      if ((data.images || []).some(x => x.uri && !x.uri.startsWith('data:'))) throw new Error(`External texture: ${variant.path}`);
-      const nodes = new Set(data.nodes.map(n => n.name));
+      if ((data.images || []).some((x: { uri?: string }) => x.uri && !x.uri.startsWith('data:'))) throw new Error(`External texture: ${variant.path}`);
+      const nodes = new Set(data.nodes.map((n: { name?: string }) => n.name));
       for (const hook of Object.values(asset.nodeHooks || {})) {
         for (const name of Array.isArray(hook) ? hook : [hook]) if (!nodes.has(name)) throw new Error(`Missing hook ${name}: ${asset.id}`);
       }

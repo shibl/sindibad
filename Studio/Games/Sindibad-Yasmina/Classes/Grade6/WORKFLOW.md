@@ -68,7 +68,14 @@ against?
   example `core/farm/scene.ts`), the `.ts` is the source: edit it, then run
   `npm run build` in `Web/`. It makes the `.js` (which the browser loads)
   and updates the offline list. Never edit that `.js` by hand: `npm test`
-  fails if it no longer matches its `.ts`.
+  fails if it no longer matches its `.ts`. The service worker too:
+  `service-worker.ts` is the source (its own types: `tsconfig.sw.json`), and
+  its `.js` also carries the offline file list that `update-shell.ts`
+  writes. The site's old-copy cleanup worker, `Infra/Pages/service-worker.ts`,
+  is built the same way.
+- **Tools**: every maintainer tool is TypeScript that Node runs as it is:
+  `Web/tools/` (checked by `npm run typecheck`), the art export and the
+  Android content import (`npm run typecheck --prefix Shared/Art/tools`).
 
 ## 3. Test
 

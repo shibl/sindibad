@@ -41,7 +41,7 @@ concurrency:
 
 jobs:
   # Only the grades a change touches are tested, each as parallel jobs
-  # (.github/scripts/test-plan.mjs): a website-only change runs no game
+  # (.github/scripts/test-plan.ts): a website-only change runs no game
   # tests, and adding a grade adds jobs side by side, not minutes in a row.
   plan:
     if: github.ref_name != 'staging'
@@ -55,9 +55,12 @@ jobs:
           fetch-depth: 0   # to compare with the base
       - name: Check publication layout
         run: python3 .github/tests/test_pages_layout.py
+      - uses: actions/setup-node@v7   # 22.18+ runs the TypeScript plan as it is
+        with:
+          node-version: 22
       - name: Choose the tests
         id: plan
-        run: node .github/scripts/test-plan.mjs "${{ github.event.pull_request.base.sha || github.event.before }}" "${{ github.event.pull_request.head.sha || github.sha }}"
+        run: node .github/scripts/test-plan.ts "${{ github.event.pull_request.base.sha || github.event.before }}" "${{ github.event.pull_request.head.sha || github.sha }}"
 
   checks:
     needs: plan

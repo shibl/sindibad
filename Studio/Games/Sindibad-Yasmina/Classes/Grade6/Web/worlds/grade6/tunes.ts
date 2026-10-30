@@ -79,6 +79,9 @@ export const GLASSES: Glass[] = [
   { id: 'G', n: 2, d: 3 }, { id: 'A', n: 3, d: 5 }, { id: 'B', n: 8, d: 15 }, { id: 'C2', n: 1, d: 2 },
 ];
 
+/** Each glass's water colour: in the lesson's pictures, on the 3D pavilion and in the exported model. */
+export const GLASS_COLORS: Record<string, string> = { C: '#8a63c9', D: '#e86aa0', E: '#3fbdb6', F: '#3faa5a', G: '#93c94f', A: '#f2b631', B: '#f08a3c', C2: '#8a63c9' };
+
 export const INSTRUMENTS: Record<string, string> = {
   balalaika: 'البلالايكا', panflute: 'البان فلوت', mizmar: 'المزمار البلدي', harmonica: 'الهارمونيكا', bagpipe: 'القربة',
 };

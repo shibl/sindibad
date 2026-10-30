@@ -1,5 +1,5 @@
 // Draft content, pending review by Syrian educators. CC-BY-SA.
-// Existing website review content; regenerate with Android/tools/import-review.mjs.
+// Existing website review content; regenerate with Android/tools/import-review.ts.
 package org.sindibad.android.content
 import org.sindibad.android.domain.Question
 object ReviewBank {
