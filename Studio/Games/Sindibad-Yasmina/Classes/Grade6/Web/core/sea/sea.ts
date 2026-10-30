@@ -12,6 +12,7 @@ import { newRenderer } from '../farm/scene.js';
 import * as M from './models.js';
 import { mapTopInset } from '../map.js';
 import type { MapWorld } from '../map.js';
+import type { HeroId } from '../../art/art.js';
 
 /** An island's rectangle on screen (CSS px in the map), for its label. */
 export interface Rect { x: number; y: number; w: number; h: number }
@@ -26,7 +27,7 @@ export interface SeaState {
   next?: string | null;
   /** Where the ship is moored: 'home' or an island's id. */
   at: string;
-  hero: string;
+  hero: HeroId;
   /** Changes when the hero's outfit changes (art/art.js styleKey). */
   styleKey: string;
   style?: SailStyle;
@@ -72,25 +73,8 @@ interface Look {
 
 type BasicMesh = THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>;
 
-/** An island's moving parts (./models.js parts()). */
-interface Parts {
-  flags: THREE.Object3D[];
-  spin: { obj: THREE.Object3D; axis: 'x' | 'y' | 'z'; speed: number }[];
-  /** Pivots, each holding a beam mesh. */
-  beams: THREE.Object3D[];
-  smoke: THREE.Mesh<THREE.BufferGeometry, THREE.MeshLambertMaterial>[];
-  bob: THREE.Object3D[];
-  glow: THREE.Sprite[];
-  lights: THREE.Mesh[];
-  /** The letters island: the letters' height, circle and characters. */
-  letters?: { y: number; r: number; chars: string[] };
-}
-
 /** An island as ./models.js builds it, and what the sea keeps on it. */
-interface Isle {
-  group: THREE.Group;
-  landmark: THREE.Group;
-  parts: Parts;
+interface Isle extends M.Island {
   seed: number;
   /** The letters island's floating letters. */
   letters?: THREE.Sprite[];
@@ -247,7 +231,7 @@ export function createSea(world: MapWorld, { lite = false }: { lite?: boolean } 
   const isles: Record<string, Isle> = {};
   ids.forEach((id, i) => {
     const seed = 1.7 + i * 2.31;
-    const built = M.buildIsland(kindOf[id], seed) as unknown as Isle;
+    const built = M.buildIsland(kindOf[id], seed) as Isle;
     built.seed = seed;
     built.group.traverse(o => { if ((o as THREE.Mesh).isMesh) o.userData.mat = (o as THREE.Mesh).material; });
     // floating letters for the letters island
@@ -298,7 +282,7 @@ export function createSea(world: MapWorld, { lite = false }: { lite?: boolean } 
   let crew: THREE.Sprite[] = [], crewKey = '', sailKey = '';
   const shipState: ShipState = { heading: Math.PI, sailing: null, at: 'home', speed: 0, facing: Math.PI };
 
-  function setCrew(hero: string, key: string) {
+  function setCrew(hero: HeroId, key: string) {
     if (crewKey === `${hero}|${key}`) return;
     crewKey = `${hero}|${key}`;
     crew.forEach(s => { s.material.map!.dispose(); s.material.dispose(); ship.remove(s); });
