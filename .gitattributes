@@ -24,6 +24,7 @@ Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/battle.js linguist-generat
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/chapters.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/english/english.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/english/games.js linguist-generated=true
+Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/english/models.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/english/views.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/english/words.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/env.js linguist-generated=true
@@ -67,8 +68,10 @@ Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/shop.js linguist-generated
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/sound.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/stickers.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/story.js linguist-generated=true
+Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/studio/art.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/studio/easel.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/studio/games.js linguist-generated=true
+Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/studio/models.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/studio/studio.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/studio/svg.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/studio/views-1.js linguist-generated=true
