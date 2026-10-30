@@ -1190,3 +1190,16 @@ art island's paintings; (4) the service worker and the browser tests;
   lookup in `roundBox`, `?? null` where a missing plant was `undefined`
   (both falsy where used) and a plinth's rectangle branch now naming its
   condition (`w` and `d` given), which every caller already met.
+
+## TypeScript migration — 2026-10-30 (phase 2: the sea, science and social studies models)
+
+- `core/sea/models`, `core/lab/models` and `core/atlas/models` → `.ts`.
+- The sea's islands: `Parts` (the moving parts sea.ts animates) moved
+  from `core/sea/sea.ts` to the models that make them, beside the new
+  `Island` (`buildIsland`'s result), so `sea.ts` no longer casts through
+  `unknown`. `artSprite` takes a `HeroId` or `'hudhud'`, and so does the
+  sea's crew (`SeaState.hero`). Decor spots are typed (`Spot`).
+- The science and social studies islands: plinths take the shared
+  plinth's options, unit colours are a `Record<number, string>`.
+- No lesson content changed. Generated JavaScript is the same as before
+  apart from formatting and one equivalent lookup (`materialIndex ?? 0`).
