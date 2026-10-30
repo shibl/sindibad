@@ -55,7 +55,7 @@ const server = createServer(async (req, res) => {
 const URL_ = `http://localhost:${(server.address() as AddressInfo).port}/`;
 
 // The sections below can run on their own: CI runs them side by side, one
-// job per group of tests/e2e-groups.json (.github/scripts/test-plan.mjs;
+// job per group of tests/e2e-groups.json (.github/scripts/test-plan.ts;
 // each group takes a few minutes). E2E_PARTS=farm,music runs only those
 // parts; without it, every part runs. A new part goes in that file too.
 const PARTS: string[] = JSON.parse(await readFile(join(ROOT, 'tests/e2e-groups.json'), 'utf8')).flat();

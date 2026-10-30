@@ -1,0 +1,17 @@
+// Type-checks the site's old-copy cleanup worker (service-worker.ts), with
+// the web worker's types like the game's own worker (Web/tsconfig.sw.json).
+// The game's build (Web/tools/build.ts) makes service-worker.js from it.
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "lib": ["esnext", "webworker"],
+    "types": [],
+    "strict": true,
+    "noEmit": true,
+    "erasableSyntaxOnly": true,
+    "skipLibCheck": true,
+    "rootDir": ".",
+    "newLine": "lf"
+  },
+  "files": ["service-worker.ts", "../../Web/sw-globals.d.ts"]
+}

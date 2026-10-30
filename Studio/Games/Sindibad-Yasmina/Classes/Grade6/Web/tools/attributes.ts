@@ -8,15 +8,15 @@
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { relative } from 'node:path';
-import { gameSources } from './build.ts';
+import { posix, relative } from 'node:path';
+import { builtSources } from './build.ts';
 
 // Web/ is Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web; the repository root is seven levels up from tools/.
 export const ATTRIBUTES_PATH = fileURLToPath(new URL('../../../../../../../.gitattributes', import.meta.url));
 const WEB = 'Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web';
 
-export function renderAttributes(sources: string[] = gameSources()): string {
-  const generated = sources.map(ts => `${WEB}/${ts.replace(/\.ts$/, '.js')} linguist-generated=true`);
+export function renderAttributes(sources: string[] = builtSources()): string {
+  const generated = sources.map(ts => `${posix.normalize(`${WEB}/${ts.replace(/\.ts$/, '.js')}`)} linguist-generated=true`);
   return [
     '# Written by Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/tools/attributes.ts',
     '# (npm run build). Do not edit by hand: tests/check-build.ts fails if it is stale.',
@@ -41,5 +41,5 @@ if (process.argv[1] && relative(process.argv[1], fileURLToPath(import.meta.url))
     writeFileSync(ATTRIBUTES_PATH, text);
     console.log('wrote .gitattributes');
   }
-  console.log(`attributes: ${gameSources().length} generated files listed`);
+  console.log(`attributes: ${builtSources().length} generated files listed`);
 }

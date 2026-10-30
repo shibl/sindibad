@@ -1,0 +1,21 @@
+// Type-checks the maintainer tools outside Web/: the art export and checks
+// here, and the Android content import (Android/tools), which shares
+// math-source.ts. Node runs them as they are, by stripping the types:
+//   npm ci && npm run typecheck   (in this folder; Web/ needs npm ci too,
+//   for the game's types that the tools import)
+{
+  "compilerOptions": {
+    "target": "es2023",
+    "lib": ["es2023", "dom", "dom.iterable"],
+    "module": "nodenext",
+    "types": ["node"],
+    "strict": true,
+    "noEmit": true,
+    // Only what Node's type stripping can run (see Web/tsconfig.json).
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+    "allowImportingTsExtensions": true,
+    "skipLibCheck": true
+  },
+  "include": ["*.ts", "../../../Android/tools/*.ts", "../../../Web/types/**/*.d.ts"]
+}

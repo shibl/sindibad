@@ -225,7 +225,7 @@ Deployments on GitHub (`github-pages` = live, `staging`). Details: step 5 of
 - `Shared/Art/` — reusable illustrations, interaction states, models and fonts.
 - The [studio website](../../../../Website/README.md) is a separate project under Studio.
 - `docs/` — the original brief (PDF and Markdown) and screenshots.
-- `Infra/Pages/index.html`, `Infra/Pages/service-worker.js` — only forward the live
+- `Infra/Pages/index.html`, `Infra/Pages/service-worker.ts` (built to `.js` with the game) — only forward the live
   site to `Web/` and clear old offline copies from before the move.
 
 Inside `Web/`:
@@ -290,7 +290,7 @@ Inside `Web/`:
   `models.js` every model); its content is `worlds/grade6/atlas.js` and
   `worlds/grade6/atlas/` (one file per unit), the countries
   `worlds/atlas/countries.js` (cards and flags) and `worlds/atlas/shapes.ts`
-  (the world's shapes, from Natural Earth, made by `tools/make-world.mjs`),
+  (the world's shapes, from Natural Earth, made by `tools/make-world.ts`),
   its quick reviews `plugins/social/reviews.js`.
 - `core/studio/` — the 3D art island (`studio.ts` its config, `games.ts`
   its hands-on games, `views.js` (with `views-1.js`…`views-3.js`) the
@@ -320,7 +320,8 @@ Inside `Web/`:
   [`Web/plugins/README.md`](./Web/plugins/README.md).
 - `art/art.js` — all art as inline SVG (heroes, Hudhud, dhow, islands…).
 - `fonts/` — Baloo Bhaijaan 2 (SIL OFL), bundled for offline use.
-- `manifest.json`, `service-worker.js`, `icons/` — PWA / offline support.
+- `manifest.json`, `service-worker.ts` (built to `service-worker.js`, which
+  also carries the offline file list), `icons/` — PWA / offline support.
 - `tools/`, `tests/` — maintainer scripts and tests (not shipped logic),
   moving to TypeScript (`tsconfig.json`). `tools/build.ts` makes the game's
   `.js` files from their TypeScript (`tsconfig.game.json`, `types/`).

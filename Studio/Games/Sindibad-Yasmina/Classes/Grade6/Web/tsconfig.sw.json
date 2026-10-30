@@ -1,0 +1,17 @@
+// Type-checks the service worker (service-worker.ts), which runs in its own
+// scope with the web worker's types, not the page's (tsconfig.game.json).
+// `npm run build` (tools/build.ts) makes service-worker.js from it.
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "lib": ["esnext", "webworker"],
+    "types": [],
+    "strict": true,
+    "noEmit": true,
+    "erasableSyntaxOnly": true,
+    "skipLibCheck": true,
+    "rootDir": ".",
+    "newLine": "lf"
+  },
+  "files": ["service-worker.ts", "sw-globals.d.ts"]
+}
