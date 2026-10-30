@@ -318,7 +318,7 @@ function decorate(scene: THREE.Scene) {
     side = -side;
   }
   // people: listeners by the places
-  const at = (id: string, lx: number, lz: number, ry: number, seed: number, opts?: { sit?: boolean; prop?: string }) => { const p = places[id], c = Math.cos(p.obj.rotation.y), s = Math.sin(p.obj.rotation.y); M.put(k, M.personGeo(seed, opts as object), p.pos.x + lx * c + lz * s, p.pos.y + 0.6, p.pos.z - lx * s + lz * c, ry + p.obj.rotation.y, 1); };
+  const at = (id: string, lx: number, lz: number, ry: number, seed: number, opts?: Parameters<typeof M.personGeo>[1]) => { const p = places[id], c = Math.cos(p.obj.rotation.y), s = Math.sin(p.obj.rotation.y); M.put(k, M.personGeo(seed, opts), p.pos.x + lx * c + lz * s, p.pos.y + 0.6, p.pos.z - lx * s + lz * c, ry + p.obj.rotation.y, 1); };
   at('piano', 3.6, 4.4, -2.4, 3); at('piano', 4.4, 3.4, -2.0, 4); at('piano', -4.4, 3.4, 2.4, 5, { prop: 'violin' });
   at('glasses', 0.9, 2.2, Math.PI, 6); at('library', 2.9, 2.6, -0.6, 7, { prop: 'book' }); at('library', -1.4, 3.0, 0.3, 8, { prop: 'book' });
   at('cloud', 2.5, 2.4, Math.PI - 0.2, 9); at('cloud', 3.3, 2.1, Math.PI + 0.3, 10); at('harbor', 1.2, 1.4, 0.4, 11);

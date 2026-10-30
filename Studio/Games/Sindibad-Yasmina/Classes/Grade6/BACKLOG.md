@@ -1154,3 +1154,39 @@ removed from the docs, the about page and the game.
   views (the sea map and the current island), down from 7. Every island,
   the farm with its chosen helper included, draws the same on the second
   visit, with no errors. Not checked on a phone yet.
+
+## Notes — 2026-10-29 (English tests in two jobs)
+
+- The English island's browser test was the slowest CI job (5–8 minutes:
+  four lessons of about 70 seconds each). It now runs as two parts,
+  `english1` and `english2`, two lessons each, side by side in CI; the
+  book's data checks run once, in the first. Next slowest: the art island
+  (4–7 minutes), which could be split the same way.
+- The art island's browser test (4–7 minutes) is split the same way:
+  `art1` plays the first lesson, two hands-on games and the easel; `art2`
+  three more games, a reload and offline play. The book's data checks run
+  once, in the first.
+
+## TypeScript migration — 2026-10-30 (phase 1: the 3D models' kit)
+
+The last hand-written JavaScript in the game moves to TypeScript in
+phases, each tested on staging first: (1) the farm's and the music
+island's models, which every other island's models build on; (2) the sea,
+science and social studies models; (3) the English and art models and the
+art island's paintings; (4) the service worker and the browser tests;
+(5) the art export and Android import tools and the CI test plan.
+
+- Phase 1: `core/farm/models` and `core/tunes/models` → `.ts`.
+- `Kit` is typed: `Kit.add` takes a basic shape's name (`Shape`) or a
+  geometry, a colour and a `Place` (`p`, `r`, `s`), so every model built
+  with it is checked. Also typed: the textures (`TexName`), the products
+  (`ProductId`), tree kinds (`TreeKind`), the helpers' moving parts
+  (`HelperParts`), the music island's plinths (round or rectangular),
+  people's props and the glass pavilion's glasses (`GlassLevel`).
+- `core/farm/farm.ts` lost its `Fence` cast and `core/tunes/tunes.ts` its
+  `personGeo` cast.
+- No lesson content changed. Generated JavaScript compared with the old
+  files, ignoring formatting and comments: the same apart from a cached
+  lookup in `roundBox`, `?? null` where a missing plant was `undefined`
+  (both falsy where used) and a plinth's rectangle branch now naming its
+  condition (`w` and `d` given), which every caller already met.

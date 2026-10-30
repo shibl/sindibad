@@ -28,6 +28,7 @@ Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/english/words.js linguist-
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/env.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/family.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/farm/farm.js linguist-generated=true
+Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/farm/models.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/farm/scene.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/finale.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/format.js linguist-generated=true
@@ -76,6 +77,7 @@ Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/telemetry.js linguist-gene
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/topics.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/touch.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/tunes/games.js linguist-generated=true
+Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/tunes/models.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/tunes/synth.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/tunes/tunes.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/voice.js linguist-generated=true
