@@ -671,7 +671,7 @@ const KINDS: { [K in TunesStep['kind']]: Game<Extract<TunesStep, { kind: K }>> }
     const play = host.querySelector('[data-play]')!, go = host.querySelector<HTMLButtonElement>('[data-turn]')!, drumBtn = host.querySelector<HTMLButtonElement>('.tn-drum')!, count = host.querySelector('.tn-count')!;
     play.addEventListener('click', () => { ctx.sfx.tap(); S.playRhythm(step.pattern, step.bpm, { onHit: flash }); });
     if (!TEST) setTimeout(() => { if (!ctx.signal.aborted && play.isConnected) S.playRhythm(step.pattern, step.bpm, { onHit: flash }); }, 600);
-    let misses = 0, taps: number[] | null = null, startAt = 0, timer = 0, guide = false;
+    let misses = 0, taps: number[] | null = null, startAt = 0, timer: ReturnType<typeof setTimeout> | 0 = 0, guide = false;
     // Time's up `n` beats from now: a slow start or a slow tap is not cut
     // off, because every tap gives time for the rest of the rhythm.
     const beats = S.beatsOf(step.pattern).beats;

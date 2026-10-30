@@ -1,7 +1,7 @@
 // Small helpers every island's lesson steps use (core/learn/steps.ts,
 // explore.ts, and each island's games.js).
 
-/** Set by the end-to-end test (tests/e2e.mjs): test hooks on, no waiting. */
+/** Set by the end-to-end test (tests/e2e.ts): test hooks on, no waiting. */
 export const TEST = typeof window !== 'undefined' && !!window.__SINDBAD_TEST__;
 
 /** Runs `fn` after `ms` (at once in the test). */

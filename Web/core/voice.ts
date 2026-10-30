@@ -8,7 +8,7 @@ import { getLanguage } from './i18n.js';
 type Lang = 'ar' | 'en';
 const voices: Partial<Record<Lang, SpeechSynthesisVoice | null>> = {};
 const has = typeof window !== 'undefined' && 'speechSynthesis' in window;
-// The end-to-end test (tests/e2e.mjs) plays silently: the device's voice
+// The end-to-end test (tests/e2e.ts) plays silently: the device's voice
 // speaks outside the browser, so a muted test browser would still talk.
 const TEST = typeof window !== 'undefined' && !!window.__SINDBAD_TEST__;
 

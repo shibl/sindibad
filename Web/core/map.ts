@@ -653,7 +653,7 @@ function onClick(e: MouseEvent) {
   sailTo(id, () => (walkable[id] ? onEnterIsland(id) : openSheet(region)));
 }
 
-let toastTimer: number | undefined;
+let toastTimer: ReturnType<typeof setTimeout> | undefined;
 export function toast(html: string, ms = 5000): void {
   const t = document.getElementById('map-toast')!;
   if (!t.querySelector('.hudhud')) t.querySelector('.guide__bird')!.innerHTML = hudhudSVG();
@@ -704,7 +704,7 @@ function openSheet(region: MapRegion) {
   sheet.querySelector<HTMLElement>('.topic-card')?.focus({ preventScroll: true });
 }
 
-// Test hook (tests/e2e.mjs): the 3D sea's state, or null on the flat map.
+// Test hook (tests/e2e.ts): the 3D sea's state, or null on the flat map.
 export const debugSea = (): SeaDebug | null => (is3D() ? view!.debug() : null);
 export const debugSeaLook = (...a: Parameters<Sea['look']>): void => view?.look(...a);
 

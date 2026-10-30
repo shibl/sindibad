@@ -72,7 +72,9 @@ const isle = makeIsland({
   extras,
 });
 
-function extras(scene: THREE.Scene, api: IslandApi): Extras {
+/** What the end-to-end test reads: the easel's state, and how many paintings hang. */
+type StudioDebug = { easel: ReturnType<ReturnType<typeof import('./easel.js').openEasel>['debug']> | null; hung: number };
+function extras(scene: THREE.Scene, api: IslandApi): Extras<StudioDebug> {
   const P = api.places;
   const wall = M.paintingsWall(QUESTS.length);
   wall.position.set(WALL[0], M.levelAt(WALL[1]), WALL[1]);
