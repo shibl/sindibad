@@ -391,7 +391,7 @@ export function enterIsland(def: IslandDef, region?: IslandRegion): void {
 
 // A big title card as the hero steps ashore: island name, subject and how
 // many golden tokens are already collected.
-let bannerTimer: number | undefined;
+let bannerTimer: ReturnType<typeof setTimeout> | undefined;
 function showBanner(def: IslandDef, region?: IslandRegion) {
   const have = def.tokens.filter(t => state.letters.includes(t)).length;
   els.banner.innerHTML = `
@@ -1656,7 +1656,7 @@ function flyToSlot(token: string, from: DOMRect) {
   }, { once: true });
 }
 
-let hintTimer: number | undefined;
+let hintTimer: ReturnType<typeof setTimeout> | undefined;
 function showHint(html: string) {
   els.hint.innerHTML = html;
   els.hint.hidden = false;

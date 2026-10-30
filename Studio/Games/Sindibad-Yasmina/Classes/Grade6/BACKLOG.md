@@ -1219,3 +1219,30 @@ art island's paintings; (4) the service worker and the browser tests;
   apart from formatting and two equivalent rewrites: `.filter(sh => sh
   !== null)` for `.filter(Boolean)` (shapes are objects), and a stroke
   width defaulting to 1.5 (every stroke shape already had one).
+
+## TypeScript migration — 2026-10-30 (phase 4: the tests)
+
+- `tests/{e2e,language,sync,merge,check-language-content}.mjs` → `.ts`
+  (about 2,000 lines). Node runs them as they are, as it already ran
+  `check-build.ts` and the other checks; `npm run typecheck` checks them.
+- `tsconfig.json` (tools and tests) adds the DOM types, for the code the
+  tests run inside the page, and the game's global types.
+- `tests/browser.d.ts` types what the tests read and set on the page's
+  `window`: the game's test hooks are typed from the game's own functions
+  (`__farm()` is `farm.ts`'s `debug()`, `__labDo('debugStart', …)` checks
+  the function's name and arguments).
+- To give the 3D islands' test state its real type, the shared island
+  (`core/isle/island.ts`) is generic over each island's extra test fields
+  (`Extras<D>`): the atlas's globe, the art island's easel, the English
+  word book. Timer handles in six game files are typed
+  `ReturnType<typeof setTimeout>`, which both the browser's and Node's
+  types accept. Type-only: the game's JavaScript did not change.
+- A game module loaded inside the page keeps its page path and borrows its
+  types from the source: `import('./core/save.js' as string) as
+  Promise<typeof import('../core/save.js')>`.
+- The checks that validate the books' lesson data read a step as the
+  game's own `Step` (types/content.d.ts), which is open for each island's
+  extra fields; the farm's jobs as `Partial<Step>`.
+- Why not Rust: the browser tests' time is spent waiting on Chromium and
+  the game, not in the test code, and Playwright has no maintained Rust
+  version. TypeScript keeps them in the language of the code they test.

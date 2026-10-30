@@ -1437,7 +1437,7 @@ function flyProducts(id: string, n: number, at: THREE.Vector3) {
   els.bar.hidden = false;
 }
 
-let toastTimer: number | undefined, laterToast: string | null = null;
+let toastTimer: ReturnType<typeof setTimeout> | undefined, laterToast: string | null = null;
 function toast(html: string) {
   if (!els.modal.hidden || !els.pick.hidden) { laterToast = html; return; }   // after the card closes
   let t = els.screen.querySelector<HTMLElement>('.farm-toast');
