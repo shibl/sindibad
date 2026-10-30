@@ -18,6 +18,7 @@ Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/api.js linguist-generated=
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/atlas/atlas.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/atlas/games.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/atlas/globe.js linguist-generated=true
+Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/atlas/models.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/atlas/views.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/battle.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/chapters.js linguist-generated=true
@@ -45,6 +46,7 @@ Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/isle/kit.js linguist-gener
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/journey.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/lab/games.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/lab/lab.js linguist-generated=true
+Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/lab/models.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/lab/views-machines.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/lab/views.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/learn/explore.js linguist-generated=true
@@ -58,6 +60,7 @@ Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/music.js linguist-generate
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/overworld.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/ranks.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/save.js linguist-generated=true
+Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/sea/models.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/sea/sea.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/settings.js linguist-generated=true
 Studio/Games/Sindibad-Yasmina/Classes/Grade6/Web/core/shop.js linguist-generated=true
