@@ -95,8 +95,8 @@ async fn events_are_stored_once() {
 async fn debug_reports_for_the_admin() {
     let Some(app) = server().await else { return };
     let (id, token) = device(&app).await;
-    // A diagnostics report is bigger than other events (up to 32 KB).
-    let report = json!({ "why": "debug", "gl": [{ "type": "webgl2", "ok": false, "message": "blocked" }], "pad": "x".repeat(20_000) });
+    // A diagnostics report is bigger than other events (up to 64 KB).
+    let report = json!({ "why": "debug", "gl": [{ "type": "webgl2", "ok": false, "message": "blocked" }], "pad": "x".repeat(50_000) });
     let line = json!({ "lines": [{ "t": now_ms(), "level": "warn", "text": "3D: trying lighter settings" }] });
     let batch = json!({ "sent_at": now_ms(), "events": [
         { "id": Uuid::new_v4(), "name": "diag", "at": now_ms(), "props": report },

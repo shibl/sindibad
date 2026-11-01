@@ -23,6 +23,7 @@
   .no { color: var(--warn); font-weight: 700; white-space: nowrap; } .yes { color: var(--ok); font-weight: 700; white-space: nowrap; }
   table { border-collapse: collapse; font-size: 12px; margin-top: 6px; width: 100%; }
   td, th { text-align: left; padding: 3px 6px; border-bottom: 1px solid var(--line); vertical-align: top; word-break: break-word; }
+  table.kv td:first-child { white-space: nowrap; width: 1%; }
   details summary { cursor: pointer; color: var(--muted); font-size: 12px; margin-top: 6px; }
   .muted { color: var(--muted); }
 </style>
@@ -54,13 +55,21 @@ let since = null, timer = null, devices = {};
 function gl(report) {
   const rows = (report.gl || []).map(a => `<tr><td>${esc(a.type)} ${esc(a.options === '{}' ? '' : a.options)}</td>
     <td class="${a.ok ? 'yes' : 'no'}">${a.ok ? 'yes' : 'NO'}</td>
-    <td>${esc(a.ok ? `${a.info?.unmaskedRenderer || a.info?.renderer || ''} · ${a.info?.version || ''}` : a.message || a.thrown || 'refused, no reason given')}</td></tr>`).join('');
+    <td>${esc(a.ok ? `${a.info?.unmaskedRenderer || a.info?.renderer || ''} · ${a.info?.version || ''}${a.info?.draw ? ` · drawing test: ${a.info.draw}` : ''}` : a.message || a.thrown || 'refused, no reason given')}</td></tr>`).join('');
   const facts = Object.entries(report.facts || {}).map(([k, v]) => `<tr><td>${esc(k)}</td><td colspan="2">${esc(JSON.stringify(v))}</td></tr>`).join('');
   const env = report.env || {};
-  return `<table>${rows}${facts}
+  const d = env.device || {};
+  const hi = d.uaHigh || {};
+  const versions = (hi.fullVersionList || []).filter(b => !/Not.?A.?Brand/i.test(b.brand)).map(b => `${b.brand} ${b.version}`).join(', ');
+  // Each part of the device's details as a row: hardware, screen, network…
+  const parts = Object.entries(d).map(([k, v]) => `<tr><td>${esc(k)}</td><td colspan="2">${esc(JSON.stringify(v))}</td></tr>`).join('');
+  return `<table>
+    <tr><td>phone</td><td colspan="2"><b>${esc(hi.model || '?')}</b> · Android ${esc(hi.platformVersion || '?')} · ${esc(d.hardware?.memoryGB ?? '?')} GB · ${esc(d.hardware?.cores ?? '?')} cores · ${esc(d.screen?.physical ?? '?')}</td></tr>
+    <tr><td>browser</td><td colspan="2"><b>${esc(versions || d.browser?.userAgent || '?')}</b></td></tr>
+    ${rows}${facts}
     <tr><td>three.js</td><td colspan="2">${env.webgl1Copy ? 'r162 (WebGL 1 copy)' : 'r170 (WebGL 2)'} · lite ${env.lite ? 'on' : 'off'} · boot ${esc(JSON.stringify(env.boot?.gl || {}))}</td></tr>
-    <tr><td>device</td><td colspan="2">${esc(env.ua)}<br>${esc(JSON.stringify(env.uaData?.model ?? ''))} · Android/OS ${esc(env.uaData?.platformVersion ?? '')} · ${esc(env.memory)} GB · ${esc(env.cores)} cores · ${esc(env.screen)}@${esc(env.dpr)}</td></tr>
-  </table>`;
+  </table>
+  <details><summary>Phone and browser, every detail</summary><table class="kv">${parts}</table></details>`;
 }
 
 function body(e) {

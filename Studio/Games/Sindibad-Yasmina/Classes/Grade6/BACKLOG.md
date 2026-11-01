@@ -1311,5 +1311,19 @@ art island's paintings; (4) the service worker and the browser tests;
   panel names the browser's reason, and the report reaches a local server
   and its debug page. `tests/sync.ts` checks the panel, the sending, and
   that no child's name is in it. Not checked on the Pixel yet.
+- Every detail of the phone and browser too (`core/device.ts`, owner
+  request): the exact browser version and the phone's model and Android
+  version, memory, cores, screen and display, network, time zone, storage,
+  battery, sound, speech voices, WebGPU, what the browser supports,
+  permissions (read only, never asked), and how the page loaded. Each 3D
+  context also gets every limit, its shader precision, and a drawing test
+  (a program paints a pixel and it is read back), since a context the
+  browser hands over can still fail to draw. The report is about 16 KB; the
+  server takes up to 64 KB for it. Never collected: location, camera,
+  microphone, contacts, the address.
+- Also logged: 3D views lost and restored, the page frozen and resumed,
+  orientation changes.
+- `tests/language.ts` ("staging preference persists") still fails about
+  one run in three, on `main` too; not caused by this.
 - Next: the Pixel's report decides the fix. Set `API_STAGING` in
   `core/env.ts` once the server has its address.

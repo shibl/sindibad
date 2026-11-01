@@ -79,7 +79,7 @@ restored it with the code.
 - `events`: one row per event; `props` holds the details (for example
   `answer`: topic, item, ok; `lesson_complete`: topic, correct, total, pct,
   stars, secs; `error`: kind, message, source, stack; `diag`: the device's
-  3D report, up to 32 KB; `log`: log lines from a device in debug mode).
+  3D report and every detail of the phone and browser, up to 64 KB; `log`: log lines from a device in debug mode).
 
 Valkey holds rate limits (registration per address, events and sync per
 device, restore attempts), a cache of tokens, and the live counters
