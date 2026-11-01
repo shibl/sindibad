@@ -102,6 +102,9 @@ Every night at 03:17 (`crontab -e`):
 
 Every request: method, path, status, time taken, the browser. Every report
 from the devices: their 3D report, their log lines (in debug mode) and their
-errors. Never: IP addresses, tokens, or request bodies such as a child's
-save (it holds their name). The game's diagnostics hold nothing about the
-child either.
+errors. The 3D report holds every detail of the phone and its browser: the
+model, the Android and browser versions, memory, processor, screen,
+network, storage, battery, sound, voices, graphics chip and what the
+browser supports. Never: location, camera, microphone, contacts, IP
+addresses, tokens, or request bodies such as a child's save (it holds their
+name). The game's diagnostics hold nothing about the child either.

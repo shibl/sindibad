@@ -397,7 +397,10 @@ Valkey; runs locally with Docker Compose). The game finds it through
   the hardest questions, taps, islands and frame rate.
 - **Diagnostics** (`Web/core/diag.ts`): a log on the device and a report
   on its 3D graphics (each WebGL context tried, the browser's reason when it
-  refuses one, the chip, what the game chose). `?debug=1` shows them on the
+  refuses one, the chip, its limits, a drawing test, what the game chose)
+  and on the phone and browser (`Web/core/device.ts`: model, Android and
+  browser versions, memory, screen, network, storage, battery, sound,
+  voices, features). `?debug=1` shows them on the
   phone (🐞) to copy or share. The report goes to the server once per
   browser version; a device in debug mode sends its log too. Server:
   `/admin/debug`, and the server's log (`Backend/deploy/`).

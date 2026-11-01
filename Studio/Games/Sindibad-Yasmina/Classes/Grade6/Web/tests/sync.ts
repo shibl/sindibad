@@ -225,8 +225,11 @@ await A.p.click('button[aria-label="Diagnostics"]');
 check(/WebGL 2: (yes|NO)/.test((await A.p.textContent('.dg-summary')) || ''), 'the 🐞 panel shows the 3D report');
 await A.p.click('[data-dg=send]');
 check(await until(() => named('diag').length > 0 && named('log').length > 0), 'the report and the log reach the server');
-const report = named('diag').at(-1)!.props as unknown as { gl: { type: string }[]; env: { ua: string } };
-check(report.gl.some(a => a.type === 'webgl2') && report.gl.some(a => a.type === 'webgl') && !!report.env.ua, 'the report holds each WebGL try and the browser');
+const report = named('diag').at(-1)!.props as unknown as { gl: { type: string; info?: { draw?: string } }[]; env: { device: { browser: { userAgent: string }; screen: object; features: object; uaHigh?: object } } };
+check(report.gl.some(a => a.type === 'webgl2') && report.gl.some(a => a.type === 'webgl'), 'the report holds each WebGL try');
+check(report.gl.some(a => a.info?.draw === 'ok'), 'and a drawing test');
+const dev = report.env.device;
+check(!!dev.browser.userAgent && !!dev.screen && !!dev.features && !!dev.uaHigh, 'and the phone and browser in detail');
 check(!JSON.stringify(db.events.filter(e => e.name === 'diag' || e.name === 'log')).includes('ليلى'), "the report and the log hold no child's name");
 
 check(A.errors.length === 0 && B.errors.length === 0, `no console errors${[...A.errors, ...B.errors].length ? `: ${[...A.errors, ...B.errors].join(' | ')}` : ''}`);

@@ -33,9 +33,10 @@ docker compose logs "${args[@]}" api | jq --unbuffered -rR --argjson all "$all" 
     "\(.timestamp[11:19]) \(.fields.event | ascii_upcase) \(.fields.device[0:8])  " +
     (if .fields.event == "log" then ($p.lines // [] | map("\n    \(.level) \(.text)") | join(""))
      elif .fields.event == "diag" then
-       ($p.gl // [] | map("\n    \(.type) \(.options): \(if .ok then "yes, \(.info.unmaskedRenderer // .info.renderer)" else "NO, \(.message // .thrown // "no reason")" end)") | join("")) +
+       ($p.gl // [] | map("\n    \(.type) \(.options): \(if .ok then "yes, \(.info.unmaskedRenderer // .info.renderer), drawing \(.info.draw // "-")" else "NO, \(.message // .thrown // "no reason")" end)") | join("")) +
        ($p.facts // {} | to_entries | map("\n    \(.key): \(.value | tojson)") | join("")) +
-       "\n    \($p.env.ua // "")"
+       "\n    \($p.env.device.uaHigh.model // "?") Android \($p.env.device.uaHigh.platformVersion // "?") · \($p.env.device.uaHigh.fullVersionList // [] | map(select(.brand | test("Not.?A.?Brand") | not) | "\(.brand) \(.version)") | join(", "))" +
+       "\n    \($p.env.device.browser.userAgent // "")"
      else "\($p.kind // ""): \($p.message // "")\n    \($p.stack // "" | .[0:600])" end)
   elif $all == 1 then "\(.timestamp[11:19] // "") \(.span.method // "") \(.span.path // "") \(.fields.status // "") \(.fields.latency // "") \(.fields.message // "")"
   else empty end'

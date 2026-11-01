@@ -13,8 +13,9 @@ use crate::{
 
 const MAX_EVENTS: usize = 500;
 const MAX_PROPS: usize = 8192;
-/// A device's diagnostics report (Grade 6: core/diag.ts) is bigger.
-const MAX_DIAG: usize = 32 * 1024;
+/// A device's diagnostics report (Grade 6: core/diag.ts, core/device.ts)
+/// is bigger: every detail of the phone and its browser.
+const MAX_DIAG: usize = 64 * 1024;
 
 #[derive(Deserialize)]
 pub struct Batch {

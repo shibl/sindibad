@@ -17,6 +17,7 @@
 // failed. Everything written to the console is kept as well.
 import { apiBase, storeKey, STAGING } from './env.js';
 import { track, flush } from './telemetry.js';
+import { detailsNow, gatherDetails } from './device.js';
 const MAX_LINES = 500;
 const KEEP_LINES = 150; // kept across a reload (localStorage)
 const LOG_BATCH = 40;
@@ -79,6 +80,15 @@ function captureConsole() {
         add('error', [`Uncaught ${ev.message} (${ev.filename || ''}:${ev.lineno || 0}:${ev.colno || 0})`, ...(ev.error ? [ev.error] : [])]);
     }, true);
     addEventListener('unhandledrejection', e => add('error', ['Unhandled promise rejection:', e.reason]));
+    // The game's 3D views: the browser can take one away (the graphics chip
+    // was reset, or too many views at once) and give it back.
+    for (const type of ['webglcontextlost', 'webglcontextrestored', 'webglcontextcreationerror']) {
+        addEventListener(type, e => add(type === 'webglcontextrestored' ? 'info' : 'warn', [`${type} on canvas.${e.target.className || '?'}`, e.statusMessage || '']), true);
+    }
+    for (const type of ['freeze', 'resume'])
+        document.addEventListener(type, () => add('info', [`page ${type}`]));
+    addEventListener('pageshow', e => add('info', [`pageshow${e.persisted ? ' (from the back-forward cache)' : ''}`]));
+    addEventListener('orientationchange', () => add('info', [`orientation ${screen.orientation?.type || ''}`]));
     addEventListener('online', () => add('info', ['online']));
     addEventListener('offline', () => add('info', ['offline']));
     addEventListener('pagehide', keep);
@@ -108,9 +118,28 @@ function previous() {
         return [];
     }
 }
-function glInfo(gl, withExtensions) {
+const plain = (v) => (v && typeof v === 'object' && 'length' in v ? Array.from(v) : v);
+function glInfo(gl, full) {
     const dbg = gl.getExtension('WEBGL_debug_renderer_info');
-    const hp = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT);
+    const g2 = typeof WebGL2RenderingContext !== 'undefined' && gl instanceof WebGL2RenderingContext ? gl : null;
+    const names = ['MAX_TEXTURE_SIZE', 'MAX_CUBE_MAP_TEXTURE_SIZE', 'MAX_RENDERBUFFER_SIZE', 'MAX_VIEWPORT_DIMS',
+        'MAX_VERTEX_ATTRIBS', 'MAX_VERTEX_UNIFORM_VECTORS', 'MAX_FRAGMENT_UNIFORM_VECTORS', 'MAX_VARYING_VECTORS',
+        'MAX_TEXTURE_IMAGE_UNITS', 'MAX_VERTEX_TEXTURE_IMAGE_UNITS', 'MAX_COMBINED_TEXTURE_IMAGE_UNITS',
+        'ALIASED_LINE_WIDTH_RANGE', 'ALIASED_POINT_SIZE_RANGE', 'SAMPLES', 'DEPTH_BITS', 'STENCIL_BITS',
+        ...(g2 ? ['MAX_3D_TEXTURE_SIZE', 'MAX_ARRAY_TEXTURE_LAYERS', 'MAX_SAMPLES', 'MAX_DRAW_BUFFERS', 'MAX_COLOR_ATTACHMENTS',
+            'MAX_UNIFORM_BUFFER_BINDINGS', 'MAX_UNIFORM_BLOCK_SIZE', 'MAX_VERTEX_UNIFORM_COMPONENTS', 'MAX_FRAGMENT_UNIFORM_COMPONENTS',
+            'MAX_ELEMENTS_VERTICES', 'MAX_ELEMENTS_INDICES', 'MAX_TEXTURE_LOD_BIAS'] : [])];
+    const limits = {};
+    const c = gl;
+    for (const n of names)
+        limits[n] = c[n] === undefined ? null : plain(gl.getParameter(c[n]));
+    const precision = {};
+    for (const [shader, sn] of [[gl.VERTEX_SHADER, 'vertex'], [gl.FRAGMENT_SHADER, 'fragment']]) {
+        for (const [kind, kn] of [[gl.HIGH_FLOAT, 'highp'], [gl.MEDIUM_FLOAT, 'mediump'], [gl.HIGH_INT, 'highp int']]) {
+            const f = gl.getShaderPrecisionFormat(shader, kind);
+            precision[`${sn} ${kn}`] = f ? `${f.precision} bits, range ${f.rangeMin}..${f.rangeMax}` : 'none';
+        }
+    }
     return {
         version: String(gl.getParameter(gl.VERSION)),
         glsl: String(gl.getParameter(gl.SHADING_LANGUAGE_VERSION)),
@@ -118,17 +147,49 @@ function glInfo(gl, withExtensions) {
         renderer: String(gl.getParameter(gl.RENDERER)),
         unmaskedVendor: dbg ? String(gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL)) : undefined,
         unmaskedRenderer: dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : undefined,
-        maxTexture: gl.getParameter(gl.MAX_TEXTURE_SIZE),
-        maxRenderbuffer: gl.getParameter(gl.MAX_RENDERBUFFER_SIZE),
-        maxViewport: Array.from(gl.getParameter(gl.MAX_VIEWPORT_DIMS)),
-        maxVertexUniforms: gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS),
-        maxFragmentUniforms: gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS),
-        maxTextureUnits: gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS),
-        maxVertexTextureUnits: gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS),
-        fragmentHighp: !!hp && hp.precision > 0,
+        limits, precision,
         attributes: gl.getContextAttributes(),
-        extensions: withExtensions ? gl.getSupportedExtensions() || [] : undefined,
+        extensions: full ? gl.getSupportedExtensions() || [] : undefined,
+        draw: full ? drawTest(gl) : undefined,
     };
+}
+// Does it really draw? A shader program paints the canvas green; reading a
+// pixel back says whether the chip did it. A context the browser hands
+// over can still fail here (a broken driver).
+function drawTest(gl) {
+    const shader = (kind, src) => {
+        const sh = gl.createShader(kind);
+        gl.shaderSource(sh, src);
+        gl.compileShader(sh);
+        if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS))
+            throw new Error(`${kind === gl.VERTEX_SHADER ? 'vertex' : 'fragment'} shader: ${gl.getShaderInfoLog(sh) || 'did not compile'}`);
+        return sh;
+    };
+    try {
+        const prog = gl.createProgram();
+        gl.attachShader(prog, shader(gl.VERTEX_SHADER, 'attribute vec2 p; void main() { gl_Position = vec4(p, 0.0, 1.0); }'));
+        gl.attachShader(prog, shader(gl.FRAGMENT_SHADER, 'precision mediump float; void main() { gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0); }'));
+        gl.linkProgram(prog);
+        if (!gl.getProgramParameter(prog, gl.LINK_STATUS))
+            throw new Error(`link: ${gl.getProgramInfoLog(prog) || 'failed'}`);
+        gl.useProgram(prog);
+        gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(0);
+        gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+        gl.clearColor(1, 0, 0, 1);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+        const px = new Uint8Array(4);
+        gl.readPixels(1, 1, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px);
+        const err = gl.getError();
+        if (px[1] > 200 && px[0] < 50)
+            return 'ok';
+        return `wrong colour rgba(${px.join(',')})${err ? `, GL error ${err}` : ''}`;
+    }
+    catch (e) {
+        return `failed: ${text(e)}`;
+    }
 }
 // One try at a context, on a canvas of its own, given back straight after.
 // The browser says why it refused in the webglcontextcreationerror event.
@@ -179,33 +240,19 @@ function probeGL() {
     }
     return out;
 }
-let uaHigh = null;
+// ---------- The report ----------
+// The game's own side of the report; the phone and the browser are in
+// `device` (core/device.ts).
 function environment() {
-    const nav = navigator;
     return {
-        url: location.pathname + location.search,
         staging: STAGING,
-        ua: navigator.userAgent,
-        uaData: nav.userAgentData ? { brands: nav.userAgentData.brands, mobile: nav.userAgentData.mobile, platform: nav.userAgentData.platform, ...uaHigh } : null,
-        memory: navigator.deviceMemory ?? null,
-        cores: navigator.hardwareConcurrency ?? null,
-        screen: `${screen.width}x${screen.height}`,
-        viewport: `${innerWidth}x${innerHeight}`,
-        dpr: devicePixelRatio,
         lite: document.body.classList.contains('lite'),
         webgl1Copy: !!window.__SINDBAD_WEBGL1__,
         boot: window.__SINDBAD_BOOT__ ?? null,
-        webgpu: 'gpu' in navigator,
-        offscreenCanvas: typeof OffscreenCanvas === 'function',
-        secure: isSecureContext,
-        online: navigator.onLine,
-        net: nav.connection?.effectiveType ?? null,
-        saveData: nav.connection?.saveData ?? null,
-        standalone: matchMedia('(display-mode: standalone)').matches,
-        serviceWorker: !!navigator.serviceWorker?.controller,
         lang: document.documentElement.lang,
         screenNow: document.body.dataset.screen || 'title',
         upSecs: Math.round((Date.now() - started) / 1000),
+        device: detailsNow(),
     };
 }
 let lastGL = null;
@@ -223,10 +270,15 @@ function summary(r) {
         return [...new Set(tries.map(a => a.message || a.thrown || (a.ok ? '' : 'refused, no reason given')).filter(Boolean))].join(' | ') || 'no reason given';
     };
     const out = [];
+    const d = r.env.device;
+    const hi = (d.uaHigh || {});
+    const chrome = hi.fullVersionList?.filter(b => !/Not.?A.?Brand/i.test(b.brand)).map(b => `${b.brand} ${b.version}`).join(', ');
+    out.push(`Phone: ${hi.model || '?'}, Android ${hi.platformVersion || '?'}, ${d.hardware?.memoryGB ?? '?'} GB, ${d.hardware?.cores ?? '?'} cores, screen ${d.screen?.physical ?? '?'}`);
+    out.push(`Browser: ${chrome || d.browser?.userAgent || '?'}`);
     for (const type of ['webgl2', 'webgl']) {
         const ok = best(type);
         out.push(ok
-            ? `${type === 'webgl2' ? 'WebGL 2' : 'WebGL 1'}: yes, ${ok.info?.unmaskedRenderer || ok.info?.renderer || '?'} (${ok.info?.version || '?'})`
+            ? `${type === 'webgl2' ? 'WebGL 2' : 'WebGL 1'}: yes, ${ok.info?.unmaskedRenderer || ok.info?.renderer || '?'} (${ok.info?.version || '?'}), drawing test: ${ok.info?.draw ?? '?'}`
             : `${type === 'webgl2' ? 'WebGL 2' : 'WebGL 1'}: NO, ${why(type)}`);
     }
     const caveat = r.gl.find(a => a.type === 'webgl2' && a.options.includes('Caveat'));
@@ -339,6 +391,7 @@ function openPanel() {
     }
     panel.hidden = false;
     paint();
+    gatherDetails().then(paint).catch(() => { });
 }
 function showButton() {
     const b = document.createElement('button');
@@ -372,15 +425,18 @@ export function initDiag() {
     add('info', [`start: ${location.pathname}${location.search}`, navigator.userAgent]);
     if (debugOn)
         showButton();
-    const nav = navigator;
-    nav.userAgentData?.getHighEntropyValues?.(['model', 'platformVersion', 'fullVersionList', 'architecture'])
-        .then(v => { uaHigh = v; }).catch(() => { });
+    // The details the browser answers later (exact versions, the model,
+    // storage, battery…), only when someone will read them.
+    if (debugOn || apiBase())
+        gatherDetails().then(() => { if (panel && !panel.hidden)
+            paint(); }).catch(() => { });
     // The report, once the game has settled (the sea map has chosen its view):
     // to the server once per browser version, and to the log on a debug
     // device. Without either, no test contexts are made at all.
-    setTimeout(() => {
+    setTimeout(async () => {
         if (!debugOn && !apiBase())
             return;
+        await gatherDetails().catch(() => { });
         const r = report();
         if (debugOn)
             add('info', ['diagnostics:', summary(r).join(' / ')]);
@@ -389,7 +445,7 @@ export function initDiag() {
             sent = localStorage.getItem(SENT_KEY) || '';
         }
         catch { /* blocked */ }
-        const key = `${navigator.userAgent}|${r.gl.map(a => a.ok ? 1 : 0).join('')}|${text(r.facts.map_3d)}`;
+        const key = `${navigator.userAgent}|${r.gl.map(a => a.info?.draw ?? '').join('')}|${r.gl.map(a => a.ok ? 1 : 0).join('')}|${text(r.facts.map_3d)}`;
         if (debugOn || sent !== key) {
             sendReport(r, debugOn ? 'debug' : 'first');
             try {
