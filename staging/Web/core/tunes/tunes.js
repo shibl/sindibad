@@ -32,6 +32,7 @@ import { awardSticker } from '../stickers.js';
 import { canSpeak, speak, stopSpeaking } from '../voice.js';
 import { playMusic, stopMusic } from '../music.js';
 import { HELPER, STATIONS, QUESTS, GLASSES, SKY_SONG } from '../../worlds/grade6/tunes.js';
+import { note } from '../diag.js';
 const TEST = typeof window !== 'undefined' && !!window.__SINDBAD_TEST__;
 const $ = (id) => document.getElementById(id);
 const _v = new THREE.Vector3();
@@ -158,6 +159,7 @@ function build() {
         stage = createStage(els.host, { lite: lite(), fov: [34, 30], sky: '#ffdcbf', fog: [75, 160], cls: 'tn-canvas' });
     }
     catch (err) {
+        note('island_tunes', { ok: false, error: String(err) });
         console.warn('The music island needs WebGL', err);
         failed = true;
         return;

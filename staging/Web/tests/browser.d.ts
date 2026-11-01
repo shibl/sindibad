@@ -14,6 +14,7 @@ import type * as Atlas from '../core/atlas/atlas.js';
 import type * as Studio from '../core/studio/studio.js';
 import type * as English from '../core/english/english.js';
 import type { createStage } from '../core/farm/scene.js';
+import type { debugDiag } from '../core/diag.js';
 
 /** A 3D island's state: __farm() and the like. */
 type Debug<M extends { debug(): unknown }> = () => Promise<ReturnType<M['debug']>>;
@@ -28,6 +29,7 @@ declare global {
     __place: typeof debugPlace;
     __sea: typeof debugSea;
     __seaLook: typeof debugSeaLook;
+    __diag: typeof debugDiag;
     __farm: Debug<typeof Farm>;
     __farmDo: Do<typeof Farm>;
     __tunes: Debug<typeof Tunes>;

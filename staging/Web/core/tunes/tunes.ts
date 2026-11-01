@@ -38,6 +38,7 @@ import type { LessonReturn } from '../lesson.js';
 import type { Topic } from '../topics.js';
 import type { Quest } from '../../types/content.js';
 import type { StepCtx } from '../learn/steps.js';
+import { note } from '../diag.js';
 import type { IslandHooks, Stage, Place, QuestRun } from '../isle/island.js';
 
 const TEST = typeof window !== 'undefined' && !!window.__SINDBAD_TEST__;
@@ -176,6 +177,7 @@ function build() {
   try {
     stage = createStage(els.host, { lite: lite(), fov: [34, 30], sky: '#ffdcbf', fog: [75, 160], cls: 'tn-canvas' });
   } catch (err) {
+    note('island_tunes', { ok: false, error: String(err) });
     console.warn('The music island needs WebGL', err);
     failed = true;
     return;

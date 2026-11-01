@@ -96,9 +96,17 @@ async function send(method, path, body, token, opts = {}) {
     const abort = new AbortController();
     const timer = setTimeout(() => abort.abort(), TIMEOUT);
     try {
-        return await fetch(`${base}${path}`, { method, headers, body: payload, signal: abort.signal, keepalive: opts.keepalive, cache: 'no-store' });
+        const res = await fetch(`${base}${path}`, { method, headers, body: payload, signal: abort.signal, keepalive: opts.keepalive, cache: 'no-store' });
+        // For the diagnostics' log (core/diag.ts). Sent events are left out:
+        // the log's own batches would fill it.
+        if (!res.ok)
+            console.warn(`[api] ${method} ${path}: ${res.status}`);
+        else if (path !== '/v1/events')
+            console.debug(`[api] ${method} ${path}: ${res.status}`);
+        return res;
     }
-    catch {
+    catch (err) {
+        console.warn(`[api] ${method} ${base}${path} failed:`, String(err));
         return null;
     }
     finally {
