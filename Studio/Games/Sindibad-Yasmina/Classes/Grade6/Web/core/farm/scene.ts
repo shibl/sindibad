@@ -10,6 +10,7 @@
 // The browser loads scene.js, made from this file by `npm run build`.
 
 import * as THREE from '../../vendor/three/three.module.min.js';
+import { note } from '../diag.js';
 import { wind, VC } from './models.js';
 
 const TAP_MOVE = 10;      // px: more than this is a drag, not a tap
@@ -49,11 +50,31 @@ const KINDS = {
 // the fast graphics chip): then try once more with the lightest one before
 // giving up. `light` says which one it got (light: no shadows, pixel ratio 1).
 export function newRenderer(lite: boolean, opts: THREE.WebGLRendererParameters = {}): { renderer: THREE.WebGLRenderer; light: boolean } {
+  let full = '';
   if (!lite) {
-    try { return { renderer: new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', ...opts }), light: false }; }
-    catch (err) { console.warn('3D: trying lighter settings', err); }
+    try { return made(new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', ...opts }), false); }
+    catch (err) { full = String(err); console.warn('3D: trying lighter settings', err); }
   }
-  return { renderer: new THREE.WebGLRenderer({ antialias: false, ...opts }), light: true };
+  try { return made(new THREE.WebGLRenderer({ antialias: false, ...opts }), true, full); }
+  catch (err) {
+    note('renderer', { ok: false, three: THREE.REVISION, lite, full: full || undefined, light: String(err), stack: err instanceof Error ? err.stack : undefined });
+    throw err;
+  }
+}
+
+// What the renderer got, for the diagnostics (core/diag.ts). Never fails:
+// a working renderer must not count as a failed one.
+function made(renderer: THREE.WebGLRenderer, light: boolean, fullFailed = '') {
+  try {
+    const gl = renderer.getContext();
+    note('renderer', {
+      ok: true, three: THREE.REVISION, light, fullFailed: fullFailed || undefined,
+      webgl2: typeof WebGL2RenderingContext !== 'undefined' && gl instanceof WebGL2RenderingContext,
+      version: String(gl.getParameter(gl.VERSION)),
+      maxTextures: renderer.capabilities.maxTextures, precision: renderer.capabilities.precision,
+    });
+  } catch { /* the diagnostics only */ }
+  return { renderer, light };
 }
 
 export function createStage(host: HTMLElement, { lite = false, fov = [40, 32], sky = '#9fd9ee', fog = [90, 190], cls = 'farm-canvas' }: StageOptions = {}) {

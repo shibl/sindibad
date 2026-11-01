@@ -14,6 +14,7 @@ import * as THREE from '../../vendor/three/three.module.min.js';
 import { SHAPES } from '../../worlds/atlas/shapes.js';
 import { COUNTRIES, SMALL, CONTINENTS } from '../../worlds/atlas/countries.js';
 import { num } from '../format.js';
+import { note } from '../diag.js';
 const TEST = typeof window !== 'undefined' && !!window.__SINDBAD_TEST__;
 const ALL = { ...COUNTRIES, ...SMALL };
 const shuffle = (a) => { const b = [...a]; for (let i = b.length - 1; i > 0; i--) {
@@ -102,7 +103,8 @@ export function openGlobe(host, { onClose, say, sfx, visited = new Set(), onVisi
     try {
         renderer = new THREE.WebGLRenderer({ antialias: !lite, alpha: true });
     }
-    catch {
+    catch (err) {
+        note('island_globe', { ok: false, error: String(err) });
         stageEl.innerHTML = '<p class="gl-nogl">جهازك لا يرسم الكرة الأرضية ثلاثية الأبعاد.</p>';
     }
     const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(36, 1, 0.1, 100);

@@ -12,9 +12,16 @@ async fn main() -> anyhow::Result<()> {
         return health_check().await;
     }
 
-    tracing_subscriber::fmt()
-        .with_env_filter(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")))
-        .init();
+    // LOG_FORMAT=json: one JSON object per line (for jq, or a log
+    // collector); otherwise plain text.
+    let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
+    if std::env::var("LOG_FORMAT").is_ok_and(|f| f == "json") {
+        tracing_subscriber::fmt().json().with_current_span(true).with_env_filter(filter).init();
+    } else {
+        // Colours only on a terminal, not in a log file.
+        let ansi = std::io::IsTerminal::is_terminal(&std::io::stdout());
+        tracing_subscriber::fmt().with_ansi(ansi).with_env_filter(filter).init();
+    }
 
     let db = PgPoolOptions::new()
         .max_connections(env_or("DB_POOL", 10))

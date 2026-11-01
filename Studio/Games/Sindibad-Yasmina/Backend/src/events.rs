@@ -13,6 +13,8 @@ use crate::{
 
 const MAX_EVENTS: usize = 500;
 const MAX_PROPS: usize = 8192;
+/// A device's diagnostics report (Grade 6: core/diag.ts) is bigger.
+const MAX_DIAG: usize = 32 * 1024;
 
 #[derive(Deserialize)]
 pub struct Batch {
@@ -77,8 +79,14 @@ pub async fn ingest(
             p @ Value::Object(_) => p,
             _ => return Err(bad("props must be an object")),
         };
-        if p.to_string().len() > MAX_PROPS {
-            return Err(bad(format!("{}: props over 8 KB", e.name)));
+        let size = p.to_string().len();
+        if size > if e.name == "diag" { MAX_DIAG } else { MAX_PROPS } {
+            return Err(bad(format!("{}: props too big ({size} bytes)", e.name)));
+        }
+        // What the devices report about themselves goes to the server's log
+        // as well, to follow a phone live (`docker compose logs -f api`).
+        if matches!(e.name.as_str(), "diag" | "log" | "error") {
+            tracing::info!(target: "client", %device, event = %e.name, props = %p, "client {}", e.name);
         }
         let at: DateTime<Utc> = DateTime::from_timestamp_millis(e.at.saturating_add(skew)).unwrap_or(now).min(now);
         ids.push(e.id);
@@ -108,6 +116,12 @@ pub async fn ingest(
     .execute(&s.db)
     .await?
     .rows_affected();
+
+    let mut counts = std::collections::BTreeMap::<&str, usize>::new();
+    for n in &names {
+        *counts.entry(n.as_str()).or_default() += 1;
+    }
+    tracing::info!(%device, received, inserted, names = ?counts, "events");
 
     let info = batch.device.map(clean_info).transpose()?;
     sqlx::query("update devices set last_seen = now(), info = coalesce($2, info), country = coalesce($3, country) where id = $1")

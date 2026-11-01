@@ -26,6 +26,7 @@ import { getTopic } from '../topics.js';
 import { awardSticker } from '../stickers.js';
 import { canSpeak, speak, stopSpeaking } from '../voice.js';
 import { playMusic, stopMusic } from '../music.js';
+import { note } from '../diag.js';
 
 import type { IslandContent, Quest } from '../../types/content.js';
 import type { RunStep, StepCtx } from '../learn/steps.js';
@@ -262,6 +263,7 @@ export function makeIsland<D extends object = object>(cfg: IslandConfig<D>) {
     try {
       stage = createStage(els.host, { lite: lite(), fov: [34, 30], sky: L.fogColor, fog: L.fog, cls: 'tn-canvas' });
     } catch (err) {
+      note(`island_${key}`, { ok: false, error: String(err) });
       console.warn(`The island ${key} needs WebGL`, err);
       failed = true;
       return;

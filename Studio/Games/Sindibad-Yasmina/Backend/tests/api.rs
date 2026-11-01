@@ -92,6 +92,40 @@ async fn events_are_stored_once() {
 }
 
 #[tokio::test]
+async fn debug_reports_for_the_admin() {
+    let Some(app) = server().await else { return };
+    let (id, token) = device(&app).await;
+    // A diagnostics report is bigger than other events (up to 32 KB).
+    let report = json!({ "why": "debug", "gl": [{ "type": "webgl2", "ok": false, "message": "blocked" }], "pad": "x".repeat(20_000) });
+    let line = json!({ "lines": [{ "t": now_ms(), "level": "warn", "text": "3D: trying lighter settings" }] });
+    let batch = json!({ "sent_at": now_ms(), "events": [
+        { "id": Uuid::new_v4(), "name": "diag", "at": now_ms(), "props": report },
+        { "id": Uuid::new_v4(), "name": "log", "at": now_ms(), "props": line },
+        { "id": Uuid::new_v4(), "name": "answer", "at": now_ms(), "props": {} },
+    ] });
+    let (status, body) = call(&app, "POST", "/v1/events", Some(&token), Some(batch)).await;
+    assert_eq!(status, StatusCode::OK, "{body}");
+    let big = json!({ "sent_at": now_ms(), "events": [{ "id": Uuid::new_v4(), "name": "log", "at": now_ms(), "props": { "pad": "x".repeat(20_000) } }] });
+    let (status, _) = call(&app, "POST", "/v1/events", Some(&token), Some(big)).await;
+    assert_eq!(status, StatusCode::BAD_REQUEST, "only diag may be that big");
+
+    let uri = format!("/v1/debug?device={id}");
+    let (status, _) = call(&app, "GET", &uri, Some(&token), None).await;
+    assert_eq!(status, StatusCode::UNAUTHORIZED, "a device token is not the admin's");
+    let (status, body) = call(&app, "GET", &uri, Some(ADMIN), None).await;
+    assert_eq!(status, StatusCode::OK, "{body}");
+    let names: Vec<&str> = body["events"].as_array().unwrap().iter().map(|e| e["name"].as_str().unwrap()).collect();
+    assert_eq!(names.len(), 2, "diag and log, not answer: {names:?}");
+    assert!(names.contains(&"diag") && names.contains(&"log"));
+    assert_eq!(body["devices"][id.to_string()]["info"]["os"], "Android 13");
+
+    let (_, body) = call(&app, "GET", &format!("{uri}&names=diag"), Some(ADMIN), None).await;
+    assert_eq!(body["events"][0]["props"]["gl"][0]["message"], "blocked");
+    let (status, _) = call(&app, "GET", &format!("{uri}&names=Drop%20table"), Some(ADMIN), None).await;
+    assert_eq!(status, StatusCode::BAD_REQUEST);
+}
+
+#[tokio::test]
 async fn profiles_sync_with_versions() {
     let Some(app) = server().await else { return };
     let (_, a) = device(&app).await;
