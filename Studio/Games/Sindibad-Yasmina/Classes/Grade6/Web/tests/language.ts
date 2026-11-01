@@ -11,13 +11,18 @@ import type { Page } from 'playwright';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const types: Record<string, string> = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.png': 'image/png' };
+// The live game at /Web/ and the staging copy at /staging/Web/, as on the
+// real site. (With the live copy at / its offline copy would also cover
+// /staging/, and staging's own taking over would reload the page mid-test.)
 const server = createServer(async (req, res) => {
-  const path = new URL(req.url!, 'http://local').pathname.replace(/^\/(staging\/)?/, '') || 'index.html';
+  const path = new URL(req.url!, 'http://local').pathname.replace(/^\/(staging\/)?Web\//, '') || 'index.html';
   try { const body = await readFile(join(root, path)); res.writeHead(200, { 'content-type': types[extname(path)] || 'application/octet-stream' }); res.end(body); }
   catch { res.writeHead(404); res.end(); }
 }).listen(0, '127.0.0.1');
 await new Promise(resolve => server.once('listening', resolve));
-const url = `http://127.0.0.1:${(server.address() as AddressInfo).port}/`;
+const origin = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+const url = `${origin}/Web/`;
+const staging = `${origin}/staging/Web/`;
 const browser = await chromium.launch({ args: ['--mute-audio'] });
 const errors: string[] = [];
 const shots = process.env.LANGUAGE_SCREENSHOTS;
@@ -141,7 +146,7 @@ try {
     check(await p.locator('html').getAttribute('dir') === 'rtl', 'offline switch restores RTL');
     await ctx.setOffline(false);
     await choose(p, 'en');
-    await p.goto(url + 'staging/'); await ready(p);
+    await p.goto(staging); await ready(p);
     check(await p.locator('html').getAttribute('lang') === 'ar', 'staging has its own language preference');
     await choose(p, 'en');
     await p.reload(); await ready(p);
@@ -162,7 +167,7 @@ try {
     check(await fit(p, '[data-language]'), 'About page language controls fit');
     await snapshot(p, `about-en-${viewport.width}`);
     if (viewport.width === 360) {
-      await p.goto(url + 'staging/'); await ready(p);
+      await p.goto(staging); await ready(p);
       await choose(p, 'en');
       await p.evaluate(async () => {
         const { save } = await (import('./core/save.js' as string) as Promise<typeof import('../core/save.js')>);
