@@ -1323,7 +1323,16 @@ art island's paintings; (4) the service worker and the browser tests;
   microphone, contacts, the address.
 - Also logged: 3D views lost and restored, the page frozen and resumed,
   orientation changes.
-- `tests/language.ts` ("staging preference persists") still fails about
-  one run in three, on `main` too; not caused by this.
+- Fixed the flaky `tests/language.ts` ("staging preference persists",
+  about one run in three, on `main` too). Its local server put the live
+  copy at `/` and staging at `/staging/`, so the live copy's offline worker
+  also covered staging; when staging's own worker took over, the game
+  reloaded itself (a new version on the title screen) in the middle of the
+  checks. The server now uses the real site's paths (`/Web/`,
+  `/staging/Web/`), which never overlap: 10 runs out of 10 pass.
+- CI on staging failed twice without a failing test: GitHub Pages held the
+  first deploy "in progress" for over ten minutes after its build passed,
+  the publish step's wait timed out, and the second push's deploy was
+  refused meanwhile. Re-running that deploy published it.
 - Next: the Pixel's report decides the fix. Set `API_STAGING` in
   `core/env.ts` once the server has its address.
