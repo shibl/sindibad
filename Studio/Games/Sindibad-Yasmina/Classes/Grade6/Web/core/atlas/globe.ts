@@ -15,6 +15,7 @@ import { SHAPES } from '../../worlds/atlas/shapes.js';
 import { COUNTRIES, SMALL, CONTINENTS } from '../../worlds/atlas/countries.js';
 import type { Country } from '../../worlds/atlas/countries.js';
 import { num } from '../format.js';
+import { note } from '../diag.js';
 
 interface GlobeOptions {
   onClose?: () => void;
@@ -90,7 +91,8 @@ export function openGlobe(host: HTMLElement, { onClose, say, sfx, visited = new 
 
   // ---------- the Earth ----------
   let renderer: THREE.WebGLRenderer | undefined;
-  try { renderer = new THREE.WebGLRenderer({ antialias: !lite, alpha: true }); } catch { stageEl.innerHTML = '<p class="gl-nogl">جهازك لا يرسم الكرة الأرضية ثلاثية الأبعاد.</p>'; }
+  try { renderer = new THREE.WebGLRenderer({ antialias: !lite, alpha: true }); } catch (err) {
+    note('island_globe', { ok: false, error: String(err) }); stageEl.innerHTML = '<p class="gl-nogl">جهازك لا يرسم الكرة الأرضية ثلاثية الأبعاد.</p>'; }
   const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(36, 1, 0.1, 100);
   camera.position.set(0, 0, 3.6);
   const earth = new THREE.Group();

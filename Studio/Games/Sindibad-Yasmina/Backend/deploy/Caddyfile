@@ -1,0 +1,7 @@
+# HTTPS for the game server. Caddy gets the certificate for API_DOMAIN from
+# Let's Encrypt (the domain must point at this server, ports 80 and 443
+# open) and renews it. The API logs every request itself, without the
+# address; Caddy keeps no access log.
+{$API_DOMAIN} {
+	reverse_proxy api:8080
+}

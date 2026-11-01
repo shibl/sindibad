@@ -1284,3 +1284,32 @@ art island's paintings; (4) the service worker and the browser tests;
 - Stale assets noticed, not refreshed here: re-running the full art export
   also updates 209 lesson/cosmetic SVGs (the game's CSS they embed gained a
   rule) and `models/sea/numbers.glb` (changed before these phases).
+
+## Notes — 2026-11-01 (diagnostics for the 3D that won't start)
+
+- Owner report: on a Google Pixel (first model), in Chrome and Chrome Beta,
+  the game still says it cannot draw 3D, after the WebGL 1 fallback above.
+  It can't be reproduced here, so the game now reports what the phone
+  says instead of guessing.
+- `core/diag.ts`: a log on the device (everything written to the console,
+  uncaught errors, failed files, screens, server requests) and a report on
+  its 3D graphics: each WebGL 2 and WebGL 1 context tried (plain, refusing
+  software drawing, the full look), the browser's own reason when it
+  refuses one (`webglcontextcreationerror`), the chip, its limits and
+  extensions, and what the game decided (`note()`: the sea map's view, each
+  renderer made, an island that failed). `index.html` records its own
+  WebGL check and errors before start-up the same way.
+- `?debug=1` (remembered; `?debug=0` undoes it) shows a 🐞 button with the
+  report and the log, to copy or share from the phone: no server needed.
+- With a server, the report goes as a `diag` event once per browser
+  version on every device (nothing about the child in it), and a debug
+  device also sends its log as `log` events. Server: `/v1/debug` and the
+  `/admin/debug` page show them live; every request and every report is in
+  its log (`LOG_FORMAT=json`, never addresses, tokens or saves);
+  `Backend/deploy/` sets it up on a VPS with HTTPS (`setup.sh`, `logs.sh`).
+- Checked in a desktop browser with WebGL 2 off and with all WebGL off: the
+  panel names the browser's reason, and the report reaches a local server
+  and its debug page. `tests/sync.ts` checks the panel, the sending, and
+  that no child's name is in it. Not checked on the Pixel yet.
+- Next: the Pixel's report decides the fix. Set `API_STAGING` in
+  `core/env.ts` once the server has its address.

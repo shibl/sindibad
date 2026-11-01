@@ -32,6 +32,11 @@ docker compose logs -f api
 - `docker compose down` stops it; `docker compose down -v` also deletes the
   data.
 
+## On a VPS
+
+`deploy/` runs it on a server with HTTPS (Caddy): `deploy/setup.sh
+<domain>` sets it all up. See `deploy/README.md`.
+
 ## Test
 
 ```sh
@@ -55,6 +60,8 @@ gzip`). Every route but registration needs `Authorization: Bearer <token>`.
 | `POST /v1/restore` `{code}` | Links this device to the child with that code → `{id, version, save, name, hero}`. Any digits (0–9, ٠–٩, ۰–۹), dashes ignored. |
 | `GET /v1/stats?days=N` | Everything the stats page shows (`ADMIN_TOKEN`). |
 | `GET /admin` | The stats page. |
+| `GET /v1/debug?device=&names=&since=&limit=` | The latest `diag`, `log` and `error` events, newest first, with their devices (`ADMIN_TOKEN`). |
+| `GET /admin/debug` | The debug page: those events, live. |
 | `GET /healthz` | `{db, valkey}`; 503 without the database. |
 
 A device can read or write a child only if it created the profile or
@@ -71,7 +78,8 @@ restored it with the code.
   day, to undo a bad sync by hand), `restore_codes`.
 - `events`: one row per event; `props` holds the details (for example
   `answer`: topic, item, ok; `lesson_complete`: topic, correct, total, pct,
-  stars, secs; `error`: kind, message, source, stack).
+  stars, secs; `error`: kind, message, source, stack; `diag`: the device's
+  3D report, up to 32 KB; `log`: log lines from a device in debug mode).
 
 Valkey holds rate limits (registration per address, events and sync per
 device, restore attempts), a cache of tokens, and the live counters
@@ -87,4 +95,5 @@ Valkey is down the server keeps working without them.
 | `ADMIN_TOKEN` | (unset: stats off) | Bearer token for `/v1/stats` and the page |
 | `BIND` | `0.0.0.0:8080` | |
 | `DB_POOL` | `10` | Database connections |
-| `RUST_LOG` | `info` | Log filter |
+| `RUST_LOG` | `info` | Log filter: `info` logs every request (method, path, status, time, browser; never the address, token or body) and every `diag`, `log` and `error` event; `debug` adds the database |
+| `LOG_FORMAT` | text | `json`: one JSON object per line |

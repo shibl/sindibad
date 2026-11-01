@@ -395,6 +395,12 @@ Valkey; runs locally with Docker Compose). The game finds it through
 - **Stats**: `/admin` on the server (with its `ADMIN_TOKEN`): players now
   and per day, retention, churn, engagement, errors, devices, lessons,
   the hardest questions, taps, islands and frame rate.
+- **Diagnostics** (`Web/core/diag.ts`): a log on the device and a report
+  on its 3D graphics (each WebGL context tried, the browser's reason when it
+  refuses one, the chip, what the game chose). `?debug=1` shows them on the
+  phone (🐞) to copy or share. The report goes to the server once per
+  browser version; a device in debug mode sends its log too. Server:
+  `/admin/debug`, and the server's log (`Backend/deploy/`).
 
 The game improves in a loop: the stats and error reports → an agent
 studies them and proposes a fix → tests → a person approves → published.

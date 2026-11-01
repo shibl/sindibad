@@ -1,1 +1,4 @@
 target/
+# The VPS settings (deploy/env.example): secrets, never committed.
+deploy/.env
+deploy/backups/

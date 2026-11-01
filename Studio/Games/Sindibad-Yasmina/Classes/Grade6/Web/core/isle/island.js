@@ -26,6 +26,7 @@ import { getTopic } from '../topics.js';
 import { awardSticker } from '../stickers.js';
 import { canSpeak, speak, stopSpeaking } from '../voice.js';
 import { playMusic, stopMusic } from '../music.js';
+import { note } from '../diag.js';
 const TEST = typeof window !== 'undefined' && !!window.__SINDBAD_TEST__;
 const $ = (id) => document.getElementById(id);
 const topicStars = (topic) => save.get().topics[topic]?.stars || 0;
@@ -150,6 +151,7 @@ export function makeIsland(cfg) {
             stage = createStage(els.host, { lite: lite(), fov: [34, 30], sky: L.fogColor, fog: L.fog, cls: 'tn-canvas' });
         }
         catch (err) {
+            note(`island_${key}`, { ok: false, error: String(err) });
             console.warn(`The island ${key} needs WebGL`, err);
             failed = true;
             return;

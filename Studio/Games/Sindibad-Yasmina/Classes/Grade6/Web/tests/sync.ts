@@ -4,7 +4,8 @@
 //   arrive → offline, events wait on the device and play goes on → back
 //   online, they are sent → another device changed the same child: the
 //   copies merge (pearls from both, the other device's purchase kept) → an
-//   error is reported → a second device restores the child with its code.
+//   error is reported → a second device restores the child with its code →
+//   in debug mode, the diagnostics report and log arrive.
 //
 //   npm test   (or: node tests/sync.ts)
 
@@ -216,6 +217,17 @@ await syncAll(B.p);
 await syncAll(A.p);
 const onA = await inPage(A.p, async () => (await (import('./core/save.js' as string) as Promise<typeof import('../core/save.js')>)).save.get());
 check(onA.pearls === 25 && onA.stickers?.includes('s-b'), 'progress made on B reaches A');
+
+// ---------- Diagnostics (?debug=1, core/diag.ts) ----------
+console.log('— diagnostics');
+await A.p.goto(`${GAME}&debug=1`);
+await A.p.click('button[aria-label="Diagnostics"]');
+check(/WebGL 2: (yes|NO)/.test((await A.p.textContent('.dg-summary')) || ''), 'the 🐞 panel shows the 3D report');
+await A.p.click('[data-dg=send]');
+check(await until(() => named('diag').length > 0 && named('log').length > 0), 'the report and the log reach the server');
+const report = named('diag').at(-1)!.props as unknown as { gl: { type: string }[]; env: { ua: string } };
+check(report.gl.some(a => a.type === 'webgl2') && report.gl.some(a => a.type === 'webgl') && !!report.env.ua, 'the report holds each WebGL try and the browser');
+check(!JSON.stringify(db.events.filter(e => e.name === 'diag' || e.name === 'log')).includes('ليلى'), "the report and the log hold no child's name");
 
 check(A.errors.length === 0 && B.errors.length === 0, `no console errors${[...A.errors, ...B.errors].length ? `: ${[...A.errors, ...B.errors].join(' | ')}` : ''}`);
 

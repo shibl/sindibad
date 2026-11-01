@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sindibad Debug</title>
+<style>
+  :root { --bg: #f6f7f9; --card: #fff; --ink: #16202a; --muted: #5d6b78; --line: #e2e6ea; --ok: #2e7d4f; --warn: #b4442c; --note: #7a5a00; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0f1418; --card: #171e24; --ink: #e6edf2; --muted: #93a1ad; --line: #26313a; --ok: #6cc28f; --warn: #e07a62; --note: #e0c060; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 system-ui, sans-serif; }
+  header { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--card); position: sticky; top: 0; z-index: 1; }
+  header h1 { font-size: 16px; margin: 0 auto 0 0; }
+  input, button, label { font: inherit; }
+  input[type=text], input[type=password], button { padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); }
+  main { padding: 12px 16px; display: grid; gap: 10px; }
+  article { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; min-width: 0; }
+  .meta { color: var(--muted); font-size: 12px; display: flex; flex-wrap: wrap; gap: 4px 12px; }
+  .meta a { color: inherit; }
+  .name { font-weight: 700; text-transform: uppercase; font-size: 12px; letter-spacing: .04em; }
+  .diag .name { color: var(--ok); } .error .name { color: var(--warn); } .log .name { color: var(--note); }
+  pre { white-space: pre-wrap; word-break: break-word; margin: 6px 0 0; font: 12px/1.4 ui-monospace, monospace; }
+  .no { color: var(--warn); font-weight: 700; white-space: nowrap; } .yes { color: var(--ok); font-weight: 700; white-space: nowrap; }
+  table { border-collapse: collapse; font-size: 12px; margin-top: 6px; width: 100%; }
+  td, th { text-align: left; padding: 3px 6px; border-bottom: 1px solid var(--line); vertical-align: top; word-break: break-word; }
+  details summary { cursor: pointer; color: var(--muted); font-size: 12px; margin-top: 6px; }
+  .muted { color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Sindibad &amp; Yasmina: debug</h1>
+  <input id="token" type="password" placeholder="Admin token" aria-label="Admin token" size="14">
+  <input id="device" type="text" placeholder="Device id (all)" aria-label="Device id" size="20">
+  <label><input type="checkbox" data-name="diag" checked> diag</label>
+  <label><input type="checkbox" data-name="log" checked> log</label>
+  <label><input type="checkbox" data-name="error" checked> error</label>
+  <label><input type="checkbox" id="live" checked> live</label>
+  <button id="load">Load</button>
+</header>
+<div id="msg" class="muted" style="padding:12px 16px">Enter the admin token (ADMIN_TOKEN) and press Load. On the phone, open the game with ?debug=1 (and ?api=… if the server is not its default).</div>
+<main id="out"></main>
+<script>
+const $ = id => document.getElementById(id);
+const esc = v => String(v ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+const time = t => new Date(t).toLocaleString('en-GB', { hour12: false });
+try {
+  $('token').value = localStorage.getItem('sindibad.admin') || '';
+  $('device').value = new URLSearchParams(location.search).get('device') || '';
+} catch {}
+
+let since = null, timer = null, devices = {};
+
+function gl(report) {
+  const rows = (report.gl || []).map(a => `<tr><td>${esc(a.type)} ${esc(a.options === '{}' ? '' : a.options)}</td>
+    <td class="${a.ok ? 'yes' : 'no'}">${a.ok ? 'yes' : 'NO'}</td>
+    <td>${esc(a.ok ? `${a.info?.unmaskedRenderer || a.info?.renderer || ''} · ${a.info?.version || ''}` : a.message || a.thrown || 'refused, no reason given')}</td></tr>`).join('');
+  const facts = Object.entries(report.facts || {}).map(([k, v]) => `<tr><td>${esc(k)}</td><td colspan="2">${esc(JSON.stringify(v))}</td></tr>`).join('');
+  const env = report.env || {};
+  return `<table>${rows}${facts}
+    <tr><td>three.js</td><td colspan="2">${env.webgl1Copy ? 'r162 (WebGL 1 copy)' : 'r170 (WebGL 2)'} · lite ${env.lite ? 'on' : 'off'} · boot ${esc(JSON.stringify(env.boot?.gl || {}))}</td></tr>
+    <tr><td>device</td><td colspan="2">${esc(env.ua)}<br>${esc(JSON.stringify(env.uaData?.model ?? ''))} · Android/OS ${esc(env.uaData?.platformVersion ?? '')} · ${esc(env.memory)} GB · ${esc(env.cores)} cores · ${esc(env.screen)}@${esc(env.dpr)}</td></tr>
+  </table>`;
+}
+
+function body(e) {
+  const p = e.props || {};
+  if (e.name === 'diag') return gl(p);
+  if (e.name === 'log') return `<pre>${(p.lines || []).map(l => `${esc(new Date(l.t).toISOString().slice(11, 23))} ${esc(l.level.padEnd(5))} ${esc(l.text)}`).join('\n')}</pre>`;
+  if (e.name === 'error') return `<pre>${esc(p.kind)}: ${esc(p.message)}\n${esc(p.source)}\n${esc(p.stack)}</pre>`;
+  return '';
+}
+
+function card(e) {
+  const d = devices[e.device]?.info || {};
+  return `<article class="${esc(e.name)}">
+    <div class="meta"><span class="name">${esc(e.name)}</span><span>${esc(time(e.at))}</span>
+      <a href="?device=${esc(e.device)}" title="Only this device">${esc(String(e.device).slice(0, 8))}</a>
+      <span>${esc([d.model, d.os, d.browser, d.gpu].filter(Boolean).join(' · '))}</span><span>build ${esc(e.version)}</span></div>
+    ${body(e)}
+    <details><summary>Raw</summary><pre>${esc(JSON.stringify(e.props, null, 1))}</pre></details>
+  </article>`;
+}
+
+async function load(more) {
+  const token = $('token').value.trim();
+  try { localStorage.setItem('sindibad.admin', token); } catch {}
+  const names = [...document.querySelectorAll('[data-name]:checked')].map(c => c.dataset.name).join(',') || 'diag';
+  const q = new URLSearchParams({ names, limit: more ? '500' : '200' });
+  if ($('device').value.trim()) q.set('device', $('device').value.trim());
+  if (more && since) q.set('since', since);
+  const res = await fetch(`/v1/debug?${q}`, { headers: { authorization: `Bearer ${token}` } }).catch(() => null);
+  if (!res?.ok) { $('msg').textContent = res ? `Error ${res.status}: ${await res.text()}` : 'The server did not answer.'; return; }
+  const data = await res.json();
+  Object.assign(devices, data.devices);
+  if (data.events.length) since = data.events[0].received_at;
+  else if (!more) since = data.now;
+  const html = data.events.map(card).join('');
+  if (more) $('out').insertAdjacentHTML('afterbegin', html); else $('out').innerHTML = html;
+  $('msg').textContent = `Updated ${time(Date.now())}. ${$('live').checked ? 'Live: new reports appear at the top.' : ''}`;
+}
+
+function live() {
+  clearInterval(timer);
+  if ($('live').checked) timer = setInterval(() => load(true), 5000);
+}
+$('load').addEventListener('click', () => { load(false); live(); });
+$('live').addEventListener('change', live);
+if ($('token').value) { load(false); live(); }
+</script>
+</body>
+</html>

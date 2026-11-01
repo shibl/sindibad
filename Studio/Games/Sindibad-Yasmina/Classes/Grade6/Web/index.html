@@ -16,13 +16,23 @@
   // there the game loads r162 (vendor/three-webgl1/), the last version that
   // still draws with WebGL 1. Must run before any module loads.
   (function () {
+    // What happened here, for the diagnostics (core/diag.ts, ?debug=1): each
+    // context asked for, the browser's reason when it refused one, and any
+    // error before the game's own code starts.
+    var boot = window.__SINDBAD_BOOT__ = { gl: {}, errors: [] };
+    addEventListener('error', function (e) {
+      if (boot.errors.length < 20) boot.errors.push(String(e.message || (e.target && (e.target.src || e.target.href)) || 'error'));
+    }, true);
     function has(type) {
+      var canvas = document.createElement('canvas'), why = '';
+      canvas.addEventListener('webglcontextcreationerror', function (e) { why = e.statusMessage || ''; });
       try {
-        var gl = document.createElement('canvas').getContext(type);
+        var gl = canvas.getContext(type);
         var lose = gl && gl.getExtension('WEBGL_lose_context');
         if (lose) lose.loseContext();
+        boot.gl[type] = gl ? 'ok' : 'refused' + (why ? ': ' + why : '');
         return !!gl;
-      } catch (e) { return false; }
+      } catch (e) { boot.gl[type] = 'threw: ' + e; return false; }
     }
     if (has('webgl2') || !has('webgl')) return;
     window.__SINDBAD_WEBGL1__ = true;

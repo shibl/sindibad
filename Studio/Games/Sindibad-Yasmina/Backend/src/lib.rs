@@ -7,6 +7,7 @@
 //! made from.
 
 pub mod auth;
+pub mod debug;
 pub mod devices;
 pub mod error;
 pub mod events;
@@ -29,8 +30,9 @@ use tower_http::{
     compression::CompressionLayer,
     cors::{Any, CorsLayer},
     decompression::RequestDecompressionLayer,
-    trace::TraceLayer,
+    trace::{DefaultOnFailure, DefaultOnResponse, TraceLayer},
 };
+use tracing::Level;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -62,12 +64,26 @@ pub fn app(state: AppState) -> Router {
         .route("/v1/profiles/{id}/code", post(profiles::code))
         .route("/v1/restore", post(profiles::restore))
         .route("/v1/stats", get(stats::overview))
+        .route("/v1/debug", get(debug::recent))
         .route("/admin", get(stats::page))
+        .route("/admin/debug", get(debug::page))
         .layer(DefaultBodyLimit::max(BODY_LIMIT))
         .layer(RequestDecompressionLayer::new())
         .layer(CompressionLayer::new())
         .layer(cors)
-        .layer(TraceLayer::new_for_http())
+        // Every request in the server's log: method, path, status, time
+        // taken, and the game's browser. Never the address, the token or
+        // the body (a save holds a child's name).
+        .layer(
+            TraceLayer::new_for_http()
+                .make_span_with(|req: &axum::http::Request<_>| {
+                    let ua = req.headers().get(header::USER_AGENT).and_then(|v| v.to_str().ok()).unwrap_or("");
+                    tracing::info_span!("request", method = %req.method(), path = %req.uri().path(), ua = %ua.chars().take(160).collect::<String>())
+                })
+                .on_request(())
+                .on_response(DefaultOnResponse::new().level(Level::INFO))
+                .on_failure(DefaultOnFailure::new().level(Level::WARN)),
+        )
         .with_state(state)
 }
 

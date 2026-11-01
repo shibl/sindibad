@@ -33,6 +33,7 @@ import { stopSpeaking } from './core/voice.js';
 import { initTouch } from './core/touch.js';
 import { initLanguage, playerName } from './core/i18n.js';
 import { initTelemetry, track, sampleFps } from './core/telemetry.js';
+import { initDiag, debugDiag } from './core/diag.js';
 import { initSync } from './core/sync.js';
 import './plugins/index.js';
 import type { IslandHooks } from './core/isle/island.js';
@@ -226,8 +227,10 @@ document.addEventListener('visibilitychange', () => {
 
 // ---------- Boot ----------
 
-// First, so errors while starting are reported too. Both do nothing without
-// a server (core/env.ts apiBase), and never hold up play.
+// First, so errors while starting are reported too. The diagnostics keep a
+// log on the device (?debug=1 shows it); telemetry and sync do nothing
+// without a server (core/env.ts apiBase), and never hold up play.
+initDiag();
 initTelemetry();
 initSync();
 initLanguage();
@@ -362,7 +365,7 @@ document.getElementById('screen-title')!.addEventListener('pointermove', e => {
 // Test hooks: the hero's position on an island, and each 3D island's state
 // (__lab()) and test functions (__labDo('debugStart', 'quest id')).
 if (window.__SINDBAD_TEST__) {
-  Object.assign(window, { __island: debugState, __blocked: debugBlocked, __place: debugPlace, __lesson: startLesson, __sea: debugSea, __seaLook: debugSeaLook });
+  Object.assign(window, { __island: debugState, __blocked: debugBlocked, __place: debugPlace, __lesson: startLesson, __sea: debugSea, __seaLook: debugSeaLook, __diag: debugDiag });
   for (const kind of Object.keys(ISLANDS_3D)) {
     const w = window as unknown as Record<string, unknown>;
     w[`__${kind}`] = () => load3D(kind as Kind3D).then(m => m.debug());

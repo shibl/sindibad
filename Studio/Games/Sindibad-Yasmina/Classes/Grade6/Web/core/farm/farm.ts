@@ -20,6 +20,7 @@ import { createStage } from './scene.js';
 import * as M from './models.js';
 import { save } from '../save.js';
 import { STAGING } from '../env.js';
+import { note } from '../diag.js';
 import { sfx } from '../sound.js';
 import { num } from '../format.js';
 import { recordResult } from '../lesson.js';
@@ -364,6 +365,7 @@ function build() {
   try {
     stage = createStage(els.host, { lite: document.body.classList.contains('lite') });
   } catch (err) {
+    note('island_farm', { ok: false, error: String(err) });
     console.warn('Farm: no WebGL', err);
     failed = true;
     return;

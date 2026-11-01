@@ -16,6 +16,7 @@ import { showFinale } from './finale.js';
 import { awardSticker } from './stickers.js';
 import { rankInfo } from './ranks.js';
 import { STAGING, storeKey } from './env.js';
+import { note } from './diag.js';
 import { onLongPress, buzz } from './haptics.js';
 let world; // the current grade world (worlds/grade6.js)
 let el; // the .map element
@@ -104,12 +105,18 @@ function hasWebGL() {
     if (webgl === undefined) {
         try {
             // WebGL 1 is enough when index.html loaded the older three.js for it.
-            const gl = document.createElement('canvas').getContext(window.__SINDBAD_WEBGL1__ ? 'webgl' : 'webgl2');
+            const type = window.__SINDBAD_WEBGL1__ ? 'webgl' : 'webgl2';
+            const canvas = document.createElement('canvas');
+            let why = '';
+            canvas.addEventListener('webglcontextcreationerror', e => { why = e.statusMessage; });
+            const gl = canvas.getContext(type);
             webgl = !!gl;
             gl?.getExtension('WEBGL_lose_context')?.loseContext();
+            note('map_webgl', { type, ok: webgl, why });
         }
-        catch {
+        catch (err) {
             webgl = false;
+            note('map_webgl', { ok: false, threw: String(err) });
         }
     }
     return webgl;
@@ -123,6 +130,7 @@ function initViewToggle() {
     }
     catch { /* private mode */ }
     viewChoice = ['2d', '3d'].includes(forcedView) ? forcedView : STAGING ? stored || '3d' : '2d';
+    note('map_view', { choice: viewChoice, forced: forcedView, stored, staging: STAGING });
     const btn = document.getElementById('map-view');
     if (!btn || !(STAGING || forcedView))
         return;
@@ -152,13 +160,17 @@ function paintToggle() {
 // Load the 3D sea early (app.js calls this after start-up), so it is ready
 // when the child reaches the map. three.js comes from the offline copy.
 export function preloadMapView() {
-    if (!want3D())
+    if (!want3D()) {
+        note('map_3d', { shown: false, why: viewChoice !== '3d' ? 'the flat map was chosen' : viewFailed ? 'it failed before' : 'no WebGL' });
         return Promise.resolve(null);
+    }
     return (viewLoad ||= import('./sea/sea.js').then(m => {
         view = m.createSea(world, { lite: document.body.classList.contains('lite') });
         view.onLayout(placeLabels);
+        note('map_3d', { shown: true });
         return view;
     }).catch(err => {
+        note('map_3d', { shown: false, why: 'it failed to load', error: String(err), stack: err instanceof Error ? err.stack : undefined });
         console.warn('The 3D sea failed to load', err);
         viewFailed = true;
         return null;
