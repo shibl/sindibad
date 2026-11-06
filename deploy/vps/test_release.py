@@ -21,6 +21,7 @@ class ReleaseTests(unittest.TestCase):
         (self.dist / 'ar/index.html').write_text('<html lang="ar">مرحبا</html>')
         self.meta = dict(site='syrai', environment='production', repository='sam-a1a/SyrAI',
                          sha='a' * 40, branch='main', run_id='10', attempt='1', tag='syrai/v1.0.0')
+        (self.dist / '.nojekyll').touch()
         self.archive = release.package(self.dist, self.root / 'output', self.meta)
 
     def rewrite(self, transform):

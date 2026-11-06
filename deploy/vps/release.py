@@ -36,7 +36,8 @@ def version(site, environment, repository, sha):
 
 
 def package(dist, output, metadata):
-    files = sorted(p for p in dist.rglob('*') if p.is_file())
+    # GitHub Pages' marker is unnecessary on Caddy; keep other hidden files rejected.
+    files = sorted(p for p in dist.rglob('*') if p.is_file() and p.relative_to(dist).as_posix() != '.nojekyll')
     if not (dist / 'index.html').is_file() or not (dist / 'ar/index.html').is_file():
         raise ValueError('Both English and Arabic entries are required')
     for path in dist.rglob('*'):
