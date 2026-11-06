@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.ssr/
+.DS_Store
+
+# 60 MB, and build.py regenerates it from the map data.
+concepts/blender/dubai/city.blend

@@ -1,8 +1,18 @@
-# Studio website design drafts
+# Published Studio website — Design A
 
-Five candidate designs for the Sindibad Studios website on one page, with a switcher at the bottom of the screen, for sharing and collecting feedback. The Original design is the default.
+`Web/` is the generated Design A site, replacing all previous design drafts.
+Do not edit generated files by hand.
 
-- Live: <https://shibl.github.io/sindibad/studio/> (Arabic: <https://shibl.github.io/sindibad/studio/ar/>)
-- One design: add `?design=classic`, `monolith`, `mirage`, `krafton` or `supercell` to the link.
+- English: https://shibl.github.io/sindibad/studio/
+- Arabic: https://shibl.github.io/sindibad/studio/ar/
+- Portal: `/studio/portal/` and `/studio/ar/portal/` under the repository base.
+- Source snapshot: [`../Source/`](../Source/), upstream commit `dd6cf8a52aad92d33af93fce054218587f7e6651`.
 
-`Web/` is a build, not source. The source is [sam-a1a/sindibad-studio-website](https://github.com/sam-a1a/sindibad-studio-website) (Solid, Tailwind, Bun). Do not edit `Web/` by hand: run `bun run deploy` in that repository, which builds the site and commits it here on `main`. Once the main checks pass, `.github/scripts/prepare-pages.py` publishes `Web/` at `studio/`.
+For this import, `BASE_PATH=/sindibad/studio bun run build` ran in a separate
+checkout of the upstream source repository, then its `dist/` replaced `Web/`.
+Future upstream imports must update the source snapshot and generated build together.
+The old multi-design repository's `bun run deploy` must no longer target this folder.
+
+Commit changes to `main`; `.github/workflows/site.yml` checks the publication layout
+and publishes this directory at `studio/` using `.github/scripts/prepare-pages.py`.
+Never push directly to the Pages publishing branch.

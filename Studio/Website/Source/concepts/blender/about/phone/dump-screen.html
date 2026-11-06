@@ -1,0 +1,22 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>phone screen dump</title>
+<canvas id="c"></canvas>
+<script type="module">
+  // Renders the still reference of the game on the phone's screen, which is what gets baked into the frames (see dump-screen.ts).
+  import { GameScreen } from '/src/about/phone/screen.ts'
+  const W = 628
+  const H = 1264
+  const canvas = document.getElementById('c')
+  canvas.width = W
+  canvas.height = H
+  const gl = canvas.getContext('webgl2', { preserveDrawingBuffer: true, antialias: false })
+  const blob = await (await fetch('/about/phone/world.webp')).blob()
+  const bm = await createImageBitmap(blob, { premultiplyAlpha: 'premultiply', colorSpaceConversion: 'none' })
+  const game = new GameScreen(gl, bm, W, H)
+  gl.bindFramebuffer(gl.READ_FRAMEBUFFER, game.ref.fb)
+  gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null)
+  gl.blitFramebuffer(0, 0, W, H, 0, 0, W, H, gl.COLOR_BUFFER_BIT, gl.NEAREST)
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+  window.dump = canvas.toDataURL('image/png')
+</script>

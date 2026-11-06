@@ -1,7 +1,15 @@
-# Studio website infrastructure
+# Studio website publishing
 
-The static source is `../Web/`. The repository workflow assembles it at `Studio/Website/Web/`, separately from the curriculum games. Old `Studio/Web/` HTML links redirect to the corresponding new page. The old lab entry redirects to Grade 10 Chemistry.
+Design A's editable source is in `../Source/`. Its generated site is in
+`../Designs/Web/` and the existing repository workflow publishes it at `/studio/`.
+The build is generated in an upstream checkout with `BASE_PATH=/sindibad/studio`.
+See [the build guide](../Designs/README.md) for provenance and update instructions.
 
-Run `python3 Studio/Website/Web/serve.py` from the repository root for the owner to preview at `http://127.0.0.1:5321/Studio/Website/Web/home/`. The server exposes the repository's Studio tree, so the chemistry catalogue, game links and studio assets resolve across projects. Do not deploy only the website folder in isolation: publication also includes the Grade 10 Chemistry web folder.
+`../Web/` contains redirects for the previous website URLs. The publication script
+also preserves historical `Studio/Web/` aliases and redirects the old lab entry
+to the separate Grade 10 Chemistry project. The game's `/Web/` and `/staging/Web/`
+paths, saves, and service workers remain unchanged.
 
-Main retains full Grade 6 checks before publishing. Staging deploys immediately without Actions tests. The studio website itself retains the source-only/no-testing instruction in `../Web/AGENTS.md`.
+Push source and build updates to `main`; the existing workflow runs the required
+checks and publishes. Do not push directly to its Pages branch. The source-only
+instruction for website work in this repository remains in effect.

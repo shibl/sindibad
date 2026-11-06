@@ -1,0 +1,796 @@
+/* The Dubai map takes over the hero, reaching up behind the header. */
+/* In the city the top bar has no panel of its own: it melts into the sky of the scene, and only firms up if the page scrolls. */
+html[data-dubai-bar] .a-header {
+  background: rgb(var(--dm-top, 217 238 249) / var(--dm-bar, 0));
+}
+.a-header {
+  transition:
+    transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.45s ease;
+}
+.hc-ctl {
+  transition:
+    opacity 0.35s ease,
+    translate 0.35s ease;
+}
+html[data-dubai] .hc-ctl {
+  opacity: 0;
+  translate: 0 12px;
+  pointer-events: none;
+}
+.dm {
+  position: absolute;
+  inset: -128px 0 0;
+  z-index: 2;
+  overflow: hidden;
+  border-radius: 0 0 32px 32px;
+  background: #cfe8f5;
+  visibility: hidden;
+  isolation: isolate;
+}
+.dm.is-on {
+  visibility: visible;
+}
+.a-scroll {
+  z-index: 3;
+}
+
+/* Everything anchored to the picture drifts together, so the city never quite stops. */
+.dm-stage {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 42%;
+}
+.dm.is-landed .dm-stage {
+  animation: dm-drift 44s ease-in-out infinite alternate;
+}
+@keyframes dm-drift {
+  to {
+    scale: 1.045;
+  }
+}
+/* A soft fall of sky behind the top bar, in the same colour as the scene's horizon, keeps the menu readable over anything. */
+.dm-top {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 210px;
+  background: linear-gradient(to bottom, rgb(var(--dm-top) / 0.94), rgb(var(--dm-top) / 0.8) 42%, rgb(var(--dm-top) / 0.26) 76%, rgb(var(--dm-top) / 0));
+  pointer-events: none;
+}
+.dm-gl {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+  touch-action: pan-y;
+}
+.dm-gl.is-dragging {
+  cursor: grabbing;
+}
+.dm.is-live .dm-stage {
+  animation: none;
+}
+.dm.is-live .dm-still {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+.dm.is-live.is-waiting .dm-still {
+  opacity: 1;
+  transition: none;
+}
+/* Bubbles only take taps where a tour can start. On the phone picture they are labels, so a tap goes straight through. */
+.dm-pins {
+  pointer-events: none;
+}
+.dm.is-live .dm-pin {
+  left: 0;
+  top: 0;
+}
+.dm-copy {
+  pointer-events: none;
+}
+.dm.is-title .dm-contact {
+  pointer-events: auto;
+}
+.dm-still,
+.dm-video,
+.dm-traffic {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.dm-video {
+  transition: opacity 0.4s ease;
+}
+.dm-video.is-done {
+  opacity: 0;
+}
+.dm-still {
+  opacity: 0;
+}
+.dm.is-landed .dm-still {
+  opacity: 1;
+}
+
+/* The bright edge of the reveal, racing out from the word. */
+.dm-ring {
+  position: absolute;
+  left: var(--ox);
+  top: var(--oy);
+  translate: -50% -50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 0 3px rgb(255 255 255 / 0.95),
+    inset 0 0 60px 8px rgb(250 42 111 / 0.42);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* The foot of the picture dissolves into light, so the words have somewhere to sit and the city stays sharp above them. */
+.dm-frost {
+  position: absolute;
+  inset: 52% 0 0;
+  background: linear-gradient(
+    to top,
+    rgb(var(--dm-fade) / 0.96) 0%,
+    rgb(var(--dm-fade) / 0.93) 38%,
+    rgb(var(--dm-fade) / 0.78) 58%,
+    rgb(var(--dm-fade) / 0.42) 78%,
+    rgb(var(--dm-fade) / 0.12) 92%,
+    rgb(var(--dm-fade) / 0) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+.dm.is-title .dm-frost {
+  opacity: 1;
+  transition: opacity 1.4s ease 0.15s;
+}
+
+.dm-copy {
+  position: absolute;
+  /* Above the fold even when the hero is taller than the window. The layer starts at the top of the page. */
+  inset: auto 0 max(76px, calc(100% - 100svh + 44px));
+  padding-inline: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  color: var(--a-ink);
+  font-family: var(--a-heading);
+}
+.dm-place {
+  font-family: var(--a-body);
+  font-size: 18px;
+  margin-bottom: 8px;
+  text-shadow:
+    0 0 6px #fff,
+    0 0 14px #fff;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.dm.is-title .dm-place {
+  opacity: 0.8;
+  transition: opacity 1s ease 0.1s;
+}
+.design-a .dm-title {
+  font-size: clamp(50px, 7.4vw, 112px);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  font-weight: 700;
+  color: var(--a-ink);
+}
+.dm-title em {
+  font-style: normal;
+  color: var(--a-pink);
+}
+.design-a[dir='rtl'] .dm-title {
+  line-height: 1.15;
+}
+.design-a[dir='rtl'] .dm-sub {
+  margin-top: 22px;
+}
+.design-a[dir='rtl'] .dm-w {
+  padding-block: 0.2em 0.42em;
+  margin-block: -0.2em -0.42em;
+}
+.dm-sub {
+  font-size: clamp(24px, 3.1vw, 44px);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  font-weight: 500;
+  margin-top: 10px;
+}
+/* Each word rises out of its own clip. */
+.dm-w {
+  display: inline-block;
+  overflow: hidden;
+  padding: 0.12em 0.04em 0.16em;
+  margin: -0.12em -0.04em -0.16em;
+  vertical-align: bottom;
+}
+.dm-w > span {
+  display: inline-block;
+  translate: 0 115%;
+  rotate: 5deg;
+  transform-origin: 0 100%;
+  transition: translate 0.3s ease-in;
+}
+.dm.is-title .dm-w > span {
+  translate: 0 0;
+  rotate: 0deg;
+  transition:
+    translate 0.95s cubic-bezier(0.16, 1, 0.3, 1),
+    rotate 0.95s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.dm-title .dm-w:nth-of-type(1) > span { transition-delay: 0.08s; }
+.dm-title .dm-w:nth-of-type(2) > span { transition-delay: 0.14s; }
+.dm-title .dm-w:nth-of-type(3) > span { transition-delay: 0.2s; }
+.dm-title em .dm-w > span { transition-delay: 0.3s; }
+.dm-sub .dm-w:nth-of-type(1) > span { transition-delay: 0.48s; }
+.dm-sub .dm-w:nth-of-type(2) > span { transition-delay: 0.52s; }
+.dm-sub .dm-w:nth-of-type(3) > span { transition-delay: 0.56s; }
+.dm-sub .dm-w:nth-of-type(4) > span { transition-delay: 0.6s; }
+.dm-sub .dm-w:nth-of-type(5) > span { transition-delay: 0.64s; }
+.dm-sub .dm-w:nth-of-type(6) > span { transition-delay: 0.68s; }
+.dm-sub .dm-w:nth-of-type(7) > span { transition-delay: 0.72s; }
+.dm-contact {
+  margin-top: 26px;
+  min-height: 56px;
+  padding-inline: 40px;
+  font-size: 22px;
+  opacity: 0;
+  scale: 0.6;
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease,
+    scale 0.25s ease,
+    transform 0.2s;
+}
+.dm.is-title .dm-contact {
+  opacity: 1;
+  scale: 1;
+  pointer-events: auto;
+  transition:
+    opacity 0.4s ease 0.85s,
+    scale 0.75s cubic-bezier(0.3, 1.9, 0.45, 1) 0.85s,
+    transform 0.2s;
+}
+
+.dm-close {
+  position: absolute;
+  top: 152px;
+  inset-inline-end: 28px;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  color: var(--a-ink);
+  background: rgb(255 255 255 / 0.9);
+  box-shadow: 0 6px 24px rgb(0 40 60 / 0.16);
+  cursor: pointer;
+  opacity: 0;
+  scale: 0.4;
+  transition:
+    opacity 0.2s ease,
+    scale 0.2s ease,
+    background-color 0.2s;
+}
+.dm-close svg {
+  width: 22px;
+  height: 22px;
+}
+.dm.is-title .dm-close {
+  opacity: 1;
+  scale: 1;
+  transition:
+    opacity 0.3s ease 0.5s,
+    scale 0.6s cubic-bezier(0.3, 1.9, 0.45, 1) 0.5s,
+    background-color 0.2s;
+}
+.dm-close:hover {
+  background: #fff;
+}
+
+/* Landmark pins, in the manner of a 3D map: a round picture, a stem, a halo'd label. */
+.dm-pins {
+  position: absolute;
+  inset: 0;
+}
+.dm-pin {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  transform-origin: 0 0;
+}
+.dm.is-pins .dm-pin {
+  opacity: 1;
+}
+.dm-pin-bob {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  translate: -50% 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 150px;
+  animation: dm-bob 5.5s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i) * -0.9s);
+}
+.dm-pin-pop {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform-origin: 50% 100%;
+  will-change: scale;
+}
+/* The ring that flies off a bubble as it pops. */
+.dm-pin-ring {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 58px;
+  height: 58px;
+  margin-left: -29px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 14px rgb(255 255 255 / 0.8);
+  opacity: 0;
+  pointer-events: none;
+}
+@keyframes dm-bob {
+  to {
+    translate: -50% -5px;
+  }
+}
+.dm-pin img {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  object-fit: cover;
+  background: #dcecf4;
+  box-shadow: 0 8px 22px rgb(0 40 60 / 0.3);
+}
+.dm-pin i {
+  width: 8px;
+  height: 8px;
+  margin-top: 3px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 4px rgb(0 40 60 / 0.4);
+}
+.dm-pin b {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 180px;
+  margin: 4px 0 0 -90px;
+  font-family: var(--a-body);
+  font-size: 13px;
+  line-height: 1.15;
+  font-weight: 700;
+  text-align: center;
+  color: #123;
+  text-shadow:
+    0 0 3px #fff,
+    0 0 3px #fff,
+    0 0 6px #fff,
+    0 0 10px #fff;
+}
+
+@media (max-width: 1024px) {
+  .dm-copy {
+    bottom: max(64px, calc(100% - 100svh + 36px));
+  }
+  .dm-pin img,
+  .dm-pin-ring {
+    width: 46px;
+    height: 46px;
+  }
+  .dm-pin-ring {
+    margin-left: -23px;
+  }
+}
+@media (max-width: 768px) {
+  .dm {
+    inset-block-start: -94px;
+  }
+  .dm-close {
+    top: 110px;
+    inset-inline-end: 16px;
+  }
+  .dm-place {
+    font-size: 15px;
+  }
+  .dm-copy {
+    bottom: max(58px, calc(100% - 100svh + 28px));
+  }
+  .dm-contact {
+    margin-top: 18px;
+    min-height: 48px;
+    font-size: 18px;
+  }
+  .dm-pin b {
+    font-size: 11px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dm.is-landed .dm-stage,
+  .dm-pin-bob {
+    animation: none;
+  }
+  .dm-w > span,
+  .dm.is-title .dm-w > span {
+    transition: none;
+  }
+}
+
+/* After dark: the words, pins and top bar turn light. */
+html[data-dm-dark][data-dubai-bar] .a-header {
+  --a-ink: #fff;
+  color: #fff;
+}
+html[data-dm-dark][data-dubai-bar] .a-header nav a:not(.a-header-contact .a-circle) {
+  color: #fff;
+}
+html[data-dm-dark][data-dubai-bar] .a-brand,
+html[data-dm-dark][data-dubai-bar] .a-brand-link {
+  color: #fff;
+}
+.a-brand,
+.a-header nav > a {
+  transition: color 0.45s ease;
+}
+.dm.is-dark {
+  background: #070c20;
+}
+.dm.is-dark .dm-copy,
+.design-a .dm.is-dark .dm-title {
+  color: #fff;
+}
+.dm.is-dark .dm-place {
+  text-shadow:
+    0 0 6px #0a1026,
+    0 0 14px #0a1026;
+}
+.dm.is-dark .dm-pin b {
+  color: #fff;
+  text-shadow:
+    0 0 3px #0a1026,
+    0 0 3px #0a1026,
+    0 0 7px #0a1026,
+    0 0 12px #0a1026;
+}
+.dm.is-dark .dm-pin img {
+  filter: brightness(0.78) saturate(0.92);
+}
+.dm.is-dark .dm-close {
+  color: #fff;
+  background: rgb(22 30 66 / 0.86);
+  box-shadow: 0 6px 24px rgb(0 0 0 / 0.4);
+}
+.dm.is-dark .dm-close:hover {
+  background: rgb(38 48 96 / 0.95);
+}
+
+/* While you're in the city at night, the whole website is night too. */
+html.dm-theming .design-a,
+html.dm-theming .design-a * {
+  transition:
+    background-color 0.7s ease,
+    color 0.7s ease,
+    border-color 0.7s ease,
+    box-shadow 0.7s ease !important;
+}
+html[data-dm-dark] {
+  background: #0a1026;
+}
+html[data-dm-dark] .design-a {
+  --a-ink: #eaf3f6;
+  --a-dark: #050a1e;
+  --a-blue: #141c44;
+  --a-mid: #a9c8d8;
+  --a-paper: #10173a;
+  background: #0a1026;
+}
+html[data-dm-dark] .design-a main {
+  background: #0a1026;
+}
+html[data-dm-dark] .a-scroll .a-circle {
+  border-color: #0a1026;
+  background-color: var(--a-pink);
+}
+html[data-dm-dark] .a-footer-cta {
+  color: #dcebf1;
+}
+html[data-dm-dark] .a-progress span {
+  background: var(--a-pink);
+}
+html[data-dm-dark] .design-a .a-circle:disabled,
+html[data-dm-dark] .a-principle-controls .a-circle:disabled {
+  background: #232c5c;
+  color: #7f8cb8;
+}
+html[data-dm-dark] .a-floor {
+  color: #fff;
+}
+html[data-dm-dark] .a-floor-car > span {
+  animation-name: a-floor-shine-dark-out;
+}
+html[data-dm-dark] .a-floor-car > span.is-current {
+  animation-name: a-floor-shine-dark;
+}
+@keyframes a-floor-shine-dark {
+  0%, 41%, 100% { color: #fff; }
+  20%, 62% { color: var(--a-pink); }
+}
+@keyframes a-floor-shine-dark-out {
+  0%, 41%, 100% { color: #fff; }
+  20%, 62% { color: var(--a-pink); }
+}
+html[data-dm-dark] .design-a .a-dubai:hover {
+  text-decoration-color: #fff;
+}
+html[data-dm-dark] .a-watermark {
+  opacity: 0.09;
+}
+html[data-dm-dark] .design-a .a-pill-neutral {
+  background: #232c5c;
+  color: #fff !important;
+}
+html[data-dm-dark] .a-intro-art,
+html[data-dm-dark] .a-welcome > img {
+  filter: brightness(1.7) saturate(1.1);
+}
+
+/* The ride up the tower: the map takes the whole window and everything else steps aside. */
+html[data-dubai-ride] {
+  overflow: hidden;
+  scrollbar-gutter: stable;
+}
+html[data-dubai-ride] .a-header {
+  transform: translateY(-100%);
+}
+.dm.is-ride {
+  position: fixed;
+  inset: 0;
+  z-index: 39;
+  border-radius: 0;
+}
+.dm-top,
+.dm-copy,
+.dm-pins,
+.dm-close {
+  transition: opacity 0.4s ease;
+}
+.dm.is-ride:not(.is-ride-out) .dm-top,
+.dm.is-ride:not(.is-ride-out) .dm-frost,
+.dm.is-ride:not(.is-ride-out) .dm-copy,
+.dm.is-ride:not(.is-ride-out) .dm-close {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+.dm.is-ride .dm-contact {
+  pointer-events: none !important;
+}
+.dm.is-ride .dm-pins {
+  opacity: 0;
+}
+.dm-gl.is-over-tower {
+  cursor: pointer;
+}
+.dm.is-live .dm-pin.is-go .dm-pin-pop {
+  pointer-events: auto;
+  cursor: pointer;
+}
+.dm-pin.is-go img {
+  transition: scale 0.25s cubic-bezier(0.3, 1.9, 0.45, 1);
+}
+.dm-pin.is-go .dm-pin-pop:hover img,
+.dm-pin.is-go .dm-pin-pop:focus-visible img {
+  scale: 1.14;
+}
+.dm-ride {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  color: var(--a-ink);
+  font-family: var(--a-heading);
+  transition:
+    opacity 0.45s ease,
+    visibility 0s 0.45s;
+}
+.dm.is-ride:not(.is-ride-out) .dm-ride {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.7s ease 0.5s;
+}
+/* A soft fall of the sky's colour down one side, so the words read over anything. */
+.dm-ride::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 56%;
+  background: linear-gradient(to right, rgb(var(--dm-fade) / 0.82), rgb(var(--dm-fade) / 0.42) 52%, rgb(var(--dm-fade) / 0));
+}
+.design-a[dir='rtl'] .dm-ride::before {
+  inset: 0 0 0 auto;
+  background: linear-gradient(to left, rgb(var(--dm-fade) / 0.82), rgb(var(--dm-fade) / 0.42) 52%, rgb(var(--dm-fade) / 0));
+}
+/* The fountain can put bright water right behind the words, so on its tour the fall of colour is deeper and the words get a halo. */
+.dm[data-tour='fountain'] .dm-ride::before {
+  width: 64%;
+  background: linear-gradient(to right, rgb(var(--dm-fade) / 0.94), rgb(var(--dm-fade) / 0.8) 40%, rgb(var(--dm-fade) / 0.34) 72%, rgb(var(--dm-fade) / 0));
+}
+.design-a[dir='rtl'] .dm[data-tour='fountain'] .dm-ride::before {
+  background: linear-gradient(to left, rgb(var(--dm-fade) / 0.94), rgb(var(--dm-fade) / 0.8) 40%, rgb(var(--dm-fade) / 0.34) 72%, rgb(var(--dm-fade) / 0));
+}
+.dm.is-dark .dm-fact,
+.dm.is-dark .dm-meter {
+  text-shadow: 0 1px 2px rgb(4 10 28 / 0.55), 0 2px 18px rgb(4 10 28 / 0.65);
+}
+.dm.is-dark .dm-ride {
+  color: #fff;
+}
+.dm-back {
+  position: absolute;
+  top: 34px;
+  inset-inline-start: var(--a-x);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 50px;
+  padding: 0 24px 0 16px;
+  border: 0;
+  border-radius: 40px;
+  color: inherit;
+  background: rgb(255 255 255 / 0.82);
+  box-shadow: 0 6px 24px rgb(0 40 60 / 0.16);
+  font: inherit;
+  font-size: 19px;
+  font-weight: 500;
+  cursor: pointer;
+  pointer-events: auto;
+  transition:
+    background-color 0.2s,
+    translate 0.2s;
+}
+.dm-back:hover {
+  background: #fff;
+  translate: -3px 0;
+}
+.dm-back svg {
+  width: 22px;
+  height: 22px;
+}
+.design-a[dir='rtl'] .dm-back svg {
+  scale: -1 1;
+}
+.dm.is-dark .dm-back {
+  background: rgb(22 30 66 / 0.86);
+}
+.dm.is-dark .dm-back:hover {
+  background: rgb(38 48 96 / 0.95);
+}
+.dm-rail {
+  position: absolute;
+  inset-inline-start: calc(var(--a-x) / 2 - 3px);
+  top: 18%;
+  bottom: 9%;
+  width: 6px;
+  border-radius: 6px;
+  background: rgb(0 70 70 / 0.16);
+}
+.dm.is-dark .dm-rail {
+  background: rgb(255 255 255 / 0.18);
+}
+.dm-rail span {
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  background: var(--a-pink);
+  scale: 1 0;
+  transform-origin: 50% 100%;
+}
+.dm-meter {
+  position: absolute;
+  inset-inline-start: var(--a-x);
+  bottom: 58px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.dm-level-name {
+  font-family: var(--a-body);
+  font-size: 22px;
+  font-weight: 500;
+}
+.dm-level {
+  font-size: clamp(84px, 11vw, 170px);
+  line-height: 0.95;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+.dm-height {
+  font-size: clamp(26px, 2.6vw, 40px);
+  font-weight: 500;
+  color: var(--a-pink);
+  font-variant-numeric: tabular-nums;
+}
+.dm-tags {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.7s ease;
+  pointer-events: none;
+}
+.dm-tags.is-on {
+  opacity: 1;
+}
+.dm-tags span {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-family: var(--a-heading);
+  font-size: clamp(14px, 1.25vw, 19px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  color: var(--a-ink);
+  text-shadow: 0 0 3px #fff, 0 0 8px #fff, 0 0 16px rgb(255 255 255 / 0.8);
+}
+.dm.is-dark .dm-tags span {
+  color: #fff;
+  text-shadow: 0 1px 3px rgb(0 40 70 / 0.75), 0 0 14px rgb(0 40 70 / 0.5);
+}
+.dm-fact {
+  position: absolute;
+  inset-inline-start: var(--a-x);
+  bottom: calc(58px + clamp(176px, 19vw, 290px));
+  width: min(430px, 40vw);
+  font-size: clamp(24px, 2.3vw, 34px);
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.dm-hint {
+  position: absolute;
+  inset-inline-end: 36px;
+  bottom: 30px;
+  font-family: var(--a-body);
+  font-size: 15px;
+  opacity: 0.72;
+}
+/* The Burj's bubble keeps gently calling for a click. */
+.dm.is-pins:not(.is-ride) .dm-pin.is-go .dm-pin-ring {
+  animation: dm-call 2.6s ease-out 1.6s infinite;
+}
+@keyframes dm-call {
+  0% {
+    opacity: 0.8;
+    scale: 1;
+  }
+  55%,
+  100% {
+    opacity: 0;
+    scale: 1.65;
+  }
+}

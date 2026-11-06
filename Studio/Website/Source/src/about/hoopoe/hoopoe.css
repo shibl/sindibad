@@ -1,0 +1,199 @@
+/* The hoopoe concept: enormous live type, and a bird that stands on it. Sizes that depend on measuring the words are set by
+   typeset.ts; the values here are what shows before that runs, and the phone layout, which is plain flow. */
+#about[data-about='hoopoe'] {
+  background: #fff;
+  margin-bottom: 40px;
+}
+#about[data-about='hoopoe'] .about-stage {
+  overflow: visible;
+}
+#about[data-about='hoopoe'] .a-intro-copy {
+  position: absolute;
+  inset: 0;
+  display: block;
+  padding: 0;
+  z-index: 1;
+}
+#about[data-about='hoopoe'] .a-intro-copy h2 {
+  position: absolute;
+  inset-inline-start: 5.5vw;
+  top: 12vh;
+  width: 89vw;
+  margin: 0;
+  font-family: var(--a-heading);
+  font-weight: 700;
+  font-size: min(9.2vw, 15.5vh);
+  line-height: 1.1;
+  letter-spacing: -0.045em;
+  color: var(--a-ink);
+}
+/* Tracking pulls Arabic's joined letters apart, so it stays at zero there. */
+#about[data-about='hoopoe'] .a-intro-copy h2:lang(ar) {
+  letter-spacing: 0;
+  line-height: 1.34;
+}
+#about[data-about='hoopoe'] .hp-w {
+  display: inline-block;
+  transform-origin: 50% 82%;
+}
+/* These move every frame while the bird is on them. On their own layers that's a compositor move; without it, each frame would
+   re-raster the enormous type and drop frames. */
+@media (prefers-reduced-motion: no-preference) {
+  #about[data-about='hoopoe'] .hp-w,
+  #about[data-about='hoopoe'] .a-intro-copy .about-mark,
+  #about[data-about='hoopoe'] .a-intro-copy .a-pill,
+  .hp-hit {
+    will-change: transform;
+  }
+}
+#about[data-about='hoopoe'] .a-intro-copy .about-mark {
+  display: inline-block;
+  width: auto;
+  height: 0.62em;
+  margin-inline-start: 0.2em;
+  vertical-align: -0.01em;
+}
+#about[data-about='hoopoe'] .a-intro-copy p {
+  position: absolute;
+  margin: 0;
+  inset-inline-end: 5.5vw;
+  bottom: 8vh;
+  width: min(32vw, 30em);
+  font-family: var(--a-body);
+  font-size: clamp(17px, 1.42vw, 24px);
+  line-height: 1.48;
+  letter-spacing: -0.012em;
+  color: var(--a-ink);
+  text-wrap: pretty;
+}
+#about[data-about='hoopoe'] .a-intro-copy .a-pill {
+  position: absolute;
+  inset-inline-end: 5.5vw;
+  bottom: 8vh;
+  white-space: nowrap;
+  min-height: clamp(52px, 4.2vw, 68px);
+  padding-inline: clamp(26px, 2.5vw, 40px);
+  /* White on the brand pink only reaches AA as large text, so this is set large and bold. */
+  font-size: clamp(19px, 1.5vw, 24px);
+  font-weight: 700;
+  box-shadow: 0 0 0 0 rgb(250 42 111 / 0.35);
+  transition: box-shadow 0.5s ease-out;
+}
+#about[data-about='hoopoe'] .a-intro-copy .a-pill:focus-visible {
+  outline: 3px solid var(--a-ink);
+  outline-offset: 3px;
+}
+#about[data-about='hoopoe'] .a-intro-copy .a-pill.hp-rung {
+  box-shadow: 0 0 0 16px rgb(250 42 111 / 0);
+}
+
+/* The canvas that travels with the bird. It never takes the pointer; the button below does, and only over the bird. */
+.hp-gl {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s linear;
+}
+.hp-gl.is-on {
+  opacity: 1;
+}
+.hp-still {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 3;
+  pointer-events: none;
+  height: auto;
+}
+.hp-hit {
+  all: unset;
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 4;
+  border-radius: 50%;
+  cursor: pointer;
+  touch-action: pan-y;
+  -webkit-tap-highlight-color: transparent;
+}
+.hp-hit:focus-visible {
+  outline: 3px solid var(--a-pink, #fa2a6f);
+  outline-offset: 2px;
+}
+.hp-fx {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+.hp-feather {
+  position: absolute;
+  left: 0;
+  top: 0;
+  will-change: transform, opacity;
+}
+.hp-squawk {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: visible;
+}
+
+/* The phone: a tall column of type, in plain flow, with room for the bird on top of it. */
+@media (max-width: 759px) {
+  #about[data-about='hoopoe'] {
+    margin-bottom: 8px;
+  }
+  #about[data-about='hoopoe'] .a-intro-copy {
+    position: relative;
+    inset: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    padding: 124px 24px 64px;
+  }
+  #about[data-about='hoopoe'] .a-intro-copy h2 {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    font-size: 19.2vw;
+    line-height: 1.17;
+    letter-spacing: -0.05em;
+  }
+  #about[data-about='hoopoe'] .a-intro-copy h2:lang(ar) {
+    letter-spacing: 0;
+    line-height: 1.36;
+  }
+  #about[data-about='hoopoe'] .a-intro-copy .about-mark {
+    margin-inline-start: 0.16em;
+  }
+  #about[data-about='hoopoe'] .a-intro-copy p {
+    position: relative;
+    inset: auto;
+    width: auto;
+    margin-top: 64px;
+    font-size: 19px;
+    line-height: 1.5;
+  }
+  #about[data-about='hoopoe'] .a-intro-copy .a-pill {
+    position: relative;
+    inset: auto;
+    margin-top: 150px;
+    font-size: 19px;
+    min-height: 56px;
+    padding-inline: 32px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #about[data-about='hoopoe'] .a-intro-copy .a-pill,
+  .hp-gl {
+    transition: none;
+  }
+}

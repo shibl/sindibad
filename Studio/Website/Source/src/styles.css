@@ -1,0 +1,15 @@
+@import "tailwindcss";
+@import "lenis/dist/lenis.css";
+
+/* Design A is styled in src/A.css. Tailwind is kept for its base reset (preflight), which the
+   design was built on. Latin text falls back to IBM Plex Sans Arabic for Arabic characters. */
+@theme {
+  --color-*: initial;
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "IBM Plex Sans Arabic", sans-serif;
+}
+
+@layer base {
+  body {
+    background: #fff;
+  }
+}

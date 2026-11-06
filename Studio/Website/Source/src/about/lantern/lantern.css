@@ -1,0 +1,167 @@
+/* Shadow Lantern. A large rounded panel of night wall under the hero. Everything scoped to this concept. */
+
+#about[data-about='lantern'] {
+  /* The hero leaves 140px. Its scroll button and carousel arrows hang about 30px, so keep a clean white gap under them. */
+  margin-top: -88px;
+  margin-bottom: 104px;
+  scroll-margin-top: 0;
+  --ln-wall: #03393b;
+  --ln-text: #f8f1e1;
+}
+#about[data-about='lantern'] .about-stage {
+  background: var(--ln-wall);
+  border-radius: 32px;
+  /* Clip, not hidden: on phones the canvas is sticky inside this box, and hidden would stop that. */
+  overflow: clip;
+  isolation: isolate;
+}
+#about[data-about='lantern'] .ln-sticky {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+#about[data-about='lantern'] .ln-poster {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: 50% 0;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+#about[data-about='lantern'] .ln-poster.is-on {
+  opacity: 1;
+}
+#about[data-about='lantern'] .ln-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+#about[data-about='lantern'] .ln-canvas.is-on {
+  opacity: 1;
+}
+/* Drag anywhere on touch to swing it, and the page still scrolls. */
+#about[data-about='lantern'] .about-stage {
+  touch-action: pan-y;
+}
+
+#about[data-about='lantern'] .ln-copy {
+  position: absolute;
+  z-index: 2;
+  inset-inline-end: clamp(28px, 5.4vw, 112px);
+  top: clamp(112px, 14.5svh, 176px);
+  width: clamp(430px, 48vw, 800px);
+  padding: 0;
+  gap: clamp(14px, 2.2svh, 22px);
+  color: var(--ln-text);
+}
+#about[data-about='lantern'] .ln-copy h2 {
+  font-size: clamp(40px, min(4.4vw, 7.2svh), 76px);
+  line-height: 1.04;
+  text-wrap: balance;
+  margin: 0 0 -0.14em;
+  padding-bottom: 0.14em;
+  /* Lit from the lamp's side. Both colours clear AA on this wall by a wide margin (measured in the report). */
+  color: var(--ln-text);
+  background: radial-gradient(circle 900px at var(--ln-lx, -300px) var(--ln-ly, 100px), #ffe6ad 0%, #fff0cf 42%, var(--ln-text) 76%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+/* Arabic letterforms and their marks need more room between lines, and more below the last line for the clipped light. */
+#about[data-about='lantern']:lang(ar) .ln-copy h2 {
+  line-height: 1.2;
+  margin-bottom: -0.24em;
+  padding-bottom: 0.24em;
+}
+@media (forced-colors: active) {
+  #about[data-about='lantern'] .ln-copy h2 {
+    background: none;
+    -webkit-text-fill-color: currentColor;
+  }
+}
+#about[data-about='lantern'] .ln-copy p {
+  font-size: clamp(16.5px, min(1.42vw, 2.25svh), 21px);
+  line-height: 1.5;
+  color: var(--ln-text);
+  max-width: 38em;
+}
+#about[data-about='lantern'] .ln-copy .about-mark {
+  width: clamp(84px, 7.8vw, 112px);
+}
+/* White on the brand pink is 3.7:1. At bold and 14pt or more that counts as large text, which passes AA. */
+#about[data-about='lantern'] .ln-copy .a-pill {
+  font-size: 20px;
+  font-weight: 700;
+}
+#about[data-about='lantern'] .ln-copy .a-pill:focus-visible {
+  outline-color: var(--ln-text);
+}
+
+/* Small laptops and tablets lying down: the copy keeps to its half and the wall keeps its composition. */
+@media (max-width: 1100px) and (min-width: 761px) and (min-aspect-ratio: 20/21) and (min-height: 560px) {
+  #about[data-about='lantern'] .ln-copy {
+    width: 52vw;
+    inset-inline-end: 28px;
+  }
+}
+
+/* Phones, upright tablets and very short windows: the lantern hangs above the text, and the wall runs on behind it.
+   main.ts uses this same query. */
+@media (max-width: 760px), (max-aspect-ratio: 20/21), (max-height: 559px) {
+  #about[data-about='lantern'] {
+    margin-top: var(--ln-phone-top, -36px);
+    margin-bottom: 72px;
+  }
+  #about[data-about='lantern'] .about-stage {
+    border-radius: 24px;
+  }
+  #about[data-about='lantern'] .ln-sticky {
+    position: sticky;
+    inset: auto;
+    top: 0;
+    width: 100%;
+    height: 100svh;
+    margin-bottom: -100svh;
+  }
+  #about[data-about='lantern'] .ln-sticky.is-still {
+    position: absolute;
+    inset: 0 0 auto;
+    height: calc(var(--ln-lamp-room, 380px) + 24px);
+    margin: 0;
+    -webkit-mask-image: linear-gradient(#000 70%, transparent);
+    mask-image: linear-gradient(#000 70%, transparent);
+  }
+  #about[data-about='lantern'] .ln-copy {
+    position: relative;
+    inset: auto;
+    width: auto;
+    margin-inline: 24px;
+    padding-top: var(--ln-lamp-room, 380px);
+    padding-bottom: var(--ln-sea-room, 260px);
+    gap: 18px;
+  }
+  #about[data-about='lantern'] .ln-copy h2 {
+    font-size: clamp(34px, 9.6vw, 44px);
+    line-height: 1.06;
+  }
+  #about[data-about='lantern'] .ln-copy p {
+    font-size: 17px;
+    line-height: 1.5;
+  }
+  #about[data-about='lantern'] .ln-copy .about-mark {
+    width: 84px;
+  }
+}
+
+@media (forced-colors: active) {
+  #about[data-about='lantern'] .ln-copy,
+  #about[data-about='lantern'] .ln-copy h2,
+  #about[data-about='lantern'] .ln-copy p {
+    color: CanvasText;
+  }
+}

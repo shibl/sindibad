@@ -1,0 +1,291 @@
+/* The storybook: everything hangs off the book's own root, as the book is still on screen after a chapter has taken the section. */
+#about[data-about='storybook'] {
+  background: #fff;
+}
+#about .sb {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #fff;
+}
+#about .about-book:not(.is-pinned) {
+  height: 100svh;
+}
+#about .sb .sb-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: pan-y;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+#about .sb.is-ready .sb-canvas {
+  opacity: 1;
+}
+#about .sb .sb-ink {
+  --k: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  box-sizing: border-box;
+  will-change: transform, opacity;
+}
+#about .sb .sb-ghost {
+  display: flex;
+  flex-direction: column;
+}
+#about .sb .sb-ghost h2 {
+  max-width: none;
+}
+#about .sb .a-intro-copy,
+#about .sb .sb-ghost {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  gap: calc(16px * var(--k));
+  justify-content: center;
+  align-items: flex-start;
+  color: var(--a-ink);
+}
+#about .sb .about-mark {
+  width: calc(92px * var(--k));
+}
+#about .sb .a-intro-copy h2,
+#about .sb .sb-ghost h2 {
+  font-size: calc(46px * var(--k));
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  margin: 0;
+}
+#about .sb .a-intro-copy p,
+#about .sb .sb-ghost p {
+  font-size: calc(19px * var(--k));
+  line-height: 1.42;
+  margin: 0;
+}
+#about .sb .a-pill {
+  /* A shade under the brand pink, as if printed on the sheet: white on this passes AA at any size the page can reach. */
+  background: #e0175f;
+  font-size: calc(19px * var(--k));
+  min-height: calc(44px * var(--k));
+  padding: calc(8px * var(--k)) calc(28px * var(--k));
+}
+#about .sb .sb-tab {
+  will-change: transform;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+  outline: none;
+  touch-action: pan-y;
+  z-index: 2;
+}
+#about .sb .sb-tab.is-on {
+  opacity: 1;
+  pointer-events: auto;
+}
+/* A generous invisible handle around the paper tab. */
+#about .sb .sb-tab::before {
+  content: '';
+  position: absolute;
+  inset: -34px -48px;
+  border-radius: 40px;
+  cursor: grab;
+  touch-action: pan-y;
+}
+#about .sb .sb-tab.is-held::before {
+  cursor: grabbing;
+}
+#about .sb .sb-tab:focus-visible::before {
+  outline: 3px solid var(--a-pink);
+  outline-offset: 2px;
+}
+#about .sb .sb-tab-word {
+  position: absolute;
+  top: 42px;
+  left: -40px;
+  width: 80px;
+  text-align: center;
+  font-family: var(--a-heading);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--a-ink);
+  pointer-events: none;
+  transition: opacity 0.3s;
+  white-space: nowrap;
+}
+#about .sb .sb-tab.is-held .sb-tab-word {
+  opacity: 0;
+}
+
+/* While the book flies over a chapter, what's around it has gone and the arch is a real hole. */
+#about .sb.is-flying {
+  background: transparent;
+}
+#about .sb.is-flying .sb-canvas {
+  transition: none;
+}
+
+/* The chapters' index tabs are drawn in the book. These are their handles and names, and they follow the tabs on screen. */
+#about .sb .sb-chapters {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+#about .sb .sb-ch {
+  all: unset;
+  /* These follow the page every frame, so each is its own layer and moving it repaints nothing. */
+  will-change: transform;
+  /* Placed by script in screen pixels, so these are the physical sides in Arabic too: an inline side here would send them a screen's width off. */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 66px;
+  margin-left: -33px;
+  pointer-events: none;
+  cursor: pointer;
+  border-radius: 12px;
+  -webkit-tap-highlight-color: transparent;
+}
+#about .sb .sb-chapters.is-on .sb-ch {
+  pointer-events: auto;
+}
+#about .sb .sb-ch:focus-visible {
+  outline: 3px solid var(--a-pink);
+  outline-offset: 1px;
+}
+#about .sb .sb-ch-label {
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 2px);
+  transform: translate(-6px, -50%);
+  font-family: var(--a-heading);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--a-ink);
+  white-space: nowrap;
+  opacity: 0;
+  transition:
+    opacity 0.28s,
+    transform 0.34s cubic-bezier(0.25, 1.4, 0.5, 1),
+    color 0.16s;
+}
+#about .sb.is-rtl .sb-ch-label {
+  left: auto;
+  right: calc(100% + 2px);
+  transform: translate(6px, -50%);
+}
+#about .sb .sb-chapters.is-on .sb-ch-label {
+  opacity: 1;
+  transform: translate(0, -50%);
+}
+#about .sb .sb-ch:hover .sb-ch-label,
+#about .sb .sb-ch:focus-visible .sb-ch-label {
+  color: var(--a-pink);
+  transform: translate(12px, -50%);
+}
+#about .sb.is-rtl .sb-ch:hover .sb-ch-label,
+#about .sb.is-rtl .sb-ch:focus-visible .sb-ch-label {
+  transform: translate(-12px, -50%);
+}
+/* A phone has no room beside the page for names: the emblem says it, and the page it opens names the chapter. */
+#about .sb.is-tall .sb-ch-label {
+  display: none;
+}
+#about .sb.is-tall .sb-ch {
+  width: 52px;
+  margin-left: -26px;
+}
+#about .sb .sb-chapters.is-flat {
+  position: relative;
+  inset: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  pointer-events: auto;
+}
+#about .sb .sb-chapters.is-flat .sb-ch {
+  position: static;
+  margin: 0;
+  width: auto;
+  pointer-events: auto;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--ch);
+  color: #fff;
+  font-family: var(--a-heading);
+  font-weight: 600;
+}
+
+/* The still, for no WebGL or slow art: the finished scene as an image, with the words laid over its open page. */
+#about .about-book:not(.is-pinned):has(.sb.is-still) {
+  height: auto;
+}
+#about .sb.is-still {
+  position: relative;
+  inset: auto;
+}
+#about .about-book.is-pinned .sb.is-still {
+  position: absolute;
+  inset: 0;
+}
+#about .sb .sb-still {
+  --k: 1;
+  position: relative;
+  margin-inline: auto;
+  transition: opacity 0.45s;
+}
+#about .sb .is-pinned .sb-still {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+}
+#about .sb .sb-still.is-wide {
+  aspect-ratio: 8 / 5;
+  width: min(100%, 160svh);
+}
+#about .sb .sb-still.is-tall {
+  aspect-ratio: 390 / 844;
+  width: min(100%, 46.2svh);
+}
+#about .sb .sb-still.is-leaving {
+  opacity: 0;
+  pointer-events: none;
+}
+#about .sb .sb-still img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+}
+#about .sb .sb-still .a-intro-copy {
+  position: absolute;
+  inset: auto;
+}
+#about .sb .sb-still.is-wide .a-intro-copy {
+  left: 17%;
+  width: 28%;
+  top: 31%;
+  height: 57%;
+}
+#about .sb.is-rtl .sb-still.is-wide .a-intro-copy {
+  left: 55%;
+}
+#about .sb .sb-still.is-tall .a-intro-copy {
+  left: 15%;
+  width: 70%;
+  top: 56.5%;
+  height: 38%;
+}

@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Claw</title>
+<style>
+html, body { margin: 0; height: 100%; background: #06181a; overflow: hidden; }
+#c { position: fixed; inset: 0; width: 100%; height: 100%; display: block; outline: none; touch-action: none; }
+</style>
+</head>
+<body>
+<canvas id="c" tabindex="0"></canvas>
+<script>
+// The page that holds this frame draws all the text and buttons. This only runs the game and passes messages.
+(function () {
+  var parentWin = window.parent !== window ? window.parent : null;
+  function post(name, value) {
+    if (parentWin) parentWin.postMessage({ claw: name, value: value }, location.origin);
+    window.__clawLast = window.__clawLast || {};
+    window.__clawLast[name] = value;
+  }
+  window.__clawSend = post;
+
+  var canvas = document.getElementById('c');
+  // The second copy of the textures is ASTC, for phones whose GPUs can't read the desktop ones.
+  var gl = document.createElement('canvas').getContext('webgl2');
+  var hasS3TC = gl && gl.getExtension('WEBGL_compressed_texture_s3tc');
+  var hasASTC = gl && gl.getExtension('WEBGL_compressed_texture_astc');
+  var useASTC = (!hasS3TC && !!hasASTC) || location.search.indexOf('astc=1') >= 0;
+  if (!gl) { post('fail', 'webgl2'); return; }
+
+  var build = 'Build';
+  var cfg = {
+    dataUrl: build + '/' + (useASTC ? 'claw-game.data.unityweb'.replace('.data', '-astc.data') : 'claw-game.data.unityweb'),
+    frameworkUrl: build + '/claw-game.framework.js.unityweb',
+    codeUrl: build + '/claw-game.wasm.unityweb',
+    streamingAssetsUrl: 'StreamingAssets',
+    companyName: 'Sindibad Studios',
+    productName: 'Claw',
+    productVersion: '1',
+    // Keeps the page from going past what the phone can fill at speed.
+    devicePixelRatio: Math.min(window.devicePixelRatio || 1, /Mobi|Android|iPhone|iPad/.test(navigator.userAgent) ? 1.5 : 2),
+    matchWebGLToCanvasSize: true,
+  };
+  var unity = null;
+  var script = document.createElement('script');
+  script.src = build + '/claw-game.loader.js';
+  script.onerror = function () { post('fail', 'loader'); };
+  script.onload = function () {
+    createUnityInstance(canvas, cfg, function (p) { post('progress', p); }).then(function (u) {
+      unity = u;
+      window.__unity = u;
+      post('loaded', '1');
+    }).catch(function (e) { post('fail', String(e)); });
+  };
+  document.body.appendChild(script);
+
+  window.addEventListener('message', function (e) {
+    if (e.origin !== location.origin || !unity || !e.data || !e.data.fn) return;
+    unity.SendMessage('Game', e.data.fn, e.data.arg == null ? '' : String(e.data.arg));
+    if (e.data.focus) canvas.focus();
+  });
+  window.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') post('esc', '1');
+  }, true);
+  canvas.addEventListener('pointerdown', function () { canvas.focus(); });
+})();
+</script>
+</body>
+</html>

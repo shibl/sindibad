@@ -1,0 +1,313 @@
+/* The About section's host: the concept switcher and the reset that hands the section to a concept. */
+
+#about[data-about]:not([data-about='original']) {
+  display: block;
+  position: relative;
+  max-width: none;
+  padding: 0;
+  margin-inline: 0;
+  scroll-margin-top: 0;
+}
+#about[data-about]:not([data-about='original']) > .a-intro-art,
+#about[data-about]:not([data-about='original']) .a-union {
+  display: none;
+}
+.about-stage,
+.about-book {
+  position: relative;
+  width: 100%;
+}
+.about-stage.is-pinned,
+.about-book.is-pinned {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+}
+/* The book over a chapter: it stays exactly on the screen, whatever the section behind it is doing. */
+.about-book.is-flying,
+.about-book.is-parked {
+  position: fixed;
+  inset: 0 0 auto;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+}
+.about-book.is-flying {
+  z-index: 45;
+}
+.about-book.is-parked {
+  visibility: hidden;
+  pointer-events: none;
+  z-index: -1;
+}
+.about-mark {
+  display: block;
+  width: 112px;
+  height: auto;
+  overflow: visible;
+  flex: none;
+}
+
+/* The section's button. The words sit on a large layer that's moving in 3D, so repainting anything on it every frame shows as a stutter,
+   and moving the button makes it slide out from under the pointer. So nothing moves and nothing repaints: the deeper colour and the
+   shadow are painted once on their own layer, under the words, and only that layer's opacity changes, which the graphics card does alone. */
+:where(#about[data-about]:not([data-about='original'])) .a-pill {
+  position: relative;
+  isolation: isolate;
+}
+#about[data-about]:not([data-about='original']) .a-pill:hover {
+  transform: none;
+}
+#about[data-about]:not([data-about='original']) .a-pill::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: rgb(0 0 0 / 0.14);
+  box-shadow: 0 8px 20px rgb(0 0 0 / 0.22);
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity;
+  transition: opacity 0.32s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+@media (hover: hover) {
+  #about[data-about]:not([data-about='original']) .a-pill:hover::before {
+    opacity: 1;
+  }
+}
+
+/* The way back to the book from a chapter. It has to be found on any chapter, dark or light, so it's cream with its name always showing. */
+.about-back {
+  all: unset;
+  box-sizing: border-box;
+  position: fixed;
+  bottom: 28px;
+  inset-inline-end: 0;
+  z-index: 38;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 52px;
+  padding-inline: 16px 18px;
+  border-start-start-radius: 14px;
+  border-end-start-radius: 14px;
+  background: #f6ebd3;
+  color: #013f3b;
+  box-shadow:
+    0 6px 22px rgb(0 30 30 / 0.42),
+    inset 0 0 0 1px rgb(1 63 59 / 0.14);
+  font-family: 'A Bricolage', 'IBM Plex Sans Arabic', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(100%);
+  transition:
+    transform 0.42s cubic-bezier(0.25, 1.35, 0.5, 1),
+    opacity 0.18s,
+    background-color 0.2s,
+    color 0.2s;
+}
+[dir='rtl'].about-back {
+  transform: translateX(-100%);
+}
+.about-back.is-on {
+  pointer-events: auto;
+  opacity: 1;
+  transform: none;
+}
+.about-back:hover,
+.about-back:focus-visible {
+  background: #e0175f;
+  color: #fff;
+}
+.about-back:focus-visible {
+  outline: 3px solid #013f3b;
+  outline-offset: -6px;
+}
+.about-back svg {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+  display: block;
+  flex: none;
+}
+html[data-dubai='on'] .about-back {
+  display: none;
+}
+@media (max-width: 760px) {
+  .about-back {
+    bottom: 20px;
+    height: 46px;
+    padding-inline: 12px 14px;
+    gap: 8px;
+    font-size: 14px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .about-back {
+    transition: none;
+  }
+}
+
+/* A concept that hasn't been built yet. */
+.about-pending {
+  max-width: calc(1200px + 2 * var(--a-x));
+  margin-inline: auto;
+  padding: 40px var(--a-x);
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  gap: 80px;
+  align-items: center;
+}
+.about-pending-art {
+  aspect-ratio: 1;
+  border-radius: 32px;
+  background: var(--a-blue);
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 32px;
+  font-family: var(--a-heading);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--a-ink);
+}
+@media (max-width: 800px) {
+  .about-pending {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding-inline: 24px;
+  }
+  .about-pending-art {
+    aspect-ratio: 16 / 9;
+  }
+}
+
+/* The switcher is a review tool, so it stays English and left-to-right on both pages. */
+.about-switch {
+  position: fixed;
+  inset-block-end: 16px;
+  inset-inline: 0;
+  z-index: 90;
+  display: flex;
+  justify-content: center;
+  padding-inline: 12px;
+  pointer-events: none;
+  font-family: 'A Figtree', system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
+.about-switch-bar {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  max-width: 100%;
+  padding: 5px;
+  border-radius: 999px;
+  background: rgb(1 63 59 / 0.94);
+  backdrop-filter: blur(14px) saturate(1.3);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  box-shadow:
+    0 12px 36px rgb(0 40 40 / 0.32),
+    inset 0 0 0 1px rgb(255 255 255 / 0.09);
+  overflow-x: auto;
+  scrollbar-width: none;
+  transition:
+    transform 0.32s cubic-bezier(0.3, 1.3, 0.5, 1),
+    opacity 0.2s;
+}
+.about-switch-bar::-webkit-scrollbar {
+  display: none;
+}
+.about-switch button,
+.about-switch a {
+  all: unset;
+  box-sizing: border-box;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 0 13px;
+  border-radius: 999px;
+  color: #eaf6f5;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 0.16s,
+    color 0.16s;
+}
+.about-switch button:hover,
+.about-switch a:hover {
+  background: rgb(255 255 255 / 0.12);
+}
+.about-switch button:focus-visible,
+.about-switch a:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -2px;
+}
+.about-switch button[aria-pressed='true'] {
+  background: #fa2a6f;
+  color: #fff;
+}
+.about-switch kbd {
+  all: unset;
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.55;
+}
+.about-switch button[aria-pressed='true'] kbd {
+  opacity: 0.8;
+}
+.about-switch button.is-pending:not([aria-pressed='true']) span {
+  opacity: 0.45;
+}
+.about-switch-rule {
+  flex: none;
+  width: 1px;
+  height: 20px;
+  margin-inline: 5px;
+  background: rgb(255 255 255 / 0.18);
+}
+.about-switch .about-switch-icon {
+  width: 36px;
+  padding: 0;
+  justify-content: center;
+}
+.about-switch.is-hidden .about-switch-bar {
+  display: none;
+}
+html[data-dubai='on'] .about-switch {
+  display: none;
+}
+@media (max-width: 800px) {
+  .about-switch {
+    inset-block-end: 10px;
+    padding-inline: 8px;
+  }
+  .about-switch kbd {
+    display: none;
+  }
+  .about-switch button,
+  .about-switch a {
+    padding: 0 11px;
+    font-size: 13px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .about-switch-bar {
+    transition: none;
+  }
+}

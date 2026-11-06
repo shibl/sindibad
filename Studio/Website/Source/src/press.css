@@ -1,0 +1,633 @@
+/* The Don't Press slide, and the game it opens. Both are stacks of rendered layers in a square of 1000 units. */
+.pr-hero {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: visible;
+  opacity: 0;
+  pointer-events: none;
+}
+.pr-hero.is-ready {
+  opacity: 1;
+}
+.pr-v {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1000px;
+  height: 1000px;
+  transform-origin: 0 0;
+}
+.pr-v img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1000px;
+  height: 1000px;
+  max-width: none;
+  pointer-events: none;
+  user-select: none;
+}
+.pr-bulb {
+  position: absolute;
+  width: 46px;
+  height: 46px;
+  margin: -23px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0 16%, rgb(255 238 170 / 0.95) 30%, rgb(255 205 90 / 0.4) 52%, transparent 72%);
+  opacity: 0;
+  pointer-events: none;
+}
+.pr-hero .pr-h-dome-down {
+  visibility: hidden;
+}
+.pr-hero .pr-hit {
+  position: absolute;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  pointer-events: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.pr-hero.is-ready .pr-hit {
+  pointer-events: auto;
+}
+.pr-hero .pr-hit:focus-visible {
+  outline: 6px solid var(--a-pink);
+  outline-offset: 10px;
+}
+.pr-hero.is-ready .pr-bulb {
+  animation: pr-chase 1.9s linear infinite;
+  animation-delay: calc(var(--i) * -0.095s);
+}
+@keyframes pr-chase {
+  0%,
+  34%,
+  100% {
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+}
+.pr-hero.is-ready .pr-h-dome {
+  animation: pr-breathe 2.3s ease-in-out infinite;
+}
+@keyframes pr-breathe {
+  50% {
+    transform: scale(1.012, 1.03);
+  }
+}
+.pr-hero.is-down .pr-h-dome {
+  visibility: hidden;
+  animation: none;
+}
+.pr-hero.is-down .pr-h-dome-down {
+  visibility: visible;
+}
+.pr-wedge {
+  position: absolute;
+  inset: 0;
+  transform-origin: 27% 78%;
+}
+.pr-wedge-face {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+.pr-wedge-text {
+  position: absolute;
+  inset: 8% 4%;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: var(--a-ink);
+  font-family: var(--a-heading);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-align: center;
+  text-shadow: 3px 5px 0 rgb(0 70 70 / 0.55);
+  visibility: hidden;
+}
+.pr-hero.is-tempted .pr-wedge {
+  animation: pr-wag 0.34s ease-in-out infinite;
+}
+@keyframes pr-wag {
+  25% {
+    transform: rotate(-1.3deg);
+  }
+  75% {
+    transform: rotate(1.3deg);
+  }
+}
+.pr-hero.is-tempted .pr-h-cover {
+  animation: pr-rattle 0.2s linear infinite;
+}
+@keyframes pr-rattle {
+  25% {
+    transform: rotate(-0.55deg);
+  }
+  75% {
+    transform: rotate(0.45deg);
+  }
+}
+.pr-halo {
+  position: absolute;
+  width: 760px;
+  height: 620px;
+  margin: -310px -380px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(255 40 80 / 0.55), rgb(255 40 80 / 0));
+  opacity: 0;
+}
+.pr-hero.is-alarm .pr-halo {
+  animation: pr-blink 0.34s steps(2, jump-none) infinite;
+}
+.pr-hero.is-alarm .pr-bulb {
+  opacity: 1;
+  background: radial-gradient(circle, #fff 0 14%, rgb(255 70 90 / 0.98) 30%, rgb(255 40 70 / 0.45) 52%, transparent 72%);
+  animation: pr-blink 0.34s steps(2, jump-none) infinite;
+}
+@keyframes pr-blink {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.12;
+  }
+}
+.pr-hero.is-alarm .pr-h-dome {
+  animation: none;
+}
+.pr-hero.is-alarm .pr-wedge {
+  animation: pr-hop 0.42s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+@keyframes pr-hop {
+  40% {
+    transform: translateY(-16px) rotate(-1.5deg);
+  }
+}
+
+/* ---------------------------------------------------------------- the game */
+.pr {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  overflow: hidden;
+  color: #fff;
+  font-family: var(--a-body);
+  background:
+    radial-gradient(70% 46% at 50% 72%, #178683 0%, rgb(23 134 131 / 0) 100%),
+    radial-gradient(130% 90% at 50% 45%, #0a4b49 0%, #052d2c 58%, #021716 100%);
+  touch-action: none;
+  overscroll-behavior: contain;
+  user-select: none;
+  -webkit-user-select: none;
+  clip-path: circle(0 at var(--ox) var(--oy));
+  transition: clip-path 0.42s cubic-bezier(0.6, 0, 0.4, 1);
+}
+.pr.is-on {
+  clip-path: circle(160vmax at var(--ox) var(--oy));
+  transition: clip-path 0.62s cubic-bezier(0.5, 0, 0.2, 1);
+}
+.pr-beams {
+  position: absolute;
+  left: 50%;
+  top: 62%;
+  width: 240vmax;
+  height: 240vmax;
+  margin: -120vmax;
+  background: conic-gradient(from 0deg, transparent 0, rgb(255 40 80 / 0.42) 5%, transparent 18%, transparent 50%, rgb(255 40 80 / 0.42) 55%, transparent 68%);
+  opacity: 0;
+  transition: opacity 0.16s ease;
+  pointer-events: none;
+}
+.pr.is-alarm .pr-beams {
+  opacity: 1;
+  animation: pr-spin 0.9s linear infinite;
+}
+@keyframes pr-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.pr-machine {
+  position: absolute;
+  translate: var(--nudge, 0) 0;
+  transition: translate 0.2s cubic-bezier(0.3, 1.3, 0.5, 1);
+}
+.pr-machine .is-off {
+  visibility: hidden;
+}
+.pr-machine .pr-bulb {
+  transition: opacity 0.1s linear;
+}
+.pr-machine .pr-bulb.is-on {
+  opacity: 1;
+}
+.pr-machine .pr-bulb.is-last {
+  animation: pr-blink 0.3s steps(2, jump-none) infinite;
+}
+.pr-machine.is-alarm .pr-bulb.is-on {
+  background: radial-gradient(circle, #fff 0 14%, rgb(255 70 90 / 0.98) 30%, rgb(255 40 70 / 0.45) 52%, transparent 72%);
+}
+.pr-dome-glow {
+  position: absolute;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(255 255 255 / 0.85), rgb(255 190 215 / 0.45) 55%, transparent);
+  opacity: 0;
+  pointer-events: none;
+}
+.pr-dome-glow.is-hit {
+  animation: pr-glow 0.34s ease-out;
+}
+@keyframes pr-glow {
+  from {
+    opacity: 1;
+  }
+}
+.pr-go {
+  position: absolute;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.pr-go:focus {
+  outline: none;
+}
+.pr-go:focus-visible {
+  outline: 6px solid rgb(255 255 255 / 0.8);
+  outline-offset: -14px;
+}
+.pr-float {
+  position: absolute;
+  z-index: 3;
+  translate: -50% 0;
+  color: #fff;
+  font: 800 clamp(22px, 3.4vmin, 34px) / 1 var(--a-heading);
+  font-style: normal;
+  text-shadow: 0 2px 0 #a80f47, 0 0 14px rgb(250 42 111 / 0.8);
+  pointer-events: none;
+}
+.pr-float.is-big {
+  color: #ffd65c;
+  font-size: clamp(28px, 4.6vmin, 46px);
+}
+.pr-star {
+  position: absolute;
+  z-index: 3;
+  width: 22px;
+  height: 22px;
+  background: #ffd65c;
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  pointer-events: none;
+}
+
+/* The flip board, hanging on its two rods. */
+.pr-sign {
+  position: absolute;
+  z-index: 2;
+  perspective: 900px;
+  transform-origin: 50% -240px;
+  pointer-events: none;
+}
+.pr-rod {
+  position: absolute;
+  top: calc(-1 * var(--drop) - 20px);
+  bottom: 50%;
+  width: clamp(7px, 1.5%, 11px);
+  border-radius: 0 0 99px 99px;
+  background: linear-gradient(90deg, #7d8a90, #f4f7f8 38%, #aab5ba 70%, #6d7a80);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.25);
+}
+.pr-rod.is-a {
+  left: -1.1%;
+}
+.pr-rod.is-b {
+  right: -1.1%;
+}
+.pr-board {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  filter: drop-shadow(0 12px 16px rgb(0 0 0 / 0.42));
+}
+.pr-board img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+}
+.pr-board-text {
+  position: absolute;
+  inset: 22% 5.5%;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: var(--a-ink);
+  font-family: var(--a-heading);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+  text-align: center;
+  text-wrap: balance;
+  text-shadow: 0 1px 0 rgb(255 255 255 / 0.38);
+}
+.pr-board-text[data-tone='go'] {
+  color: #05593a;
+}
+.pr-board-text[data-tone='stop'] {
+  color: #b00c42;
+}
+.pr-say {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  padding: 7px 16px 8px;
+  border-radius: 999px;
+  translate: -50% -6px;
+  background: rgb(2 28 28 / 0.82);
+  font: 700 clamp(15px, 2.2vmin, 19px) / 1.1 var(--a-heading);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.16s ease, translate 0.16s ease;
+  pointer-events: none;
+}
+.pr-say.is-on {
+  opacity: 1;
+  translate: -50% 0;
+}
+.pr-say[data-tone='warn'] {
+  background: var(--a-pink);
+}
+.pr-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  opacity: 0;
+  pointer-events: none;
+}
+.pr-flash[data-tone='red'] {
+  background: radial-gradient(circle, rgb(255 40 80 / 0.4), rgb(214 18 70 / 0.95));
+}
+.pr-flash[data-tone='gold'] {
+  background: radial-gradient(circle, rgb(255 214 92 / 0.2), rgb(255 214 92 / 0.65));
+}
+
+/* The score, the streak and the strikes. */
+.pr-hud {
+  position: absolute;
+  z-index: 3;
+  top: max(14px, env(safe-area-inset-top));
+  inset-inline-start: max(16px, env(safe-area-inset-left));
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  max-width: calc(100vw - 150px);
+  pointer-events: none;
+}
+.pr-score {
+  display: grid;
+  min-width: 82px;
+  padding: 5px 14px 7px;
+  border-radius: 16px;
+  background: rgb(2 28 28 / 0.72);
+  line-height: 1;
+}
+.pr-score small {
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.74;
+}
+.pr-score b {
+  color: #ffd65c;
+  font: 800 clamp(24px, 3.6vmin, 34px) / 1.05 var(--a-heading);
+  font-variant-numeric: tabular-nums;
+}
+.pr-streak {
+  color: #fff;
+  font: 800 clamp(24px, 3.8vmin, 34px) / 1 var(--a-heading);
+  text-shadow: 0 2px 0 #a80f47, 0 0 12px rgb(250 42 111 / 0.9);
+}
+.pr-strikes {
+  display: flex;
+  gap: 5px;
+}
+.pr-strikes i {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgb(2 28 28 / 0.72);
+  box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.28);
+}
+.pr-strikes i.is-hit {
+  background: var(--a-pink);
+  box-shadow: inset 0 0 0 2px #ffd65c, 0 0 12px rgb(250 42 111 / 0.9);
+}
+.pr-strikes i.is-hit::before,
+.pr-strikes i.is-hit::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 13px;
+  height: 3px;
+  margin: -1.5px -6.5px;
+  border-radius: 2px;
+  background: #fff;
+  rotate: 45deg;
+}
+.pr-strikes i.is-hit::after {
+  rotate: -45deg;
+}
+.pr-top {
+  position: absolute;
+  z-index: 5;
+  top: max(14px, env(safe-area-inset-top));
+  inset-inline-end: max(14px, env(safe-area-inset-right));
+  display: flex;
+  gap: 10px;
+}
+.pr-round {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  color: var(--a-ink);
+  background: #fff;
+  cursor: pointer;
+  transition: scale 0.15s ease;
+}
+.pr-round:hover {
+  scale: 1.07;
+}
+.pr-round svg {
+  width: 20px;
+  height: 20px;
+}
+.pr button:focus-visible:not(.pr-go) {
+  outline: 3px solid #ffd65c;
+  outline-offset: 3px;
+}
+
+/* The verdict. */
+.pr-card {
+  position: absolute;
+  z-index: 6;
+  left: 50%;
+  top: 50%;
+  width: min(92vw, 440px);
+  padding: 26px 26px 24px;
+  border: 5px solid #ffd65c;
+  border-radius: 28px;
+  color: var(--a-ink);
+  background: #fff8ea;
+  box-shadow: 0 10px 0 #b68512, 0 30px 60px rgb(0 0 0 / 0.5);
+  text-align: center;
+  translate: -50% -40%;
+  scale: 0.8;
+  opacity: 0;
+  visibility: hidden;
+  transition: translate 0.34s cubic-bezier(0.2, 1.5, 0.4, 1), scale 0.34s cubic-bezier(0.2, 1.5, 0.4, 1), opacity 0.16s ease;
+}
+.pr-card.is-on {
+  translate: -50% -50%;
+  scale: 1;
+  opacity: 1;
+  visibility: visible;
+}
+.pr-card-new {
+  display: block;
+  min-height: 1.2em;
+  color: var(--a-pink);
+  font: 800 16px/1.2 var(--a-heading);
+}
+.pr-card-rank {
+  margin: 2px 0 6px;
+  color: var(--a-pink);
+  font: 800 clamp(26px, 6vmin, 36px) / 1.06 var(--a-heading);
+  letter-spacing: -0.02em;
+}
+.pr-card-joke {
+  margin: 0 0 14px;
+  font-size: 16px;
+  line-height: 1.35;
+}
+.pr-card-nums {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-bottom: 18px;
+}
+.pr-card-nums small {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.72;
+}
+.pr-card-nums b {
+  font: 800 34px/1.05 var(--a-heading);
+  font-variant-numeric: tabular-nums;
+}
+.pr-card-do {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+.pr-btn {
+  padding: 13px 22px 14px;
+  border: 0;
+  border-radius: 999px;
+  color: var(--a-ink);
+  background: var(--a-blue);
+  box-shadow: 0 4px 0 #8fbcc6;
+  font: 700 16px/1 var(--a-heading);
+  cursor: pointer;
+  transition: translate 0.08s ease, box-shadow 0.08s ease;
+}
+.pr-btn.is-main {
+  color: #fff;
+  background: var(--a-pink);
+  box-shadow: 0 4px 0 #a80f47;
+}
+.pr-btn:active {
+  translate: 0 3px;
+  box-shadow: 0 1px 0 #a80f47;
+}
+.pr-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+/* A phone on its side has little height, so the verdict tightens up. */
+@media (max-height: 460px) {
+  .pr-card {
+    width: min(92vw, 520px);
+    padding: 12px 20px 14px;
+    box-shadow: 0 6px 0 #b68512, 0 20px 40px rgb(0 0 0 / 0.5);
+  }
+  .pr-card-rank {
+    font-size: 25px;
+  }
+  .pr-card-joke {
+    margin-bottom: 6px;
+    font-size: 14px;
+  }
+  .pr-card-nums {
+    margin-bottom: 8px;
+  }
+  .pr-card-nums b {
+    font-size: 24px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pr-hero.is-ready .pr-bulb,
+  .pr-hero.is-ready .pr-h-dome,
+  .pr-hero.is-tempted .pr-wedge,
+  .pr-hero.is-tempted .pr-h-cover,
+  .pr-hero.is-alarm .pr-wedge,
+  .pr-hero.is-alarm .pr-halo,
+  .pr-hero.is-alarm .pr-bulb,
+  .pr-machine .pr-bulb.is-last,
+  .pr.is-alarm .pr-beams,
+  .pr-dome-glow.is-hit {
+    animation: none;
+  }
+  .pr-hero.is-alarm .pr-halo {
+    opacity: 0.8;
+  }
+  .pr-machine {
+    transition: none;
+  }
+  .pr {
+    clip-path: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .pr.is-on {
+    clip-path: none;
+    opacity: 1;
+    transition: opacity 0.2s ease;
+  }
+  .pr-card {
+    transition: none;
+  }
+}

@@ -1,2 +1,7 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Sindibad Studios</title><script>location.replace('./home' + location.search + location.hash);</script></head><body><a href="./home/">Sindibad Studios · سندباد ستوديوز</a></body></html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sindibad Studios</title>
+<meta http-equiv="refresh" content="0; url=../../../studio/index.html">
+<script>const ar = new URLSearchParams(location.search).get("lang") === "ar"; location.replace((ar ? "../../../studio/ar/index.html" : "../../../studio/index.html") + location.search + location.hash);</script>
+</head><body><a href="../../../studio/index.html">Sindibad Studios</a></body></html>

@@ -1,0 +1,204 @@
+/* X-ray lens. The picture's sky is the hero's own blue, so the section slides under the hero and its edge disappears. */
+
+.design-a:has(#about[data-about='xray']) .a-hero {
+  z-index: 3;
+}
+.design-a:has(#about[data-about='xray']) .a-scroll {
+  border-color: transparent;
+  background: transparent;
+}
+.design-a:has(#about[data-about='xray']) .hc-ctl {
+  background: transparent;
+}
+
+#about[data-about='xray'] {
+  z-index: 1;
+  margin-bottom: 28px;
+  overflow: clip;
+}
+#about[data-about='xray'] .about-stage {
+  background: linear-gradient(#d6ecf0 0%, #e3f0ea 34%, #fbeed8 62%, #fff8ee 84%, #fff 100%);
+}
+#about[data-about='xray'] .xr-host {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  touch-action: pan-y;
+  isolation: isolate;
+}
+#about[data-about='xray'] .xr-art {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  cursor: pointer;
+}
+#about[data-about='xray'] .xr-poster {
+  position: absolute;
+  max-width: none;
+  filter: blur(14px);
+  -webkit-mask-image: linear-gradient(transparent 6%, #000 22%);
+  mask-image: linear-gradient(transparent 6%, #000 22%);
+}
+#about[data-about='xray'] .xr-canvas {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+#about[data-about='xray'] .is-ready .xr-canvas {
+  opacity: 1;
+}
+
+#about[data-about='xray'] .about-stage.xr-still-height {
+  height: 100vh;
+  height: 100svh;
+}
+
+/* The text: on the world's calm sky, with no panel. */
+#about[data-about='xray'] .xr-copy {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  inset-inline-start: var(--a-x);
+  width: clamp(420px, 36.5vw, 640px);
+  transform: translateY(calc(-50% + 34px));
+  padding: 0;
+  gap: clamp(14px, 2.5vh, 26px);
+  pointer-events: none;
+}
+#about[data-about='xray'] .xr-copy > * {
+  pointer-events: auto;
+}
+#about[data-about='xray'] .xr-copy h2 {
+  font-size: clamp(38px, min(4.5vw, 7.5vh), 80px);
+  line-height: 1.03;
+  letter-spacing: -0.03em;
+  color: var(--a-ink);
+}
+#about[data-about='xray'] .xr-copy p {
+  font-size: clamp(16px, min(1.38vw, 2.3vh), 22px);
+  line-height: 1.5;
+  color: var(--a-ink);
+}
+#about[data-about='xray'] .xr-copy .about-mark {
+  width: clamp(84px, 7.6vw, 118px);
+}
+#about[data-about='xray'] .xr-copy .a-pill:focus-visible,
+#about[data-about='xray'] .xr-play:focus-visible {
+  outline: 3px solid var(--a-ink);
+  outline-offset: 3px;
+}
+.design-a[dir='rtl'] #about[data-about='xray'] .xr-copy h2 {
+  line-height: 1.16;
+  letter-spacing: 0;
+}
+.design-a[dir='rtl'] #about[data-about='xray'] .xr-copy p {
+  line-height: 1.65;
+}
+
+/* What the lens shows, sitting inside the glass. */
+#about[data-about='xray'] .xr-tag {
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  font-family: var(--a-body);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #e9fbf8;
+  white-space: nowrap;
+  will-change: transform;
+}
+#about[data-about='xray'] .xr-tag span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px 4px;
+  border-radius: 99px;
+  background: rgb(1 48 46 / 0.82);
+  box-shadow: inset 0 0 0 1px rgb(214 236 240 / 0.26);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+#about[data-about='xray'] .xr-tag.is-on span {
+  opacity: 1;
+}
+#about[data-about='xray'] .xr-tag span::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--a-pink);
+}
+
+/* Keyboard users get the run as a real button; everyone else clicks the world. */
+#about[data-about='xray'] .xr-play {
+  position: absolute;
+  z-index: 3;
+  inset-block-end: 88px;
+  inset-inline-end: 32px;
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 40px;
+  background: var(--a-ink);
+  color: #fff;
+  font-family: var(--a-heading);
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+}
+#about[data-about='xray'] .xr-play:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* No WebGL2: the same pictures, arranged. */
+#about[data-about='xray'] .xr-still-world {
+  position: absolute;
+  max-width: none;
+  -webkit-mask-image: linear-gradient(transparent 4%, #000 26%);
+  mask-image: linear-gradient(transparent 4%, #000 26%);
+}
+#about[data-about='xray'] .xr-still-glass {
+  position: absolute;
+  border-radius: 50%;
+  box-shadow:
+    0 18px 40px rgb(0 60 60 / 0.35),
+    inset 0 0 0 6px rgb(255 255 255 / 0.35),
+    inset 0 0 24px rgb(0 40 40 / 0.6);
+}
+
+/* Phones and narrow windows: the sky holds the text at the top, and the world rises out of it below. */
+#about[data-about='xray'] .about-stage.xr-stack {
+  height: auto;
+  background: linear-gradient(#d6ecf0 0%, #d6ecf0 40%, #fff 100%);
+}
+#about[data-about='xray'] .xr-host.xr-stack {
+  height: auto;
+}
+#about[data-about='xray'] .xr-stack .xr-copy {
+  position: relative;
+  top: auto;
+  inset-inline-start: auto;
+  transform: none;
+  width: auto;
+  padding: 92px var(--a-x) 0;
+  gap: 18px;
+}
+#about[data-about='xray'] .xr-stack .xr-copy h2 {
+  font-size: clamp(36px, 10.4vw, 58px);
+}
+#about[data-about='xray'] .xr-stack .xr-copy p {
+  font-size: clamp(16px, 4.2vw, 19px);
+  max-width: 36em;
+}
+#about[data-about='xray'] .xr-stack .xr-copy .about-mark {
+  width: 96px;
+}

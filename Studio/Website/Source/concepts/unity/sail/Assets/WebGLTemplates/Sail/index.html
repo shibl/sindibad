@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Set sail</title>
+<style>
+/* The frame's first colour is the sea at dusk, not a default grey, in case the page shows through before the game draws. */
+html, body { margin: 0; height: 100%; background: #0d3a44; overflow: hidden; }
+#c { position: fixed; inset: 0; width: 100%; height: 100%; display: block; outline: none; touch-action: none; }
+</style>
+</head>
+<body>
+<canvas id="c" tabindex="0"></canvas>
+<script>
+// The page that holds this frame draws all the words and buttons. This only runs the game and passes messages.
+(function () {
+  var parentWin = window.parent !== window ? window.parent : null;
+  function post(name, value) {
+    if (parentWin) parentWin.postMessage({ sail: name, value: value }, location.origin);
+    window.__sailLast = window.__sailLast || {};
+    window.__sailLast[name] = value;
+    if (name === 'fps') (window.__sailFps = window.__sailFps || []).push(Number(value));
+  }
+  window.__sailSend = post;
+
+  var canvas = document.getElementById('c');
+  // The second copy of the textures is ASTC, for phones whose GPUs can't read the desktop ones.
+  var gl = document.createElement('canvas').getContext('webgl2');
+  if (!gl) { post('fail', 'webgl2'); return; }
+  var hasS3TC = gl.getExtension('WEBGL_compressed_texture_s3tc');
+  var hasASTC = gl.getExtension('WEBGL_compressed_texture_astc');
+  var useASTC = (!hasS3TC && !!hasASTC) || location.search.indexOf('astc=1') >= 0;
+
+  var build = 'Build';
+  var cfg = {
+    dataUrl: build + '/' + (useASTC ? '{{{ DATA_FILENAME }}}'.replace('.data', '-astc.data') : '{{{ DATA_FILENAME }}}'),
+    frameworkUrl: build + '/{{{ FRAMEWORK_FILENAME }}}',
+    codeUrl: build + '/{{{ CODE_FILENAME }}}',
+    streamingAssetsUrl: 'StreamingAssets',
+    companyName: 'Sindibad Studios',
+    productName: 'Set sail',
+    productVersion: '1',
+    // Keeps the game within what the machine can fill at speed. The sea is the costly part, and it's soft enough not to need more.
+    devicePixelRatio: Math.min(window.devicePixelRatio || 1, 1.5),
+    matchWebGLToCanvasSize: true,
+    // The page says what went wrong in its own words, and the engine never puts up a dialog of its own.
+    showBanner: function (msg, type) { if (type === 'error') post('fail', String(msg)); },
+    errorHandler: function (msg) { console.warn('[sail]', msg); return true; },
+  };
+  var unity = null;
+  var script = document.createElement('script');
+  script.src = build + '/{{{ LOADER_FILENAME }}}';
+  script.onerror = function () { post('fail', 'loader'); };
+  script.onload = function () {
+    createUnityInstance(canvas, cfg, function (p) { post('progress', p); }).then(function (u) {
+      unity = u;
+      window.__unity = u;
+      post('loaded', '1');
+    }).catch(function (e) { post('fail', String(e)); });
+  };
+  document.body.appendChild(script);
+
+  window.addEventListener('message', function (e) {
+    if (e.origin !== location.origin || !unity || !e.data || !e.data.fn) return;
+    unity.SendMessage('Game', e.data.fn, e.data.arg == null ? '' : String(e.data.arg));
+    if (e.data.focus) canvas.focus();
+  });
+  window.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') post('esc', '1');
+  }, true);
+  canvas.addEventListener('pointerdown', function () { canvas.focus(); });
+})();
+</script>
+</body>
+</html>
