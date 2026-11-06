@@ -137,7 +137,8 @@ def caddy_config(site, staging, directory):
     config += '''  }
   @private path /.git* /.env* /node_modules/*
   respond @private 404
-  header Cache-Control "public, max-age=0, must-revalidate"
+  @revalidate not path /assets/* /__release.json
+  header @revalidate Cache-Control "public, max-age=0, must-revalidate"
   header /assets/* Cache-Control "public, max-age=31536000, immutable"
   header /__release.json Cache-Control "no-store"
 '''
