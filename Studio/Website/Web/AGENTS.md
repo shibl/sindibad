@@ -1,24 +1,17 @@
-# Instructions for coding agents (Codex, Claude, …)
+# Legacy Studio website routes
 
-Repo: `github.com/shibl/sindibad`. Scope: `Studio/Website/Web/`. The studio website is separate from the games under `Studio/Games/Sindibad-Yasmina/Classes/`.
+Scope: `Studio/Website/Web/`.
 
-## Brand and navigation
+The owner requested replacing the old Studio website with Design A from
+`sam-a1a/sindibad-studio-design-a` on 2026-11-06. This directory now contains only
+compatibility redirects. Do not restore the old site or design switcher.
 
-The hierarchy is **Sindibad Studios → The Curriculam → the entire Syrian curriculum → Grades 1–12 → subjects → learning experiences**. The Curriculam (Arabic: المنهاج) is ONE of the studio’s products. The second product is **Kalam** (Arabic: كلام, owner decision 2026-10-26): Telltale-style cinematic story games that teach languages in both directions, Arabic speakers learning English and English speakers learning Arabic. Kalam is the brand; each game under it is a separate story titled like a film, “<Title> — by Kalam”. No Kalam game exists yet; the website presents it as in development and must not invent story titles, characters or lesson content beyond the labelled illustration scene. Kalam’s route is `/products/kalam/`. The studio is not identical to this one game. Preserve the user’s product spelling, The Curriculam. The product covers ALL school years, not only Grade 10. All twelve grades must have equal prominence. Grade 10 Sciences → Chemistry Lab is one nested example, never the identity of the whole product. Routes: `/home`, `/products/the-curriculam/`, `/products/the-curriculam/#curriculum`, `/products/the-curriculam/grade-{1..12}/`, `/products/the-curriculam/grade-10/chemistry/`, and `/lab.html`. Preserve English and Arabic with the requested fonts.
+The exact imported source is in `../Source/`; the generated site is in
+`../Designs/Web/` and publishes at `/studio/`. Read `../README.md`.
+Keep old page URLs working, preserve query strings and fragments, and send
+`?lang=ar` visits to the Arabic version. The publication script owns the lab
+redirect; the playable Chemistry Lab remains under the Grade 10 game.
 
-The user explicitly said to design in source only and **not use computer/browser tools or run tests**. Do not run browser automation, screenshots, HTTP checks, builds, syntax checks, tests, or visual QA unless the user changes this instruction. Source reads and edits are allowed. Keep layouts straight: no tilted cards, rotated panels, decorative badges, or generic template filler. This is a GAME and a game studio website. Use game-world artwork in `assets/`, not classroom photography or school-desk still lifes. The user explicitly requires full-width layouts: no centred max-width page shells. Use edge-to-edge hero artwork and full-width sections with only modest inner padding. Keep body copy aligned to the reading edge, not centred.
-
-The user supplied an 83.56-second recording of Flowfest and Google Labs and requested a frame-by-frame review. The review is in `design/reference-study.md`. Later instructions explicitly require the Google Labs splash and hero, including automatic slide changes: centre the hero title, subtitle, CTA and pagination over full-viewport art, with an overlay header. Like Google Labs, the hero shows one product per slide (owner request, 2026-10-26): The Curriculam, then Kalam. Each slide carries its own art, title (h2, under a visually hidden h1), one line and a light pill button, and the reveal mask brings all of it in together. Kalam has no artwork, so its slide is a night scene with upright fragments of a Kalam moment; no label pill above the titles. These explicit reference instructions supersede reading-edge alignment for the hero. Use the original shape paths, tracking curves and timings; only decorative masks/shapes rotate, never cards or artwork panels. The splash contains animated brand text, **no logo image and no Skip intro button**. Retain Escape and reduced-motion support. Play it on the first visit and on every refresh of the home page (owner decision, 2026-10-26); never when arriving from another page of the site, on back/forward, on section links, on header anchor navigation or on language changes. Keep the orange strip below the hero; its copy describes The Curriculam and Grades 1–12. Local extraction and viewing of the supplied recordings were authorized; this did not authorize browser use or website testing.
-
-## Website goal
-Build the Sindibad Studios website and present The Curriculam as a game for the entire Syrian curriculum. Grade and subject pages belong beneath this broad product. Do not invent lesson inventories for subjects not yet implemented.
-
-## Source ownership after the class split
-
-The studio website's home, products, grades, chemistry introduction, artwork, typography, splash and hero remain here. The playable Chemistry Lab belongs to `Studio/Games/Sindibad-Yasmina/Classes/Grade10/Chemistry/Web/`; its instructions are in the Grade10 AGENTS.md. The website imports the lab's data-only experiment catalogue and links to its entry through `js/locale.js`. Do not move the actual lab back into the website.
-
-`js/site.js`, `site-motion.js`, `site-splash.js`, `splash-timeline.js`, `site-scenes.js`, `curriculum.js`, and `locale.js` remain the website modules. Lenis remains under `vendor/lenis/`. The website does not load WebGL.
-
-Run the source preview with `python3 serve.py`; it serves the repository so sibling-project links resolve. The canonical home is `/Studio/Website/Web/home/`. Historical `/home` preview links redirect there. This run instruction does not lift the source-only/no-testing rule.
-
-Use the user's Git identity; do not add Co-Authored-By trailers. Commit small changes and push to main when authorised. Do not spawn parallel agents without the owner's instruction.
+Retain the owner's source-only rule here: no browser tools, HTTP checks,
+builds, tests, or visual QA unless requested. Use the user's Git identity,
+do not add Co-Authored-By trailers, and do not spawn agents unless requested.

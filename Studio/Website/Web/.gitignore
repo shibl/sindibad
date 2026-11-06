@@ -1,6 +1,0 @@
-# The source textbooks stay local (Ministry PDFs, 120 MB)
-*.pdf
-.DS_Store
-
-# Local visual verification artifacts
-.preview/
