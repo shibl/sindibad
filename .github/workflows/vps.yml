@@ -1,0 +1,78 @@
+name: Test and deploy Studio to VPS
+
+on:
+  push:
+    branches: [main, studio-staging]
+    paths: ['Studio/Website/Source/**', 'deploy/vps/**', '.github/workflows/vps.yml']
+  pull_request:
+    branches: [main, studio-staging]
+    paths: ['Studio/Website/Source/**', 'deploy/vps/**', '.github/workflows/vps.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: vps-sindibad-${{ github.event.pull_request.number || github.ref_name }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    name: Build and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+      - run: bun install --frozen-lockfile
+        working-directory: Studio/Website/Source
+      - run: python3 -m unittest discover -s deploy/vps -p 'test_*.py' -v
+      - run: bun run build
+        working-directory: Studio/Website/Source
+        env:
+          BASE_PATH: ''
+      - run: python3 deploy/vps/check_site.py Studio/Website/Source/dist
+      - name: Require existing repository tests before production
+        if: github.event_name != 'pull_request'
+        run: python3 deploy/vps/wait_checks.py
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Package checked release
+        if: github.event_name != 'pull_request'
+        run: python3 deploy/vps/release.py package --site sindibad --dist Studio/Website/Source/dist
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@v7
+        if: github.event_name != 'pull_request'
+        with:
+          name: vps-sindibad-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .vps-release/release.tar.gz
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 7
+          compression-level: 0
+
+  deploy:
+    name: Deploy to VPS
+    needs: build
+    if: github.event_name != 'pull_request' && (github.ref_name == 'main' || github.ref_name == 'studio-staging')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      deployments: write
+    environment:
+      name: sindibad-${{ github.ref_name == 'main' && 'production' || 'staging' }}
+      url: ${{ github.ref_name == 'main' && 'https://sindibad.studio' || 'https://staging.sindibad.studio' }}
+    env:
+      SITE_URL: ${{ github.ref_name == 'main' && 'https://sindibad.studio' || 'https://staging.sindibad.studio' }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Wait for the VPS and verify the exact release over HTTPS
+        run: python3 deploy/vps/release.py wait --site sindibad --url "$SITE_URL"
+      - name: Publish immutable release tag
+        run: python3 deploy/vps/release.py publish --site sindibad --url "$SITE_URL"

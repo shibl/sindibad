@@ -1,0 +1,21 @@
+[Unit]
+Description=Deploy checked SyrAI and Sindibad static releases
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/opt/github-deploy
+Environment=GH_CONFIG_DIR=/root/.config/gh
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 /opt/github-deploy/agent.py
+TimeoutStartSec=15min
+UMask=0022
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/opt/github-deploy
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+LockPersonality=true

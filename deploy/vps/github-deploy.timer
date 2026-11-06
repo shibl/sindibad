@@ -1,0 +1,10 @@
+[Unit]
+Description=Check for tested website releases every 30 seconds
+
+[Timer]
+OnBootSec=30s
+OnUnitInactiveSec=30s
+AccuracySec=5s
+
+[Install]
+WantedBy=timers.target

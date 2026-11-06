@@ -1,1 +1,5 @@
 node_modules/
+.vps-release/
+verified-release.json
+release-notes.md
+__pycache__/
