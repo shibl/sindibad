@@ -204,12 +204,12 @@ def public_health(config, expected):
     for attempt in range(18):
         try:
             url = f'https://{config["domains"][0]}'
-            with urllib.request.urlopen(f'{url}/__release.json?run={expected["run_id"]}&attempt={expected["attempt"]}', timeout=15) as response:
+            with urllib.request.urlopen(urllib.request.Request(f'{url}/__release.json?run={expected["run_id"]}&attempt={expected["attempt"]}', headers={'User-Agent': 'SyrAI-Deployment-Health/1.0'}), timeout=15) as response:
                 actual = json.load(response)
             if actual != expected:
                 raise ValueError('Public release marker is not the candidate')
             for path in ['/', '/ar/']:
-                with urllib.request.urlopen(url + path, timeout=15) as response:
+                with urllib.request.urlopen(urllib.request.Request(url + path, headers={'User-Agent': 'SyrAI-Deployment-Health/1.0'}), timeout=15) as response:
                     if response.status != 200:
                         raise ValueError('Public language route failed')
             return

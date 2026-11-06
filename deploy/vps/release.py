@@ -60,12 +60,12 @@ def wait_for_release(url, sha, run_id, attempt, timeout=900):
     while time.monotonic() < deadline:
         try:
             request = urllib.request.Request(
-                f'{url}/__release.json?run={run_id}&attempt={attempt}', headers={'Cache-Control': 'no-cache'})
+                f'{url}/__release.json?run={run_id}&attempt={attempt}', headers={'Cache-Control': 'no-cache', 'User-Agent': 'SyrAI-Deployment-Health/1.0'})
             with urllib.request.urlopen(request, timeout=20) as response:
                 current = json.load(response)
             if (current.get('sha'), str(current.get('run_id')), str(current.get('attempt'))) == (sha, str(run_id), str(attempt)):
                 for path in ['/', '/ar/']:
-                    with urllib.request.urlopen(url + path, timeout=20) as response:
+                    with urllib.request.urlopen(urllib.request.Request(url + path, headers={'User-Agent': 'SyrAI-Deployment-Health/1.0'}), timeout=20) as response:
                         if response.status != 200:
                             raise ValueError(f'Health check failed: {path}')
                 return current
