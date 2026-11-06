@@ -28,9 +28,14 @@ class GameReleaseTests(unittest.TestCase):
             with self.assertRaises(TimeoutError):
                 release.wait_for_publication('https://example.test/', {'sha': 'expected', 'run_id': '1', 'attempt': '1'}, timeout=1)
 
+    def test_relabel_does_not_repeat_when_github_filters_by_original_name(self):
+        with patch.object(release, 'api', side_effect=[[{'id': 1, 'environment': 'game-production'}], []]) as api:
+            release.relabel_legacy('owner/repo')
+        self.assertEqual(api.call_count, 2)
+
     def test_relabel_keeps_status_url_logs_and_prior_history(self):
         old = dict(state='success', environment_url='https://example.test/', log_url='https://example.test/log', description='Original result')
-        with patch.object(release, 'api', side_effect=[[{'id': 1}], [old], {}, [], []]) as api:
+        with patch.object(release, 'api', side_effect=[[{'id': 1, 'environment': 'github-pages'}], [old], {}, []]) as api:
             release.relabel_legacy('owner/repo')
         posted = api.call_args_list[2].args[1]
         self.assertEqual(posted, dict(old, environment='game-production', auto_inactive=False))
