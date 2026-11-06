@@ -57,12 +57,15 @@ def relabel_legacy(repository):
     # Pages can create its own github-pages records. Preserve their history and
     # status while assigning the game's descriptive environment name.
     for old, new in [('github-pages', 'game-production'), ('staging', 'game-staging')]:
+        page = 1
         while True:
-            deployments = api(f'repos/{repository}/deployments?environment={old}&per_page=100')
+            deployments = api(f'repos/{repository}/deployments?environment={old}&per_page=100&page={page}')
             if not deployments:
                 break
-            changed = False
             for deployment in deployments:
+                # GitHub's filter can still match a deployment's original name.
+                if deployment.get('environment') != old:
+                    continue
                 base = f'repos/{repository}/deployments/{deployment["id"]}'
                 statuses = api(base + '/statuses')
                 if not statuses or statuses[0]['state'] in ('queued', 'pending', 'in_progress'):
@@ -71,9 +74,9 @@ def relabel_legacy(repository):
                 body = {key: previous.get(key) or '' for key in ['state', 'environment_url', 'log_url', 'description']}
                 body.update(environment=new, auto_inactive=False)
                 api(base + '/statuses', body)
-                changed = True
-            if not changed:
+            if len(deployments) < 100:
                 break
+            page += 1
 
 
 def main():
