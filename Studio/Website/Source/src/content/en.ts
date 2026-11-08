@@ -59,7 +59,7 @@ export const en: Content = {
     label: 'Technology',
     note: 'Built in-house',
     craft: 'Our craft',
-    title: 'Four systems sit under every game.',
+    title: 'The craft behind every game.',
     items: [
       {
         meta: 'T.01',
@@ -80,6 +80,11 @@ export const en: Content = {
         meta: 'T.04',
         title: 'Memory research',
         body: 'The latest research on memory decides when each idea comes back, so it stays with the player.',
+      },
+      {
+        meta: 'T.05',
+        title: 'Real Voices',
+        body: 'Every voice has a personality. We shape pacing, tone and emotion to sound natural and stay consistent from one line to the next.',
       },
     ],
   },
