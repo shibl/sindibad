@@ -1,8 +1,9 @@
 import { createSignal, For, createEffect, Show } from 'solid-js'
 import { pageUrl, useContent } from './content'
 import Year from './components/Year'
-import { shots } from './shots'
 import { aContent } from './AContent'
+import DetailSlides, { type DetailCard as Card, type DetailSlide } from './DetailSlides'
+import { projectSlides } from './detail-content'
 import remote from './assets/a/remote.svg'
 import hug from './assets/a/hug.svg'
 import coffee from './assets/a/mobile-cup.svg'
@@ -13,9 +14,10 @@ import craft1 from './assets/a/craft-1.avif'
 import craft2 from './assets/a/craft-2.avif'
 import craft3 from './assets/a/craft-3.avif'
 import craft4 from './assets/a/craft-4.avif'
+import voiceArt from './assets/a/real-voices.svg'
 import './A.css'
 
-const art = [craft1, craft2, craft3, craft4]
+const art = [craft1, craft2, craft3, craft4, voiceArt]
 const tongues = ['العربية', 'English']
 const Arrow = (props: { back?: boolean }) => (
   <svg
@@ -30,7 +32,44 @@ const Arrow = (props: { back?: boolean }) => (
     <path d={props.back ? 'M19 12H5m7-7-7 7 7 7' : 'M5 12h14m-7-7 7 7-7 7'} />
   </svg>
 )
-type Card = { title: string; body: string; image?: string; tag?: string }
+function CardMedia(props: { card: Card }) {
+  const [playing, setPlaying] = createSignal(false)
+  let video: HTMLVideoElement | undefined
+  let active = false
+  const stop = () => {
+    active = false
+    video?.pause()
+    if (video) video.currentTime = 0
+    setPlaying(false)
+  }
+  const start = () => {
+    if (!video || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    active = true
+    void video.play().then(() => {
+      if (active) setPlaying(true)
+      else video?.pause()
+    }).catch(() => setPlaying(false))
+  }
+  return (
+    <span class="a-project-media" onPointerEnter={start} onPointerLeave={stop}>
+      <Show when={props.card.image}>
+        <img src={props.card.image} alt="" loading="lazy" draggable="false" />
+      </Show>
+      <Show when={props.card.video}>
+        <video ref={video} class={{ 'is-playing': playing() }} src={props.card.video}
+          poster={props.card.image} muted loop playsinline preload="none" aria-hidden="true"
+          onError={stop} />
+      </Show>
+      <span class="a-card-shade" />
+      <span class="a-card-content">
+        <Show when={props.card.tag}><small>{props.card.tag}</small></Show>
+        <h3>{props.card.title}</h3>
+        <p>{props.card.body}</p>
+        <Show when={props.card.href}><span class="a-project-arrow" aria-hidden="true">↗</span></Show>
+      </span>
+    </span>
+  )
+}
 
 function CardRail(props: {
   id: string
@@ -39,125 +78,76 @@ function CardRail(props: {
   open: (card: Card) => void
   arabic: boolean
 }) {
-  const [index, setIndex] = createSignal(0)
+  const [progress, setProgress] = createSignal(0)
   let rail!: HTMLDivElement
-  let dragX = 0
-  let originIndex = 0
+  let startX = 0
+  let startScroll = 0
+  let dragging = false
   let dragged = false
-  const move = (step: number) =>
-    setIndex(Math.max(0, Math.min(props.cards.length - 1, index() + step)))
+  const move = (step: number) => {
+    const card = rail.querySelector<HTMLElement>('.a-image-card')
+    const distance = card ? card.getBoundingClientRect().width + 24 : rail.clientWidth
+    rail.scrollBy({ left: step * distance * (props.arabic ? -1 : 1),
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })
+  }
+  const followScroll = () => {
+    const max = rail.scrollWidth - rail.clientWidth
+    setProgress(max > 1 ? Math.min(1, Math.abs(rail.scrollLeft) / max) : 0)
+  }
   return (
     <section id={props.id} class="a-rail a-space" aria-label={props.title}>
       <div class="a-rail-row">
         <h2 class="a-vertical">{props.title}</h2>
-        <div
-          ref={rail}
-          class="a-rail-window"
-          tabindex="0"
-          aria-label={
-            props.arabic
-              ? 'استخدم الأسهم لتصفّح البطاقات'
-              : 'Use arrow keys to browse cards'
-          }
+        <div ref={rail} class="a-rail-window" tabindex="0" data-lenis-prevent-horizontal
+          aria-label={props.arabic ? 'مرّر أفقياً أو استخدم الأسهم لتصفّح البطاقات' : 'Scroll horizontally or use arrow keys to browse cards'}
+          onScroll={followScroll}
           onKeyDown={(e) => {
             if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
               e.preventDefault()
-              e.currentTarget.focus()
               move((e.key === 'ArrowRight' ? 1 : -1) * (props.arabic ? -1 : 1))
             }
           }}
           onPointerDown={(e) => {
-            dragX = e.clientX
-            originIndex = index()
             dragged = false
+            if (e.pointerType !== 'mouse' || e.button !== 0) return
+            startX = e.clientX
+            startScroll = rail.scrollLeft
+            dragging = true
           }}
           onPointerMove={(e) => {
-            if (e.buttons !== 1 && e.pointerType !== 'touch') return
-            if (Math.abs(e.clientX - dragX) > 35) dragged = true
-          }}
-          onPointerUp={(e) => {
-            const dx = (e.clientX - dragX) * (props.arabic ? -1 : 1)
-            if (Math.abs(dx) > 50) {
+            if (!dragging || e.buttons !== 1) return
+            const delta = e.clientX - startX
+            if (Math.abs(delta) > 6) {
               dragged = true
-              setIndex(
-                Math.max(
-                  0,
-                  Math.min(
-                    props.cards.length - 1,
-                    originIndex + (dx < 0 ? 1 : -1),
-                  ),
-                ),
-              )
+              rail.setPointerCapture(e.pointerId)
+              rail.scrollLeft = startScroll - delta
             }
           }}
-        >
-          <div
-            class="a-rail-track"
-            style={{ '--slide': index(), '--direction': props.arabic ? 1 : -1 }}
-          >
+          onPointerUp={() => { dragging = false }}
+          onPointerCancel={() => { dragging = false }}>
+          <div class="a-rail-track">
             <For each={props.cards}>
-              {(card, i) => (
-                <button
-                  type="button"
-                  class="a-image-card"
-                  tabindex={i() === index() ? 0 : -1}
+              {(card) => (
+                <button type="button" class={`a-image-card${card.kind ? ` a-project-${card.kind}` : ''}`}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') dragged = false
                   }}
                   onClick={() => {
                     if (!dragged) props.open(card)
                     dragged = false
-                  }}
-                >
-                  <Show when={card.image}>
-                    <img
-                      src={card.image}
-                      alt=""
-                      loading="lazy"
-                      draggable="false"
-                    />
-                  </Show>
-                  <span class="a-card-shade" />
-                  <span class="a-card-content">
-                    <Show when={card.tag}>
-                      <small>{card.tag}</small>
-                    </Show>
-                    <h3>{card.title}</h3>
-                    <p>{card.body}</p>
-                  </span>
-                </button>
+                  }}><CardMedia card={card} /></button>
               )}
             </For>
           </div>
         </div>
       </div>
       <div class="a-rail-controls">
-        <div class="a-progress">
-          <span
-            style={{ width: `${((index() + 1) / props.cards.length) * 100}%` }}
-          />
-        </div>
+        <div class="a-progress"><span style={{ width: `${(1 / props.cards.length + progress() * (1 - 1 / props.cards.length)) * 100}%` }} /></div>
         <div class="a-arrows">
-          <button
-            class="a-circle"
-            aria-label={
-              props.arabic ? 'السابق' : `Previous ${props.title.toLowerCase()}`
-            }
-            disabled={index() === 0}
-            onClick={() => move(-1)}
-          >
-            <Arrow back />
-          </button>
-          <button
-            class="a-circle"
-            aria-label={
-              props.arabic ? 'التالي' : `Next ${props.title.toLowerCase()}`
-            }
-            disabled={index() === props.cards.length - 1}
-            onClick={() => move(1)}
-          >
-            <Arrow />
-          </button>
+          <button class="a-circle" aria-label={props.arabic ? 'السابق' : `Previous ${props.title.toLowerCase()}`}
+            disabled={progress() <= 0.001} onClick={() => move(-1)}><Arrow back /></button>
+          <button class="a-circle" aria-label={props.arabic ? 'التالي' : `Next ${props.title.toLowerCase()}`}
+            disabled={progress() >= 0.999} onClick={() => move(1)}><Arrow /></button>
         </div>
       </div>
     </section>
@@ -210,31 +200,62 @@ export default function A() {
   const [detail, setDetail] = createSignal<Card | null>(null)
   let dialog!: HTMLDialogElement
   let previousFocus: HTMLElement | null = null
+  let closeTimer: ReturnType<typeof setTimeout> | undefined
   const open = (card: Card) => {
+    clearTimeout(closeTimer)
+    delete dialog.dataset.closing
     previousFocus = document.activeElement as HTMLElement
     setDetail(card)
     dialog.showModal()
+    dialog.scrollTop = 0
+  }
+  const finishClose = () => {
+    dialog.close()
+    delete dialog.dataset.closing
+    setDetail(null)
+    previousFocus?.focus({ preventScroll: true })
   }
   const close = () => {
-    dialog.close()
-    setDetail(null)
-    previousFocus?.focus()
+    if (!dialog.open || dialog.dataset.closing) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      finishClose()
+      return
+    }
+    dialog.dataset.closing = 'true'
+    closeTimer = setTimeout(finishClose, 240)
   }
+  createEffect(
+    () => true,
+    () => () => {
+      clearTimeout(closeTimer)
+    },
+  )
   const nav = [
     { href: '#top', label: ar ? 'الرئيسية' : 'Home' },
     { href: '#insights', label: ar ? 'أفكار' : 'Learn' },
     { href: '#technology', label: ar ? 'ما نصنعه' : 'What we do' },
     { href: '#studio', label: ar ? 'عنّا' : 'About' },
   ]
-  const techCards = t.technology.items.map((item, i) => ({
+  const techSlides: DetailSlide[] = t.technology.items.map((item, i) => ({
+    id: `technology-${i}`,
     title: item.title,
     body: item.body,
     image: art[i],
   }))
+  const techCards: Card[] = techSlides.map((slide, i) => ({
+    title: slide.title, body: slide.body, image: slide.image,
+    slides: techSlides, initialSlide: i,
+  }))
   const projects = c.projects.map((p) => ({
     title: p.title,
     body: p.description,
-    image: p.kind === 'concept' ? undefined : shots[p.kind],
+    details: p.details,
+    slides: projectSlides(p, ar),
+    kind: p.kind,
+    image: p.kind === 'game' ? pageUrl('media/sindibad-yasmina-poster.jpg') : undefined,
+    video: p.kind === 'game' ? pageUrl('media/sindibad-yasmina-gameplay.mp4') : undefined,
+    tag: p.kind === 'game' ? (ar ? 'مغامرة تعلّم' : 'A learning adventure') : (ar ? 'قريباً' : 'Coming soon'),
+    href: p.kind === 'game' ? 'https://sindiyasmina.sindibad.studio' : undefined,
   }))
   // Which section the reader is in, shown by the pink line in the header. Sections without a nav entry of
   // their own count as the one above them; Projects has none, so the line steps aside there.
@@ -774,31 +795,28 @@ export default function A() {
         ref={dialog}
         class="a-dialog"
         aria-labelledby="a-detail-title"
-        onCancel={close}
+        onCancel={(event) => {
+          event.preventDefault()
+          close()
+        }}
         onClick={(e) => {
           if (e.target === dialog) close()
         }}
       >
         <div class="a-dialog-content">
           <button
-            class="a-circle a-pink a-dialog-close"
+            class="a-circle a-dialog-close"
             onClick={close}
             aria-label={ar ? 'إغلاق' : 'Close details'}
           >
-            ×
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <path d="m6 6 12 12M18 6 6 18" />
+            </svg>
           </button>
           <Show when={detail()}>
             {(card) => (
-              <>
-                <Show when={card().image}>
-                  <img class="a-detail-image" src={card().image} alt="" />
-                </Show>
-                <h2 id="a-detail-title">{card().title}</h2>
-                <p>{card().body}</p>
-                <a class="a-pill" href="#contact" onClick={close}>
-                  {ar ? 'تعرّف على الاستوديو' : 'Meet the studio'}
-                </a>
-              </>
+              <DetailSlides card={card()} arabic={ar} close={close} />
             )}
           </Show>
         </div>

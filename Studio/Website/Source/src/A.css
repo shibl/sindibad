@@ -57,9 +57,9 @@
 .design-a button:disabled {
   cursor: default;
 }
+.design-a :focus,
 .design-a :focus-visible {
-  outline: 3px solid var(--a-pink);
-  outline-offset: 6px;
+  outline: none;
 }
 .design-a img {
   display: block;
@@ -411,7 +411,7 @@
 .a-rail-row {
   display: flex;
   align-items: flex-end;
-  padding-inline-start: max(
+  padding-inline: max(
     var(--a-x),
     calc((100vw - var(--a-wide)) / 2 + var(--a-x))
   );
@@ -428,21 +428,23 @@
 .a-rail-window {
   min-width: 0;
   flex: 1;
-  overflow: hidden;
-  touch-action: pan-y;
+  border-radius: 32px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  touch-action: pan-x pan-y;
   --a-card-width: calc((100% - 52.8px) / 3.2);
 }
 .a-rail-track {
   display: flex;
   gap: 24px;
-  transition: transform 0.55s cubic-bezier(0.22, 0.68, 0, 1);
-  transform: translateX(
-    calc(var(--direction) * var(--slide) * (var(--a-card-width) + 24px))
-  );
+  width: 100%;
 }
 .a-image-card {
   position: relative;
   flex: 0 0 var(--a-card-width);
+  scroll-snap-align: start;
   height: 668px;
   border-radius: 32px;
   overflow: hidden;
@@ -450,7 +452,8 @@
   isolation: isolate;
   user-select: none;
 }
-.a-image-card > img {
+.a-project-media > img,
+.a-project-media > video {
   position: absolute;
   width: 100%;
   height: 100%;
@@ -458,7 +461,7 @@
   inset: 0;
   transition: transform 0.6s;
 }
-.a-image-card:hover > img {
+.a-image-card:hover .a-project-media > img {
   transform: scale(1.05);
 }
 .a-card-shade {
@@ -1136,30 +1139,69 @@
 .a-dialog {
   border: 0;
   border-radius: 28px;
-  background: var(--a-blue);
-  color: var(--a-ink);
+  background: #fff;
+  color: #1d1d1f;
   margin: auto;
-  max-width: 700px;
-  width: calc(100% - 40px);
-  max-height: 85svh;
+  max-width: 1180px;
+  width: calc(100% - 64px);
+  max-height: calc(100svh - 64px);
+  overflow-x: hidden;
+  overscroll-behavior: contain;
   padding: 0;
   font-family: var(--a-body);
 }
 .a-dialog::backdrop {
-  background: #013f3bd0;
+  background: #0006;
   backdrop-filter: blur(5px);
 }
+.a-dialog[open] {
+  animation: a-dialog-in 500ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+.a-dialog[open]::backdrop {
+  animation: a-dialog-backdrop-in 500ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+.a-dialog[data-closing] {
+  animation: a-dialog-out 240ms ease-in both;
+  pointer-events: none;
+}
+.a-dialog[data-closing]::backdrop {
+  animation: a-dialog-backdrop-out 240ms ease-in both;
+}
+@keyframes a-dialog-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes a-dialog-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes a-dialog-backdrop-in {
+  from { opacity: 0; backdrop-filter: blur(0); }
+  to { opacity: 1; backdrop-filter: blur(5px); }
+}
+@keyframes a-dialog-backdrop-out {
+  from { opacity: 1; backdrop-filter: blur(5px); }
+  to { opacity: 0; backdrop-filter: blur(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .a-dialog[open], .a-dialog[open]::backdrop {
+    animation: none;
+  }
+}
 .a-dialog-content {
-  padding: 60px;
   position: relative;
 }
 .a-dialog-close {
   position: absolute;
+  z-index: 1;
   top: 16px;
   inset-inline-end: 16px;
-  width: 44px;
-  height: 44px;
-  font-size: 30px !important;
+  width: 36px;
+  height: 36px;
+  background: #e8e8ed;
+  color: #55555a;
+  padding: 0;
+  line-height: 1;
 }
 .a-dialog h2 {
   font-family: var(--a-heading);
@@ -1170,12 +1212,6 @@
   font-size: 22px;
   line-height: 1.5;
   margin-bottom: 24px;
-}
-.a-detail-image {
-  width: 100%;
-  max-height: 300px;
-  object-fit: cover;
-  border-radius: 16px;
 }
 .design-a[dir='rtl'] {
   letter-spacing: 0;
@@ -1754,8 +1790,9 @@
   .a-smile {
     font-size: 60px;
   }
-  .a-dialog-content {
-    padding: 48px 24px 32px;
+  .a-dialog {
+    width: calc(100% - 24px);
+    max-height: calc(100svh - 24px);
   }
   .a-dialog h2 {
     font-size: 30px;
@@ -1796,3 +1833,30 @@
 .design-a[dir='rtl'] .a-insight b {
   transform: scaleX(-1);
 }
+
+/* Project artwork stays visible until the actual gameplay video starts. */
+.a-rail-window::-webkit-scrollbar { display: none; }
+.a-project-media { display: block; height: 100%; }
+.a-project-media > video { opacity: 0; transition: opacity .3s; pointer-events: none; }
+.a-project-media > video.is-playing { opacity: 1; }
+.a-project-media > img { object-position: 67% center; }
+#games .a-rail-window { --a-card-width: 43%; }
+#games .a-card-content { gap: 16px; padding: 40px; }
+#games .a-card-content h3 { color: #fff; font-size: clamp(30px, 3.4vw, 54px); }
+#games .a-card-content small { align-self: flex-start; border: 1px solid #ffffff70; border-radius: 99px; padding: 7px 14px; color: white; }
+#games .a-card-shade { background: linear-gradient(180deg, transparent 25%, #002e36dd 100%); }
+#games .a-image-card { height: 590px; }
+.a-project-chemistry { background: radial-gradient(ellipse at 20% 10%, #e9b7ff, transparent 65%), linear-gradient(140deg, #af83d3, #7953ac 45%, #34346c); }
+.a-project-physics { background: radial-gradient(ellipse at 85% 15%, #82e5ec, transparent 65%), linear-gradient(145deg, #357fac, #317679 50%, #153c54); }
+.a-project-arrow { align-self: flex-end; font-size: 30px; color: white; }
+@media (max-width: 700px) {
+  #games .a-rail-window { --a-card-width: 86%; }
+  #games .a-image-card { height: 500px; }
+  #games .a-card-content { padding: 28px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .a-project-media > img, .a-project-media > video { transition: none; }
+  .a-image-card:hover .a-project-media > img { transform: none; }
+}
+
+.a-detail-tag { display: inline-block; padding: 6px 14px; border: 1px solid currentColor; border-radius: 99px; margin-bottom: 20px; font-size: 14px; }

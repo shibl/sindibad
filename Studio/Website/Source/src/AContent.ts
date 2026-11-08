@@ -13,7 +13,8 @@ export interface AInsight {
 export interface AProject {
   title: string
   description: string
-  kind: 'map' | 'lesson' | 'dialogue' | 'concept'
+  details: string
+  kind: 'game' | 'chemistry' | 'physics'
 }
 
 export interface AContent {
@@ -91,45 +92,21 @@ const en: AContent = {
   projects: [
     {
       title: 'Sindibad & Yasmina',
-      description:
-        'Our first voyage. Explore an archipelago with Yasmina and her hoopoe guide, one island at a time.',
-      kind: 'map',
+      description: 'The Syrian curriculum, reimagined as a game.',
+      details: 'Sindibad & Yasmina turns the Syrian school curriculum into a learning adventure. Explore islands, meet characters and solve challenges built around curriculum lessons. Each journey brings school subjects to life through stories, puzzles and play.',
+      kind: 'game',
     },
     {
-      title: 'A world of puzzles',
-      description:
-        'Inside Sindibad & Yasmina: a learning journey built around discovery, play and the next challenge.',
-      kind: 'lesson',
+      title: 'The Chemistry Lab',
+      description: 'Small experiments. Extraordinary discoveries.',
+      details: 'A playful space for exploring chemistry through interactive experiments. Discover how substances behave, explore reactions and follow your curiosity. The Chemistry Lab is in development. More to come soon.',
+      kind: 'chemistry',
     },
     {
-      title: 'Stories by the harbour',
-      description:
-        'Inside Sindibad & Yasmina: conversations and characters give the journey its sense of place.',
-      kind: 'dialogue',
-    },
-    {
-      title: 'The next horizon',
-      description:
-        'Concept study · An imagined island world exploring the visual language of a future adventure.',
-      kind: 'concept',
-    },
-    {
-      title: 'A city of discoveries',
-      description:
-        'Concept study · A fictional harbour where architecture, stories and exploration meet.',
-      kind: 'concept',
-    },
-    {
-      title: 'Beyond the dunes',
-      description:
-        'Concept study · An imagined desert journey, developed as a visual exploration for the studio.',
-      kind: 'concept',
-    },
-    {
-      title: 'The curious workshop',
-      description:
-        'Concept study · A playful setting for experimenting with ideas, puzzles and new worlds.',
-      kind: 'concept',
+      title: 'The Physics Lab',
+      description: 'Big questions. A universe to explore.',
+      details: 'An invitation to explore the forces that shape our world. Discover motion, energy and everyday phenomena through playful experiments. The Physics Lab is in development. More to come soon.',
+      kind: 'physics',
     },
   ],
 }
@@ -202,46 +179,22 @@ const ar: AContent = {
   ],
   projects: [
     {
-      title: 'رحلات سندباد وياسمينة',
-      description:
-        'رحلتنا الأولى. استكشف الأرخبيل مع ياسمينة ودليلها الهدهد، جزيرة بعد أخرى.',
-      kind: 'map',
+      title: 'سندباد وياسمينة',
+      description: 'المنهاج السوري، في عالم من اللعب.',
+      details: 'تحوّل لعبة سندباد وياسمينة المنهاج المدرسي السوري إلى مغامرة تعلّم. استكشف الجزر، وتعرّف على الشخصيات، وحلّ تحدّيات مستوحاة من دروس المنهاج. تمنح كل رحلة المواد الدراسية حياة جديدة من خلال الحكايات والألغاز واللعب.',
+      kind: 'game',
     },
     {
-      title: 'عالم من الألغاز',
-      description:
-        'من رحلات سندباد وياسمينة: رحلة تعلّم تنطلق من الاكتشاف واللعب والتحدّي التالي.',
-      kind: 'lesson',
+      title: 'مختبر الكيمياء',
+      description: 'تجارب صغيرة. اكتشافات استثنائية.',
+      details: 'مساحة مرحة لاستكشاف الكيمياء عبر تجارب تفاعلية. اكتشف خصائص المواد وتفاعلاتها واتبع فضولك. مختبر الكيمياء قيد التطوير، والمزيد قريباً.',
+      kind: 'chemistry',
     },
     {
-      title: 'حكايات الميناء',
-      description:
-        'من رحلات سندباد وياسمينة: حوارات وشخصيات تمنح الرحلة روح المكان.',
-      kind: 'dialogue',
-    },
-    {
-      title: 'الأفق التالي',
-      description:
-        'تصوّر فنّي · عالم جزر متخيّل يستكشف اللغة البصرية لمغامرة مستقبلية.',
-      kind: 'concept',
-    },
-    {
-      title: 'مدينة الاكتشافات',
-      description:
-        'تصوّر فنّي · ميناء خيالي تلتقي فيه العمارة والحكايات والاستكشاف.',
-      kind: 'concept',
-    },
-    {
-      title: 'ما وراء الكثبان',
-      description:
-        'تصوّر فنّي · رحلة صحراوية متخيّلة ضمن استكشافات الاستوديو البصرية.',
-      kind: 'concept',
-    },
-    {
-      title: 'ورشة الفضول',
-      description:
-        'تصوّر فنّي · مكان مرح لتجريب الأفكار والألغاز والعوالم الجديدة.',
-      kind: 'concept',
+      title: 'مختبر الفيزياء',
+      description: 'أسئلة كبيرة. وكون يستحق الاستكشاف.',
+      details: 'دعوة لاستكشاف القوى التي تشكّل عالمنا. اكتشف الحركة والطاقة والظواهر اليومية عبر تجارب مرحة. مختبر الفيزياء قيد التطوير، والمزيد قريباً.',
+      kind: 'physics',
     },
   ],
 }
