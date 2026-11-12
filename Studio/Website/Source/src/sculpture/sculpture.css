@@ -1,0 +1,75 @@
+.footer-sculpture {
+  position: relative;
+  width: calc(100% + 100px);
+  aspect-ratio: 1;
+  margin-inline: -50px;
+  margin-top: auto;
+  isolation: isolate;
+  touch-action: pan-y;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+  border-radius: 28px;
+}
+/* The focus ring sits behind the canvas, so a console that grows past it while playing
+   stays in front of the ring instead of being crossed by it. */
+.footer-sculpture::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  z-index: -1;
+  border-radius: 22px;
+  pointer-events: none;
+}
+.design-a .footer-sculpture:focus-visible { outline: none; }
+.footer-sculpture:focus-visible::before { box-shadow: 0 0 0 2px rgb(186 223 230 / .6); }
+/* While a game is on, the console fills and overlaps the box: the running game is the focus cue. */
+.footer-sculpture[data-playing]:focus-visible::before { box-shadow: none; }
+@media (forced-colors: active) { .design-a .footer-sculpture:focus-visible { outline: 2px solid CanvasText; } }
+.footer-sculpture .sculpture-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  transition: opacity .7s ease;
+}
+/* The live canvas bleeds past the host box so glow, sparkles, the contact shadow and a
+   spinning silhouette are never cut at its edge. It is transparent and inert; the host
+   box itself receives the pointer. It never extends above the host (the copy is there),
+   and the footer's own overflow clipping keeps the bleed from widening the page. */
+.footer-sculpture canvas {
+  position: absolute;
+  top: -2%;
+  left: -16%;
+  width: 132%;
+  height: 120%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .7s ease;
+}
+.footer-sculpture[data-ready][data-awake] canvas { opacity: 1; transition-duration: .45s; }
+.footer-sculpture[data-ready] .sculpture-poster { opacity: 0; transition-duration: .35s; }
+@media (min-width: 1601px) { .footer-sculpture { width: calc(100% + 160px); margin-inline: -80px; } }
+@media (max-width: 900px) {
+  .footer-sculpture {
+    width: calc(100% + 48px);
+    margin-inline: -24px;
+    aspect-ratio: auto;
+    height: min(calc(100vw - 48px), 600px);
+  }
+}
+@media (max-width: 600px) {
+  .footer-sculpture {
+    --sculpture-width: min(calc(100% + 48px), 500px);
+    width: var(--sculpture-width);
+    margin-inline: calc((100% - var(--sculpture-width)) / 2);
+    height: auto;
+    aspect-ratio: 39 / 43;
+    margin-top: 6px;
+  }
+}
+@media (prefers-reduced-motion: reduce) { .footer-sculpture canvas, .footer-sculpture .sculpture-poster { transition: none; } }

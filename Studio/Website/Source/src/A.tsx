@@ -6,7 +6,7 @@ import DetailSlides, { type DetailCard as Card, type DetailSlide } from './Detai
 import { projectSlides } from './detail-content'
 import remote from './assets/a/remote.svg'
 import hug from './assets/a/hug.svg'
-import coffee from './assets/a/mobile-cup.svg'
+import Sculpture from './sculpture/Sculpture'
 import union from './assets/a/union-pink.svg'
 import quote from './assets/a/quote-pink.svg'
 import watermark from './assets/a/99-quote.svg'
@@ -785,7 +785,7 @@ export default function A() {
               <p class="a-contact-location">
                 {t.contact.rows.find((r) => !r.placeholder)?.value}
               </p>
-              <img src={coffee} alt="" loading="lazy" />
+              <Sculpture arabic={ar} />
             </div>
           </footer>
         </div>

@@ -92,6 +92,10 @@ export class WebXRTracker implements Tracker {
     const space = await session.requestReferenceSpace('local')
     const viewer = await session.requestReferenceSpace('viewer')
     const hits = await session.requestHitTestSource!({ space: viewer })
+    if (!hits) {
+      await session.end()
+      throw new Error('Surface tracking is unavailable on this device')
+    }
     session.addEventListener('select', onTap)
     session.addEventListener('end', () => {
       this.session = null
