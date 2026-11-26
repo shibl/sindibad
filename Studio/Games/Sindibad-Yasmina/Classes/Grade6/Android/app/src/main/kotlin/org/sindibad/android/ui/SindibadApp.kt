@@ -419,7 +419,8 @@ private fun Lesson(session: LessonSession, state: AppUiState, vm: GameViewModel)
                         SharedArt("cosmetics/hudhud/${state.store.active?.variant("hat") ?: "original"}", "هُدهُد", Modifier.size(80.dp))
                         Text(card.title, Modifier.weight(1f), style = MaterialTheme.typography.titleLarge)
                     }
-                    Text(card.text, style = MaterialTheme.typography.bodyLarge)
+                    if (card.spoken.isNotBlank()) SpokenPrompt(card.spoken, state.store.active?.preferences?.sound == true)
+                    else Text(card.text, style = MaterialTheme.typography.bodyLarge)
                     card.art.forEach { id -> SharedArt(id, card.title, Modifier.fillMaxWidth().height(150.dp)) }
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         card.example.forEachIndexed { i, example ->

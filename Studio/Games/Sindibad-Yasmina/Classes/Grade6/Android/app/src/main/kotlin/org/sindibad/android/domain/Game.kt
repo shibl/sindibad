@@ -101,7 +101,7 @@ data class Vocabulary(val en: String, val ar: String, val sentence: String)
 @Serializable
 data class LearnCard(val title: String, val text: String, val example: List<String> = emptyList(), val labels: List<String> = emptyList(), val art: List<String> = emptyList(), val tools: List<String> = emptyList(), val requiredTools: List<String> = emptyList(), val notes: List<String> = emptyList(),
     val options: List<String> = emptyList(), val response: String = "", val sequence: List<String> = emptyList(),
-    val feedback: String = "", val clue: String = "", val words: List<Vocabulary> = emptyList())
+    val feedback: String = "", val clue: String = "", val words: List<Vocabulary> = emptyList(), val spoken: String = "")
 enum class ActivityKind { Word, Sort, Choice, Build, NumberLine, Angle, Fill, Market }
 data class NumberControl(val min: Double, val max: Double, val ticks: Int, val acceptable: IntRange? = null) {
     init { require(min.isFinite() && max.isFinite() && min < max && ticks in 1..1000) }

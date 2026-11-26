@@ -8,6 +8,10 @@ export function practiceCards(step) {
     }
     switch (step.kind) {
         case 'craft': return step.seq.map(s => pick(s.text, step.tools.map(t => t.label), step.tools.find(t => t.id === s.tool).label, s.say ?? step.explain));
+        case 'listen': {
+            const label = value => value.replace(/^art:/, '');
+            return step.items.map(([spoken, picture]) => ({ ...pick(spoken, step.items.map(item => label(item[1])), label(picture)), spoken }));
+        }
         case 'spell': case 'build': return step.items.map(item => ({
             title: plain(step.q), text: plain(item.ar), sequence: step.kind === 'spell' ? [...item.en] : item.en.split(/\s+/), feedback: plain(step.explain) }));
         case 'verb': return step.lines.map(([q,, answer, others]) => pick(q, [answer, ...others], answer));

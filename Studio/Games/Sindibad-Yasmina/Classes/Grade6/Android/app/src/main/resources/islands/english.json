@@ -68,6 +68,102 @@
         ]
       },
       {
+        "title": "استمع إلى اسم البلد، ثم اضغط على علمه.",
+        "text": "Syria",
+        "options": [
+          "🇸🇾",
+          "🇮🇹",
+          "🇪🇸",
+          "🇨🇦",
+          "🇩🇪",
+          "🇨🇳"
+        ],
+        "response": "🇸🇾",
+        "feedback": "Syria, Italy, Spain, Canada, Germany, China: أسماء البلدان تبدأ دائماً بحرف كبير.",
+        "clue": "استمع إلى الاسم مرّة أخرى (أو اقرأه)، وتذكّر ألوان علم كلّ بلد.",
+        "spoken": "Syria"
+      },
+      {
+        "title": "استمع إلى اسم البلد، ثم اضغط على علمه.",
+        "text": "Italy",
+        "options": [
+          "🇸🇾",
+          "🇮🇹",
+          "🇪🇸",
+          "🇨🇦",
+          "🇩🇪",
+          "🇨🇳"
+        ],
+        "response": "🇮🇹",
+        "feedback": "Syria, Italy, Spain, Canada, Germany, China: أسماء البلدان تبدأ دائماً بحرف كبير.",
+        "clue": "استمع إلى الاسم مرّة أخرى (أو اقرأه)، وتذكّر ألوان علم كلّ بلد.",
+        "spoken": "Italy"
+      },
+      {
+        "title": "استمع إلى اسم البلد، ثم اضغط على علمه.",
+        "text": "Spain",
+        "options": [
+          "🇸🇾",
+          "🇮🇹",
+          "🇪🇸",
+          "🇨🇦",
+          "🇩🇪",
+          "🇨🇳"
+        ],
+        "response": "🇪🇸",
+        "feedback": "Syria, Italy, Spain, Canada, Germany, China: أسماء البلدان تبدأ دائماً بحرف كبير.",
+        "clue": "استمع إلى الاسم مرّة أخرى (أو اقرأه)، وتذكّر ألوان علم كلّ بلد.",
+        "spoken": "Spain"
+      },
+      {
+        "title": "استمع إلى اسم البلد، ثم اضغط على علمه.",
+        "text": "Canada",
+        "options": [
+          "🇸🇾",
+          "🇮🇹",
+          "🇪🇸",
+          "🇨🇦",
+          "🇩🇪",
+          "🇨🇳"
+        ],
+        "response": "🇨🇦",
+        "feedback": "Syria, Italy, Spain, Canada, Germany, China: أسماء البلدان تبدأ دائماً بحرف كبير.",
+        "clue": "استمع إلى الاسم مرّة أخرى (أو اقرأه)، وتذكّر ألوان علم كلّ بلد.",
+        "spoken": "Canada"
+      },
+      {
+        "title": "استمع إلى اسم البلد، ثم اضغط على علمه.",
+        "text": "Germany",
+        "options": [
+          "🇸🇾",
+          "🇮🇹",
+          "🇪🇸",
+          "🇨🇦",
+          "🇩🇪",
+          "🇨🇳"
+        ],
+        "response": "🇩🇪",
+        "feedback": "Syria, Italy, Spain, Canada, Germany, China: أسماء البلدان تبدأ دائماً بحرف كبير.",
+        "clue": "استمع إلى الاسم مرّة أخرى (أو اقرأه)، وتذكّر ألوان علم كلّ بلد.",
+        "spoken": "Germany"
+      },
+      {
+        "title": "استمع إلى اسم البلد، ثم اضغط على علمه.",
+        "text": "China",
+        "options": [
+          "🇸🇾",
+          "🇮🇹",
+          "🇪🇸",
+          "🇨🇦",
+          "🇩🇪",
+          "🇨🇳"
+        ],
+        "response": "🇨🇳",
+        "feedback": "Syria, Italy, Spain, Canada, Germany, China: أسماء البلدان تبدأ دائماً بحرف كبير.",
+        "clue": "استمع إلى الاسم مرّة أخرى (أو اقرأه)، وتذكّر ألوان علم كلّ بلد.",
+        "spoken": "China"
+      },
+      {
         "title": "صِل كلّ بلد بجنسيّة أهله.",
         "text": "Italy",
         "options": [
@@ -992,6 +1088,102 @@
         ]
       },
       {
+        "title": "استمع إلى اللغز Who am I? ثم اضغط على صورة الحيوان.",
+        "text": "I'm a small fish but I have the head of a horse.",
+        "options": [
+          "seahorse",
+          "🦈",
+          "🐋",
+          "🦀",
+          "🐙",
+          "⭐"
+        ],
+        "response": "seahorse",
+        "feedback": "I'm a small fish but I have the head of a horse. — إنّه حصان البحر seahorse!",
+        "clue": "ابحث عن الكلمات المهمّة في اللغز، مثل horse أو teeth أو shell أو star.",
+        "spoken": "I'm a small fish but I have the head of a horse."
+      },
+      {
+        "title": "استمع إلى اللغز Who am I? ثم اضغط على صورة الحيوان.",
+        "text": "I'm a big fish and have sharp teeth.",
+        "options": [
+          "seahorse",
+          "🦈",
+          "🐋",
+          "🦀",
+          "🐙",
+          "⭐"
+        ],
+        "response": "🦈",
+        "feedback": "I'm a small fish but I have the head of a horse. — إنّه حصان البحر seahorse!",
+        "clue": "ابحث عن الكلمات المهمّة في اللغز، مثل horse أو teeth أو shell أو star.",
+        "spoken": "I'm a big fish and have sharp teeth."
+      },
+      {
+        "title": "استمع إلى اللغز Who am I? ثم اضغط على صورة الحيوان.",
+        "text": "I'm the biggest animal in the sea.",
+        "options": [
+          "seahorse",
+          "🦈",
+          "🐋",
+          "🦀",
+          "🐙",
+          "⭐"
+        ],
+        "response": "🐋",
+        "feedback": "I'm a small fish but I have the head of a horse. — إنّه حصان البحر seahorse!",
+        "clue": "ابحث عن الكلمات المهمّة في اللغز، مثل horse أو teeth أو shell أو star.",
+        "spoken": "I'm the biggest animal in the sea."
+      },
+      {
+        "title": "استمع إلى اللغز Who am I? ثم اضغط على صورة الحيوان.",
+        "text": "I have a small shell, and I walk sideways.",
+        "options": [
+          "seahorse",
+          "🦈",
+          "🐋",
+          "🦀",
+          "🐙",
+          "⭐"
+        ],
+        "response": "🦀",
+        "feedback": "I'm a small fish but I have the head of a horse. — إنّه حصان البحر seahorse!",
+        "clue": "ابحث عن الكلمات المهمّة في اللغز، مثل horse أو teeth أو shell أو star.",
+        "spoken": "I have a small shell, and I walk sideways."
+      },
+      {
+        "title": "استمع إلى اللغز Who am I? ثم اضغط على صورة الحيوان.",
+        "text": "My name means 8 feet.",
+        "options": [
+          "seahorse",
+          "🦈",
+          "🐋",
+          "🦀",
+          "🐙",
+          "⭐"
+        ],
+        "response": "🐙",
+        "feedback": "I'm a small fish but I have the head of a horse. — إنّه حصان البحر seahorse!",
+        "clue": "ابحث عن الكلمات المهمّة في اللغز، مثل horse أو teeth أو shell أو star.",
+        "spoken": "My name means 8 feet."
+      },
+      {
+        "title": "استمع إلى اللغز Who am I? ثم اضغط على صورة الحيوان.",
+        "text": "I'm called a sea star.",
+        "options": [
+          "seahorse",
+          "🦈",
+          "🐋",
+          "🦀",
+          "🐙",
+          "⭐"
+        ],
+        "response": "⭐",
+        "feedback": "I'm a small fish but I have the head of a horse. — إنّه حصان البحر seahorse!",
+        "clue": "ابحث عن الكلمات المهمّة في اللغز، مثل horse أو teeth أو shell أو star.",
+        "spoken": "I'm called a sea star."
+      },
+      {
         "title": "اختر الشكل الصحيح للفعل في المضارع البسيط.",
         "text": "Seahorses ___ in the sea.",
         "options": [
@@ -1828,6 +2020,102 @@
           "every morning = كلّ صباح ← عادة.",
           "This morning: اليوم على غير العادة ← المضارع المستمرّ."
         ]
+      },
+      {
+        "title": "استمع إلى اسم البرنامج، ثم اضغط على صورته.",
+        "text": "cartoon",
+        "options": [
+          "🐭",
+          "📰",
+          "🌦️",
+          "🐻",
+          "❓",
+          "⚽"
+        ],
+        "response": "🐭",
+        "feedback": "cartoon, news, weather forecast, documentary, quiz show, sports programme 📺",
+        "clue": "استمع مرّة أخرى (أو اقرأ الاسم)، وتذكّر صورة كلّ برنامج في بطاقات الدرس.",
+        "spoken": "cartoon"
+      },
+      {
+        "title": "استمع إلى اسم البرنامج، ثم اضغط على صورته.",
+        "text": "news",
+        "options": [
+          "🐭",
+          "📰",
+          "🌦️",
+          "🐻",
+          "❓",
+          "⚽"
+        ],
+        "response": "📰",
+        "feedback": "cartoon, news, weather forecast, documentary, quiz show, sports programme 📺",
+        "clue": "استمع مرّة أخرى (أو اقرأ الاسم)، وتذكّر صورة كلّ برنامج في بطاقات الدرس.",
+        "spoken": "news"
+      },
+      {
+        "title": "استمع إلى اسم البرنامج، ثم اضغط على صورته.",
+        "text": "weather forecast",
+        "options": [
+          "🐭",
+          "📰",
+          "🌦️",
+          "🐻",
+          "❓",
+          "⚽"
+        ],
+        "response": "🌦️",
+        "feedback": "cartoon, news, weather forecast, documentary, quiz show, sports programme 📺",
+        "clue": "استمع مرّة أخرى (أو اقرأ الاسم)، وتذكّر صورة كلّ برنامج في بطاقات الدرس.",
+        "spoken": "weather forecast"
+      },
+      {
+        "title": "استمع إلى اسم البرنامج، ثم اضغط على صورته.",
+        "text": "documentary",
+        "options": [
+          "🐭",
+          "📰",
+          "🌦️",
+          "🐻",
+          "❓",
+          "⚽"
+        ],
+        "response": "🐻",
+        "feedback": "cartoon, news, weather forecast, documentary, quiz show, sports programme 📺",
+        "clue": "استمع مرّة أخرى (أو اقرأ الاسم)، وتذكّر صورة كلّ برنامج في بطاقات الدرس.",
+        "spoken": "documentary"
+      },
+      {
+        "title": "استمع إلى اسم البرنامج، ثم اضغط على صورته.",
+        "text": "quiz show",
+        "options": [
+          "🐭",
+          "📰",
+          "🌦️",
+          "🐻",
+          "❓",
+          "⚽"
+        ],
+        "response": "❓",
+        "feedback": "cartoon, news, weather forecast, documentary, quiz show, sports programme 📺",
+        "clue": "استمع مرّة أخرى (أو اقرأ الاسم)، وتذكّر صورة كلّ برنامج في بطاقات الدرس.",
+        "spoken": "quiz show"
+      },
+      {
+        "title": "استمع إلى اسم البرنامج، ثم اضغط على صورته.",
+        "text": "sports programme",
+        "options": [
+          "🐭",
+          "📰",
+          "🌦️",
+          "🐻",
+          "❓",
+          "⚽"
+        ],
+        "response": "⚽",
+        "feedback": "cartoon, news, weather forecast, documentary, quiz show, sports programme 📺",
+        "clue": "استمع مرّة أخرى (أو اقرأ الاسم)، وتذكّر صورة كلّ برنامج في بطاقات الدرس.",
+        "spoken": "sports programme"
       },
       {
         "title": "صِل كلّ برنامج بمعناه.",
@@ -2806,6 +3094,102 @@
         ]
       },
       {
+        "title": "استمع، ثم اضغط على صورة أداة المستشفى",
+        "text": "thermometer",
+        "options": [
+          "🌡️",
+          "🩹",
+          "💊",
+          "💉",
+          "🦽",
+          "🚑"
+        ],
+        "response": "🌡️",
+        "feedback": "أدوات المستشفى: thermometer ميزان الحرارة، syringe الحقنة، wheelchair الكرسيّ المتحرّك، ambulance سيّارة الإسعاف.",
+        "clue": "فكّر: بأيّ أداة نقيس الحرارة؟ وبأيّ أداة نعطي الحقنة؟",
+        "spoken": "thermometer"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة أداة المستشفى",
+        "text": "bandage",
+        "options": [
+          "🌡️",
+          "🩹",
+          "💊",
+          "💉",
+          "🦽",
+          "🚑"
+        ],
+        "response": "🩹",
+        "feedback": "أدوات المستشفى: thermometer ميزان الحرارة، syringe الحقنة، wheelchair الكرسيّ المتحرّك، ambulance سيّارة الإسعاف.",
+        "clue": "فكّر: بأيّ أداة نقيس الحرارة؟ وبأيّ أداة نعطي الحقنة؟",
+        "spoken": "bandage"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة أداة المستشفى",
+        "text": "pills",
+        "options": [
+          "🌡️",
+          "🩹",
+          "💊",
+          "💉",
+          "🦽",
+          "🚑"
+        ],
+        "response": "💊",
+        "feedback": "أدوات المستشفى: thermometer ميزان الحرارة، syringe الحقنة، wheelchair الكرسيّ المتحرّك، ambulance سيّارة الإسعاف.",
+        "clue": "فكّر: بأيّ أداة نقيس الحرارة؟ وبأيّ أداة نعطي الحقنة؟",
+        "spoken": "pills"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة أداة المستشفى",
+        "text": "syringe",
+        "options": [
+          "🌡️",
+          "🩹",
+          "💊",
+          "💉",
+          "🦽",
+          "🚑"
+        ],
+        "response": "💉",
+        "feedback": "أدوات المستشفى: thermometer ميزان الحرارة، syringe الحقنة، wheelchair الكرسيّ المتحرّك، ambulance سيّارة الإسعاف.",
+        "clue": "فكّر: بأيّ أداة نقيس الحرارة؟ وبأيّ أداة نعطي الحقنة؟",
+        "spoken": "syringe"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة أداة المستشفى",
+        "text": "wheelchair",
+        "options": [
+          "🌡️",
+          "🩹",
+          "💊",
+          "💉",
+          "🦽",
+          "🚑"
+        ],
+        "response": "🦽",
+        "feedback": "أدوات المستشفى: thermometer ميزان الحرارة، syringe الحقنة، wheelchair الكرسيّ المتحرّك، ambulance سيّارة الإسعاف.",
+        "clue": "فكّر: بأيّ أداة نقيس الحرارة؟ وبأيّ أداة نعطي الحقنة؟",
+        "spoken": "wheelchair"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة أداة المستشفى",
+        "text": "ambulance",
+        "options": [
+          "🌡️",
+          "🩹",
+          "💊",
+          "💉",
+          "🦽",
+          "🚑"
+        ],
+        "response": "🚑",
+        "feedback": "أدوات المستشفى: thermometer ميزان الحرارة، syringe الحقنة، wheelchair الكرسيّ المتحرّك، ambulance سيّارة الإسعاف.",
+        "clue": "فكّر: بأيّ أداة نقيس الحرارة؟ وبأيّ أداة نعطي الحقنة؟",
+        "spoken": "ambulance"
+      },
+      {
         "title": "ضع الفعل الذي بين القوسين في الماضي البسيط",
         "text": "I ___ to the doctor's *yesterday*.",
         "options": [
@@ -3299,6 +3683,102 @@
           "اقتراح بسؤال: Why don't we ثم الفعل في أصله.",
           "اقتراح: بعد What about أو How about يأتي الفعل مع -ing."
         ]
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة النشاط",
+        "text": "cycling",
+        "options": [
+          "🚴",
+          "🏊",
+          "💃",
+          "⛺",
+          "📚",
+          "💻"
+        ],
+        "response": "🚴",
+        "feedback": "cycling ركوب الدرّاجة، swimming السباحة، surfing the net تصفّح الإنترنت.",
+        "clue": "تذكّر بطاقات الدرس: كل نشاط ينتهي بـ -ing.",
+        "spoken": "cycling"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة النشاط",
+        "text": "swimming",
+        "options": [
+          "🚴",
+          "🏊",
+          "💃",
+          "⛺",
+          "📚",
+          "💻"
+        ],
+        "response": "🏊",
+        "feedback": "cycling ركوب الدرّاجة، swimming السباحة، surfing the net تصفّح الإنترنت.",
+        "clue": "تذكّر بطاقات الدرس: كل نشاط ينتهي بـ -ing.",
+        "spoken": "swimming"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة النشاط",
+        "text": "dancing",
+        "options": [
+          "🚴",
+          "🏊",
+          "💃",
+          "⛺",
+          "📚",
+          "💻"
+        ],
+        "response": "💃",
+        "feedback": "cycling ركوب الدرّاجة، swimming السباحة، surfing the net تصفّح الإنترنت.",
+        "clue": "تذكّر بطاقات الدرس: كل نشاط ينتهي بـ -ing.",
+        "spoken": "dancing"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة النشاط",
+        "text": "camping",
+        "options": [
+          "🚴",
+          "🏊",
+          "💃",
+          "⛺",
+          "📚",
+          "💻"
+        ],
+        "response": "⛺",
+        "feedback": "cycling ركوب الدرّاجة، swimming السباحة، surfing the net تصفّح الإنترنت.",
+        "clue": "تذكّر بطاقات الدرس: كل نشاط ينتهي بـ -ing.",
+        "spoken": "camping"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة النشاط",
+        "text": "reading books",
+        "options": [
+          "🚴",
+          "🏊",
+          "💃",
+          "⛺",
+          "📚",
+          "💻"
+        ],
+        "response": "📚",
+        "feedback": "cycling ركوب الدرّاجة، swimming السباحة، surfing the net تصفّح الإنترنت.",
+        "clue": "تذكّر بطاقات الدرس: كل نشاط ينتهي بـ -ing.",
+        "spoken": "reading books"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة النشاط",
+        "text": "surfing the net",
+        "options": [
+          "🚴",
+          "🏊",
+          "💃",
+          "⛺",
+          "📚",
+          "💻"
+        ],
+        "response": "💻",
+        "feedback": "cycling ركوب الدرّاجة، swimming السباحة، surfing the net تصفّح الإنترنت.",
+        "clue": "تذكّر بطاقات الدرس: كل نشاط ينتهي بـ -ing.",
+        "spoken": "surfing the net"
       },
       {
         "title": "اعتذار أم طلب أم اقتراح؟ ضع كل جملة في مكانها",
@@ -4052,6 +4532,102 @@
         ]
       },
       {
+        "title": "استمع، ثم اضغط على صورة الحيوان",
+        "text": "cow",
+        "options": [
+          "🐄",
+          "🐴",
+          "🐑",
+          "🐐",
+          "🐔",
+          "🦆"
+        ],
+        "response": "🐄",
+        "feedback": "cow بقرة، horse حصان، sheep خروف، goat ماعز، chicken دجاجة، duck بطّة.",
+        "clue": "تذكّر حيوانات مزرعة الجدّ في بطاقات الدرس.",
+        "spoken": "cow"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة الحيوان",
+        "text": "horse",
+        "options": [
+          "🐄",
+          "🐴",
+          "🐑",
+          "🐐",
+          "🐔",
+          "🦆"
+        ],
+        "response": "🐴",
+        "feedback": "cow بقرة، horse حصان، sheep خروف، goat ماعز، chicken دجاجة، duck بطّة.",
+        "clue": "تذكّر حيوانات مزرعة الجدّ في بطاقات الدرس.",
+        "spoken": "horse"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة الحيوان",
+        "text": "sheep",
+        "options": [
+          "🐄",
+          "🐴",
+          "🐑",
+          "🐐",
+          "🐔",
+          "🦆"
+        ],
+        "response": "🐑",
+        "feedback": "cow بقرة، horse حصان، sheep خروف، goat ماعز، chicken دجاجة، duck بطّة.",
+        "clue": "تذكّر حيوانات مزرعة الجدّ في بطاقات الدرس.",
+        "spoken": "sheep"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة الحيوان",
+        "text": "goat",
+        "options": [
+          "🐄",
+          "🐴",
+          "🐑",
+          "🐐",
+          "🐔",
+          "🦆"
+        ],
+        "response": "🐐",
+        "feedback": "cow بقرة، horse حصان، sheep خروف، goat ماعز، chicken دجاجة، duck بطّة.",
+        "clue": "تذكّر حيوانات مزرعة الجدّ في بطاقات الدرس.",
+        "spoken": "goat"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة الحيوان",
+        "text": "chicken",
+        "options": [
+          "🐄",
+          "🐴",
+          "🐑",
+          "🐐",
+          "🐔",
+          "🦆"
+        ],
+        "response": "🐔",
+        "feedback": "cow بقرة، horse حصان، sheep خروف، goat ماعز، chicken دجاجة، duck بطّة.",
+        "clue": "تذكّر حيوانات مزرعة الجدّ في بطاقات الدرس.",
+        "spoken": "chicken"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة الحيوان",
+        "text": "duck",
+        "options": [
+          "🐄",
+          "🐴",
+          "🐑",
+          "🐐",
+          "🐔",
+          "🦆"
+        ],
+        "response": "🦆",
+        "feedback": "cow بقرة، horse حصان، sheep خروف، goat ماعز، chicken دجاجة، duck بطّة.",
+        "clue": "تذكّر حيوانات مزرعة الجدّ في بطاقات الدرس.",
+        "spoken": "duck"
+      },
+      {
         "title": "صِل كل فعل بما يناسبه من أعمال المزرعة",
         "text": "drive",
         "options": [
@@ -4651,6 +5227,102 @@
         "response": "use old things that were used before.",
         "feedback": "recycling: تحويل القديم إلى جديد. reusing: استعمال الشيء القديم مرّة أخرى. reduce: نقلّل.",
         "clue": "إعادة التدوير تصنع شيئاً جديداً، وإعادة الاستعمال تستعمل الشيء القديم كما هو."
+      },
+      {
+        "title": "استمع، ثم اضغط على ما يمكن إعادة تدويره",
+        "text": "paper",
+        "options": [
+          "📄",
+          "🧴",
+          "🍾",
+          "📦",
+          "👕",
+          "🧸"
+        ],
+        "response": "📄",
+        "feedback": "People can recycle paper, plastic bottles, glass containers and many other things like wood, clothes and children toys.",
+        "clue": "تذكّر: الورق والبلاستيك والزجاج والملابس والألعاب.",
+        "spoken": "paper"
+      },
+      {
+        "title": "استمع، ثم اضغط على ما يمكن إعادة تدويره",
+        "text": "plastic bottles",
+        "options": [
+          "📄",
+          "🧴",
+          "🍾",
+          "📦",
+          "👕",
+          "🧸"
+        ],
+        "response": "🧴",
+        "feedback": "People can recycle paper, plastic bottles, glass containers and many other things like wood, clothes and children toys.",
+        "clue": "تذكّر: الورق والبلاستيك والزجاج والملابس والألعاب.",
+        "spoken": "plastic bottles"
+      },
+      {
+        "title": "استمع، ثم اضغط على ما يمكن إعادة تدويره",
+        "text": "glass",
+        "options": [
+          "📄",
+          "🧴",
+          "🍾",
+          "📦",
+          "👕",
+          "🧸"
+        ],
+        "response": "🍾",
+        "feedback": "People can recycle paper, plastic bottles, glass containers and many other things like wood, clothes and children toys.",
+        "clue": "تذكّر: الورق والبلاستيك والزجاج والملابس والألعاب.",
+        "spoken": "glass"
+      },
+      {
+        "title": "استمع، ثم اضغط على ما يمكن إعادة تدويره",
+        "text": "cardboard",
+        "options": [
+          "📄",
+          "🧴",
+          "🍾",
+          "📦",
+          "👕",
+          "🧸"
+        ],
+        "response": "📦",
+        "feedback": "People can recycle paper, plastic bottles, glass containers and many other things like wood, clothes and children toys.",
+        "clue": "تذكّر: الورق والبلاستيك والزجاج والملابس والألعاب.",
+        "spoken": "cardboard"
+      },
+      {
+        "title": "استمع، ثم اضغط على ما يمكن إعادة تدويره",
+        "text": "clothes",
+        "options": [
+          "📄",
+          "🧴",
+          "🍾",
+          "📦",
+          "👕",
+          "🧸"
+        ],
+        "response": "👕",
+        "feedback": "People can recycle paper, plastic bottles, glass containers and many other things like wood, clothes and children toys.",
+        "clue": "تذكّر: الورق والبلاستيك والزجاج والملابس والألعاب.",
+        "spoken": "clothes"
+      },
+      {
+        "title": "استمع، ثم اضغط على ما يمكن إعادة تدويره",
+        "text": "toys",
+        "options": [
+          "📄",
+          "🧴",
+          "🍾",
+          "📦",
+          "👕",
+          "🧸"
+        ],
+        "response": "🧸",
+        "feedback": "People can recycle paper, plastic bottles, glass containers and many other things like wood, clothes and children toys.",
+        "clue": "تذكّر: الورق والبلاستيك والزجاج والملابس والألعاب.",
+        "spoken": "toys"
       },
       {
         "title": "شام تسأل لونا عن إعادة التدوير. اختر جواب لونا",
@@ -5804,6 +6476,102 @@
         ]
       },
       {
+        "title": "استمع إلى الكلمة، ثمّ اضغط على صورتها.",
+        "text": "trainers",
+        "options": [
+          "👟",
+          "🧢",
+          "🐷",
+          "👜",
+          "⌚",
+          "🔑"
+        ],
+        "response": "👟",
+        "feedback": "trainers حذاء رياضي، cap قبّعة، money box حصّالة، bag حقيبة، watch ساعة، key chain علّاقة مفاتيح.",
+        "clue": "استمع جيّداً، وتذكّر ما اشتراه علي ورهف.",
+        "spoken": "trainers"
+      },
+      {
+        "title": "استمع إلى الكلمة، ثمّ اضغط على صورتها.",
+        "text": "cap",
+        "options": [
+          "👟",
+          "🧢",
+          "🐷",
+          "👜",
+          "⌚",
+          "🔑"
+        ],
+        "response": "🧢",
+        "feedback": "trainers حذاء رياضي، cap قبّعة، money box حصّالة، bag حقيبة، watch ساعة، key chain علّاقة مفاتيح.",
+        "clue": "استمع جيّداً، وتذكّر ما اشتراه علي ورهف.",
+        "spoken": "cap"
+      },
+      {
+        "title": "استمع إلى الكلمة، ثمّ اضغط على صورتها.",
+        "text": "money box",
+        "options": [
+          "👟",
+          "🧢",
+          "🐷",
+          "👜",
+          "⌚",
+          "🔑"
+        ],
+        "response": "🐷",
+        "feedback": "trainers حذاء رياضي، cap قبّعة، money box حصّالة، bag حقيبة، watch ساعة، key chain علّاقة مفاتيح.",
+        "clue": "استمع جيّداً، وتذكّر ما اشتراه علي ورهف.",
+        "spoken": "money box"
+      },
+      {
+        "title": "استمع إلى الكلمة، ثمّ اضغط على صورتها.",
+        "text": "bag",
+        "options": [
+          "👟",
+          "🧢",
+          "🐷",
+          "👜",
+          "⌚",
+          "🔑"
+        ],
+        "response": "👜",
+        "feedback": "trainers حذاء رياضي، cap قبّعة، money box حصّالة، bag حقيبة، watch ساعة، key chain علّاقة مفاتيح.",
+        "clue": "استمع جيّداً، وتذكّر ما اشتراه علي ورهف.",
+        "spoken": "bag"
+      },
+      {
+        "title": "استمع إلى الكلمة، ثمّ اضغط على صورتها.",
+        "text": "watch",
+        "options": [
+          "👟",
+          "🧢",
+          "🐷",
+          "👜",
+          "⌚",
+          "🔑"
+        ],
+        "response": "⌚",
+        "feedback": "trainers حذاء رياضي، cap قبّعة، money box حصّالة، bag حقيبة، watch ساعة، key chain علّاقة مفاتيح.",
+        "clue": "استمع جيّداً، وتذكّر ما اشتراه علي ورهف.",
+        "spoken": "watch"
+      },
+      {
+        "title": "استمع إلى الكلمة، ثمّ اضغط على صورتها.",
+        "text": "key chain",
+        "options": [
+          "👟",
+          "🧢",
+          "🐷",
+          "👜",
+          "⌚",
+          "🔑"
+        ],
+        "response": "🔑",
+        "feedback": "trainers حذاء رياضي، cap قبّعة، money box حصّالة، bag حقيبة، watch ساعة، key chain علّاقة مفاتيح.",
+        "clue": "استمع جيّداً، وتذكّر ما اشتراه علي ورهف.",
+        "spoken": "key chain"
+      },
+      {
         "title": "for أم since؟ ضع كلّ بطاقة في مكانها.",
         "text": "two months",
         "options": [
@@ -6247,6 +7015,102 @@
           "happy صفة: سعيد. وبالبادئة un تصير unhappy: غير سعيد.",
           "اللاحقة ness في آخر الصفة تجعلها اسماً: happy → happiness (السعادة)، وتصير y حرف i."
         ]
+      },
+      {
+        "title": "استمع إلى الشعور، ثمّ اضغط على الوجه الذي يناسبه.",
+        "text": "happy",
+        "options": [
+          "😊",
+          "😢",
+          "😬",
+          "🤩",
+          "😨",
+          "😳"
+        ],
+        "response": "😊",
+        "feedback": "happy 😊 sad 😢 nervous 😬 excited 🤩 scared 😨 shy 😳",
+        "clue": "انظر إلى الوجوه: مَن يبتسم؟ مَن يبكي؟ مَن خائف؟",
+        "spoken": "happy"
+      },
+      {
+        "title": "استمع إلى الشعور، ثمّ اضغط على الوجه الذي يناسبه.",
+        "text": "sad",
+        "options": [
+          "😊",
+          "😢",
+          "😬",
+          "🤩",
+          "😨",
+          "😳"
+        ],
+        "response": "😢",
+        "feedback": "happy 😊 sad 😢 nervous 😬 excited 🤩 scared 😨 shy 😳",
+        "clue": "انظر إلى الوجوه: مَن يبتسم؟ مَن يبكي؟ مَن خائف؟",
+        "spoken": "sad"
+      },
+      {
+        "title": "استمع إلى الشعور، ثمّ اضغط على الوجه الذي يناسبه.",
+        "text": "nervous",
+        "options": [
+          "😊",
+          "😢",
+          "😬",
+          "🤩",
+          "😨",
+          "😳"
+        ],
+        "response": "😬",
+        "feedback": "happy 😊 sad 😢 nervous 😬 excited 🤩 scared 😨 shy 😳",
+        "clue": "انظر إلى الوجوه: مَن يبتسم؟ مَن يبكي؟ مَن خائف؟",
+        "spoken": "nervous"
+      },
+      {
+        "title": "استمع إلى الشعور، ثمّ اضغط على الوجه الذي يناسبه.",
+        "text": "excited",
+        "options": [
+          "😊",
+          "😢",
+          "😬",
+          "🤩",
+          "😨",
+          "😳"
+        ],
+        "response": "🤩",
+        "feedback": "happy 😊 sad 😢 nervous 😬 excited 🤩 scared 😨 shy 😳",
+        "clue": "انظر إلى الوجوه: مَن يبتسم؟ مَن يبكي؟ مَن خائف؟",
+        "spoken": "excited"
+      },
+      {
+        "title": "استمع إلى الشعور، ثمّ اضغط على الوجه الذي يناسبه.",
+        "text": "scared",
+        "options": [
+          "😊",
+          "😢",
+          "😬",
+          "🤩",
+          "😨",
+          "😳"
+        ],
+        "response": "😨",
+        "feedback": "happy 😊 sad 😢 nervous 😬 excited 🤩 scared 😨 shy 😳",
+        "clue": "انظر إلى الوجوه: مَن يبتسم؟ مَن يبكي؟ مَن خائف؟",
+        "spoken": "scared"
+      },
+      {
+        "title": "استمع إلى الشعور، ثمّ اضغط على الوجه الذي يناسبه.",
+        "text": "shy",
+        "options": [
+          "😊",
+          "😢",
+          "😬",
+          "🤩",
+          "😨",
+          "😳"
+        ],
+        "response": "😳",
+        "feedback": "happy 😊 sad 😢 nervous 😬 excited 🤩 scared 😨 shy 😳",
+        "clue": "انظر إلى الوجوه: مَن يبتسم؟ مَن يبكي؟ مَن خائف؟",
+        "spoken": "shy"
       },
       {
         "title": "بادئة أم لاحقة؟ صنّف الكلمات كما في الكتاب.",
@@ -6716,6 +7580,102 @@
           "don't have to = لسنا مضطرّين، ليس ضرورياً.",
           "shouldn't = لا ينبغي (نصيحة بألّا نفعل)."
         ]
+      },
+      {
+        "title": "استمع إلى اسم المورد الطبيعي، ثمّ اضغط على صورته.",
+        "text": "air",
+        "options": [
+          "💨",
+          "💧",
+          "soil",
+          "🌲",
+          "🛢️",
+          "coal"
+        ],
+        "response": "💨",
+        "feedback": "air هواء، water ماء، soil تربة، forest غابة، oil نفط، coal فحم.",
+        "clue": "تذكّر بطاقات الدرس: الهواء والماء والتربة والغابة والنفط والفحم.",
+        "spoken": "air"
+      },
+      {
+        "title": "استمع إلى اسم المورد الطبيعي، ثمّ اضغط على صورته.",
+        "text": "water",
+        "options": [
+          "💨",
+          "💧",
+          "soil",
+          "🌲",
+          "🛢️",
+          "coal"
+        ],
+        "response": "💧",
+        "feedback": "air هواء، water ماء، soil تربة، forest غابة، oil نفط، coal فحم.",
+        "clue": "تذكّر بطاقات الدرس: الهواء والماء والتربة والغابة والنفط والفحم.",
+        "spoken": "water"
+      },
+      {
+        "title": "استمع إلى اسم المورد الطبيعي، ثمّ اضغط على صورته.",
+        "text": "soil",
+        "options": [
+          "💨",
+          "💧",
+          "soil",
+          "🌲",
+          "🛢️",
+          "coal"
+        ],
+        "response": "soil",
+        "feedback": "air هواء، water ماء، soil تربة، forest غابة، oil نفط، coal فحم.",
+        "clue": "تذكّر بطاقات الدرس: الهواء والماء والتربة والغابة والنفط والفحم.",
+        "spoken": "soil"
+      },
+      {
+        "title": "استمع إلى اسم المورد الطبيعي، ثمّ اضغط على صورته.",
+        "text": "forest",
+        "options": [
+          "💨",
+          "💧",
+          "soil",
+          "🌲",
+          "🛢️",
+          "coal"
+        ],
+        "response": "🌲",
+        "feedback": "air هواء، water ماء، soil تربة، forest غابة، oil نفط، coal فحم.",
+        "clue": "تذكّر بطاقات الدرس: الهواء والماء والتربة والغابة والنفط والفحم.",
+        "spoken": "forest"
+      },
+      {
+        "title": "استمع إلى اسم المورد الطبيعي، ثمّ اضغط على صورته.",
+        "text": "oil",
+        "options": [
+          "💨",
+          "💧",
+          "soil",
+          "🌲",
+          "🛢️",
+          "coal"
+        ],
+        "response": "🛢️",
+        "feedback": "air هواء، water ماء، soil تربة، forest غابة، oil نفط، coal فحم.",
+        "clue": "تذكّر بطاقات الدرس: الهواء والماء والتربة والغابة والنفط والفحم.",
+        "spoken": "oil"
+      },
+      {
+        "title": "استمع إلى اسم المورد الطبيعي، ثمّ اضغط على صورته.",
+        "text": "coal",
+        "options": [
+          "💨",
+          "💧",
+          "soil",
+          "🌲",
+          "🛢️",
+          "coal"
+        ],
+        "response": "coal",
+        "feedback": "air هواء، water ماء، soil تربة، forest غابة، oil نفط، coal فحم.",
+        "clue": "تذكّر بطاقات الدرس: الهواء والماء والتربة والغابة والنفط والفحم.",
+        "spoken": "coal"
       },
       {
         "title": "اختر الكلمة الصحيحة.",
@@ -7188,6 +8148,102 @@
         ]
       },
       {
+        "title": "استمع إلى الحقّ، ثمّ اضغط على صورته.",
+        "text": "be safe",
+        "options": [
+          "🛡️",
+          "📚",
+          "🏠",
+          "⚽",
+          "🍎",
+          "📛"
+        ],
+        "response": "🛡️",
+        "feedback": "be safe 🛡️ learn and grow 📚 have a house 🏠 play and rest ⚽ be healthy 🍎 have a name 📛",
+        "clue": "تذكّر الحقوق في الكتاب: الأمان، والتعلّم، والبيت، واللعب، والصحّة، والاسم.",
+        "spoken": "be safe"
+      },
+      {
+        "title": "استمع إلى الحقّ، ثمّ اضغط على صورته.",
+        "text": "learn and grow",
+        "options": [
+          "🛡️",
+          "📚",
+          "🏠",
+          "⚽",
+          "🍎",
+          "📛"
+        ],
+        "response": "📚",
+        "feedback": "be safe 🛡️ learn and grow 📚 have a house 🏠 play and rest ⚽ be healthy 🍎 have a name 📛",
+        "clue": "تذكّر الحقوق في الكتاب: الأمان، والتعلّم، والبيت، واللعب، والصحّة، والاسم.",
+        "spoken": "learn and grow"
+      },
+      {
+        "title": "استمع إلى الحقّ، ثمّ اضغط على صورته.",
+        "text": "have a house",
+        "options": [
+          "🛡️",
+          "📚",
+          "🏠",
+          "⚽",
+          "🍎",
+          "📛"
+        ],
+        "response": "🏠",
+        "feedback": "be safe 🛡️ learn and grow 📚 have a house 🏠 play and rest ⚽ be healthy 🍎 have a name 📛",
+        "clue": "تذكّر الحقوق في الكتاب: الأمان، والتعلّم، والبيت، واللعب، والصحّة، والاسم.",
+        "spoken": "have a house"
+      },
+      {
+        "title": "استمع إلى الحقّ، ثمّ اضغط على صورته.",
+        "text": "play and rest",
+        "options": [
+          "🛡️",
+          "📚",
+          "🏠",
+          "⚽",
+          "🍎",
+          "📛"
+        ],
+        "response": "⚽",
+        "feedback": "be safe 🛡️ learn and grow 📚 have a house 🏠 play and rest ⚽ be healthy 🍎 have a name 📛",
+        "clue": "تذكّر الحقوق في الكتاب: الأمان، والتعلّم، والبيت، واللعب، والصحّة، والاسم.",
+        "spoken": "play and rest"
+      },
+      {
+        "title": "استمع إلى الحقّ، ثمّ اضغط على صورته.",
+        "text": "be healthy",
+        "options": [
+          "🛡️",
+          "📚",
+          "🏠",
+          "⚽",
+          "🍎",
+          "📛"
+        ],
+        "response": "🍎",
+        "feedback": "be safe 🛡️ learn and grow 📚 have a house 🏠 play and rest ⚽ be healthy 🍎 have a name 📛",
+        "clue": "تذكّر الحقوق في الكتاب: الأمان، والتعلّم، والبيت، واللعب، والصحّة، والاسم.",
+        "spoken": "be healthy"
+      },
+      {
+        "title": "استمع إلى الحقّ، ثمّ اضغط على صورته.",
+        "text": "have a name",
+        "options": [
+          "🛡️",
+          "📚",
+          "🏠",
+          "⚽",
+          "🍎",
+          "📛"
+        ],
+        "response": "📛",
+        "feedback": "be safe 🛡️ learn and grow 📚 have a house 🏠 play and rest ⚽ be healthy 🍎 have a name 📛",
+        "clue": "تذكّر الحقوق في الكتاب: الأمان، والتعلّم، والبيت، واللعب، والصحّة، والاسم.",
+        "spoken": "have a name"
+      },
+      {
         "title": "حقّ أم شيء نريده فقط؟",
         "text": "go to school",
         "options": [
@@ -7343,9 +8399,21 @@
       },
       {
         "title": "حقوق الطفل",
-        "text": "لنقرأ معاً من الكتاب عن حقوق الطفل. اضغط على كلّ كلمة ملوّنة لتعرف معناها.\nكلّ مَن هو تحت 18 سنة له الحقوق نفسها، وكلّ الحقوق مهمّة بالقدر نفسه. 🧒",
-        "example": [],
-        "labels": []
+        "text": "لنقرأ معاً من الكتاب عن حقوق الطفل. اضغط على كلّ كلمة ملوّنة لتعرف معناها.\nThe Rights of the Child\nThe United Nations has more than 50 rights that are listed in the UN [Convention] on the Rights of the Child. They are basic [needs] – things that every child must have or be able to do to live a safe, healthy and happy life. According to the United Nations, everyone [under] 18 has the same rights no matter who they are, what language they speak, what their culture is, whether they are boys or girls, whether they are rich or poor or anything else. All rights are [equally] important. [Adults] should do what is best for the child.",
+        "example": [
+          "Convention",
+          "needs",
+          "under",
+          "equally",
+          "Adults"
+        ],
+        "labels": [
+          "اتّفاقية: معاهدة اتّفقت عليها دول العالم.",
+          "حاجات: أشياء نحتاجها لنعيش.",
+          "تحت، أقلّ من.",
+          "بالتساوي، بالقدر نفسه.",
+          "الكبار، البالغون."
+        ]
       },
       {
         "title": "صح أم خطأ؟ تذكّر النصّ.",
@@ -7949,6 +9017,81 @@
         "clue": "البادئة (un, dis) في أوّل الكلمة، واللاحقة (ness, less) في آخرها. فكّر في معنى الجملة."
       },
       {
+        "title": "استمع إلى الشعور، ثمّ اضغط على الوجه الذي يناسبه.",
+        "text": "relaxed",
+        "options": [
+          "😌",
+          "😳",
+          "🤩",
+          "😬",
+          "😞"
+        ],
+        "response": "😌",
+        "feedback": "relaxed 😌 shy 😳 excited 🤩 nervous 😬 disappointed 😞",
+        "clue": "انظر إلى الوجوه جيّداً: مَن هادئ؟ مَن خجول؟ مَن متحمّس؟",
+        "spoken": "relaxed"
+      },
+      {
+        "title": "استمع إلى الشعور، ثمّ اضغط على الوجه الذي يناسبه.",
+        "text": "shy",
+        "options": [
+          "😌",
+          "😳",
+          "🤩",
+          "😬",
+          "😞"
+        ],
+        "response": "😳",
+        "feedback": "relaxed 😌 shy 😳 excited 🤩 nervous 😬 disappointed 😞",
+        "clue": "انظر إلى الوجوه جيّداً: مَن هادئ؟ مَن خجول؟ مَن متحمّس؟",
+        "spoken": "shy"
+      },
+      {
+        "title": "استمع إلى الشعور، ثمّ اضغط على الوجه الذي يناسبه.",
+        "text": "excited",
+        "options": [
+          "😌",
+          "😳",
+          "🤩",
+          "😬",
+          "😞"
+        ],
+        "response": "🤩",
+        "feedback": "relaxed 😌 shy 😳 excited 🤩 nervous 😬 disappointed 😞",
+        "clue": "انظر إلى الوجوه جيّداً: مَن هادئ؟ مَن خجول؟ مَن متحمّس؟",
+        "spoken": "excited"
+      },
+      {
+        "title": "استمع إلى الشعور، ثمّ اضغط على الوجه الذي يناسبه.",
+        "text": "nervous",
+        "options": [
+          "😌",
+          "😳",
+          "🤩",
+          "😬",
+          "😞"
+        ],
+        "response": "😬",
+        "feedback": "relaxed 😌 shy 😳 excited 🤩 nervous 😬 disappointed 😞",
+        "clue": "انظر إلى الوجوه جيّداً: مَن هادئ؟ مَن خجول؟ مَن متحمّس؟",
+        "spoken": "nervous"
+      },
+      {
+        "title": "استمع إلى الشعور، ثمّ اضغط على الوجه الذي يناسبه.",
+        "text": "disappointed",
+        "options": [
+          "😌",
+          "😳",
+          "🤩",
+          "😬",
+          "😞"
+        ],
+        "response": "😞",
+        "feedback": "relaxed 😌 shy 😳 excited 🤩 nervous 😬 disappointed 😞",
+        "clue": "انظر إلى الوجوه جيّداً: مَن هادئ؟ مَن خجول؟ مَن متحمّس؟",
+        "spoken": "disappointed"
+      },
+      {
         "title": "رتّب الكلمات لتبني جملة بالمضارع التامّ.",
         "text": "اشتريت حقيبتي من السوق القريب.",
         "sequence": [
@@ -8170,6 +9313,102 @@
           "الأخت كانت تنفخ البالونات، ثم دخل الأب فجأة: was blowing up … when … came.",
           "مع I / he / she / it نقول was، ومع you / we / they نقول were."
         ]
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة ما تسمعه.",
+        "text": "balloons",
+        "options": [
+          "🎈",
+          "🎂",
+          "🎁",
+          "🕯️",
+          "💌",
+          "🎀"
+        ],
+        "response": "🎈",
+        "feedback": "أحسنت! balloons, cake, present, candles: كلمات الحفلة. 🎉",
+        "clue": "تذكّر بطاقات «أتعلّم»: أشياء نجدها في كل حفلة عيد ميلاد.",
+        "spoken": "balloons"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة ما تسمعه.",
+        "text": "cake",
+        "options": [
+          "🎈",
+          "🎂",
+          "🎁",
+          "🕯️",
+          "💌",
+          "🎀"
+        ],
+        "response": "🎂",
+        "feedback": "أحسنت! balloons, cake, present, candles: كلمات الحفلة. 🎉",
+        "clue": "تذكّر بطاقات «أتعلّم»: أشياء نجدها في كل حفلة عيد ميلاد.",
+        "spoken": "cake"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة ما تسمعه.",
+        "text": "present",
+        "options": [
+          "🎈",
+          "🎂",
+          "🎁",
+          "🕯️",
+          "💌",
+          "🎀"
+        ],
+        "response": "🎁",
+        "feedback": "أحسنت! balloons, cake, present, candles: كلمات الحفلة. 🎉",
+        "clue": "تذكّر بطاقات «أتعلّم»: أشياء نجدها في كل حفلة عيد ميلاد.",
+        "spoken": "present"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة ما تسمعه.",
+        "text": "candles",
+        "options": [
+          "🎈",
+          "🎂",
+          "🎁",
+          "🕯️",
+          "💌",
+          "🎀"
+        ],
+        "response": "🕯️",
+        "feedback": "أحسنت! balloons, cake, present, candles: كلمات الحفلة. 🎉",
+        "clue": "تذكّر بطاقات «أتعلّم»: أشياء نجدها في كل حفلة عيد ميلاد.",
+        "spoken": "candles"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة ما تسمعه.",
+        "text": "invitation card",
+        "options": [
+          "🎈",
+          "🎂",
+          "🎁",
+          "🕯️",
+          "💌",
+          "🎀"
+        ],
+        "response": "💌",
+        "feedback": "أحسنت! balloons, cake, present, candles: كلمات الحفلة. 🎉",
+        "clue": "تذكّر بطاقات «أتعلّم»: أشياء نجدها في كل حفلة عيد ميلاد.",
+        "spoken": "invitation card"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة ما تسمعه.",
+        "text": "ribbons",
+        "options": [
+          "🎈",
+          "🎂",
+          "🎁",
+          "🕯️",
+          "💌",
+          "🎀"
+        ],
+        "response": "🎀",
+        "feedback": "أحسنت! balloons, cake, present, candles: كلمات الحفلة. 🎉",
+        "clue": "تذكّر بطاقات «أتعلّم»: أشياء نجدها في كل حفلة عيد ميلاد.",
+        "spoken": "ribbons"
       },
       {
         "title": "صِل كل معنى بكلمته (من نصّ حفلة جين).",
@@ -8956,6 +10195,102 @@
         ]
       },
       {
+        "title": "استمع، ثم اضغط على صورة ما تسمعه.",
+        "text": "robot",
+        "options": [
+          "🤖",
+          "📱",
+          "💻",
+          "📷",
+          "⌚",
+          "📧"
+        ],
+        "response": "🤖",
+        "feedback": "robot, smartphone, computer, camera, smart watch: قطع من التكنولوجيا. 📱",
+        "clue": "تذكّر بطاقات «أتعلّم»: أجهزة نستعملها كلّ يوم.",
+        "spoken": "robot"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة ما تسمعه.",
+        "text": "smartphone",
+        "options": [
+          "🤖",
+          "📱",
+          "💻",
+          "📷",
+          "⌚",
+          "📧"
+        ],
+        "response": "📱",
+        "feedback": "robot, smartphone, computer, camera, smart watch: قطع من التكنولوجيا. 📱",
+        "clue": "تذكّر بطاقات «أتعلّم»: أجهزة نستعملها كلّ يوم.",
+        "spoken": "smartphone"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة ما تسمعه.",
+        "text": "computer",
+        "options": [
+          "🤖",
+          "📱",
+          "💻",
+          "📷",
+          "⌚",
+          "📧"
+        ],
+        "response": "💻",
+        "feedback": "robot, smartphone, computer, camera, smart watch: قطع من التكنولوجيا. 📱",
+        "clue": "تذكّر بطاقات «أتعلّم»: أجهزة نستعملها كلّ يوم.",
+        "spoken": "computer"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة ما تسمعه.",
+        "text": "camera",
+        "options": [
+          "🤖",
+          "📱",
+          "💻",
+          "📷",
+          "⌚",
+          "📧"
+        ],
+        "response": "📷",
+        "feedback": "robot, smartphone, computer, camera, smart watch: قطع من التكنولوجيا. 📱",
+        "clue": "تذكّر بطاقات «أتعلّم»: أجهزة نستعملها كلّ يوم.",
+        "spoken": "camera"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة ما تسمعه.",
+        "text": "smart watch",
+        "options": [
+          "🤖",
+          "📱",
+          "💻",
+          "📷",
+          "⌚",
+          "📧"
+        ],
+        "response": "⌚",
+        "feedback": "robot, smartphone, computer, camera, smart watch: قطع من التكنولوجيا. 📱",
+        "clue": "تذكّر بطاقات «أتعلّم»: أجهزة نستعملها كلّ يوم.",
+        "spoken": "smart watch"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة ما تسمعه.",
+        "text": "email",
+        "options": [
+          "🤖",
+          "📱",
+          "💻",
+          "📷",
+          "⌚",
+          "📧"
+        ],
+        "response": "📧",
+        "feedback": "robot, smartphone, computer, camera, smart watch: قطع من التكنولوجيا. 📱",
+        "clue": "تذكّر بطاقات «أتعلّم»: أجهزة نستعملها كلّ يوم.",
+        "spoken": "email"
+      },
+      {
         "title": "اختر: will أم be going to؟",
         "text": "It's sunny, it ___ rain.",
         "options": [
@@ -9404,6 +10739,102 @@
         ]
       },
       {
+        "title": "استمع، ثم اضغط على صورة النشاط.",
+        "text": "zip wiring",
+        "options": [
+          "zipwire",
+          "🐪",
+          "🚵",
+          "🤿",
+          "🥾",
+          "🧗"
+        ],
+        "response": "zipwire",
+        "feedback": "zip wiring, camel riding, mountain biking, snorkelling, hiking, climbing: نشاطات المغامرة. 🧗",
+        "clue": "تذكّر نشاطات المغامرة في بطاقات «أتعلّم».",
+        "spoken": "zip wiring"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة النشاط.",
+        "text": "camel riding",
+        "options": [
+          "zipwire",
+          "🐪",
+          "🚵",
+          "🤿",
+          "🥾",
+          "🧗"
+        ],
+        "response": "🐪",
+        "feedback": "zip wiring, camel riding, mountain biking, snorkelling, hiking, climbing: نشاطات المغامرة. 🧗",
+        "clue": "تذكّر نشاطات المغامرة في بطاقات «أتعلّم».",
+        "spoken": "camel riding"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة النشاط.",
+        "text": "mountain biking",
+        "options": [
+          "zipwire",
+          "🐪",
+          "🚵",
+          "🤿",
+          "🥾",
+          "🧗"
+        ],
+        "response": "🚵",
+        "feedback": "zip wiring, camel riding, mountain biking, snorkelling, hiking, climbing: نشاطات المغامرة. 🧗",
+        "clue": "تذكّر نشاطات المغامرة في بطاقات «أتعلّم».",
+        "spoken": "mountain biking"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة النشاط.",
+        "text": "snorkelling",
+        "options": [
+          "zipwire",
+          "🐪",
+          "🚵",
+          "🤿",
+          "🥾",
+          "🧗"
+        ],
+        "response": "🤿",
+        "feedback": "zip wiring, camel riding, mountain biking, snorkelling, hiking, climbing: نشاطات المغامرة. 🧗",
+        "clue": "تذكّر نشاطات المغامرة في بطاقات «أتعلّم».",
+        "spoken": "snorkelling"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة النشاط.",
+        "text": "hiking",
+        "options": [
+          "zipwire",
+          "🐪",
+          "🚵",
+          "🤿",
+          "🥾",
+          "🧗"
+        ],
+        "response": "🥾",
+        "feedback": "zip wiring, camel riding, mountain biking, snorkelling, hiking, climbing: نشاطات المغامرة. 🧗",
+        "clue": "تذكّر نشاطات المغامرة في بطاقات «أتعلّم».",
+        "spoken": "hiking"
+      },
+      {
+        "title": "استمع، ثم اضغط على صورة النشاط.",
+        "text": "climbing",
+        "options": [
+          "zipwire",
+          "🐪",
+          "🚵",
+          "🤿",
+          "🥾",
+          "🧗"
+        ],
+        "response": "🧗",
+        "feedback": "zip wiring, camel riding, mountain biking, snorkelling, hiking, climbing: نشاطات المغامرة. 🧗",
+        "clue": "تذكّر نشاطات المغامرة في بطاقات «أتعلّم».",
+        "spoken": "climbing"
+      },
+      {
         "title": "اختر: be going to أم will؟",
         "text": "The phone is ringing. I ___ answer.",
         "options": [
@@ -9512,9 +10943,23 @@
       },
       {
         "title": "رحلة أسبوع المغامرات",
-        "text": "جوليا تخبر صديقتها دينا عن رحلتها. اقرأ، واضغط على كل كلمة مضيئة. 📖\nخطّة جوليا: نشاط جديد كلّ يوم! 🗓️",
-        "example": [],
-        "labels": []
+        "text": "جوليا تخبر صديقتها دينا عن رحلتها. اقرأ، واضغط على كل كلمة مضيئة. 📖\nAdventure Week Journey\nWe're going to have an [adventure holiday]. We are going to stay in a hotel. The programme starts on 1st July. We are going to do [mountain biking] which is my favourite. [Climbing] is on Monday, but we are going to climb a special high wall. I can't wait to try the [zip wiring] on the next day, it's so exciting. On Wednesday we are going to the beach to do some water activities, [snorkelling] and surfing. There is a [barbecue] party on the last day.",
+        "example": [
+          "adventure holiday",
+          "mountain biking",
+          "Climbing",
+          "zip wiring",
+          "snorkelling",
+          "barbecue"
+        ],
+        "labels": [
+          "عطلة مغامرات",
+          "ركوب الدرّاجة الجبلية",
+          "التسلّق",
+          "الانزلاق على حبل معلّق",
+          "الغطس بأنبوب التنفّس",
+          "شواء"
+        ]
       },
       {
         "title": "رتّب نشاطات جوليا يوماً بعد يوم، من الأوّل إلى الأخير.",

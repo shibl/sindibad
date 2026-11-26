@@ -29,6 +29,8 @@ for (const quest of book.QUESTS) {
             example: (step.spots ?? []).map(spot => plain(spot.title ?? spot.label)),
             labels: (step.spots ?? []).map(spot => plain(spot.text)),
             ...(step.words ? { words: step.words.map(([en, ar,, sentence]) => ({ en: plain(en), ar: plain(ar), sentence: plain(sentence) })) } : {}),
+            ...(step.read ? { text: [step.say, step.read.title, step.read.text].filter(Boolean).map(plain).join('\n'),
+                example: Object.keys(step.read.gloss ?? {}), labels: Object.values(step.read.gloss ?? {}).map(plain) } : {}),
             ...(step.rule?.rows ? { example: step.rule.rows.map(row => plain(row[0])), labels: step.rule.rows.map(row => plain(row[1])) } : {}),
         }));
         for (const step of quest.steps.filter(s => ['keys', 'glasses'].includes(s.kind))) {
