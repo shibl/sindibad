@@ -154,7 +154,7 @@ class GameViewModel(private val repository: GameRepository, private val saved: S
     }
     fun savePainting(id: String, pixels: List<Int>) = transact {
         val profileId = mutable.value.store.activeId ?: return@transact
-        require(pixels.size == 64 && pixels.all { it in 0..7 })
+        require(pixels.size == 64 && pixels.all { it in 0..11 })
         repository.update { it.updateProfile(profileId) { profile -> profile.copy(gallery = profile.gallery + (id to pixels)) } }
     }
     fun buy(id: String) = transact {
