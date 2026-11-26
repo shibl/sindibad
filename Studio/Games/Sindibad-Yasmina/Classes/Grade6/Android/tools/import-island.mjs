@@ -63,3 +63,12 @@ if (region === 'social') {
     }));
     await writeFile(new URL('globe.json', directory), JSON.stringify(cards) + '\n');
 }
+if (region === 'farm') {
+    const goods = Object.fromEntries(book.QUESTS.map(q => {
+        const task = book.CROPS[q.crop] ?? book.TASKS[q.id];
+        return [q.topic, { product: task.product, amount: task.yield }];
+    }));
+    const helpers = Object.fromEntries(book.HELPERS.map(h => [h.id, { name: h.name, fact: plain(h.hello) }]));
+    const decorations = Object.fromEntries(book.DECOR.map(d => [d.id, { name: d.icon + ' ' + d.name, cost: d.cost, fact: plain(d.fact) }]));
+    await writeFile(new URL('barn.json', directory), JSON.stringify({ goods, helpers, decorations, products: book.PRODUCTS, orders: book.ORDERS }, null, 2) + '\n');
+}
