@@ -27,6 +27,7 @@ data class Profile(
     val owned: Set<String> = emptySet(),
     val style: Map<String, String> = emptyMap(),
     val certificateEarned: Boolean = false,
+    val gallery: Map<String, List<Int>> = emptyMap(),
 ) {
     val totalStars get() = topics.values.sumOf { it.stars }
     fun starsIn(region: String) = topics.filterKeys { it.startsWith("$region-") || (region == "treasure" && it == "review-treasure") }.values.sumOf { it.stars }
@@ -86,7 +87,7 @@ val islands = listOf(
     Island("farm", "مزرعتي السعيدة", "التربية الزراعية", "farm", 0xFF6AA84F, nativeReady = true),
     Island("music", "جزيرة الأنغام", "التربية الموسيقية", "music", 0xFF8A63C9, nativeReady = true),
     Island("math", "جزيرة الأرقام", "الرياضيات", "numbers", 0xFFC7373F, nativeReady = true),
-    Island("art", "جزيرة الألوان", "التربية الفنية", "palette", 0xFFE2543A),
+    Island("art", "جزيرة الألوان", "التربية الفنية", "palette", 0xFFE2543A, nativeReady = true),
     Island("science", "جزيرة العلوم", "العلوم", "science", 0xFF2F8A5F, nativeReady = true),
     Island("social", "جزيرة الأطلس", "الدراسات الاجتماعية", "atlas", 0xFFC98D1C, nativeReady = true),
     Island("english", "جزيرة Hello", "اللغة الإنكليزية", "english", 0xFF2F6FD0),

@@ -83,6 +83,9 @@ fun SindibadApp(vm: GameViewModel) {
                             Screen.Music -> SubjectIsland("music", state.store.active ?: return@Box, vm::startTopic)
                             Screen.Science -> SubjectIsland("science", state.store.active ?: return@Box, vm::startTopic)
                             Screen.Atlas -> SubjectIsland("social", state.store.active ?: return@Box, vm::startTopic)
+                            Screen.Art -> SubjectIsland("art", state.store.active ?: return@Box, vm::startTopic) {
+                                PaintingStudio(state.store.active ?: return@SubjectIsland, vm::savePainting)
+                            }
                             Screen.Farm -> SubjectIsland("farm", state.store.active ?: return@Box, vm::startTopic)
                             Screen.Math -> SubjectIsland("math", state.store.active ?: return@Box, vm::startTopic)
                             Screen.Treasure -> TreasureIsland(state.store.active ?: return@Box, vm)
@@ -128,6 +131,7 @@ private fun AppBar(state: AppUiState, vm: GameViewModel, back: () -> Unit) {
         Screen.Music -> "جزيرة الأنغام"
         Screen.Science -> "جزيرة العلوم"
         Screen.Atlas -> "جزيرة الأطلس"
+        Screen.Art -> "جزيرة الألوان"
         Screen.Farm -> "مزرعتي السعيدة"
         Screen.Arabic -> "جزيرة الحروف"
         Screen.Math -> "جزيرة الأرقام"
@@ -339,9 +343,10 @@ private fun FlatSeaMap(profile: Profile, onIsland: (Island) -> Unit) {
 }
 
 @Composable
-private fun SubjectIsland(region: String, profile: Profile, open: (String) -> Unit) {
+private fun SubjectIsland(region: String, profile: Profile, open: (String) -> Unit, workshop: (@Composable () -> Unit)? = null) {
     val island = islands.first { it.id == region }
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        if (workshop != null) item { workshop() }
         if (region == "social") item { AtlasGlobe() }
         item {
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {

@@ -5,7 +5,7 @@ import kotlinx.serialization.json.Json
 import org.sindibad.android.domain.*
 
 internal object IslandBooks {
-    val regions = listOf("farm", "music", "science", "social")
+    val regions = listOf("farm", "music", "science", "social", "art")
     private val books = regions.associateWith { region -> lazy {
         val resource = requireNotNull(javaClass.getResourceAsStream("/islands/$region.json"))
         val chapters = resource.bufferedReader().use { Json.decodeFromString<List<Chapter>>(it.readText()) }

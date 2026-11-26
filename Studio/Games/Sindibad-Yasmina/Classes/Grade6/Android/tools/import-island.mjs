@@ -33,7 +33,7 @@ for (const quest of book.QUESTS) {
             cards.push({ title: quest.title, text: plain(step.q), notes: step.play.map(note =>
                 step.kind === 'glasses' ? (note === 'C2' ? 'C5' : note + '4') : note) });
         }
-        if (['science', 'social'].includes(region)) {
+        if (['science', 'social', 'art'].includes(region)) {
             const explorations = cards[Symbol.iterator]();
             cards = quest.steps.flatMap(step => step.kind === 'explore' ? [explorations.next().value] : practiceCards(step));
         }
