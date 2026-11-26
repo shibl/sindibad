@@ -28,12 +28,16 @@ for (const quest of book.QUESTS) {
             text: [step.say, step.done, step.sum].filter(Boolean).map(plain).join('\n'),
             example: (step.spots ?? []).map(spot => plain(spot.title ?? spot.label)),
             labels: (step.spots ?? []).map(spot => plain(spot.text)),
+            ...(step.words ? { words: step.words.map(([en, ar,, sentence]) => ({ en: plain(en), ar: plain(ar), sentence: plain(sentence) })) } : {}),
+            ...(step.read ? { text: [step.say, step.read.title, step.read.text].filter(Boolean).map(plain).join('\n'),
+                example: Object.keys(step.read.gloss ?? {}), labels: Object.values(step.read.gloss ?? {}).map(plain) } : {}),
+            ...(step.rule?.rows ? { example: step.rule.rows.map(row => plain(row[0])), labels: step.rule.rows.map(row => plain(row[1])) } : {}),
         }));
         for (const step of quest.steps.filter(s => ['keys', 'glasses'].includes(s.kind))) {
             cards.push({ title: quest.title, text: plain(step.q), notes: step.play.map(note =>
                 step.kind === 'glasses' ? (note === 'C2' ? 'C5' : note + '4') : note) });
         }
-        if (['science', 'social', 'art'].includes(region)) {
+        if (['science', 'social', 'art', 'english'].includes(region)) {
             const explorations = cards[Symbol.iterator]();
             cards = quest.steps.flatMap(step => step.kind === 'explore' ? [explorations.next().value] : practiceCards(step));
         }

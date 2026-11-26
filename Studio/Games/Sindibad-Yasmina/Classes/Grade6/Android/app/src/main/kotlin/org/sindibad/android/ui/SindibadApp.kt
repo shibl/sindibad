@@ -83,6 +83,7 @@ fun SindibadApp(vm: GameViewModel) {
                                     "science" -> Screen.Science
                                     "social" -> Screen.Atlas
                                     "art" -> Screen.Art
+                                    "english" -> Screen.English
                                     "farm" -> Screen.Farm
                                     "math" -> Screen.Math
                                     "treasure" -> Screen.Treasure
@@ -95,6 +96,17 @@ fun SindibadApp(vm: GameViewModel) {
                             Screen.Atlas -> SubjectIsland("social", state.store.active ?: return@Box, vm::startTopic)
                             Screen.Art -> SubjectIsland("art", state.store.active ?: return@Box, vm::startTopic) {
                                 PaintingStudio(state.store.active ?: return@SubjectIsland, vm::savePainting)
+                            }
+                            Screen.English -> SubjectIsland("english", state.store.active ?: return@Box, vm::startTopic) {
+                                var expanded by rememberSaveable { mutableStateOf(false) }
+                                PaperCard(Modifier.fillMaxWidth()) {
+                                    TextButton(onClick = { expanded = !expanded }) { Text("دفتر كلماتي") }
+                                    if (expanded) {
+                                        val words = state.store.active?.wordBook.orEmpty()
+                                        if (words.isEmpty()) Text("أضف كلمات من دروس الجزيرة")
+                                        words.forEach { Text(it.en + " — " + it.ar); Text(it.sentence) }
+                                    }
+                                }
                             }
                             Screen.Farm -> Column {
                                 FarmBoard(state.store.active ?: return@Box, vm)
@@ -145,6 +157,7 @@ private fun AppBar(state: AppUiState, vm: GameViewModel, back: () -> Unit) {
         Screen.Science -> "جزيرة العلوم"
         Screen.Atlas -> "جزيرة الأطلس"
         Screen.Art -> "جزيرة الألوان"
+        Screen.English -> "جزيرة Hello"
         Screen.Farm -> "مزرعتي السعيدة"
         Screen.Arabic -> "جزيرة الحروف"
         Screen.Math -> "جزيرة الأرقام"
@@ -409,7 +422,8 @@ private fun Lesson(session: LessonSession, state: AppUiState, vm: GameViewModel)
                         SharedArt("cosmetics/hudhud/${state.store.active?.variant("hat") ?: "original"}", "هُدهُد", Modifier.size(80.dp))
                         Text(card.title, Modifier.weight(1f), style = MaterialTheme.typography.titleLarge)
                     }
-                    Text(card.text, style = MaterialTheme.typography.bodyLarge)
+                    if (card.spoken.isNotBlank()) SpokenPrompt(card.spoken, state.store.active?.preferences?.sound == true)
+                    else Text(card.text, style = MaterialTheme.typography.bodyLarge)
                     card.art.forEach { id -> SharedArt(id, card.title, Modifier.fillMaxWidth().height(150.dp)) }
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         card.example.forEachIndexed { i, example ->
@@ -420,6 +434,12 @@ private fun Lesson(session: LessonSession, state: AppUiState, vm: GameViewModel)
                                 }
                             }
                         }
+                    }
+                    card.words.forEach { word ->
+                        Text(word.en + " — " + word.ar)
+                        Text(word.sentence)
+                        val added = word in state.store.active?.wordBook.orEmpty()
+                        TextButton(enabled = !added, onClick = { vm.bookmarkWord(word) }) { Text(if (added) "✓" else "أضف إلى دفتر كلماتي") }
                     }
                     var practiceDone by rememberSaveable(session.id, session.cardIndex) { mutableStateOf(false) }
                     val hasPractice = card.response.isNotEmpty() || card.sequence.isNotEmpty()
