@@ -66,6 +66,14 @@ object SeaLayout {
             return Px((nx + 1) / 2 * width, (1 - ny) / 2 * height)
         }
 
+        /** Project a touch back onto the walkable disc of the island. */
+        fun landingPoint(x: Double, y: Double): V3 {
+            val ray = f + r * ((2 * x / width - 1) * t * width / height) + u * ((1 - 2 * y / height) * t)
+            val at = eye + ray * ((0.6 - eye.y) / ray.y.coerceAtMost(-0.01))
+            val scale = (3.8 / hypot(at.x, at.z).coerceAtLeast(0.01)).coerceAtMost(1.0)
+            return V3(at.x * scale, 0.6, at.z * scale)
+        }
+
         /** How big an island looks on screen, in pixels across. */
         fun islandWidth(id: String): Double {
             val p = islands.getValue(id)

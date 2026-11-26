@@ -1,5 +1,12 @@
 package org.sindibad.android.ui.sea
 
+import org.sindibad.android.ui.SharedArt
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.absoluteOffset
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.unit.IntOffset
 import android.view.TextureView
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -42,7 +49,7 @@ import kotlin.math.roundToInt
  * in 3D; the flat map takes over.
  */
 @Composable
-fun Sea3DMap(profile: Profile, calm: Boolean, onIsland: (Island) -> Unit, onFailed: () -> Unit, modifier: Modifier = Modifier) {
+fun Sea3DMap(profile: Profile, calm: Boolean, onIsland: (Island) -> Unit, onFailed: () -> Unit, modifier: Modifier = Modifier, landing: Island? = null) {
     var frame by remember { mutableStateOf<SeaLayout.Frame?>(null) }
     var renderer by remember { mutableStateOf<SeaRenderer?>(null) }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -52,7 +59,9 @@ fun Sea3DMap(profile: Profile, calm: Boolean, onIsland: (Island) -> Unit, onFail
             factory = { ctx ->
                 TextureView(ctx).also { view ->
                     try {
-                        renderer = SeaRenderer(ctx, view, mapOf("home" to "port") + islands.associate { it.id to it.art }, emptySet(), calm,
+                        val models = if (landing == null) mapOf("home" to "port") + islands.associate { it.id to it.art }
+                            else mapOf(landing.id to landing.art)
+                        renderer = SeaRenderer(ctx, view, models, emptySet(), calm,
                             onLayout = { frame = it }, onError = { onFailed() })
                     } catch (t: Throwable) {
                         // No OpenGL ES 3 or no room for it: the flat map instead.
@@ -63,6 +72,24 @@ fun Sea3DMap(profile: Profile, calm: Boolean, onIsland: (Island) -> Unit, onFail
             modifier = Modifier.fillMaxSize(),
         )
         frame?.let { fr ->
+            if (landing != null) {
+                var destX by rememberSaveable { mutableStateOf(0f) }
+                var destZ by rememberSaveable { mutableStateOf(3f) }
+                val walkX by animateFloatAsState(destX, tween(if (calm) 0 else 450), label = "walkX")
+                val walkZ by animateFloatAsState(destZ, tween(if (calm) 0 else 450), label = "walkZ")
+                Box(Modifier.fillMaxSize().pointerInput(fr) {
+                    detectTapGestures { tap ->
+                        val point = fr.landingPoint(tap.x.toDouble(), tap.y.toDouble())
+                        destX = point.x.toFloat()
+                        destZ = point.z.toFloat()
+                    }
+                })
+                val at = fr.project(SeaLayout.V3(walkX.toDouble(), 0.6, walkZ.toDouble()))
+                SharedArt("heroes/${profile.hero.asset}", profile.hero.arabic, Modifier.absoluteOffset {
+                    IntOffset(at.x.roundToInt() - 20.dp.roundToPx(), at.y.roundToInt() - 52.dp.roundToPx())
+                }.size(40.dp, 52.dp))
+                return@let
+            }
             // Taps on an island itself.
             Box(Modifier.fillMaxSize().pointerInput(fr) {
                 detectTapGestures { at ->
