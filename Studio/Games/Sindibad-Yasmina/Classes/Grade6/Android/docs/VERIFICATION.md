@@ -1,5 +1,9 @@
 # Native Android verification
 
+## Version 0.4.0 PR build
+
+The local JVM suite passed 49 tests. Debug lint completed with zero errors. Debug and unsigned release builds passed. Package inspection confirmed that both APKs contain the six offline curricula, farm inventory catalog and Atlas outlines. The packages are app-debug.apk (46.0 MiB) and app-release-unsigned.apk (16.4 MiB). The Grade 6 Android workflow produces a debug APK for the owner from each qualifying pull request.
+
 ## Owner acceptance for the island PRs
 
 Use an ARM64 Android 13+ phone. On a fresh offline profile, visit Treasure first, leave before the review ends, and move between the eight other islands out of curriculum order. Repeat on an upgraded profile and compare earlier scores and rewards. Check the flat map and 3D landing, touch movement, system back, RTL, larger type, reduced motion and audio preferences.

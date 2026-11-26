@@ -27,6 +27,23 @@ class IslandJourneyTest {
         assertTrue(store.active!!.certificateEarned)
     }
 
+    @Test fun `farm harvest and order rewards cannot be claimed twice from one sale`() {
+        val before = Barn().harvest("farm-potato")
+        val order = FarmBook.book.orders.first()
+        assertEquals(6, before.stock["potato"])
+        val first = before.deliver(order)
+        val second = first.deliver(order)
+        assertEquals(0, second.stock["potato"])
+        assertEquals(36, second.coins)
+        assertEquals(second, second.deliver(order))
+        val decorated = second.decorate("scarecrow")
+        assertEquals(6, decorated.coins)
+        assertEquals(decorated, decorated.decorate("scarecrow"))
+        val profile = Profile("one", "مغامر", Hero.Sindbad, barn = decorated, gallery = mapOf("one" to List(64) { 2 }),
+            wordBook = listOf(Vocabulary("country", "بلد", "Canada is a beautiful country.")))
+        assertEquals(profile, Json.decodeFromString<Profile>(Json.encodeToString(profile)))
+    }
+
     @Test fun `all specialized lessons have reachable instructions and answers`() {
         val sizes = mapOf("farm" to 7, "music" to 10, "science" to 17, "social" to 25, "art" to 25, "english" to 24)
         for ((island, size) in sizes) {
