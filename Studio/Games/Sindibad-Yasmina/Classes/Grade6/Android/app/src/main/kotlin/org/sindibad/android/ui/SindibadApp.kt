@@ -92,7 +92,10 @@ fun SindibadApp(vm: GameViewModel) {
                             Screen.Music -> SubjectIsland("music", state.store.active ?: return@Box, vm::startTopic)
                             Screen.Science -> SubjectIsland("science", state.store.active ?: return@Box, vm::startTopic)
                             Screen.Atlas -> SubjectIsland("social", state.store.active ?: return@Box, vm::startTopic)
-                            Screen.Farm -> SubjectIsland("farm", state.store.active ?: return@Box, vm::startTopic)
+                            Screen.Farm -> Column {
+                                FarmBoard(state.store.active ?: return@Box, vm)
+                                SubjectIsland("farm", state.store.active ?: return@Box, vm::startTopic)
+                            }
                             Screen.Math -> SubjectIsland("math", state.store.active ?: return@Box, vm::startTopic)
                             Screen.Treasure -> TreasureIsland(state.store.active ?: return@Box, vm)
                             Screen.Review -> ReviewList(state.store.active ?: return@Box, vm::startTopic)
