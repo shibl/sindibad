@@ -146,13 +146,6 @@ class LearningTest {
         assertThrows(IllegalArgumentException::class.java) { GameStore(profiles = listOf(profile)).complete(start()) }
     }
 
-    @Test fun `unlocking uses the prerequisite subject instead of total stars`() {
-        val math = islands.first { it.id == "math" }
-        assertFalse(math.unlocked(profile.copy(topics = mapOf("music-one" to TopicRecord(stars = 3)))))
-        assertFalse(math.unlocked(profile.copy(topics = mapOf("arabic-one" to TopicRecord(stars = 1)))))
-        assertTrue(math.unlocked(profile.copy(topics = mapOf("arabic-one" to TopicRecord(stars = 2)))))
-    }
-
     @Test fun `corrupt and future saves fail without silently resetting progress`() {
         assertThrows(Exception::class.java) { GameRepository.decode("{broken") }
         assertThrows(IllegalArgumentException::class.java) { GameRepository.decode("""{"version":2}""") }

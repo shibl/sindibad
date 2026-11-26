@@ -49,7 +49,7 @@ export default {
     },
     {
       id: 'math', name: 'جزيرة الأرقام', subject: 'الرياضيات', art: 'numbers', pos: [56, 63],
-      color: '#c7373f', unlock: { region: 'arabic', stars: 2 },
+      color: '#c7373f', unlock: null,
       badge: { name: 'بوصلة الأرقام', icon: '🧭' },
       intro: 'منارة الأرقام ترشد السفن بالكسور والنسب. احسب جيداً لتصل بأمان!',
     },
@@ -65,7 +65,7 @@ export default {
       // A 3D island (core/lab/) where the science book, semester 1, is
       // played: experiments first, then questions (worlds/grade6/lab.js).
       id: 'science', name: 'جزيرة العلوم', subject: 'العلوم', art: 'science', pos: [40, 41],
-      color: '#2f8a5f', unlock: { region: 'math', stars: 2 }, kind: 'lab',
+      color: '#2f8a5f', unlock: null, kind: 'lab',
       badge: { name: 'مصباح العلوم', icon: '🔬' },
       intro: 'جزيرة نجرّب فيها العلوم بأيدينا: غابة وبحيرة، وساحة القوى، وقبّة الجسم، وقلعة الحصن… كما في كتاب العلوم.',
     },
@@ -73,7 +73,7 @@ export default {
       // A 3D island (core/atlas/) where the social studies book is played,
       // with a globe of the world's countries (worlds/grade6/atlas.js).
       id: 'social', name: 'جزيرة الأطلس', subject: 'الدراسات الاجتماعية', art: 'atlas', pos: [78, 32], kind: 'atlas',
-      color: '#c98d1c', unlock: { region: 'science', stars: 2 },
+      color: '#c98d1c', unlock: null,
       badge: { name: 'بوصلة الرحّالة', icon: '🧭' },
       intro: 'من النيل إلى الأندلس! نرحل في وطننا العربي في أفريقيا، وفي مرصد الجزيرة كرة أرضية فيها كل دول العالم بأعلامها وعملاتها.',
     },
@@ -81,13 +81,13 @@ export default {
       // A side trip from the science island: a 3D island (core/english/)
       // where the English book is played (worlds/grade6/english.js).
       id: 'english', name: 'جزيرة Hello', subject: 'اللغة الإنكليزية', art: 'english', pos: [20, 25],
-      color: '#2f6fd0', unlock: { region: 'math', stars: 2 }, from: 'science', kind: 'english',
+      color: '#2f6fd0', unlock: null, from: 'science', kind: 'english',
       badge: { name: 'نجمة الكلمات', icon: '🔤' },
       intro: 'Hello! جزيرة نتكلّم فيها الإنكليزية: نسافر ونمثّل ونغوص ونطبخ ونزور الكواكب… كما في كتاب اللغة الإنكليزية.',
     },
     {
       id: 'treasure', name: 'جزيرة الكنز', subject: 'مراجعة شاملة', art: 'treasure', pos: [55, 10],
-      color: '#e0a93a', unlock: { region: 'social', stars: 2 },
+      color: '#e0a93a', unlock: null,
       badge: { name: 'تاج الحكمة', icon: '👑' },
       intro: 'وصلت إلى الكنز! لكن قفله لا يُفتح إلا لمن يتذكر كل ما تعلّمه.',
     },

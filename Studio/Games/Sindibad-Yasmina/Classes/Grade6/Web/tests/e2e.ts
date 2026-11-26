@@ -136,7 +136,7 @@ if (part('journey')) for (const [name, viewport] of [['phone', { width: 390, hei
   await p.click('.voyage--open');
   await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
   check(true, 'the sea map leads back up to the voyages chart');
-  check(await p.locator('.isle--locked').count() === 5, 'five islands start under fog');
+  check(await p.locator('.isle--locked').count() === 0, 'all islands are open to a new player');
 
   await p.click('.isle[data-region=arabic]');
   await p.waitForSelector('#screen-island[data-active]', { timeout: 6000 });
@@ -177,7 +177,7 @@ if (part('journey')) for (const [name, viewport] of [['phone', { width: 390, hei
   await p.click('#item-popup');
   await p.click('#island-leave');
   await p.waitForTimeout(4500);
-  check(await p.locator('.isle[data-region=math]:not(.isle--locked)').count() === 1, '3 stars lift the fog from the maths island');
+  check(await p.locator('.isle[data-region=math]:not(.isle--locked)').count() === 1, 'math stays accessible after an Arabic lesson');
 
   await p.reload();
   const saved = await p.evaluate(() => JSON.parse(localStorage.getItem('sindbad.save.v1')!));
@@ -628,18 +628,9 @@ if (part('science')) {
   await p.click('[data-st=skip]');
   await p.click('.voyage--open');
   await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
-  check(await p.locator('.isle[data-region=science].isle--locked').count() === 1, 'the science island waits behind the numbers island');
-  await p.evaluate(async () => {
-    const { save } = await (import('./core/save.js' as string) as Promise<typeof import('../core/save.js')>);
-    const { topicsIn } = await (import('./core/topics.js' as string) as Promise<typeof import('../core/topics.js')>);
-    save.update(v => { for (const r of ['arabic', 'math']) for (const t of topicsIn(r)) v.topics[t.id] = { stars: 3, best: 1, plays: 1 }; });
-  });
-  await p.click('.map-voyages');
-  await p.click('.voyage--open');
-  await p.waitForTimeout(800);
   await p.click('.isle[data-region=science]');
   await p.waitForSelector('#screen-lab[data-active]', { timeout: 20000 });
-  check(await p.locator('#lab-stage canvas').count() === 1, 'with stars on the numbers island, sailing there opens the 3D science island');
+  check(await p.locator('#lab-stage canvas').count() === 1, 'sailing directly from the port opens the 3D science island');
   await p.waitForTimeout(800);
   const lab = () => p.evaluate(() => window.__lab());
   let s = await lab();
@@ -763,18 +754,9 @@ if (part('atlas')) {
   await p.click('[data-st=skip]');
   await p.click('.voyage--open');
   await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
-  check(await p.locator('.isle[data-region=social].isle--locked').count() === 1, 'the atlas island waits behind the science island');
-  await p.evaluate(async () => {
-    const { save } = await (import('./core/save.js' as string) as Promise<typeof import('../core/save.js')>);
-    const { topicsIn } = await (import('./core/topics.js' as string) as Promise<typeof import('../core/topics.js')>);
-    save.update(v => { for (const r of ['arabic', 'math', 'science']) for (const t of topicsIn(r)) v.topics[t.id] = { stars: 3, best: 1, plays: 1 }; });
-  });
-  await p.click('.map-voyages');
-  await p.click('.voyage--open');
-  await p.waitForTimeout(800);
   await p.click('.isle[data-region=social]');
   await p.waitForSelector('#screen-atlas[data-active]', { timeout: 20000 });
-  check(await p.locator('#atlas-stage canvas').count() === 1, 'with stars on the science island, sailing there opens the 3D atlas island');
+  check(await p.locator('#atlas-stage canvas').count() === 1, 'sailing directly from the port opens the 3D atlas island');
   await p.waitForTimeout(800);
   const atlas = () => p.evaluate(() => window.__atlas());
   let s = await atlas();
@@ -1064,18 +1046,9 @@ async function englishIsland(half: 1 | 2) {
   await p.click('[data-st=skip]');
   await p.click('.voyage--open');
   await p.waitForSelector('#screen-map[data-active]', { timeout: 5000 });
-  check(await p.locator('.isle[data-region=english].isle--locked').count() === 1, 'the English island waits for stars on the numbers island');
-  await p.evaluate(async () => {
-    const { save } = await (import('./core/save.js' as string) as Promise<typeof import('../core/save.js')>);
-    const { topicsIn } = await (import('./core/topics.js' as string) as Promise<typeof import('../core/topics.js')>);
-    save.update(v => { for (const r of ['arabic', 'math']) for (const t of topicsIn(r)) v.topics[t.id] = { stars: 3, best: 1, plays: 1 }; });
-  });
-  await p.click('.map-voyages');
-  await p.click('.voyage--open');
-  await p.waitForTimeout(800);
   await p.click('.isle[data-region=english]');
   await p.waitForSelector('#screen-english[data-active]', { timeout: 20000 });
-  check(await p.locator('#english-stage canvas').count() === 1, 'with stars on the numbers island, sailing there opens the 3D English island');
+  check(await p.locator('#english-stage canvas').count() === 1, 'sailing directly from the port opens the 3D English island');
   await p.waitForTimeout(800);
   const english = () => p.evaluate(() => window.__english());
   let s = await english();
@@ -1170,7 +1143,7 @@ if (part('sea')) {
   await p.waitForTimeout(600);
   const sea = () => p.evaluate(() => window.__sea());
   let s = await sea();
-  check(s?.fog.length === 5 && s.next === 'arabic', 'the 3D sea: fog over the five locked islands, the letters island first');
+  check(s?.fog.length === 0 && s.next === 'arabic', 'the 3D sea: all nine islands clear, the letters island first');
   const boxes = await p.evaluate(() => {
     const m = document.getElementById('map')!.getBoundingClientRect();
     return [...document.querySelectorAll('#map .isle')].map(b => { const r = b.getBoundingClientRect(); return r.width > 40 && r.left >= m.left - 1 && r.right <= m.right + 1 && r.top >= m.top - 1 && r.bottom <= m.bottom + 1; });
@@ -1182,9 +1155,11 @@ if (part('sea')) {
   await p.click('#map-view');
   await p.waitForSelector('#map .sea-canvas', { timeout: 5000 });
   check(await p.locator('#map .isle__art').count() === 0, '…and back to the 3D sea');
-  await p.click('.isle[data-region=math]');
-  await p.waitForTimeout(400);
-  check(await p.isVisible('#map-toast') && (await sea())!.at === 'home', 'a foggy island explains how to open it; the ship stays');
+  await p.click('.isle[data-region=treasure]');
+  await p.waitForSelector('#screen-island[data-active]', { timeout: 10000 });
+  await p.click('#island-leave');
+  await p.waitForSelector('#map .sea-canvas', { timeout: 10000 });
+  check((await sea())!.at === 'treasure', 'a new player can visit Treasure and leave without completing it');
   await p.click('.isle[data-region=arabic]');
   await p.waitForSelector('#screen-island[data-active]', { timeout: 10000 });
   check(true, 'tapping an island sails there and goes ashore');
@@ -1201,12 +1176,12 @@ if (part('sea')) {
   await p.click('.voyage--open');
   await p.waitForTimeout(4500);
   s = await sea();
-  check(!s!.fog.includes('math') && await p.locator('.isle[data-region=math]:not(.isle--locked)').count() === 1, 'stars earned: the fog lifts from the numbers island');
+  check(!s!.fog.includes('math') && await p.locator('.isle[data-region=math]:not(.isle--locked)').count() === 1, 'the numbers island stays accessible after earning stars');
   await ctx.setOffline(true);
   await p.reload();
   await p.waitForTimeout(600);
   await toMap();
-  check((await sea())?.fog.length === 4, 'the 3D sea works offline and remembers the open islands');
+  check((await sea())?.fog.length === 0, 'the 3D sea works offline and remembers the open islands');
   await ctx.setOffline(false);
   await p.goto(URL_);
   await p.waitForTimeout(600);

@@ -45,7 +45,6 @@ import kotlin.math.roundToInt
 fun Sea3DMap(profile: Profile, calm: Boolean, onIsland: (Island) -> Unit, onFailed: () -> Unit, modifier: Modifier = Modifier) {
     var frame by remember { mutableStateOf<SeaLayout.Frame?>(null) }
     var renderer by remember { mutableStateOf<SeaRenderer?>(null) }
-    val fogged = islands.filter { !it.unlocked(profile) }.map { it.id }.toSet()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
     Box(modifier.fillMaxSize()) {
@@ -53,7 +52,7 @@ fun Sea3DMap(profile: Profile, calm: Boolean, onIsland: (Island) -> Unit, onFail
             factory = { ctx ->
                 TextureView(ctx).also { view ->
                     try {
-                        renderer = SeaRenderer(ctx, view, mapOf("home" to "port") + islands.associate { it.id to it.art }, fogged, calm,
+                        renderer = SeaRenderer(ctx, view, mapOf("home" to "port") + islands.associate { it.id to it.art }, emptySet(), calm,
                             onLayout = { frame = it }, onError = { onFailed() })
                     } catch (t: Throwable) {
                         // No OpenGL ES 3 or no room for it: the flat map instead.
@@ -74,7 +73,6 @@ fun Sea3DMap(profile: Profile, calm: Boolean, onIsland: (Island) -> Unit, onFail
             Label(fr, "home", "ميناء أرواد", null) {}
             for (island in islands) {
                 val status = when {
-                    !island.unlocked(profile) -> "تحت الضباب"
                     !island.nativeReady -> "قريباً"
                     else -> "${profile.starsIn(island.id)} / ${if (island.id == "treasure") 3 else Topics.inRegion(island.id).size * 3} ★"
                 }

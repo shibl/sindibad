@@ -114,7 +114,7 @@ class GameViewModel(private val repository: GameRepository, private val saved: S
         val region = if (id == "review-treasure") "treasure" else id.substringBefore('-')
         if (id.startsWith("guardian-")) {
             if (!Topics.guardianReady(profile, id.removePrefix("guardian-"))) return
-        } else if (islands.any { it.id == region && (!it.nativeReady || !it.unlocked(profile)) }) return
+        } else if (islands.any { it.id == region && !it.nativeReady }) return
         val seed = Random.nextInt()
         val topic = Topics.get(id, seed)
         val session = mutable.value.session

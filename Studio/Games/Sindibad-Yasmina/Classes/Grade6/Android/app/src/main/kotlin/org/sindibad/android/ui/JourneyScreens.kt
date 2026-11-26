@@ -94,14 +94,12 @@ fun PearlShop(profile: Profile, busy: Boolean, vm: GameViewModel) {
 
 @Composable
 fun TreasureIsland(profile: Profile, vm: GameViewModel) {
-    val unlocked = islands.first { it.id == "treasure" }.unlocked(profile)
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(18.dp)) {
         item { PaperCard(Modifier.fillMaxWidth()) {
             SharedArt("objects/chest", "صندوق الكنز", Modifier.fillMaxWidth().height(200.dp))
             Text("الحكيم لقمان", style = MaterialTheme.typography.headlineLarge)
             Text("الصندوق لا يُفتح بالقوة، بل بالحكمة. نستعيد ما تعلّمناه من الجزر.")
-            if (unlocked) GoldButton("قفل الكنز") { vm.startTopic("review-treasure") }
-            else Text("اجمع نجمتين في جزيرة الأطلس أولاً. تبقى هذه الرحلة محفوظة حتى تكتمل الجزر.")
+            GoldButton("قفل الكنز") { vm.startTopic("review-treasure") }
             if (profile.certificateEarned) GoldButton("افتح شهادتي") { vm.navigate(Screen.Certificate) }
         } }
     }

@@ -3,7 +3,6 @@ package org.sindibad.android.content
 import kotlin.random.Random
 import org.sindibad.android.domain.*
 
-/** The gate remains the original social-island prerequisite, never a purchase. */
 object Treasure {
     fun topic(seed: Int): Topic {
         val random = Random(seed)

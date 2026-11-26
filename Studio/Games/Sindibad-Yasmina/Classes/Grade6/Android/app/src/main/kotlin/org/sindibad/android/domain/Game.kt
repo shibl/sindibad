@@ -78,21 +78,19 @@ fun starsFor(correct: Int, total: Int): Int {
 
 data class Island(
     val id: String, val name: String, val subject: String, val art: String,
-    val color: Long, val requires: String? = null, val nativeReady: Boolean = false,
-) {
-    fun unlocked(profile: Profile) = requires == null || profile.starsIn(requires) >= 2
-}
+    val color: Long, val nativeReady: Boolean = false,
+)
 
 val islands = listOf(
     Island("arabic", "جزيرة الحروف", "اللغة العربية", "letters", 0xFFD0507E, nativeReady = true),
     Island("farm", "مزرعتي السعيدة", "التربية الزراعية", "farm", 0xFF6AA84F),
     Island("music", "جزيرة الأنغام", "التربية الموسيقية", "music", 0xFF8A63C9),
-    Island("math", "جزيرة الأرقام", "الرياضيات", "numbers", 0xFFC7373F, "arabic", nativeReady = true),
+    Island("math", "جزيرة الأرقام", "الرياضيات", "numbers", 0xFFC7373F, nativeReady = true),
     Island("art", "جزيرة الألوان", "التربية الفنية", "palette", 0xFFE2543A),
-    Island("science", "جزيرة العلوم", "العلوم", "science", 0xFF2F8A5F, "math"),
-    Island("social", "جزيرة الأطلس", "الدراسات الاجتماعية", "atlas", 0xFFC98D1C, "science"),
-    Island("english", "جزيرة Hello", "اللغة الإنكليزية", "english", 0xFF2F6FD0, "math"),
-    Island("treasure", "جزيرة الكنز", "مراجعة شاملة", "treasure", 0xFFE0A93A, "social", nativeReady = true),
+    Island("science", "جزيرة العلوم", "العلوم", "science", 0xFF2F8A5F),
+    Island("social", "جزيرة الأطلس", "الدراسات الاجتماعية", "atlas", 0xFFC98D1C),
+    Island("english", "جزيرة Hello", "اللغة الإنكليزية", "english", 0xFF2F6FD0),
+    Island("treasure", "جزيرة الكنز", "مراجعة شاملة", "treasure", 0xFFE0A93A, nativeReady = true),
 )
 
 data class LearnCard(val title: String, val text: String, val example: List<String> = emptyList(), val labels: List<String> = emptyList(), val art: List<String> = emptyList())

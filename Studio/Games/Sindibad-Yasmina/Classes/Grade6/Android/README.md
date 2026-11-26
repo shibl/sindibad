@@ -57,8 +57,7 @@ This is an incremental native implementation; full website parity remains in the
   Hudhud's hat. Purchases never change lesson access or scores.
 - A ten-question treasure review samples Arabic, math, science, social studies,
   art and English (including 710 existing review questions from the latter four).
-  The certificate is earned after passing. **Treasure retains its Atlas-star
-  prerequisite, so it is gated until that native island is implemented.**
+  The certificate is earned after passing. Treasure is available from the first voyage.
 
 Six specialized islands remain marked as coming soon. Native 3D, those
 subject games, stickers, scheduled review and the full family dashboard
