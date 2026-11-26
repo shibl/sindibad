@@ -169,17 +169,12 @@ class MathJourneyTest {
             assertEquals(item.id, bought.style[item.slot])
             assertTrue(item.id in bought.owned)
             assertEquals(p.totalStars, bought.totalStars)
-            assertEquals(islands.map { it.unlocked(p) }, islands.map { it.unlocked(bought) })
             assertThrows(IllegalArgumentException::class.java) { profile.buyCosmetic(item.id) }
             assertThrows(IllegalArgumentException::class.java) { profile.wearCosmetic(item.slot, item.id) }
             assertFalse(bought.wearCosmetic(item.slot, null).style.containsKey(item.slot))
         }
     }
     @Test fun `treasure covers six subjects and certificate is awarded only for a passing finish`() {
-        val treasureIsland = islands.first { it.id == "treasure" }
-        assertFalse(treasureIsland.unlocked(profile.copy(pearls = 100000)))
-        val qualified = profile.copy(topics = mapOf("social-map" to TopicRecord(stars = 2)))
-        assertTrue(treasureIsland.unlocked(qualified))
         for (seed in 0..20) {
             val topic = Treasure.topic(seed)
             assertEquals(topic, Treasure.topic(seed))
@@ -187,7 +182,7 @@ class MathJourneyTest {
             val ids = topic.questions.map { it.id }
             for (prefix in listOf("review-arabic-", "math-", "review-science-", "review-social-", "review-art-", "review-english-")) assertTrue(ids.any { it.startsWith(prefix) }, prefix)
             val finished = complete(topic, seed)
-            val store = GameStore(profiles = listOf(qualified), activeId = qualified.id)
+            val store = GameStore(profiles = listOf(profile), activeId = profile.id)
             assertFalse(store.complete(finished.copy(correct = 4)).active!!.certificateEarned)
             val passed = store.complete(finished).active!!
             assertTrue(passed.certificateEarned)

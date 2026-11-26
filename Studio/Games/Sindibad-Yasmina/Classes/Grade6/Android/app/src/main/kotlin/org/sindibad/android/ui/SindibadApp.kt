@@ -261,7 +261,7 @@ private fun SeaMap(profile: Profile, calm: Boolean, openIsland: (String) -> Unit
     var selected by remember { mutableStateOf<Island?>(null) }
     var flat by rememberSaveable { mutableStateOf(false) }
     var failed by rememberSaveable { mutableStateOf(false) }
-    val onIsland: (Island) -> Unit = { island -> if (island.nativeReady && island.unlocked(profile)) openIsland(island.id) else selected = island }
+    val onIsland: (Island) -> Unit = { island -> if (island.nativeReady) openIsland(island.id) else selected = island }
     Box(Modifier.fillMaxSize()) {
         if (flat || failed) FlatSeaMap(profile, onIsland)
         else Sea3DMap(profile, calm, onIsland, onFailed = { failed = true })
@@ -275,8 +275,7 @@ private fun SeaMap(profile: Profile, calm: Boolean, openIsland: (String) -> Unit
             title = { Text(island.name) },
             text = { Column {
                 SharedArt("islands/${island.art}", null, Modifier.fillMaxWidth().height(160.dp))
-                Text(if (!island.nativeReady) "تنتظرك مغامرات ${island.subject} هنا قريباً."
-                    else "اجمع نجمتين في ${islands.first { it.id == island.requires }.name} لتفتح هذه الجزيرة. لا تُفتح الجزر باللآلئ.")
+                Text("تنتظرك مغامرات ${island.subject} هنا قريباً.")
             } },
             confirmButton = { TextButton(onClick = { selected = null }) { Text("حسناً") } })
     }
@@ -304,8 +303,7 @@ private fun FlatSeaMap(profile: Profile, onIsland: (Island) -> Unit) {
                             Text(island.name, style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
                             Text(when {
                                 !island.nativeReady -> "قريباً"
-                                island.unlocked(profile) -> "${profile.starsIn(island.id)} / ${if (island.id == "treasure") 3 else Topics.inRegion(island.id).size * 3} نجوم"
-                                else -> "تحت الضباب"
+                                else -> "${profile.starsIn(island.id)} / ${if (island.id == "treasure") 3 else Topics.inRegion(island.id).size * 3} نجوم"
                             }, style = MaterialTheme.typography.bodySmall, color = Teal)
                         }
                     }
