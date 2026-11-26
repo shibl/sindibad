@@ -81,6 +81,7 @@ fun SindibadApp(vm: GameViewModel) {
                             }
                             Screen.Arabic -> SubjectIsland("arabic", state.store.active ?: return@Box, vm::startTopic)
                             Screen.Music -> SubjectIsland("music", state.store.active ?: return@Box, vm::startTopic)
+                            Screen.Science -> SubjectIsland("science", state.store.active ?: return@Box, vm::startTopic)
                             Screen.Farm -> SubjectIsland("farm", state.store.active ?: return@Box, vm::startTopic)
                             Screen.Math -> SubjectIsland("math", state.store.active ?: return@Box, vm::startTopic)
                             Screen.Treasure -> TreasureIsland(state.store.active ?: return@Box, vm)
@@ -124,6 +125,7 @@ private fun AppBar(state: AppUiState, vm: GameViewModel, back: () -> Unit) {
         Screen.Voyages -> "خريطة الرحلات"
         Screen.Sea -> "بحر الصف السادس"
         Screen.Music -> "جزيرة الأنغام"
+        Screen.Science -> "جزيرة العلوم"
         Screen.Farm -> "مزرعتي السعيدة"
         Screen.Arabic -> "جزيرة الحروف"
         Screen.Math -> "جزيرة الأرقام"
@@ -398,6 +400,9 @@ private fun Lesson(session: LessonSession, state: AppUiState, vm: GameViewModel)
                             }
                         }
                     }
+                    var practiceDone by rememberSaveable(session.id, session.cardIndex) { mutableStateOf(false) }
+                    val hasPractice = card.response.isNotEmpty() || card.sequence.isNotEmpty()
+                    if (hasPractice) key(session.id, session.cardIndex) { PracticeCard(card, session.seed, practiceDone) { practiceDone = true } }
                     var usedTools by rememberSaveable(session.id, session.cardIndex) { mutableStateOf(arrayListOf<String>()) }
                     var toolHint by rememberSaveable(session.id, session.cardIndex) { mutableStateOf("") }
                     if (card.tools.isNotEmpty()) {
@@ -415,7 +420,7 @@ private fun Lesson(session: LessonSession, state: AppUiState, vm: GameViewModel)
                     }
                     var noteIndex by rememberSaveable(session.id, session.cardIndex) { mutableIntStateOf(0) }
                     if (card.notes.isNotEmpty()) PracticeKeyboard(card.notes, noteIndex, state.store.active?.preferences?.sound == true) { noteIndex++ }
-                    GoldButton(if (session.cardIndex == topic.cards.lastIndex) "فهمت، لنجرّب!" else "التالي", enabled = usedTools.containsAll(card.requiredTools) && noteIndex >= card.notes.size, onClick = vm::nextCard)
+                    GoldButton(if (session.cardIndex == topic.cards.lastIndex) "فهمت، لنجرّب!" else "التالي", enabled = (!hasPractice || practiceDone) && usedTools.containsAll(card.requiredTools) && noteIndex >= card.notes.size, onClick = vm::nextCard)
                     if (session.cardIndex > 0) TextButton(onClick = vm::previousCard) { Text("السابق") }
                     if (session.reviewing) TextButton(onClick = vm::returnToQuestion) { Text("العودة إلى السؤال") }
                 }

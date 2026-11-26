@@ -1,4 +1,5 @@
 // Export the original CC-BY-SA curriculum as offline native lesson data.
+import { practiceCards } from './practice-cards.mjs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { plain } from '../../Shared/Art/tools/math-source.ts';
 
@@ -31,6 +32,10 @@ for (const quest of book.QUESTS) {
         for (const step of quest.steps.filter(s => ['keys', 'glasses'].includes(s.kind))) {
             cards.push({ title: quest.title, text: plain(step.q), notes: step.play.map(note =>
                 step.kind === 'glasses' ? (note === 'C2' ? 'C5' : note + '4') : note) });
+        }
+        if (region === 'science') {
+            const explorations = cards[Symbol.iterator]();
+            cards = quest.steps.flatMap(step => step.kind === 'explore' ? [explorations.next().value] : practiceCards(step));
         }
         review = book.reviewOf(quest.id);
     }
