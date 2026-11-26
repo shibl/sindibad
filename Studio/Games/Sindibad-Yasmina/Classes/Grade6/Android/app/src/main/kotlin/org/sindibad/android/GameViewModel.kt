@@ -105,6 +105,10 @@ class GameViewModel(private val repository: GameRepository, private val saved: S
         setSession(null)
         goHome()
     }
+    fun updateBarn(change: (Barn) -> Barn) = transact {
+        val id = mutable.value.store.activeId ?: return@transact
+        repository.update { it.updateProfile(id) { p -> p.copy(barn = change(p.barn)) } }
+    }
     fun preferences(value: Preferences) = transact {
         val id = mutable.value.store.activeId ?: return@transact
         repository.update { it.updateProfile(id) { p -> p.copy(preferences = value) } }
