@@ -77,9 +77,13 @@ fun SindibadApp(vm: GameViewModel) {
                             Screen.Profiles -> Profiles(state, vm)
                             Screen.Voyages -> Voyages { vm.navigate(Screen.Sea) }
                             Screen.Sea -> SeaMap(state.store.active ?: return@Box, prefs.calm) { region ->
-                                vm.navigate(when (region) { "math" -> Screen.Math; "treasure" -> Screen.Treasure; else -> Screen.Arabic })
+                                vm.navigate(when (region) { "farm" -> Screen.Farm; "math" -> Screen.Math; "treasure" -> Screen.Treasure; else -> Screen.Arabic })
                             }
                             Screen.Arabic -> SubjectIsland("arabic", state.store.active ?: return@Box, vm::startTopic)
+                            Screen.Farm -> Column {
+                                FarmBoard(state.store.active ?: return@Box, vm)
+                                SubjectIsland("farm", state.store.active ?: return@Box, vm::startTopic)
+                            }
                             Screen.Math -> SubjectIsland("math", state.store.active ?: return@Box, vm::startTopic)
                             Screen.Treasure -> TreasureIsland(state.store.active ?: return@Box, vm)
                             Screen.Review -> ReviewList(state.store.active ?: return@Box, vm::startTopic)
@@ -121,6 +125,7 @@ private fun AppBar(state: AppUiState, vm: GameViewModel, back: () -> Unit) {
         Screen.Home -> "رحلات سندباد وياسمينة"
         Screen.Voyages -> "خريطة الرحلات"
         Screen.Sea -> "بحر الصف السادس"
+        Screen.Farm -> "مزرعتي السعيدة"
         Screen.Arabic -> "جزيرة الحروف"
         Screen.Math -> "جزيرة الأرقام"
         Screen.Treasure -> "جزيرة الكنز"
@@ -332,14 +337,15 @@ private fun FlatSeaMap(profile: Profile, onIsland: (Island) -> Unit) {
 
 @Composable
 private fun SubjectIsland(region: String, profile: Profile, open: (String) -> Unit) {
+    val island = islands.first { it.id == region }
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item {
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-                SharedArt("islands/${if (region == "math") "numbers" else "letters"}", null, Modifier.height(150.dp))
-                Text(if (region == "math") "أبحر بالأرقام، وجّه السفينة، وأدِر الناعورة" else "كل جملة شيفرة… وأنت مَن يفكّها", color = Color.White, style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center)
+                SharedArt("islands/${island.art}", null, Modifier.height(150.dp))
+                Text(if (region == "math") "أبحر بالأرقام، وجّه السفينة، وأدِر الناعورة" else if (region == "arabic") "كل جملة شيفرة… وأنت مَن يفكّها" else island.subject, color = Color.White, style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center)
             }
         }
-        item { PaperCard(Modifier.fillMaxWidth()) {
+        if (region in listOf("arabic", "math")) item { PaperCard(Modifier.fillMaxWidth()) {
             val ready = Topics.guardianReady(profile, region)
             SharedArt("guardians/$region/${if (region in profile.guardians) "happy" else "ok"}", null, Modifier.height(90.dp).fillMaxWidth())
             Text(if (ready) "الحارس يتحدّاك!" else "اجمع نجمة في كل درس قبل تحدّي الحارس")
@@ -393,7 +399,22 @@ private fun Lesson(session: LessonSession, state: AppUiState, vm: GameViewModel)
                             }
                         }
                     }
-                    GoldButton(if (session.cardIndex == topic.cards.lastIndex) "فهمت، لنجرّب!" else "التالي", onClick = vm::nextCard)
+                    var usedTools by rememberSaveable(session.id, session.cardIndex) { mutableStateOf(arrayListOf<String>()) }
+                    var toolHint by rememberSaveable(session.id, session.cardIndex) { mutableStateOf("") }
+                    if (card.tools.isNotEmpty()) {
+                        FlowRow {
+                            card.tools.forEach { tool ->
+                                TextButton(enabled = tool !in usedTools, onClick = {
+                                    if (tool in card.requiredTools) {
+                                        usedTools = ArrayList(usedTools + tool)
+                                        toolHint = tool + " ✓"
+                                    } else toolHint = "حاول بأداة أخرى"
+                                }) { Text(tool) }
+                            }
+                        }
+                        Text(toolHint)
+                    }
+                    GoldButton(if (session.cardIndex == topic.cards.lastIndex) "فهمت، لنجرّب!" else "التالي", enabled = usedTools.containsAll(card.requiredTools), onClick = vm::nextCard)
                     if (session.cardIndex > 0) TextButton(onClick = vm::previousCard) { Text("السابق") }
                     if (session.reviewing) TextButton(onClick = vm::returnToQuestion) { Text("العودة إلى السؤال") }
                 }
