@@ -1,6 +1,7 @@
 package org.sindibad.android.ui
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -23,6 +24,22 @@ private val countries by lazy {
     resource.bufferedReader().use { Json.decodeFromString<List<CountryCard>>(it.readText()) }
 }
 
+/** Unwrap longitudes around the tap so a polygon can cross the date line. */
+private fun contains(ring: List<Int>, lon: Double, lat: Double): Boolean {
+    fun relative(value: Int) = ((value / 10.0 - lon + 540) % 360) - 180
+    var inside = false
+    var previous = ring.size - 2
+    for (i in ring.indices step 2) {
+        val x = relative(ring[i])
+        val y = ring[i + 1] / 10.0
+        val px = relative(ring[previous])
+        val py = ring[previous + 1] / 10.0
+        if (abs(x - px) <= 180 && (y > lat) != (py > lat) && x + (px - x) * (lat - y) / (py - y) > 0) inside = !inside
+        previous = i
+    }
+    return inside
+}
+
 @Composable
 internal fun AtlasGlobe() {
     var latitude by rememberSaveable { mutableDoubleStateOf(34.0) }
@@ -35,6 +52,21 @@ internal fun AtlasGlobe() {
                 change.consume()
                 latitude = (latitude + amount.y * 140 / size.height).coerceIn(-90.0, 90.0)
                 longitude -= amount.x * 180 / size.width
+            }
+        }.pointerInput(latitude, longitude) {
+            detectTapGestures { tap ->
+                val radius = min(size.width, size.height) * .48
+                val x = (tap.x - size.width / 2.0) / radius
+                val y = (size.height / 2.0 - tap.y) / radius
+                val r2 = x*x + y*y
+                if (r2 <= 1.0) {
+                    val z = sqrt(1.0 - r2)
+                    val phi = Math.toRadians(latitude)
+                    val lat = Math.toDegrees(asin((y*cos(phi) + z*sin(phi)).coerceIn(-1.0, 1.0)))
+                    val raw = longitude + Math.toDegrees(atan2(x, z*cos(phi) - y*sin(phi)))
+                    val lon = ((raw % 360 + 540) % 360) - 180
+                    countries.firstOrNull { c -> c.lines.any { contains(it, lon, lat) } }?.let { selection = it.name }
+                }
             }
         }) {
             val radius = size.minDimension * .48f
