@@ -82,6 +82,7 @@ fun SindibadApp(vm: GameViewModel) {
                             Screen.Arabic -> SubjectIsland("arabic", state.store.active ?: return@Box, vm::startTopic)
                             Screen.Music -> SubjectIsland("music", state.store.active ?: return@Box, vm::startTopic)
                             Screen.Science -> SubjectIsland("science", state.store.active ?: return@Box, vm::startTopic)
+                            Screen.Atlas -> SubjectIsland("social", state.store.active ?: return@Box, vm::startTopic)
                             Screen.Farm -> SubjectIsland("farm", state.store.active ?: return@Box, vm::startTopic)
                             Screen.Math -> SubjectIsland("math", state.store.active ?: return@Box, vm::startTopic)
                             Screen.Treasure -> TreasureIsland(state.store.active ?: return@Box, vm)
@@ -126,6 +127,7 @@ private fun AppBar(state: AppUiState, vm: GameViewModel, back: () -> Unit) {
         Screen.Sea -> "بحر الصف السادس"
         Screen.Music -> "جزيرة الأنغام"
         Screen.Science -> "جزيرة العلوم"
+        Screen.Atlas -> "جزيرة الأطلس"
         Screen.Farm -> "مزرعتي السعيدة"
         Screen.Arabic -> "جزيرة الحروف"
         Screen.Math -> "جزيرة الأرقام"
@@ -340,6 +342,7 @@ private fun FlatSeaMap(profile: Profile, onIsland: (Island) -> Unit) {
 private fun SubjectIsland(region: String, profile: Profile, open: (String) -> Unit) {
     val island = islands.first { it.id == region }
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        if (region == "social") item { AtlasGlobe() }
         item {
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
                 SharedArt("islands/${island.art}", null, Modifier.height(150.dp))
