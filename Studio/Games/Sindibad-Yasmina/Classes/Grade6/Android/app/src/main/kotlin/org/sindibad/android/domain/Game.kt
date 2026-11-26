@@ -27,6 +27,7 @@ data class Profile(
     val owned: Set<String> = emptySet(),
     val style: Map<String, String> = emptyMap(),
     val certificateEarned: Boolean = false,
+    val wordBook: List<Vocabulary> = emptyList(),
     val gallery: Map<String, List<Int>> = emptyMap(),
 ) {
     val totalStars get() = topics.values.sumOf { it.stars }
@@ -90,14 +91,17 @@ val islands = listOf(
     Island("art", "جزيرة الألوان", "التربية الفنية", "palette", 0xFFE2543A, nativeReady = true),
     Island("science", "جزيرة العلوم", "العلوم", "science", 0xFF2F8A5F, nativeReady = true),
     Island("social", "جزيرة الأطلس", "الدراسات الاجتماعية", "atlas", 0xFFC98D1C, nativeReady = true),
-    Island("english", "جزيرة Hello", "اللغة الإنكليزية", "english", 0xFF2F6FD0),
+    Island("english", "جزيرة Hello", "اللغة الإنكليزية", "english", 0xFF2F6FD0, nativeReady = true),
     Island("treasure", "جزيرة الكنز", "مراجعة شاملة", "treasure", 0xFFE0A93A, nativeReady = true),
 )
 
 @Serializable
+data class Vocabulary(val en: String, val ar: String, val sentence: String)
+
+@Serializable
 data class LearnCard(val title: String, val text: String, val example: List<String> = emptyList(), val labels: List<String> = emptyList(), val art: List<String> = emptyList(), val tools: List<String> = emptyList(), val requiredTools: List<String> = emptyList(), val notes: List<String> = emptyList(),
     val options: List<String> = emptyList(), val response: String = "", val sequence: List<String> = emptyList(),
-    val feedback: String = "", val clue: String = "")
+    val feedback: String = "", val clue: String = "", val words: List<Vocabulary> = emptyList())
 enum class ActivityKind { Word, Sort, Choice, Build, NumberLine, Angle, Fill, Market }
 data class NumberControl(val min: Double, val max: Double, val ticks: Int, val acceptable: IntRange? = null) {
     init { require(min.isFinite() && max.isFinite() && min < max && ticks in 1..1000) }

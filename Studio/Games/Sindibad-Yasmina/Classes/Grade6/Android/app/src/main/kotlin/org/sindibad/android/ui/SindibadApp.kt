@@ -86,6 +86,17 @@ fun SindibadApp(vm: GameViewModel) {
                             Screen.Art -> SubjectIsland("art", state.store.active ?: return@Box, vm::startTopic) {
                                 PaintingStudio(state.store.active ?: return@SubjectIsland, vm::savePainting)
                             }
+                            Screen.English -> SubjectIsland("english", state.store.active ?: return@Box, vm::startTopic) {
+                                var expanded by rememberSaveable { mutableStateOf(false) }
+                                PaperCard(Modifier.fillMaxWidth()) {
+                                    TextButton(onClick = { expanded = !expanded }) { Text("دفتر كلماتي") }
+                                    if (expanded) {
+                                        val words = state.store.active?.wordBook.orEmpty()
+                                        if (words.isEmpty()) Text("أضف كلمات من دروس الجزيرة")
+                                        words.forEach { Text(it.en + " — " + it.ar); Text(it.sentence) }
+                                    }
+                                }
+                            }
                             Screen.Farm -> SubjectIsland("farm", state.store.active ?: return@Box, vm::startTopic)
                             Screen.Math -> SubjectIsland("math", state.store.active ?: return@Box, vm::startTopic)
                             Screen.Treasure -> TreasureIsland(state.store.active ?: return@Box, vm)
@@ -132,6 +143,7 @@ private fun AppBar(state: AppUiState, vm: GameViewModel, back: () -> Unit) {
         Screen.Science -> "جزيرة العلوم"
         Screen.Atlas -> "جزيرة الأطلس"
         Screen.Art -> "جزيرة الألوان"
+        Screen.English -> "جزيرة Hello"
         Screen.Farm -> "مزرعتي السعيدة"
         Screen.Arabic -> "جزيرة الحروف"
         Screen.Math -> "جزيرة الأرقام"
@@ -407,6 +419,12 @@ private fun Lesson(session: LessonSession, state: AppUiState, vm: GameViewModel)
                                 }
                             }
                         }
+                    }
+                    card.words.forEach { word ->
+                        Text(word.en + " — " + word.ar)
+                        Text(word.sentence)
+                        val added = word in state.store.active?.wordBook.orEmpty()
+                        TextButton(enabled = !added, onClick = { vm.bookmarkWord(word) }) { Text(if (added) "✓" else "أضف إلى دفتر كلماتي") }
                     }
                     var practiceDone by rememberSaveable(session.id, session.cardIndex) { mutableStateOf(false) }
                     val hasPractice = card.response.isNotEmpty() || card.sequence.isNotEmpty()

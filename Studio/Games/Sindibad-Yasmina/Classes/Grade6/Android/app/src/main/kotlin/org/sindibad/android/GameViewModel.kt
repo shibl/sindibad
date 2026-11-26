@@ -144,6 +144,10 @@ class GameViewModel(private val repository: GameRepository, private val saved: S
         val session = mutable.value.session ?: return@transact
         repository.update { it.complete(session) }
     }
+    fun bookmarkWord(word: Vocabulary) = transact {
+        val profileId = mutable.value.store.activeId ?: return@transact
+        repository.update { it.updateProfile(profileId) { profile -> profile.copy(wordBook = (profile.wordBook + word).distinct()) } }
+    }
     fun savePainting(id: String, pixels: List<Int>) = transact {
         val profileId = mutable.value.store.activeId ?: return@transact
         require(pixels.size == 64 && pixels.all { it in 0..7 })
