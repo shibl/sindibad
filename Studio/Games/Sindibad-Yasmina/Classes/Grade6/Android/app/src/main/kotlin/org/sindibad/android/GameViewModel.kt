@@ -15,7 +15,7 @@ import org.sindibad.android.domain.*
 import java.util.UUID
 import kotlin.random.Random
 
-enum class Screen { Home, Voyages, Sea, Arabic, Math, Treasure, Review, Shop, Certificate, Lesson, Journey, Settings, Profiles, About }
+enum class Screen { Home, Voyages, Sea, Farm, Arabic, Math, Treasure, Review, Shop, Certificate, Lesson, Journey, Settings, Profiles, About }
 
 data class AppUiState(
     val loading: Boolean = true, val store: GameStore = GameStore(),

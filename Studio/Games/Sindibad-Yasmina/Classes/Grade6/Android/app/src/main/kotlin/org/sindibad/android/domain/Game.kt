@@ -83,7 +83,7 @@ data class Island(
 
 val islands = listOf(
     Island("arabic", "جزيرة الحروف", "اللغة العربية", "letters", 0xFFD0507E, nativeReady = true),
-    Island("farm", "مزرعتي السعيدة", "التربية الزراعية", "farm", 0xFF6AA84F),
+    Island("farm", "مزرعتي السعيدة", "التربية الزراعية", "farm", 0xFF6AA84F, nativeReady = true),
     Island("music", "جزيرة الأنغام", "التربية الموسيقية", "music", 0xFF8A63C9),
     Island("math", "جزيرة الأرقام", "الرياضيات", "numbers", 0xFFC7373F, nativeReady = true),
     Island("art", "جزيرة الألوان", "التربية الفنية", "palette", 0xFFE2543A),
@@ -93,7 +93,8 @@ val islands = listOf(
     Island("treasure", "جزيرة الكنز", "مراجعة شاملة", "treasure", 0xFFE0A93A, nativeReady = true),
 )
 
-data class LearnCard(val title: String, val text: String, val example: List<String> = emptyList(), val labels: List<String> = emptyList(), val art: List<String> = emptyList())
+@Serializable
+data class LearnCard(val title: String, val text: String, val example: List<String> = emptyList(), val labels: List<String> = emptyList(), val art: List<String> = emptyList(), val tools: List<String> = emptyList(), val requiredTools: List<String> = emptyList())
 enum class ActivityKind { Word, Sort, Choice, Build, NumberLine, Angle, Fill, Market }
 data class NumberControl(val min: Double, val max: Double, val ticks: Int, val acceptable: IntRange? = null) {
     init { require(min.isFinite() && max.isFinite() && min < max && ticks in 1..1000) }

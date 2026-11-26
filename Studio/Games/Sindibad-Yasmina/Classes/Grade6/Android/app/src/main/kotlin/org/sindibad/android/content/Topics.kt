@@ -8,13 +8,18 @@ object Topics {
             else listOf(q.prompt, q.stimulus).filter { it.isNotEmpty() }.joinToString("\n"),
         stimulus = "",
     )
-    val all get() = ArabicTopics.all + MathTopics.all
-    fun inRegion(region: String) = all.filter { it.id.startsWith("$region-") }
+    val all get() = ArabicTopics.all + MathTopics.all + IslandBooks.regions.flatMap(IslandBooks::lessons)
+    fun inRegion(region: String) = when (region) {
+        "math" -> MathTopics.all
+        "arabic" -> ArabicTopics.all
+        else -> IslandBooks.lessons(region)
+    }
     fun get(id: String, seed: Int = 0): Topic = when {
         id.startsWith("math-") -> MathTopics.get(id, seed)
         id.startsWith("guardian-") -> guardian(id.removePrefix("guardian-"), seed)
         id == "review-treasure" -> Treasure.topic(seed)
-        else -> ArabicTopics.get(id)
+        id.startsWith("arabic-") -> ArabicTopics.get(id)
+        else -> inRegion(id.substringBefore('-')).first { it.id == id }
     }
     fun guardianReady(profile: Profile, region: String) =
         inRegion(region).isNotEmpty() && inRegion(region).all { (profile.topics[it.id]?.stars ?: 0) >= 1 }
