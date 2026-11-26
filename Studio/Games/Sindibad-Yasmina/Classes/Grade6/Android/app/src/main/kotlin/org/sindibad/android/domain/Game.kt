@@ -90,7 +90,7 @@ val islands = listOf(
     Island("math", "جزيرة الأرقام", "الرياضيات", "numbers", 0xFFC7373F, nativeReady = true),
     Island("art", "جزيرة الألوان", "التربية الفنية", "palette", 0xFFE2543A),
     Island("science", "جزيرة العلوم", "العلوم", "science", 0xFF2F8A5F, nativeReady = true),
-    Island("social", "جزيرة الأطلس", "الدراسات الاجتماعية", "atlas", 0xFFC98D1C),
+    Island("social", "جزيرة الأطلس", "الدراسات الاجتماعية", "atlas", 0xFFC98D1C, nativeReady = true),
     Island("english", "جزيرة Hello", "اللغة الإنكليزية", "english", 0xFF2F6FD0),
     Island("treasure", "جزيرة الكنز", "مراجعة شاملة", "treasure", 0xFFE0A93A, nativeReady = true),
 )

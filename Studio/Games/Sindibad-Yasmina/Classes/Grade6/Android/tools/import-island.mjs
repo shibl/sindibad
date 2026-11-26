@@ -33,7 +33,7 @@ for (const quest of book.QUESTS) {
             cards.push({ title: quest.title, text: plain(step.q), notes: step.play.map(note =>
                 step.kind === 'glasses' ? (note === 'C2' ? 'C5' : note + '4') : note) });
         }
-        if (region === 'science') {
+        if (['science', 'social'].includes(region)) {
             const explorations = cards[Symbol.iterator]();
             cards = quest.steps.flatMap(step => step.kind === 'explore' ? [explorations.next().value] : practiceCards(step));
         }
@@ -50,6 +50,15 @@ for (const quest of book.QUESTS) {
 const directory = new URL('../app/src/main/resources/islands/', import.meta.url);
 await mkdir(directory, { recursive: true });
 await writeFile(new URL(region + '.json', directory), JSON.stringify(topics, null, 2) + '\n');
+if (region === 'social') {
+    const { COUNTRIES, SMALL, CONTINENTS } = await import('../../Web/worlds/atlas/countries.js');
+    const { SHAPES } = await import('../../Web/worlds/atlas/shapes.js');
+    const cards = Object.entries({ ...COUNTRIES, ...SMALL }).map(([id, c]) => ({
+        name: c.ar, lat: c.lat, lon: c.lon, lines: SHAPES[id] ?? [],
+        facts: [CONTINENTS[c.continent], c.capital, c.language, c.currency?.ar, c.nameMeaning, c.note].filter(Boolean).map(plain),
+    }));
+    await writeFile(new URL('globe.json', directory), JSON.stringify(cards) + '\n');
+}
 if (region === 'farm') {
     const goods = Object.fromEntries(book.QUESTS.map(q => {
         const task = book.CROPS[q.crop] ?? book.TASKS[q.id];
