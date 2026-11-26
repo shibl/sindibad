@@ -128,8 +128,8 @@ internal class SeaRenderer(
         loader = AssetLoader(engine, materials, EntityManager.get())
         resources = ResourceLoader(engine)
         for ((id, model) in models) isles[id] = load("sea/$model")
-        ship = load("farm/dhow")
-        if (!calm) repeat(3) { gulls += load("sea/gull") }
+        if ("home" in models) ship = load("farm/dhow")
+        if (!calm && "home" in models) repeat(3) { gulls += load("sea/gull") }
         for (id in fogged) clouds[id] = CLOUDS.map { load("sea/cloud") }
         for (id in fogged) dim(isles.getValue(id))
 
@@ -242,7 +242,12 @@ internal class SeaRenderer(
     // ---------- Layout ----------
 
     private fun layout(width: Int, height: Int) {
-        val fr = SeaLayout.fit(width.toDouble(), height.toDouble())
+        val fr = if (models.size == 1) {
+            val origin = SeaLayout.V3(0.0, 0.0, 0.0)
+            val distance = maxOf(1.0, height.toDouble() / width)
+            SeaLayout.Frame(width.toDouble(), height.toDouble(), models.keys.associateWith { origin },
+                SeaLayout.V3(0.0, 13.0, 13.0) * distance, origin)
+        } else SeaLayout.fit(width.toDouble(), height.toDouble())
         frame = fr
         view.viewport = Viewport(0, 0, width, height)
         camera.setProjection(SeaLayout.FOV, width.toDouble() / height, 1.0, 1200.0, Camera.Fov.VERTICAL)
@@ -266,7 +271,7 @@ internal class SeaRenderer(
     /** The ship rocks at the port; the gulls circle over the sea. */
     private fun animate(t: Double) {
         val fr = frame ?: return
-        val home = fr.islands.getValue("home")
+        val home = fr.islands["home"] ?: return
         ship?.let { place(it, home.x + SeaLayout.RR + 2.3, 0.06 * sin(t * 1.6), home.z + 0.9, 0.78, yaw = Math.PI / 2, roll = 0.05 * sin(t * 1.1)) }
         gulls.forEachIndexed { i, g ->
             val a = t * 0.25 + i * 2.1

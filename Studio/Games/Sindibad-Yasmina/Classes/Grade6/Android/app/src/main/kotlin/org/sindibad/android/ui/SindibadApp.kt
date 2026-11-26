@@ -261,7 +261,23 @@ private fun SeaMap(profile: Profile, calm: Boolean, openIsland: (String) -> Unit
     var selected by remember { mutableStateOf<Island?>(null) }
     var flat by rememberSaveable { mutableStateOf(false) }
     var failed by rememberSaveable { mutableStateOf(false) }
-    val onIsland: (Island) -> Unit = { island -> if (island.nativeReady) openIsland(island.id) else selected = island }
+    var landingId by rememberSaveable { mutableStateOf<String?>(null) }
+    val landing = islands.firstOrNull { it.id == landingId }
+    if (landing != null) {
+        BackHandler { landingId = null }
+        Box(Modifier.fillMaxSize()) {
+            Sea3DMap(profile, calm, {}, onFailed = { failed = true; landingId = null }, landing = landing)
+            Row(Modifier.align(Alignment.BottomCenter).padding(12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                GoldButton("العودة إلى البحر") { landingId = null }
+                GoldButton(landing.name) {
+                    landingId = null
+                    if (landing.nativeReady) openIsland(landing.id) else selected = landing
+                }
+            }
+        }
+        return
+    }
+    val onIsland: (Island) -> Unit = { island -> if (!flat && !failed) landingId = island.id else if (island.nativeReady) openIsland(island.id) else selected = island }
     Box(Modifier.fillMaxSize()) {
         if (flat || failed) FlatSeaMap(profile, onIsland)
         else Sea3DMap(profile, calm, onIsland, onFailed = { failed = true })
