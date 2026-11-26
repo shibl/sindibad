@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
@@ -85,7 +86,7 @@ fun Sea3DMap(profile: Profile, calm: Boolean, onIsland: (Island) -> Unit, onFail
                     }
                 })
                 val at = fr.project(SeaLayout.V3(walkX.toDouble(), 0.6, walkZ.toDouble()))
-                SharedArt("heroes/${profile.hero.asset}", profile.hero.arabic, Modifier.absoluteOffset {
+                SharedArt("heroes/${profile.hero.asset}", profile.hero.arabic, Modifier.align(AbsoluteAlignment.TopLeft).absoluteOffset {
                     IntOffset(at.x.roundToInt() - 20.dp.roundToPx(), at.y.roundToInt() - 52.dp.roundToPx())
                 }.size(40.dp, 52.dp))
                 return@let

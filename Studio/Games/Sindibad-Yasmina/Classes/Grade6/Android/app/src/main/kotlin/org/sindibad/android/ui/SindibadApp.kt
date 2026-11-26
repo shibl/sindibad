@@ -444,14 +444,14 @@ private fun Lesson(session: LessonSession, state: AppUiState, vm: GameViewModel)
                     var practiceDone by rememberSaveable(session.id, session.cardIndex) { mutableStateOf(false) }
                     val hasPractice = card.response.isNotEmpty() || card.sequence.isNotEmpty()
                     if (hasPractice) key(session.id, session.cardIndex) { PracticeCard(card, session.seed, practiceDone) { practiceDone = true } }
-                    var usedTools by rememberSaveable(session.id, session.cardIndex) { mutableStateOf(arrayListOf<String>()) }
+                    var usedTools by rememberSaveable(session.id, session.cardIndex) { mutableStateOf<List<String>>(emptyList()) }
                     var toolHint by rememberSaveable(session.id, session.cardIndex) { mutableStateOf("") }
                     if (card.tools.isNotEmpty()) {
                         FlowRow {
                             card.tools.forEach { tool ->
                                 TextButton(enabled = tool !in usedTools, onClick = {
                                     if (tool in card.requiredTools) {
-                                        usedTools = ArrayList(usedTools + tool)
+                                        usedTools = usedTools + tool
                                         toolHint = tool + " ✓"
                                     } else toolHint = "حاول بأداة أخرى"
                                 }) { Text(tool) }

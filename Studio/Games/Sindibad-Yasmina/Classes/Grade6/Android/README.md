@@ -7,7 +7,13 @@ through real GitHub sub-issues assigned to `sam-a1a`.
 
 This is an incremental native implementation; full website parity remains in the tracker.
 
-## New in 0.3: the 3D sea (#8)
+## Grade 6 island travel
+
+All nine islands can be visited in any order on the native map. Tap a destination in 3D to move the hero on its shore, then enter its lessons. The flat list opens the activities directly. Treasure is playable on a fresh profile and its certificate is awarded for passing the review.
+
+The six subject ports cover 7 farm lessons, 10 music lessons, 17 science lessons, 25 Atlas lessons, 25 art lessons and 24 English units. The native app supports farm harvests and ship orders, musical scales, subject practice, a touch-selectable globe, saved paintings, offline English speech when a local voice is available, and a personal word book. The [tracker](https://github.com/shibl/sindibad/issues/3) records outstanding specialized activities and owner phone acceptance.
+
+## Version 0.3: the 3D sea (#8)
 
 - The sea map is drawn in 3D with [Filament](https://github.com/google/filament)
   1.77.3 (Google's native 3D engine for Android, called from Kotlin; no
@@ -59,7 +65,7 @@ This is an incremental native implementation; full website parity remains in the
   art and English (including 710 existing review questions from the latter four).
   The certificate is earned after passing. Treasure is available from the first voyage.
 
-Six specialized islands remain marked as coming soon. Native 3D, those
+In 0.2 six specialized islands were marked as coming soon. Native 3D, those
 subject games, stickers, scheduled review and the full family dashboard
 remain in the tracker. Review in this slice has no timers or daily pressure.
 Since 0.3 the map is a 3D sea (above); the island screens themselves are not 3D yet.

@@ -1,4 +1,16 @@
-# Native Android verification — 2026-10-20
+# Native Android verification
+
+## Version 0.4.0 PR build
+
+The local JVM suite passed 49 tests. Debug lint completed with zero errors. Debug and unsigned release builds passed. Package inspection confirmed that both APKs contain the six offline curricula, farm inventory catalog and Atlas outlines. The packages are app-debug.apk (46.0 MiB) and app-release-unsigned.apk (16.4 MiB). The Grade 6 Android workflow produces a debug APK for the owner from each qualifying pull request.
+
+## Owner acceptance for the island PRs
+
+Use an ARM64 Android 13+ phone. On a fresh offline profile, visit Treasure first, leave before the review ends, and move between the eight other islands out of curriculum order. Repeat on an upgraded profile and compare earlier scores and rewards. Check the flat map and 3D landing, touch movement, system back, RTL, larger type, reduced motion and audio preferences.
+
+Play a farm tool sequence, a musical scale, a science activity and a geography lesson. Rotate the globe and find a country. Save and reopen a painting and bookmark an English word. Switch profiles, rotate the device and restart offline. Verify profile isolation and progress persistence. Record the device, OS, PR commit and observations in [#15](https://github.com/shibl/sindibad/issues/15).
+
+## Historical verification — 2026-10-20
 
 This record distinguishes build/JVM/static evidence from runtime evidence.
 The owner explicitly reserved playing the game on a phone for later.
