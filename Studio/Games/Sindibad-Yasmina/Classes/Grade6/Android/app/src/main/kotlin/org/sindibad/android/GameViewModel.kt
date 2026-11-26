@@ -15,7 +15,7 @@ import org.sindibad.android.domain.*
 import java.util.UUID
 import kotlin.random.Random
 
-enum class Screen { Atlas, Science, Home, Voyages, Sea, Music, Farm, Arabic, Math, Treasure, Review, Shop, Certificate, Lesson, Journey, Settings, Profiles, About }
+enum class Screen { Art, Atlas, Science, Home, Voyages, Sea, Music, Farm, Arabic, Math, Treasure, Review, Shop, Certificate, Lesson, Journey, Settings, Profiles, About }
 
 data class AppUiState(
     val loading: Boolean = true, val store: GameStore = GameStore(),
@@ -147,6 +147,11 @@ class GameViewModel(private val repository: GameRepository, private val saved: S
     fun saveResult() = transact {
         val session = mutable.value.session ?: return@transact
         repository.update { it.complete(session) }
+    }
+    fun savePainting(id: String, pixels: List<Int>) = transact {
+        val profileId = mutable.value.store.activeId ?: return@transact
+        require(pixels.size == 64 && pixels.all { it in 0..11 })
+        repository.update { it.updateProfile(profileId) { profile -> profile.copy(gallery = profile.gallery + (id to pixels)) } }
     }
     fun buy(id: String) = transact {
         val profileId = mutable.value.store.activeId ?: return@transact

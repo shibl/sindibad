@@ -7,6 +7,7 @@ export function practiceCards(step) {
             response: plain(answer), feedback: plain(feedback), clue: plain(step.hint) };
     }
     switch (step.kind) {
+        case 'craft': return step.seq.map(s => pick(s.text, step.tools.map(t => t.label), step.tools.find(t => t.id === s.tool).label, s.say ?? step.explain));
         case 'choice': return [pick(step.q, step.options, step.options[step.answer ?? 0])];
         case 'match': return step.pairs.map(([a, b]) => pick(a, step.pairs.map(pair => pair[1]), b));
         case 'tf': return step.items.map(([q, yes, why]) => pick(q, ['صح', 'خطأ'], yes ? 'صح' : 'خطأ', why));
