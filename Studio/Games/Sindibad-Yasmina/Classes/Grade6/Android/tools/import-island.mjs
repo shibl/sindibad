@@ -28,6 +28,10 @@ for (const quest of book.QUESTS) {
             example: (step.spots ?? []).map(spot => plain(spot.title ?? spot.label)),
             labels: (step.spots ?? []).map(spot => plain(spot.text)),
         }));
+        for (const step of quest.steps.filter(s => ['keys', 'glasses'].includes(s.kind))) {
+            cards.push({ title: quest.title, text: plain(step.q), notes: step.play.map(note =>
+                step.kind === 'glasses' ? (note === 'C2' ? 'C5' : note + '4') : note) });
+        }
         review = book.reviewOf(quest.id);
     }
     if (!cards.length) cards.push({ title: quest.title, text: quest.goal });
