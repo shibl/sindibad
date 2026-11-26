@@ -26,6 +26,7 @@ data class Profile(
     val guardians: Set<String> = emptySet(),
     val owned: Set<String> = emptySet(),
     val style: Map<String, String> = emptyMap(),
+    val barn: Barn = Barn(),
     val certificateEarned: Boolean = false,
     val gallery: Map<String, List<Int>> = emptyMap(),
 ) {
@@ -57,6 +58,7 @@ data class GameStore(val version: Int = 1, val activeId: String? = null, val pro
                 val missed = (prev.missed - session.questionIds.toSet() + session.missed).distinct().takeLast(30)
                 p.copy(
                     pearls = p.pearls + (stars - prev.stars).coerceAtLeast(0) * 5,
+                    barn = p.barn.harvest(session.topicId),
                     topics = p.topics + (session.topicId to TopicRecord(
                         stars = maxOf(prev.stars, stars),
                         best = maxOf(prev.best, session.correct.toFloat() / session.questionIds.size),

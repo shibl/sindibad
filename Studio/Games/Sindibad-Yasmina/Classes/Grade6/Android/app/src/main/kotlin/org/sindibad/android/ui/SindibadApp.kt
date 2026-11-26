@@ -96,7 +96,10 @@ fun SindibadApp(vm: GameViewModel) {
                             Screen.Art -> SubjectIsland("art", state.store.active ?: return@Box, vm::startTopic) {
                                 PaintingStudio(state.store.active ?: return@SubjectIsland, vm::savePainting)
                             }
-                            Screen.Farm -> SubjectIsland("farm", state.store.active ?: return@Box, vm::startTopic)
+                            Screen.Farm -> Column {
+                                FarmBoard(state.store.active ?: return@Box, vm)
+                                SubjectIsland("farm", state.store.active ?: return@Box, vm::startTopic)
+                            }
                             Screen.Math -> SubjectIsland("math", state.store.active ?: return@Box, vm::startTopic)
                             Screen.Treasure -> TreasureIsland(state.store.active ?: return@Box, vm)
                             Screen.Review -> ReviewList(state.store.active ?: return@Box, vm::startTopic)
