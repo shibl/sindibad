@@ -77,7 +77,15 @@ fun SindibadApp(vm: GameViewModel) {
                             Screen.Profiles -> Profiles(state, vm)
                             Screen.Voyages -> Voyages { vm.navigate(Screen.Sea) }
                             Screen.Sea -> SeaMap(state.store.active ?: return@Box, prefs.calm) { region ->
-                                vm.navigate(when (region) { "music" -> Screen.Music; "farm" -> Screen.Farm; "math" -> Screen.Math; "treasure" -> Screen.Treasure; else -> Screen.Arabic })
+                                vm.navigate(when (region) {
+                                    "arabic" -> Screen.Arabic
+                                    "music" -> Screen.Music
+                                    "science" -> Screen.Science
+                                    "farm" -> Screen.Farm
+                                    "math" -> Screen.Math
+                                    "treasure" -> Screen.Treasure
+                                    else -> error("Unknown island $region")
+                                })
                             }
                             Screen.Arabic -> SubjectIsland("arabic", state.store.active ?: return@Box, vm::startTopic)
                             Screen.Music -> SubjectIsland("music", state.store.active ?: return@Box, vm::startTopic)
