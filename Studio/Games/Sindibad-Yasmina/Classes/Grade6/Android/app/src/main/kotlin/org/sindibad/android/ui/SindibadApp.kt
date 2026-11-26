@@ -81,6 +81,7 @@ fun SindibadApp(vm: GameViewModel) {
                                     "arabic" -> Screen.Arabic
                                     "music" -> Screen.Music
                                     "science" -> Screen.Science
+                                    "social" -> Screen.Atlas
                                     "farm" -> Screen.Farm
                                     "math" -> Screen.Math
                                     "treasure" -> Screen.Treasure
