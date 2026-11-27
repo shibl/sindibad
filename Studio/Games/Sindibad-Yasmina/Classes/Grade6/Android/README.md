@@ -11,7 +11,64 @@ This is an incremental native implementation; full website parity remains in the
 
 All nine islands can be visited in any order on the native map. Tap a destination in 3D to move the hero on its shore, then enter its lessons. The flat list opens the activities directly. Treasure is playable on a fresh profile and its certificate is awarded for passing the review.
 
-The six subject ports cover 7 farm lessons, 10 music lessons, 17 science lessons, 25 Atlas lessons, 25 art lessons and 24 English units. The native app plays the farm's seven quests in a native scene with harvests and ship orders, musical scales, subject practice, a touch-selectable globe, saved paintings, offline English speech when a local voice is available, and a personal word book. The [tracker](https://github.com/shibl/sindibad/issues/3) records outstanding specialized activities and owner phone acceptance.
+The six subject ports cover 7 farm lessons, 10 music lessons, 17 science lessons, 25 Atlas lessons, 25 art lessons and 24 English units. The native app plays the farm's seven quests in a native scene with harvests and ship orders, the music island's ten quests with its piano, staff, rhythm, drum and glasses games, subject practice, a touch-selectable globe, saved paintings, offline English speech when a local voice is available, and a personal word book. The [tracker](https://github.com/shibl/sindibad/issues/3) records outstanding specialized activities and owner phone acceptance.
+
+## Version 0.6: the music island's quests, synth and games (#10)
+
+- «جزيرة الأنغام» is a native island screen (`ui/music/MusicIsland.kt`): the
+  helper نغمة (hello on the first visit, then «back» and the next quest), the
+  eight places of the web island (the giant piano, the theatre, the rhythm
+  circle, the tempo tower, the notes cloud, the music library, the glasses
+  wing, the harbour) as cards with their quests, stars, «ابدأ ▶» /
+  «↻ العب مجدداً» and «🔁 راجع» (the quest's review lesson), the golden notes
+  (one per quest finished once, saved per profile) and the sky song they
+  make, and free play on the piano, the drum, the metronome and (once built)
+  the glasses. The web's walkable 3D island is not drawn; its places are cards.
+- The ten quests come from `Web/worlds/grade6/tunes.ts` through
+  `tools/import-quests.mjs` into `islands/music-quests.json`, wording verbatim
+  (`<b>` kept as bold). The review topics in `islands/music.json` are
+  unchanged; a quest records its stars on the same topic.
+- **A quest framework for every island** (`domain/quest`, pure Kotlin, and
+  `ui/quest`): a sealed `Step` decoded by `kind` (strict: an unknown kind or
+  field fails the import test), `StepMachine` with the web's tracker (first
+  miss: the hint; second: the hint and the right answer glows), the web's
+  scoring per kind (whole step, share of parts, or one per part), quest score
+  Σok/Σtotal → `starsFor`, idempotent first-finish rewards, and a
+  `QuestScreen` with «أتعلّم» discovery steps (guided spots, «✨ الخلاصة»,
+  «فهمت! ◀»), «تابِع ◀» with the explanation after each step, step dots,
+  the helper's line, exit with confirmation, and a result card. The run lives
+  in `SavedStateHandle` (rotation and process death). Shared kinds are
+  ready for the other islands: explore, learn, choice, twoway, sort (tap a
+  bin), order, match, tf (with the fix line) and number (keypad). An island
+  adds its own kinds and pictures through a `QuestKit`; the `label` step's
+  pictures are an island's (`QuestKit.labelPicture`), so science, the atlas,
+  English and art can be ported on the same player.
+- All the music games are native Compose: the piano (keys, gaps, the
+  whole/half step pattern), the grand staff drawn on a Canvas with both
+  clefs (rain drops placed by tap or with ▲ ▼ «ضعها ✓» buttons; name the
+  note), rhythm cards with notation, the drum, the measure, filling a glass
+  and playing the glasses, and the «أتعلّم» pictures (keyboard, grand staff,
+  notes, key signature, hymn of St John, tempo slider, measures, anacrusis,
+  portraits, the five folk instruments and the singers redrawn from the web's
+  SVG).
+- **Synth** (`audio/Synth.kt`, pure, unit-tested; `audio/MusicEngine.kt`): the
+  web's voices rebuilt in Kotlin and mixed live on one streaming AudioTrack:
+  piano, water glasses, drums (dum, tak, riq, clap, metronome tick), the five
+  folk instruments, the choir, a Longa run, a canon, rhythms and the
+  metronome. Audio focus (ducks for others, stops on loss), a soft limiter
+  (no clipping), released when the screen stops. With the sound off every
+  sound still lights what it plays (keys, glasses, drum lights, beats), so
+  every game stays playable. The lessons' practice keyboard uses it too.
+- The drum keeps the web's tolerance (0.32 of a beat, 0.45 once the lights
+  guide), measured from the child's own first tap, with no count-in and no
+  time limit: «دوري!», then tap; it is judged at the last beat or at
+  «✓ انتهيت».
+- Accessibility: keys are ≥ 48 dp wide (the piano scrolls sideways on a narrow
+  phone; black keys are about 32 dp wide), every key, glass, gap and spot is
+  a labelled button, the staff has big buttons as well as taps, the helper's
+  line is a polite live region, and haptics follow the profile.
+- Not yet: the web's 3D island and its animations, stickers for the quests,
+  and the web's room echo on sounds.
 
 ## Version 0.5: the farm island played in a native scene (#9)
 
