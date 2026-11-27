@@ -48,6 +48,9 @@ data class StepResult(val ok: Double, val total: Double)
      * answered, as on the web where each new part starts unlit and the next miss lights it again.
      */
     val glow: Boolean = false,
+    /** The English memory game: cards already turned once, and a pair that did not match, still face up. */
+    val seen: List<Int> = emptyList(),
+    val shown: List<Int> = emptyList(),
 ) {
     val reveal get() = glow
 }
@@ -75,6 +78,7 @@ object StepMachine {
         is Gaps -> MusicTheory.HALF_GAPS.size
         is Pattern -> MusicTheory.SCALE_STEPS.size
         is StaffStep -> step.drops.size
+        is EnglishGame -> EnglishGames.parts(step)
     }
 
     fun scoring(step: Step): Scoring = step.scoring ?: if (step is StaffStep) Scoring.Parts else Scoring.Whole
@@ -111,6 +115,7 @@ object StepMachine {
             is Drum -> null
             is Measure -> MusicTheory.bestFit(step.beats - measureSum(step, state))
             is Fill -> step.n.toString()
+            is EnglishGame -> EnglishGames.expected(step, state)
         }
     }
 
@@ -119,6 +124,7 @@ object StepMachine {
         if (state.done) return state
         return when (step) {
             is Explore -> openSpot(step, state, value)
+            is EnglishGame -> EnglishGames.tap(step, state, value)
             is Learn -> state.copy(done = true)
             is NumberStep -> type(step, state, value)
             is Measure -> place(step, state, value)
@@ -154,7 +160,7 @@ object StepMachine {
         return when (scoring(step)) {
             Scoring.Whole -> StepResult(if (state.stepMisses == 0) 1.0 else 0.0, 1.0)
             Scoring.Share -> StepResult(
-                if (step is Order) (1.0 - state.stepMisses.toDouble() / n).coerceAtLeast(0.0) else (n - state.missedParts).toDouble() / n, 1.0)
+                if (step is Order || step is Rank) (1.0 - state.stepMisses.toDouble() / n).coerceAtLeast(0.0) else (n - state.missedParts).toDouble() / n, 1.0)
             Scoring.Parts -> StepResult(state.okParts.toDouble(), n.toDouble())
         }
     }
@@ -196,7 +202,7 @@ object StepMachine {
         return if (measureSum(step, next) == step.beats) finish(step, next) else next
     }
 
-    private fun miss(step: Step, state: StepState, value: String): StepState {
+    internal fun miss(step: Step, state: StepState, value: String): StepState {
         val misses = state.misses + 1
         return state.copy(
             misses = misses, stepMisses = state.stepMisses + 1, glow = misses >= 2,
@@ -206,7 +212,7 @@ object StepMachine {
         )
     }
 
-    private fun right(step: Step, state: StepState): StepState {
+    internal fun right(step: Step, state: StepState): StepState {
         val part = state.part + 1
         val next = state.copy(
             part = part, okParts = state.okParts + if (state.missedHere) 0 else 1, missedHere = false, wrong = emptyList(),
@@ -222,7 +228,7 @@ object StepMachine {
         return finish(step, next)
     }
 
-    private fun finish(step: Step, state: StepState): StepState {
+    internal fun finish(step: Step, state: StepState): StepState {
         val done = state.copy(done = true)
         val r = result(step, done)
         return done.copy(line = step.explain?.let { Line(it, if (r.ok >= r.total) Mood.Cheer else Mood.Happy) } ?: state.line)

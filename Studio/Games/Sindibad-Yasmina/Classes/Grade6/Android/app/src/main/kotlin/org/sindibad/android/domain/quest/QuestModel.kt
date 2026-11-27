@@ -66,6 +66,8 @@ data class Explore(
     val area: String? = null, val events: List<TimeEvent>? = null,
     val cols: Int? = null, val theme: String? = null, val done: String? = null, val sum: String? = null,
     val kb: Keyboard? = null, val person: Person? = null, val art: String? = null,
+    /** The English island: the unit's words (view `words` or `planets`), the book's grammar box (`rule`), a reading (`read`). */
+    val words: List<Word>? = null, val rule: Rule? = null, val read: Reading? = null,
     override val say: String? = null, override val hint: String? = null, override val explain: String? = null, override val scoring: Scoring? = null,
 ) : Step() { override val teaches get() = true }
 
@@ -203,7 +205,10 @@ data class GlassesStep(
 ) : Step()
 
 @Serializable data class Quest(
-    val id: String, val topic: String, val station: String = "", val icon: String = "", val sticker: String? = null,
+    val id: String, val topic: String,
+    /** The English book's unit ("1"…"20") or revision ("R1"…"R4"). */
+    val unit: String? = null,
+    val station: String = "", val icon: String = "", val sticker: String? = null,
     val title: String, val goal: String, val book: List<String> = emptyList(), val learned: List<String> = emptyList(),
     val steps: List<Step>,
 )
@@ -225,7 +230,10 @@ data class GlassesStep(
 @Serializable data class QuestBook(
     val helper: Helper, val stations: List<Station> = emptyList(), val quests: List<Quest>,
     val skySong: List<String> = emptyList(), val glasses: List<Glass> = emptyList(), val instruments: Map<String, String> = emptyMap(),
-    val units: List<BookUnit> = emptyList(), val stickers: List<Sticker> = emptyList(), val views: List<PictureParts> = emptyList(),
+    val units: List<BookUnit> = emptyList(),
+    /** The English book's four parts (units 1–5 … 16–20). */
+    val blocks: List<BookUnit> = emptyList(),
+    val stickers: List<Sticker> = emptyList(), val views: List<PictureParts> = emptyList(),
 ) {
     fun quest(id: String) = quests.first { it.id == id }
     fun sticker(id: String?) = stickers.firstOrNull { it.id == id }

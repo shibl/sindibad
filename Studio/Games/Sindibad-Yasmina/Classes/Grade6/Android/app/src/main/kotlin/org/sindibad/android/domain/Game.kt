@@ -38,6 +38,10 @@ data class Profile(
     val stickers: List<String> = emptyList(),
     /** Countries whose atlas card was opened on the globe, ISO ids in the order visited (web: save.world.atlas.visited). */
     val atlasVisited: List<String> = emptyList(),
+    /** English quests opened, in the order opened (web: save.world.english.seen): their words fill the word book. */
+    val englishSeen: List<String> = emptyList(),
+    /** The word book's flash cards: the longest run of right cards (web: save.world.english.best). */
+    val wordCardsBest: Int = 0,
 ) {
     val totalStars get() = topics.values.sumOf { it.stars }
     fun starsIn(region: String) = topics.filterKeys { it.startsWith("$region-") || (region == "treasure" && it == "review-treasure") }.values.sumOf { it.stars }
@@ -131,8 +135,12 @@ val islands = listOf(
     Island("treasure", "جزيرة الكنز", "مراجعة شاملة", "treasure", 0xFFE0A93A, nativeReady = true),
 )
 
+/**
+ * A word kept in the child's word book. Saves before 0.9.0 hold only en, ar and sentence; [pic] and [quest] (the
+ * English quest it comes from) are filled for words saved since, and looked up in the book for older ones.
+ */
 @Serializable
-data class Vocabulary(val en: String, val ar: String, val sentence: String)
+data class Vocabulary(val en: String, val ar: String, val sentence: String, val pic: String? = null, val quest: String? = null)
 
 @Serializable
 data class LearnCard(val title: String, val text: String, val example: List<String> = emptyList(), val labels: List<String> = emptyList(), val art: List<String> = emptyList(), val tools: List<String> = emptyList(), val requiredTools: List<String> = emptyList(), val notes: List<String> = emptyList(),

@@ -16,10 +16,11 @@ import org.sindibad.android.content.Topics
 import org.sindibad.android.data.GameRepository
 import org.sindibad.android.domain.*
 import org.sindibad.android.domain.quest.*
+import org.sindibad.android.domain.english.*
 import java.util.UUID
 import kotlin.random.Random
 
-enum class Screen { English, Art, Atlas, Science, Home, Voyages, Sea, Music, Farm, Arabic, Math, Treasure, Review, Shop, Certificate, Lesson, Quest, Journey, Settings, Profiles, About, Globe }
+enum class Screen { English, WordBook, Art, Atlas, Science, Home, Voyages, Sea, Music, Farm, Arabic, Math, Treasure, Review, Shop, Certificate, Lesson, Quest, Journey, Settings, Profiles, About, Globe }
 
 data class AppUiState(
     val loading: Boolean = true, val store: GameStore = GameStore(),
@@ -118,6 +119,9 @@ class GameViewModel(private val repository: GameRepository, private val saved: S
         if (run == null || run.island != island || run.questId != questId || run.profileId != profile.id || run.finished) {
             setQuest(QuestRun.start(UUID.randomUUID().toString(), profile.id, island, quest, Random.nextInt(1, Int.MAX_VALUE / 64)))
         }
+        // An English quest opened: its words join the word book (web: markSeen).
+        if (island == org.sindibad.android.domain.english.ENGLISH && questId !in profile.englishSeen)
+            updateFarm { store, id -> store.updateProfile(id) { p -> p.meetQuest(questId) } }
         navigate(Screen.Quest)
     }
     private fun updateQuest(change: (QuestRun, QuestBook) -> QuestRun) {
@@ -231,10 +235,13 @@ class GameViewModel(private val repository: GameRepository, private val saved: S
         val session = mutable.value.session ?: return@transact
         repository.update { it.complete(session) }
     }
-    fun bookmarkWord(word: Vocabulary) = transact {
-        val profileId = mutable.value.store.activeId ?: return@transact
-        repository.update { it.updateProfile(profileId) { profile -> profile.copy(wordBook = (profile.wordBook + word).distinct()) } }
+    fun bookmarkWord(word: Vocabulary) = updateFarm { store, id -> store.updateProfile(id) { p -> p.saveWord(word) } }
+    /** ⭐ on a word: into the word book, or out of it again. Saved in order, never dropped. */
+    fun toggleWord(word: Vocabulary) = updateFarm { store, id ->
+        store.updateProfile(id) { p -> if (p.hasWord(word.en)) p.forgetWord(word.en) else p.saveWord(word) }
     }
+    /** The flash cards' run of right cards: the best is kept. */
+    fun cardStreak(streak: Int) = updateFarm { store, id -> store.updateProfile(id) { p -> p.cardStreak(streak) } }
     fun savePainting(id: String, pixels: List<Int>) = transact {
         val profileId = mutable.value.store.activeId ?: return@transact
         require(pixels.size == 64 && pixels.all { it in 0..11 })

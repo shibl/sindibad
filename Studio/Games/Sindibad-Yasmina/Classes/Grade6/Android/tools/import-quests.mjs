@@ -14,19 +14,28 @@ if (!region || !source) throw new Error('usage: node tools/import-quests.mjs <re
 const book = await import(`../../Web/worlds/grade6/${source}.js`);
 
 /** Plain text with bold kept as **…** (the app draws it bold; TalkBack reads the words). */
+// The English island marks English inside Arabic with <bdi class="en" dir="ltr">…</bdi> (worlds/grade6/english/kit.ts
+// en()). Its text keeps that as Unicode isolates (U+2066 LRI … U+2069 PDI): invisible, and English reads left to
+// right inside the right-to-left sentence on Android as in the browser. Other islands are unchanged.
+const LRI = '\u2066', PDI = '\u2069';
+const isolate = s => source === 'english' ? String(s).replace(/<bdi\b[^>]*>([\s\S]*?)<\/bdi>/g, `${LRI}$1${PDI}`) : s;
 function rich(html) {
     if (html == null) return undefined;
-    const s = String(html);
+    const s = isolate(String(html));
     if (s.includes('**')) throw new Error(`"**" already in source text: ${s}`);
     return plain(s.replace(/<b\b[^>]*>([\s\S]*?)<\/b>/g, '**$1**')).replace(/\*\*\s*\*\*/g, '');
 }
-const text = value => value == null ? undefined : plain(String(value));
+const text = value => value == null ? undefined : plain(isolate(String(value)));
 const compact = object => Object.fromEntries(Object.entries(object).filter(([, v]) => v !== undefined && v !== null && v !== false));
 
 // How a step's parts count (web: core/learn/steps.ts and the island's own games). "whole": any miss
 // costs the step (ok 0 or 1 of 1); "share": ok = share of parts right first try (of 1); "parts": every
 // part counts 1 (ok = parts right first try, total = parts).
 const ISLAND_SCORING = { tunes: { sort: 'parts', order: 'whole' } };
+// The English island's own games (core/english/games.ts): ok = the share of rounds with no slip (rounds()); rank
+// scores 1 − misses / items, memory (pairs − slips) / pairs — both are worked out in domain/quest/EnglishGames.kt.
+const ENGLISH_GAMES = ['listen', 'picture', 'build', 'spell', 'verb', 'memory', 'odd', 'rank', 'adjorder', 'chat'];
+ISLAND_SCORING.english = Object.fromEntries(ENGLISH_GAMES.map(k => [k, 'share']));
 const SHARED_SCORING = { choice: 'whole', twoway: 'share', sort: 'share', order: 'share', match: 'share', tf: 'share', number: 'whole', label: 'share' };
 
 const sound = p => p && compact({ notes: p.notes, step: p.step, tempo: p.tempo, longa: p.longa, canon: p.canon, inst: p.inst,
@@ -42,7 +51,8 @@ function step(st) {
     const scoring = ISLAND_SCORING[source]?.[st.kind] ?? SHARED_SCORING[st.kind];
     if (scoring) base.scoring = scoring;
     switch (st.kind) {
-        case 'explore': return compact({ ...base, title: rich(st.title), tap: text(st.tap), view: st.view, area: st.area, guided: st.guided, cols: st.cols,
+        case 'explore': if (st.words || st.rule || st.read) return englishExplore(st, base);
+            return compact({ ...base, title: rich(st.title), tap: text(st.tap), view: st.view, area: st.area, guided: st.guided, cols: st.cols,
             events: st.events?.map(e => ({ id: e.id, year: e.year, label: text(e.label) })),
             theme: st.theme, done: rich(st.done), sum: rich(st.sum), spots: st.spots.map(spot),
             kb: st.kb && compact({ from: st.kb.from, to: st.kb.to, labels: st.kb.labels, gaps: st.kb.gaps }),
@@ -68,13 +78,50 @@ function step(st) {
         case 'tf': return compact({ ...base, q: rich(st.q), items: st.items.map(([line, truth, fix]) => ({ text: rich(line), truth: !!truth, ...compact({ fix: rich(fix) }) })), pic: st.pic });
         case 'number': return compact({ ...base, q: rich(st.q), answer: String(st.answer), unit: text(st.unit), pic: st.pic });
         case 'label': return compact({ ...base, q: rich(st.q), view: st.view, area: st.area, ask: st.ask.map(([id, name]) => ({ id, name: text(name) })) });
+        case 'listen': case 'picture': return compact({ ...base, q: rich(st.q), mode: st.mode, ask: st.ask, opts: st.opts,
+            items: st.items.map(([en, pic]) => ({ en: text(en), pic })) });
+        case 'build': return compact({ ...base, q: rich(st.q), items: st.items.map(it => compact({ en: text(it.en), tiles: it.tiles?.map(text), ar: rich(it.ar) })) });
+        case 'spell': return compact({ ...base, q: rich(st.q), extra: st.extra, items: st.items.map(it => compact({ en: it.en, pic: it.pic, show: text(it.show), ar: rich(it.ar) })) });
+        case 'verb': return compact({ ...base, q: rich(st.q), lines: st.lines.map(([line, b, right, wrong]) => compact({ text: text(line), base: b ?? undefined, right, wrong })) });
+        case 'memory': return compact({ ...base, q: rich(st.q), pairs: st.pairs.map(([a, b]) => ({ a: text(a), b: text(b) })) });
+        case 'odd': return compact({ ...base, q: rich(st.q), rows: st.rows.map(([words, odd, why]) => ({ words, odd, why: rich(why) })) });
+        case 'rank': return compact({ ...base, q: rich(st.q), ends: st.ends, items: st.items.map(it => compact({ en: it.en, pic: it.pic, ar: rich(it.ar) })) });
+        case 'adjorder': return compact({ ...base, q: rich(st.q), items: st.items.map(it => compact({ before: text(it.before), adjs: it.adjs, noun: text(it.noun), cats: it.cats, ar: rich(it.ar) })) });
+        case 'chat': return compact({ ...base, q: rich(st.q), who: Object.fromEntries(Object.entries(st.who).map(([k, [name, face]]) => [k, { name: text(name), face }])),
+            lines: st.lines.map(([side, t]) => Array.isArray(t) ? { side, options: t.map(text) } : { side, text: text(t) }) });
         default: throw new Error(`import-quests: step kind "${st.kind}" is not handled — add it here and in domain/quest/`);
     }
 }
 
+/**
+ * The English island's «أتعلّم» (core/english/games.ts exploreStep): the unit's words, the book's grammar box or a
+ * reading. Its spots are made as the web makes them (w<i> — or the word itself on a picture view —, r<i>, g<i>), so
+ * the shared explore rules apply; the words, table and reading are kept for the native cards (ui/english/).
+ */
+function englishExplore(st, base) {
+    const out = { ...base, title: rich(st.title), view: st.view, cols: st.cols, tap: text(st.tap), done: rich(st.done), sum: rich(st.sum) };
+    if (st.words) {
+        out.view ??= 'words';
+        out.words = st.words.map(([en, ar, pic, ex]) => ({ en, ar: text(ar), pic, ex: text(ex) }));
+        out.spots = st.words.map(([w, ar, pic, ex], i) => compact({ id: st.view ? w.toLowerCase().replace(/^the /, '') : `w${i}`,
+            title: `${LRI}${w}${PDI} ${text(ar)}`, text: `${LRI}${text(ex)}${PDI}`, label: w,
+            ...(/^(art:|p:)/.test(pic) ? { art: pic } : { icon: pic }) }));
+    } else if (st.rule) {
+        out.view = 'rule';
+        out.rule = compact({ table: st.rule.table?.map(r => r.map(text)), rows: st.rule.rows.map(([e, ar]) => ({ en: rich(e), ar: rich(ar) })) });
+        out.spots = out.rule.rows.map((r, i) => ({ id: `r${i}`, title: `${LRI}${r.en}${PDI}`, text: r.ar }));
+    } else {
+        out.view = 'read';
+        const words = [...st.read.text.matchAll(/\[([^\]]+)\]/g)].map(m => m[1]);
+        out.read = compact({ title: text(st.read.title), text: text(st.read.text), gloss: Object.fromEntries(words.map(w => [w, text(st.read.gloss[w])])) });
+        out.spots = words.map((w, i) => ({ id: `g${i}`, title: `${LRI}${w}${PDI}`, text: text(st.read.gloss[w]) }));
+    }
+    return compact(out);
+}
+
 // The quest's stars go to the native review topic of the same quest (import-island.mjs: <region>-<quest id>).
 const quests = book.QUESTS.map(q => compact({
-    id: q.id, topic: `${region}-${q.id}`, station: q.station, icon: q.icon, sticker: q.sticker, title: text(q.title), goal: text(q.goal),
+    id: q.id, topic: `${region}-${q.id}`, unit: source === 'english' ? String(q.unit) : undefined, station: q.station, icon: q.icon, sticker: q.sticker, title: text(q.title), goal: text(q.goal),
     book: (q.book ?? []).map(text), learned: (q.learned ?? []).map(text), steps: q.steps.map(step),
 }));
 const out = {
@@ -88,7 +135,7 @@ if (source === 'tunes') {
     out.instruments = book.INSTRUMENTS;
 }
 if (book.UNITS) out.units = Object.entries(book.UNITS).map(([n, u]) => ({ n: Number(n), name: text(u.name), color: u.color }));
-if (source === 'lab' || source === 'atlas') {
+if (source === 'lab' || source === 'atlas' || source === 'english') {
     // The stickers a science quest gives on its first finish (web: awardSticker(cfg.sticker, quest.sticker)).
     // core/stickers.js wires the web's sound to `document` when it loads; a stub is enough to read the data.
     globalThis.document ??= { addEventListener() {}, hidden: true };
@@ -96,14 +143,26 @@ if (source === 'lab' || source === 'atlas') {
     out.stickers = STICKERS[region].map(([id, icon, name, fact]) => ({ id, icon, name: text(name), fact: rich(fact) }));
     for (const q of quests) if (q.sticker && !out.stickers.some(s => s.id === q.sticker)) throw new Error(`no sticker "${q.sticker}"`);
 }
-if (source === 'lab') {
+if (source === 'english') {
+    // The book's four parts (units 1–5 … 16–20), each closed by a revision; their colours.
+    out.blocks = Object.entries(book.BLOCKS).map(([n, u]) => ({ n: Number(n), name: text(u.name), color: u.color }));
+    // Bilingual unit names: «بلدي · ⁦My country⁩».
+    out.units = Object.entries(book.UNITS).map(([n, u]) => ({ n: Number(n), name: `${text(u.ar)} · ${LRI}${u.en}${PDI}`, color: u.color }));
+}
+if (source === 'lab' || source === 'english') {
     // The pictures' parts (core/lab/views.ts, views-machines.ts): for every view, each data-spot's hit box
     // [x, y, w, h] and where its name shows once found, in the 320 × 200 picture. The app draws the pictures
     // natively (ui/science/) and lays its own touch targets over these boxes; a test checks both agree.
-    const { VIEWS } = await import('../../Web/core/lab/views.js');
-    const { MACHINE_VIEWS } = await import('../../Web/core/lab/views-machines.js');
+    const VIEWS = {};
+    if (source === 'lab') {
+        Object.assign(VIEWS, (await import('../../Web/core/lab/views.js')).VIEWS, (await import('../../Web/core/lab/views-machines.js')).MACHINE_VIEWS);
+    } else {
+        // The English pictures with parts to find (core/english/views.ts): the whale, the plant, the solar system.
+        const { EN_VIEWS } = await import('../../Web/core/english/views.js');
+        for (const k of ['whale', 'plant', 'planets']) VIEWS[k] = EN_VIEWS[k];
+    }
     const num = (tag, a) => { const m = tag.match(new RegExp(`\\s${a}="(-?[\\d.]+)"`)); return m ? Number(m[1]) : undefined; };
-    out.views = Object.entries({ ...VIEWS, ...MACHINE_VIEWS }).map(([name, view]) => {
+    out.views = Object.entries(VIEWS).map(([name, view]) => {
         const html = view.html({});
         const spots = [];
         for (const m of html.matchAll(/<(g|button)( class="[^"]*")? data-spot="([^"]+)">/g)) {
