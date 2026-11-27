@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.sindibad.android.content.Topics
 import org.sindibad.android.data.GameRepository
 import org.sindibad.android.domain.*
@@ -105,10 +107,30 @@ class GameViewModel(private val repository: GameRepository, private val saved: S
         setSession(null)
         goHome()
     }
-    fun updateBarn(change: (Barn) -> Barn) = transact {
-        val id = mutable.value.store.activeId ?: return@transact
-        repository.update { it.updateProfile(id) { p -> p.copy(barn = change(p.barn)) } }
+    /**
+     * Farm actions are saved one after another, never dropped while a save is running: a child tapping tools
+     * quickly must not lose a tap, and every action is on disk before the next (process-death safe).
+     */
+    private val farmSaves = Mutex()
+    private fun updateFarm(change: (GameStore, String) -> GameStore) {
+        val id = mutable.value.store.activeId ?: return
+        viewModelScope.launch {
+            try { farmSaves.withLock { repository.update { if (it.profiles.any { p -> p.id == id }) change(it, id) else it } } }
+            catch (cancel: CancellationException) { throw cancel }
+            catch (_: Exception) { mutable.update { it.copy(error = "تعذّر حفظ التغيير. حاول مرة أخرى قبل المغادرة.") } }
+        }
     }
+    fun updateBarn(change: (Barn) -> Barn) = updateFarm { store, id -> store.updateProfile(id) { p -> p.copy(barn = change(p.barn)) } }
+    fun farmWithBook(change: (Barn, Set<String>) -> Barn) = updateFarm { store, id -> store.updateProfile(id) { p -> p.copy(barn = change(p.barn, p.topics.keys)) } }
+    fun startFarm(place: String, questId: String) = updateFarm { store, id ->
+        store.updateProfile(id) { p ->
+            val quest = FarmBook.book.quest(questId)
+            val runId = UUID.randomUUID().toString()
+            val review = LessonSession.start(runId, p, Topics.get(quest.topic), Random.nextInt()).questionIds
+            p.copy(barn = p.barn.start(place, questId, runId, review, p.topics.keys))
+        }
+    }
+    fun finishFarm(place: String) = updateFarm { store, id -> store.finishFarm(id, place) }
     fun preferences(value: Preferences) = transact {
         val id = mutable.value.store.activeId ?: return@transact
         repository.update { it.updateProfile(id) { p -> p.copy(preferences = value) } }

@@ -36,6 +36,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.sindibad.android.*
 import org.sindibad.android.content.Topics
 import org.sindibad.android.domain.*
+import org.sindibad.android.ui.farm.FarmIsland
 import org.sindibad.android.ui.sea.Sea3DMap
 
 @Composable
@@ -108,10 +109,7 @@ fun SindibadApp(vm: GameViewModel) {
                                     }
                                 }
                             }
-                            Screen.Farm -> Column {
-                                FarmBoard(state.store.active ?: return@Box, vm)
-                                SubjectIsland("farm", state.store.active ?: return@Box, vm::startTopic)
-                            }
+                            Screen.Farm -> FarmIsland(state.store.active ?: return@Box, vm)
                             Screen.Math -> SubjectIsland("math", state.store.active ?: return@Box, vm::startTopic)
                             Screen.Treasure -> TreasureIsland(state.store.active ?: return@Box, vm)
                             Screen.Review -> ReviewList(state.store.active ?: return@Box, vm::startTopic)

@@ -11,7 +11,50 @@ This is an incremental native implementation; full website parity remains in the
 
 All nine islands can be visited in any order on the native map. Tap a destination in 3D to move the hero on its shore, then enter its lessons. The flat list opens the activities directly. Treasure is playable on a fresh profile and its certificate is awarded for passing the review.
 
-The six subject ports cover 7 farm lessons, 10 music lessons, 17 science lessons, 25 Atlas lessons, 25 art lessons and 24 English units. The native app supports farm harvests and ship orders, musical scales, subject practice, a touch-selectable globe, saved paintings, offline English speech when a local voice is available, and a personal word book. The [tracker](https://github.com/shibl/sindibad/issues/3) records outstanding specialized activities and owner phone acceptance.
+The six subject ports cover 7 farm lessons, 10 music lessons, 17 science lessons, 25 Atlas lessons, 25 art lessons and 24 English units. The native app plays the farm's seven quests in a native scene with harvests and ship orders, musical scales, subject practice, a touch-selectable globe, saved paintings, offline English speech when a local voice is available, and a personal word book. The [tracker](https://github.com/shibl/sindibad/issues/3) records outstanding specialized activities and owner phone acceptance.
+
+## Version 0.5: the farm island played in a native scene (#9)
+
+- «مزرعتي السعيدة» is now an illustrated 2D scene drawn with Jetpack Compose
+  Canvas (`ui/farm/`): six fields, the barn and silo, the Shami cow's pen with
+  its feeder, trough and milk bucket, the dairy with its pot and thermometer,
+  three beehives, the orders board and the dock with the shared dhow PNG, and
+  the decorations once bought. Crops at every growth stage, weeds, earthed-up
+  mounds, stakes, the cow, bees, helpers and the choice pictures (potato
+  pieces with buds, red/green tomatoes, queen/drone/worker bees) are native
+  vector drawings. Places sit in `FarmLayout` (pure Kotlin, scene units), so a
+  later 3D island (#8) can reuse the same place ids.
+- The seven quests are played in the scene as on the web: tap the field or the
+  place, then pick the job from the tool tray. A wrong tool is explained
+  (later / already done / not part of this crop, or the book's own word); the
+  second miss names the step's hint and makes the right tool glow. The small
+  choices are all native: one answer, find the queen, pick only the red
+  tomatoes, put the bee's life cycle in order, a balanced meal with one feed of
+  each kind, and the 85 °C / 42 °C thermometer. Plants change stage after the
+  right jobs; the book's weeks pass as captions (and a short dusk when motion
+  is on), never as waiting. Cotton is picked in three rounds.
+- The harvest goes to the barn (with the chosen helper's gift: bee +2 at
+  flowering, kitty +1 at the potato and beet harvests, cow +1 milk, puppy +15
+  experience), then the quest's quick review follows. Stars = share right first
+  try over the jobs and the review questions (`starsFor`). The story's first
+  finish gives +30 coins and opens the next quest; replaying a quest on
+  another plot is practice: its products again, stars kept at the best, no
+  second story reward (as on the web). Cheese uses two milks.
+- Helper choice on the first visit (changeable from the quests list), with the
+  helper's portrait, name and words beside the scene; tap it for the step's
+  hint. Orders board with three orders in the book's order (only for products
+  the farm can make), filled from the barn for coins; decorations bought with
+  coins appear in the scene. Coins and decorations never change lessons,
+  answers or access.
+- A run in progress (step, tools done, misses, the open choice, review answers)
+  is part of the saved profile and written after every action, so it survives
+  rotation, process death and a cold restart. Older saves decode with defaults.
+- Accessibility: every place is a real button over the canvas with a spoken
+  description (what grows there, its stage, the step), tools and choice
+  options are labelled buttons (≥ 48 dp), calm mode stops the idle motion and
+  the action effects, the screen scrolls and wraps at 320 dp.
+- Not yet: the 3D walkable farm (#8), farm levels beyond a number, stickers,
+  helper voices (pitch), and the web's ship sailing animation after a sale.
 
 ## Version 0.3: the 3D sea (#8)
 

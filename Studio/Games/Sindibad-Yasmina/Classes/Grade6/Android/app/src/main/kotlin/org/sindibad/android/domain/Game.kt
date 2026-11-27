@@ -54,23 +54,29 @@ data class GameStore(val version: Int = 1, val activeId: String? = null, val pro
                     completedSessions = (p.completedSessions + session.id).takeLast(128),
                 )
             } else {
-                val prev = p.topics[session.topicId] ?: TopicRecord()
                 val stars = starsFor(session.correct, session.questionIds.size)
-                val missed = (prev.missed - session.questionIds.toSet() + session.missed).distinct().takeLast(30)
-                p.copy(
-                    pearls = p.pearls + (stars - prev.stars).coerceAtLeast(0) * 5,
-                    barn = p.barn.harvest(session.topicId),
-                    topics = p.topics + (session.topicId to TopicRecord(
-                        stars = maxOf(prev.stars, stars),
-                        best = maxOf(prev.best, session.correct.toFloat() / session.questionIds.size),
-                        plays = prev.plays + 1, missed = missed,
-                    )),
+                p.record(session.topicId, session.correct, session.questionIds.size, session.questionIds, session.missed).copy(
                     completedSessions = (p.completedSessions + session.id).takeLast(128),
                     certificateEarned = p.certificateEarned || (session.topicId == "review-treasure" && stars >= 1),
                 )
             }
         }
     }
+}
+
+/** Best stars and score stay; new stars give 5 pearls each; missed questions come back first next time. */
+fun Profile.record(topicId: String, correct: Int, total: Int, asked: List<String>, missedNow: List<String>): Profile {
+    val prev = topics[topicId] ?: TopicRecord()
+    val stars = starsFor(correct, total)
+    val missed = (prev.missed - asked.toSet() + missedNow).distinct().takeLast(30)
+    return copy(
+        pearls = pearls + (stars - prev.stars).coerceAtLeast(0) * 5,
+        topics = topics + (topicId to TopicRecord(
+            stars = maxOf(prev.stars, stars),
+            best = maxOf(prev.best, if (total == 0) 0f else correct.toFloat() / total),
+            plays = prev.plays + 1, missed = missed,
+        )),
+    )
 }
 
 fun starsFor(correct: Int, total: Int): Int {

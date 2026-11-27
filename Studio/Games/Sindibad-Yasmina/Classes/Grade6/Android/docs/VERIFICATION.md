@@ -1,5 +1,21 @@
 # Native Android verification
 
+## Version 0.5.0 farm island build (#9)
+
+Run from `Grade6/Android` with `ANDROID_HOME=/home/mx/Android/Sdk`:
+
+```sh
+node tools/import-island.mjs farm farm
+./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
+./gradlew :app:assembleRelease
+```
+
+- The importer regenerated only `islands/farm.json` and `islands/barn.json`. Rerunning the other regions (music, science, social, art, english) left their JSON byte-for-byte unchanged in `git status`. The farm review questions are unchanged.
+- The local JVM suite passed 63 tests with zero failures and zero skipped. There are 14 new tests: `FarmPlayTest` (12) and `FarmLayoutTest` (2). They cover all seven quests in story order, the wrong-tool hint and second-miss reveal, the pick and dial tasks, action-driven stages including the three cotton rounds, helper bonuses, scoring with idempotent rewards and replay, quest unlocks, ship orders, decorations, old-save defaults, round-tripping a saved run, and the scene's touch targets at 320 dp.
+- Debug lint completed with zero errors. The 11 warnings and 2 hints were already there: dependency versions, the ChromeOS ABI note and `AutoboxingStateCreation` in `Sea3DMap.kt`.
+- The debug and unsigned release builds passed. `app-debug.apk` is 49,261,007 bytes (47.0 MiB). `app-release-unsigned.apk` is 17,366,083 bytes (16.6 MiB).
+- No device, emulator or UI run happened. The farm scene, animations, TalkBack labels, calm mode, sound and haptics, and 320 dp layout are verified only by source, JVM tests and build. They still need the owner's phone check below.
+
 ## Version 0.4.0 PR build
 
 The local JVM suite passed 49 tests. Debug lint completed with zero errors. Debug and unsigned release builds passed. Package inspection confirmed that both APKs contain the six offline curricula, farm inventory catalog and Atlas outlines. The packages are app-debug.apk (46.0 MiB) and app-release-unsigned.apk (16.4 MiB). The Grade 6 Android workflow produces a debug APK for the owner from each qualifying pull request.
