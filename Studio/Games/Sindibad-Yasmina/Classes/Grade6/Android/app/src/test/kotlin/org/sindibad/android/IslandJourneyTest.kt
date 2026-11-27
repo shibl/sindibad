@@ -28,14 +28,13 @@ class IslandJourneyTest {
     }
 
     @Test fun `farm harvest and order rewards cannot be claimed twice from one sale`() {
-        val before = Barn().harvest("farm-potato")
-        val order = FarmBook.book.orders.first()
-        assertEquals(6, before.stock["potato"])
-        val first = before.deliver(order)
-        val second = first.deliver(order)
+        val before = Barn(stock = mapOf("potato" to 6), quest = 1).withOrders(emptySet())
+        assertEquals("أم سمير", before.board.first().who)
+        val first = before.deliver(0, emptySet())
+        val second = first.deliver(first.board.indexOfFirst { it.who == "أم سمير" }, emptySet())
         assertEquals(0, second.stock["potato"])
         assertEquals(36, second.coins)
-        assertEquals(second, second.deliver(order))
+        assertEquals(second, second.deliver(0, emptySet()))
         val decorated = second.decorate("scarecrow")
         assertEquals(6, decorated.coins)
         assertEquals(decorated, decorated.decorate("scarecrow"))

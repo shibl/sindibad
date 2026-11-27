@@ -1,5 +1,37 @@
 # Native Android verification
 
+## Version 0.6.0 music island build (#10)
+
+Run from `Grade6/Android` with `ANDROID_HOME=/home/mx/Android/Sdk`:
+
+```sh
+node tools/import-quests.mjs music tunes
+./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
+./gradlew :app:assembleRelease
+```
+
+- The new importer wrote only `islands/music-quests.json` (10 quests, 93 steps of 14 kinds). Rerunning it gives the same bytes. Rerunning `tools/import-island.mjs` for music, science, social, art, english and farm left every existing JSON byte-for-byte unchanged in `git status`; the music review topics are unchanged. No lesson wording changed: the quests' text is the web's verbatim (`<b>` kept as `**bold**`), and a test fails if any HTML tag is left.
+- The local JVM suite passed 74 tests with zero failures and zero skipped. `QuestTest` (11 new) covers: all ten quests and eight places decode, and a scripted run with the right answer at every step (the drum with exact tap times) finishes each with 3 stars; teaching before every graded step, each with a hint and an explanation; the web's partial scores (a missed melody, one missed rain drop, a quest of misses → 0 stars); the hint on the first miss and the glow on the second, disabled wrong options, the drum's tap-count notes and guide mode; the drum tolerance from the first tap (late start accepted, 0.32 vs 0.45 of a beat); the measure game and its undo; the shared kinds' scoring (twoway, sort, order, match, tf, label, choice, number), the tf fix line and guided «أتعلّم»; golden notes once per quest, saving a run twice changes nothing, pearls and best stars; a run round-trips through JSON and an old save decodes with the new fields' defaults; the importer's invariants (no unknown kind, no `label` without an island picture, every note, glass, rhythm, picture and sound named exists); the synth (no NaN, every sample within ±1, A4 = 440 Hz, C4 ≈ 261.63 Hz, sharps equal flats, the piano's strongest frequency is the note's own, a rhythm's cues are on its beats).
+- Debug lint completed with zero errors and 13 warnings, all of kinds that were already there (dependency versions, the ChromeOS ABI note, `AutoboxingStateCreation` in `Sea3DMap.kt`); the new code adds none.
+- The debug and unsigned release builds passed. `app-debug.apk` is 49,968,151 bytes (47.7 MiB). `app-release-unsigned.apk` is 17,760,978 bytes (16.9 MiB).
+- No device, emulator or UI run happened. The island screen, the quest player, every game's layout at 320/360 dp, TalkBack labels, the sound (synth timbres, audio focus, ducking, release on stop), haptics, calm and large text are verified only by source, JVM tests and build. They need the owner's phone check: play each quest once with sound on and once with sound off, tap the drum game on a real touch screen, and rotate during a quest.
+
+## Version 0.5.0 farm island build (#9)
+
+Run from `Grade6/Android` with `ANDROID_HOME=/home/mx/Android/Sdk`:
+
+```sh
+node tools/import-island.mjs farm farm
+./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
+./gradlew :app:assembleRelease
+```
+
+- The importer regenerated only `islands/farm.json` and `islands/barn.json`. Rerunning the other regions (music, science, social, art, english) left their JSON byte-for-byte unchanged in `git status`. The farm review questions are unchanged.
+- The local JVM suite passed 63 tests with zero failures and zero skipped. There are 14 new tests: `FarmPlayTest` (12) and `FarmLayoutTest` (2). They cover all seven quests in story order, the wrong-tool hint and second-miss reveal, the pick and dial tasks, action-driven stages including the three cotton rounds, helper bonuses, scoring with idempotent rewards and replay, quest unlocks, ship orders, decorations, old-save defaults, round-tripping a saved run, and the scene's touch targets at 320 dp.
+- Debug lint completed with zero errors. The 11 warnings and 2 hints were already there: dependency versions, the ChromeOS ABI note and `AutoboxingStateCreation` in `Sea3DMap.kt`.
+- The debug and unsigned release builds passed. `app-debug.apk` is 49,261,007 bytes (47.0 MiB). `app-release-unsigned.apk` is 17,366,083 bytes (16.6 MiB).
+- No device, emulator or UI run happened. The farm scene, animations, TalkBack labels, calm mode, sound and haptics, and 320 dp layout are verified only by source, JVM tests and build. They still need the owner's phone check below.
+
 ## Version 0.4.0 PR build
 
 The local JVM suite passed 49 tests. Debug lint completed with zero errors. Debug and unsigned release builds passed. Package inspection confirmed that both APKs contain the six offline curricula, farm inventory catalog and Atlas outlines. The packages are app-debug.apk (46.0 MiB) and app-release-unsigned.apk (16.4 MiB). The Grade 6 Android workflow produces a debug APK for the owner from each qualifying pull request.
