@@ -40,6 +40,8 @@ import org.sindibad.android.domain.islands
 import org.sindibad.android.domain.quest.*
 import org.sindibad.android.ui.*
 import org.sindibad.android.ui.quest.*
+import org.sindibad.android.ui.science.RobotHelper
+import org.sindibad.android.ui.science.ScienceKit
 
 // «جزيرة الأنغام» natively (web: core/tunes/tunes.ts): the helper نغمة, the eight places of the island with
 // their quests and stars, the golden notes (one per quest finished once) and the sky song they make, and the
@@ -221,7 +223,7 @@ fun NoteHelper(mood: Mood, modifier: Modifier = Modifier) {
     }
 }
 
-/** The quest player for an island's quests (music now; other islands give their own QuestKit here). */
+/** The quest player for an island's quests (music and science; other islands give their own QuestKit here). */
 @Composable
 internal fun IslandQuest(state: org.sindibad.android.AppUiState, vm: GameViewModel) {
     val run = state.quest ?: return
@@ -230,10 +232,12 @@ internal fun IslandQuest(state: org.sindibad.android.AppUiState, vm: GameViewMod
     val prefs = profile.preferences
     val engine = rememberMusicEngine(prefs.sound)
     val scope = rememberCoroutineScope()
-    val kit = remember(engine, book) { MusicKit(engine, book, scope) }
+    // Each island brings its own part of the player: music its instruments, science its pictures.
+    val science = run.island == "science"
+    val kit: QuestKit = remember(engine, book, prefs.calm) { if (science) ScienceKit(engine, book, scope, prefs.calm) else MusicKit(engine, book, scope) }
     LaunchedEffect(run.id, run.finished) { if (run.finished && state.questReward?.runId != run.id) vm.saveQuest() }
     QuestScreen(run, book, kit, prefs, state.questReward, nextAfter(book, profile, run),
-        helperFace = { mood, m -> NoteHelper(mood, m) },
+        helperFace = { mood, m -> if (science) RobotHelper(mood, m) else NoteHelper(mood, m) },
         act = QuestActions(vm::questTap, vm::questDrum, vm::questUndo), next = vm::questNext, close = vm::back, saveAgain = vm::saveQuest, busy = state.busy)
 }
 

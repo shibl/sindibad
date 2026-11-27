@@ -39,6 +39,7 @@ import org.sindibad.android.domain.*
 import org.sindibad.android.ui.farm.FarmIsland
 import org.sindibad.android.ui.music.IslandQuest
 import org.sindibad.android.ui.music.MusicIsland
+import org.sindibad.android.ui.science.ScienceIsland
 import org.sindibad.android.ui.sea.Sea3DMap
 
 @Composable
@@ -103,7 +104,7 @@ fun SindibadApp(vm: GameViewModel) {
                             Screen.Arabic -> SubjectIsland("arabic", state.store.active ?: return@Box, vm::startTopic)
                             Screen.Music -> MusicIsland(state.store.active ?: return@Box, vm)
                             Screen.Quest -> IslandQuest(state, vm)
-                            Screen.Science -> SubjectIsland("science", state.store.active ?: return@Box, vm::startTopic)
+                            Screen.Science -> ScienceIsland(state.store.active ?: return@Box, vm)
                             Screen.Atlas -> SubjectIsland("social", state.store.active ?: return@Box, vm::startTopic)
                             Screen.Art -> SubjectIsland("art", state.store.active ?: return@Box, vm::startTopic) {
                                 PaintingStudio(state.store.active ?: return@SubjectIsland, vm::savePainting)

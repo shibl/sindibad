@@ -72,6 +72,12 @@ interface QuestKit {
     fun feedback(good: Boolean, finished: Boolean)
     /** Stops every sound (leaving a step). */
     fun silence()
+    /** A question's picture (`pic`: science's force vector…); nothing by default. */
+    @Composable fun QuestionPicture(name: String) {}
+    /** The result card's words: the book the quest comes from, the first-finish chip, the line once all are done. */
+    val bookName: String get() = "التربية الموسيقية"
+    val gainChip: String get() = "🎵 نوتة ذهبية"
+    val allDoneNext: String get() = "🎉 جمعت النوتات الذهبية كلها!"
 }
 
 /** **bold** → bold spans. */
@@ -101,7 +107,7 @@ fun QuestScreen(
     }
     Column(Modifier.fillMaxSize().verticalScroll(scroll).padding(horizontal = 14.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         QuestHeader(quest, run)
-        if (run.finished) { ResultCard(quest, run, reward, nextQuest, busy, saveAgain, close); return@Column }
+        if (run.finished) { ResultCard(quest, run, book, kit, reward, nextQuest, busy, saveAgain, close); return@Column }
         val step = run.step(book)
         val line = run.state.line ?: Line(step.say ?: step.hint ?: quest.goal, Mood.Happy)
         HelperLine(book.helper.name, line, helperFace)
@@ -168,25 +174,42 @@ private fun QuestFeedback(run: QuestRun, kit: QuestKit, prefs: Preferences) {
 }
 
 @Composable
-private fun ResultCard(quest: Quest, run: QuestRun, reward: QuestReward?, next: Quest?, busy: Boolean, saveAgain: () -> Unit, close: () -> Unit) {
+private fun ResultCard(quest: Quest, run: QuestRun, book: QuestBook, kit: QuestKit, reward: QuestReward?, next: Quest?, busy: Boolean, saveAgain: () -> Unit, close: () -> Unit) {
     val saved = reward?.runId == run.id
     PaperCard(Modifier.fillMaxWidth()) {
         Text("درس مكتمل!", color = Teal, style = MaterialTheme.typography.labelLarge)
         Text("${quest.icon} ${quest.title}", style = MaterialTheme.typography.headlineSmall)
         Stars(run.stars)
-        Text("📖 تعلّمنا من كتاب «التربية الموسيقية»:", fontWeight = FontWeight.Bold)
+        Text("📖 تعلّمنا من كتاب «${kit.bookName}»:", fontWeight = FontWeight.Bold)
         quest.learned.forEach { Text("• ${it}", style = MaterialTheme.typography.bodyLarge) }
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            if (saved && reward!!.first) Chip("+1 🎵 نوتة ذهبية")
+            if (saved && reward!!.first) Chip("+1 ${kit.gainChip}")
             if (saved && reward!!.pearls > 0) Chip("+${reward.pearls} 🦪")
             Chip("✔ ${fmt(run.ok)}/${fmt(run.total)}")
         }
+        book.sticker(reward?.sticker)?.takeIf { saved }?.let { StickerCard(it, "📒 ملصق جديد في ألبومك!") }
         if (!saved) {
             Text(if (busy) "نحفظ النتيجة…" else "لم تُحفظ النتيجة بعد.", style = MaterialTheme.typography.bodyMedium)
             if (!busy) TextButton(onClick = saveAgain, modifier = Modifier.heightIn(min = 48.dp)) { Text("احفظ النتيجة") }
         }
-        Text(if (next != null) "الدرس التالي: ${next.icon} ${next.title}" else "🎉 جمعت النوتات الذهبية كلها!", fontWeight = FontWeight.Bold)
+        Text(if (next != null) "الدرس التالي: ${next.icon} ${next.title}" else kit.allDoneNext, fontWeight = FontWeight.Bold)
         GoldButton("تابِع", saved, close)
+    }
+}
+
+/** A sticker with its name and fact (the result card's new sticker, the sticker book's picked one). */
+@Composable
+fun StickerCard(sticker: Sticker, kicker: String? = null) {
+    Surface(color = Gold.copy(alpha = .22f), shape = RoundedCornerShape(16.dp), border = BorderStroke(1.dp, Gold),
+        modifier = Modifier.fillMaxWidth().semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite }) {
+        Row(Modifier.padding(12.dp), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(sticker.icon, fontSize = 40.sp)
+            Column(Modifier.weight(1f)) {
+                kicker?.let { Text(it, style = MaterialTheme.typography.labelLarge, color = Teal) }
+                Text(sticker.name, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                Text(rich(sticker.fact), style = MaterialTheme.typography.bodyLarge)
+            }
+        }
     }
 }
 
@@ -213,16 +236,17 @@ private fun StepView(step: Step, state: StepState, kit: QuestKit, act: QuestActi
         }
         is Choice -> {
             Ask(step.q)
+            step.pic?.let { kit.QuestionPicture(it) }
             step.show?.let { kit.Show(it) }
             step.listen?.let { p -> OutlinedButton(onClick = { kit.play(p) }, Modifier.heightIn(min = 48.dp)) { Text(if (p.tempo != null) "▶ اسمع السرعة" else "▶ اسمع") } }
             Options(step.options, state, art = step.art?.takeIf { a -> a.all(kit::hasArt) }, kit = kit, act = act)
         }
-        is TwoWay -> TwoWayView(step, state, act)
-        is Sort -> SortView(step, state, act)
+        is TwoWay -> { TwoWayView(step, state, act) { step.pic?.let { kit.QuestionPicture(it) } } }
+        is Sort -> SortView(step, state, act) { step.pic?.let { kit.QuestionPicture(it) } }
         is Order -> OrderView(step, state, kit, act)
-        is Match -> MatchView(step, state, act)
-        is TrueOrFalse -> TrueFalseView(step, state, act)
-        is NumberStep -> NumberView(step, state, act)
+        is Match -> MatchView(step, state, act) { step.pic?.let { kit.QuestionPicture(it) } }
+        is TrueOrFalse -> TrueFalseView(step, state, act) { step.pic?.let { kit.QuestionPicture(it) } }
+        is NumberStep -> NumberView(step, state, act) { step.pic?.let { kit.QuestionPicture(it) } }
         is LabelStep -> {
             Ask(step.q)
             if (!state.done) Text("👆 ${step.ask[state.part].name}", style = MaterialTheme.typography.titleMedium)
@@ -277,8 +301,9 @@ fun Options(options: List<String>, state: StepState, art: List<String>? = null, 
 }
 
 @Composable
-private fun TwoWayView(step: TwoWay, state: StepState, act: QuestActions) {
+private fun TwoWayView(step: TwoWay, state: StepState, act: QuestActions, picture: @Composable () -> Unit = {}) {
     Ask(step.q)
+    picture()
     step.lines.forEachIndexed { k, line ->
         val filled = if (k < state.part) line.text.replace("___", "«${line.right}»") else line.text.replace("___", "…")
         Text(filled, style = MaterialTheme.typography.bodyLarge, fontWeight = if (k == state.part && !state.done) FontWeight.Bold else FontWeight.Normal,
@@ -291,8 +316,9 @@ private fun TwoWayView(step: TwoWay, state: StepState, act: QuestActions) {
 }
 
 @Composable
-private fun SortView(step: Sort, state: StepState, act: QuestActions) {
+private fun SortView(step: Sort, state: StepState, act: QuestActions, picture: @Composable () -> Unit = {}) {
     Ask(step.q)
+    picture()
     val order = StepMachine.permutation(state, step.items.size)
     val placed = order.take(state.part).map { step.items[it] }
     if (!state.done) {
@@ -318,6 +344,7 @@ private fun SortView(step: Sort, state: StepState, act: QuestActions) {
 @Composable
 private fun OrderView(step: Order, state: StepState, kit: QuestKit, act: QuestActions) {
     Ask(step.q)
+    step.pic?.let { kit.QuestionPicture(it) }
     step.show?.let { kit.Show(it) }
     // The slots: filled in order.
     FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -345,8 +372,9 @@ private fun OrderView(step: Order, state: StepState, kit: QuestKit, act: QuestAc
 }
 
 @Composable
-private fun MatchView(step: Match, state: StepState, act: QuestActions) {
+private fun MatchView(step: Match, state: StepState, act: QuestActions, picture: @Composable () -> Unit = {}) {
     Ask(step.q)
+    picture()
     step.pairs.take(state.part).forEach { Text("${it.left} ← ${it.right}", color = Correct, style = MaterialTheme.typography.bodyLarge) }
     if (!state.done) {
         Text("👉 ${step.pairs[state.part].left}", style = MaterialTheme.typography.titleMedium)
@@ -360,8 +388,9 @@ private fun MatchView(step: Match, state: StepState, act: QuestActions) {
 }
 
 @Composable
-private fun TrueFalseView(step: TrueOrFalse, state: StepState, act: QuestActions) {
+private fun TrueFalseView(step: TrueOrFalse, state: StepState, act: QuestActions, picture: @Composable () -> Unit = {}) {
     Ask(step.q)
+    picture()
     step.items.take(state.part).forEach { Text("${if (it.truth) "✓" else "✗"} ${it.text}", color = Correct) }
     if (!state.done) {
         val item = step.items[state.part]
@@ -374,8 +403,9 @@ private fun TrueFalseView(step: TrueOrFalse, state: StepState, act: QuestActions
 }
 
 @Composable
-private fun NumberView(step: NumberStep, state: StepState, act: QuestActions) {
+private fun NumberView(step: NumberStep, state: StepState, act: QuestActions, picture: @Composable () -> Unit = {}) {
     Ask(step.q)
+    picture()
     Surface(color = Color.White, shape = RoundedCornerShape(14.dp), border = BorderStroke(2.dp, if (state.done) Correct else Sand),
         modifier = Modifier.fillMaxWidth().semantics { liveRegion = LiveRegionMode.Polite }) {
         Text(listOf(state.typed.ifEmpty { "؟" }, step.unit.orEmpty()).joinToString(" ").trim(), Modifier.padding(14.dp),
