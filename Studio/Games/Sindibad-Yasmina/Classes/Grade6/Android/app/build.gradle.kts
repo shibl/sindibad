@@ -12,8 +12,8 @@ android {
         applicationId = "org.sindibad.android"
         minSdk = 33
         targetSdk = 37
-        versionCode = 4
-        versionName = "0.4.0"
+        versionCode = 7
+        versionName = "0.7.0"
         // 64-bit ARM phones only: Filament's native 3D libraries are about
         // 6 MB per processor type, and 32-bit and x86 phones are rare.
         ndk { abiFilters += listOf("arm64-v8a") }

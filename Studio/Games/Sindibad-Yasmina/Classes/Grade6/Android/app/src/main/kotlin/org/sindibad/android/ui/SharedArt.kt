@@ -37,3 +37,17 @@ fun SharedArt(id: String, description: String?, modifier: Modifier = Modifier) {
         bitmap?.let { Image(it, description, Modifier.fillMaxSize(), contentScale = ContentScale.Fit) }
     }
 }
+
+/** A shared PNG as a bitmap for native Canvas scenes (same bounded cache as [SharedArt]); null while loading. */
+@Composable
+fun rememberSharedBitmap(id: String): ImageBitmap? {
+    val context = LocalContext.current.applicationContext
+    val bitmap by produceState<ImageBitmap?>(null, id) {
+        value = withContext(Dispatchers.IO) {
+            val loaded = ArtCache.bitmaps.get(id) ?: context.assets.open("png/$id.png").use { BitmapFactory.decodeStream(it) }
+                .also { requireNotNull(it) { "Invalid shared art: $id" }; ArtCache.bitmaps.put(id, it) }
+            loaded.asImageBitmap()
+        }
+    }
+    return bitmap
+}

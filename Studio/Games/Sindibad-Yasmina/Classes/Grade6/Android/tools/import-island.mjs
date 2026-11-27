@@ -11,11 +11,9 @@ for (const quest of book.QUESTS) {
     let review;
     if (region === 'farm') {
         const task = book.CROPS[quest.crop] ?? book.TASKS[quest.id];
-        cards = task.steps.map(step => {
-            const actions = [step.do].flat();
-            const text = [step.hint, ...Object.values(typeof step.why === 'object' ? step.why : [step.why]), step.pick?.why].filter(Boolean).map(plain).join('\n');
-            return { title: plain(task.book), text, tools: task.tools.map(id => book.TOOLS[id].name), requiredTools: actions.map(id => book.TOOLS[id].name) };
-        });
+        // The steps are played in the native farm scene (barn.json); the review lesson
+        // opens with what the quest taught («تعلّمنا من كتاب …»).
+        cards = [{ title: 'تعلّمنا من كتاب «' + plain(task.book) + '»', text: task.learned.map(plain).join('\n') }];
         const bank = await import(`../../Web/plugins/agriculture/${quest.id}.js`);
         const feeds = { strong: 'علف مركّز', rough: 'علف خشن', green: 'علف أخضر' };
         review = bank.QUESTIONS ?? bank.ITEMS.map(item => ({
@@ -64,11 +62,43 @@ if (region === 'social') {
     await writeFile(new URL('globe.json', directory), JSON.stringify(cards) + '\n');
 }
 if (region === 'farm') {
-    const goods = Object.fromEntries(book.QUESTS.map(q => {
-        const task = book.CROPS[q.crop] ?? book.TASKS[q.id];
-        return [q.topic, { product: task.product, amount: task.yield }];
-    }));
-    const helpers = Object.fromEntries(book.HELPERS.map(h => [h.id, { name: h.name, fact: plain(h.hello) }]));
+    // Everything the native farm scene needs to play each quest as the web does.
+    const places = { barn: 'pen', dairy: 'dairy', hive: 'hive' };
+    const text = value => plain(value ?? '');
+    const perTool = (value, tools) => value == null ? {} : typeof value === 'object'
+        ? Object.fromEntries(Object.entries(value).map(([k, v]) => [k, text(v)]))
+        : Object.fromEntries(tools.map(t => [t, text(value)]));
+    const step = st => {
+        const tools = [st.do].flat();
+        const out = { do: tools, hint: text(st.hint), why: perTool(st.why, tools) };
+        if (st.wrong) out.wrong = perTool(st.wrong, []);
+        if (st.pick) {
+            const p = st.pick;
+            out.pick = { type: p.type ?? 'choice', ask: text(p.ask), oops: text(p.oops) };
+            if (p.tool) out.pick.tool = p.tool;
+            if (p.options) out.pick.options = p.options.map(o => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, typeof v === 'string' ? text(v) : v])));
+            if (p.groups) out.pick.groups = perTool(p.groups, []);
+            for (const k of ['from', 'target', 'min', 'max']) if (p[k] != null) out.pick[k] = p[k];
+            if (p.why) out.pick.why = text(p.why);
+            if (p.reveal) out.pick.reveal = text(p.reveal);
+        }
+        for (const k of ['stage', 'then', 'then2', 'power', 'rounds']) if (st[k] != null) out[k] = st[k];
+        for (const k of ['lapse', 'lapse2', 'roundLapse']) if (st[k] != null) out[k] = text(st[k]);
+        for (const k of ['weeds', 'dense']) if (st[k]) out[k] = true;
+        if (st.whyRounds) out.whyRounds = st.whyRounds.map(text);
+        return out;
+    };
+    const quests = book.QUESTS.map(q => {
+        const task = book.CROPS[q.crop] ?? book.TASKS[q.task];
+        return {
+            id: q.id, topic: q.topic, title: text(q.title), icon: q.icon, goal: text(q.goal),
+            crop: !!q.crop, place: q.crop ? 'plot' : places[task.place], name: text(task.name), book: text(task.book),
+            product: task.product, yield: task.yield ?? 1, needs: task.needs ?? {}, tools: task.tools,
+            nope: perTool(task.nope, []), steps: task.steps.map(step), learned: task.learned.map(text),
+        };
+    });
+    const helpers = Object.fromEntries(book.HELPERS.map(h => [h.id, { name: h.name, fact: plain(h.hello), kind: h.kind, blurb: plain(h.blurb), power: plain(h.power) }]));
     const decorations = Object.fromEntries(book.DECOR.map(d => [d.id, { name: d.icon + ' ' + d.name, cost: d.cost, fact: plain(d.fact) }]));
-    await writeFile(new URL('barn.json', directory), JSON.stringify({ goods, helpers, decorations, products: book.PRODUCTS, orders: book.ORDERS }, null, 2) + '\n');
+    await writeFile(new URL('barn.json', directory), JSON.stringify({ helpers, decorations, products: book.PRODUCTS, orders: book.ORDERS,
+        tools: book.TOOLS, quests, levels: book.LEVELS }, null, 2) + '\n');
 }
