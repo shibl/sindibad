@@ -1,5 +1,22 @@
 # Native Android verification
 
+## Version 0.7.0 science island build (#11)
+
+Run from `Grade6/Android` with `ANDROID_HOME=/home/mx/Android/Sdk`:
+
+```sh
+node tools/import-quests.mjs science lab
+node tools/import-quests.mjs music tunes
+./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
+./gradlew :app:assembleRelease
+```
+
+- The importer wrote only `islands/science-quests.json` (17 quests, 138 steps of 9 shared kinds, 10 places, 4 units, 6 stickers, 38 pictures with their parts). Rerunning the music import left `islands/music-quests.json` byte-for-byte unchanged, and no other island JSON changed in `git status`. No lesson wording changed: quest text and sticker facts are the web's verbatim, and a test fails if any HTML tag is left. The importer fix that keeps `truth: false` on true/false items changed no existing file (music has no true/false items).
+- The local JVM suite passed 83 tests with zero failures and zero skipped (74 before). `ScienceQuestTest` (9 new): all 17 quests and 10 places decode and a scripted perfect run gives 3 stars on each; teaching before every graded step, each with a hint; partial scores (a missed choice, a label part missed once = 1/n lost); the reveal rule (hint on the first miss, glow from the second, each new part unlit); crystals and stickers given once per quest across double saves and replays, 17 crystals and 6 stickers at the end; old saves decode without stickers and a doubled sticker is refused; every `view`/`pic` a step names has a native painter and every spot it asks for has a touch box or pill inside the picture; only shared kinds and no HTML; the picture stage helpers. The music `QuestTest` (11) still passes unchanged.
+- Debug lint completed with zero errors and 11 warnings, all of kinds that were already there (dependency and plugin versions, the ChromeOS ABI note); the new code adds none.
+- The debug and unsigned release builds passed. `app-debug.apk` is 50,412,278 bytes (48.1 MiB). `app-release-unsigned.apk` is 17,910,131 bytes (17.1 MiB).
+- No device, emulator or UI run happened. The island screen, the 38 pictures and their experiments, touch-target placement over the pictures, TalkBack labels, calm mode, sound, haptics and large text are verified only by source, JVM tests and build. They need the owner's phone check: play each science quest once, once more in calm mode, and once with TalkBack on a picture step.
+
 ## Version 0.6.0 music island build (#10)
 
 Run from `Grade6/Android` with `ANDROID_HOME=/home/mx/Android/Sdk`:
