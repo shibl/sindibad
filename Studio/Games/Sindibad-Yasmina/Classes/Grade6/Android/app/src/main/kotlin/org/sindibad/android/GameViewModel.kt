@@ -11,17 +11,21 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import org.sindibad.android.content.QuestBooks
 import org.sindibad.android.content.Topics
 import org.sindibad.android.data.GameRepository
 import org.sindibad.android.domain.*
+import org.sindibad.android.domain.quest.*
 import java.util.UUID
 import kotlin.random.Random
 
-enum class Screen { English, Art, Atlas, Science, Home, Voyages, Sea, Music, Farm, Arabic, Math, Treasure, Review, Shop, Certificate, Lesson, Journey, Settings, Profiles, About }
+enum class Screen { English, Art, Atlas, Science, Home, Voyages, Sea, Music, Farm, Arabic, Math, Treasure, Review, Shop, Certificate, Lesson, Quest, Journey, Settings, Profiles, About }
 
 data class AppUiState(
     val loading: Boolean = true, val store: GameStore = GameStore(),
     val screen: Screen = Screen.Home, val session: LessonSession? = null,
+    /** The island quest being played (music…), kept like a lesson session; its reward once saved. */
+    val quest: QuestRun? = null, val questReward: QuestReward? = null,
     val busy: Boolean = false, val error: String? = null,
 )
 
@@ -30,9 +34,13 @@ class GameViewModel(private val repository: GameRepository, private val saved: S
     private val restoredSession = saved.get<String>("session")?.let {
         runCatching { json.decodeFromString<LessonSession>(it) }.getOrNull()
     }
+    private val restoredQuest = saved.get<String>("quest")?.let { runCatching { json.decodeFromString<QuestRun>(it) }.getOrNull() }
+        ?.takeIf { QuestBooks.has(it.island) && runCatching { it.step(QuestBooks.get(it.island)) }.isSuccess }
     private val mutable = MutableStateFlow(AppUiState(
         screen = saved.get<String>("screen")?.let { runCatching { Screen.valueOf(it) }.getOrNull() } ?: Screen.Home,
         session = restoredSession,
+        quest = restoredQuest,
+        questReward = saved.get<String>("questReward")?.let { runCatching { json.decodeFromString<QuestReward>(it) }.getOrNull() },
     ))
     val ui = mutable.asStateFlow()
     private var loadJob: Job? = null
@@ -48,6 +56,8 @@ class GameViewModel(private val repository: GameRepository, private val saved: S
                     if (store.active == null && mutable.value.screen != Screen.Home && mutable.value.screen != Screen.Profiles) goHome()
                     if (mutable.value.session?.profileId != store.activeId) setSession(null)
                     if (mutable.value.screen == Screen.Lesson && mutable.value.session == null) goHome()
+                    if (mutable.value.quest?.profileId.let { it != null && it != store.activeId }) setQuest(null)
+                    if (mutable.value.screen == Screen.Quest && mutable.value.quest == null) goHome()
                 }
             } catch (cancel: CancellationException) {
                 throw cancel
@@ -91,6 +101,53 @@ class GameViewModel(private val repository: GameRepository, private val saved: S
         saved["session"] = session?.let { json.encodeToString(it) }
         mutable.update { it.copy(session = session) }
     }
+
+    private fun setQuest(run: QuestRun?, reward: QuestReward? = null) {
+        saved["quest"] = run?.let { json.encodeToString(it) }
+        saved["questReward"] = reward?.let { json.encodeToString(it) }
+        mutable.update { it.copy(quest = run, questReward = reward) }
+    }
+
+    /** Opens an island quest; an unfinished run of the same quest resumes where it was left. */
+    fun startQuest(island: String, questId: String) {
+        val profile = mutable.value.store.active ?: return
+        if (!QuestBooks.has(island)) return
+        val book = QuestBooks.get(island)
+        val quest = book.quests.firstOrNull { it.id == questId } ?: return
+        val run = mutable.value.quest
+        if (run == null || run.island != island || run.questId != questId || run.profileId != profile.id || run.finished) {
+            setQuest(QuestRun.start(UUID.randomUUID().toString(), profile.id, island, quest, Random.nextInt(1, Int.MAX_VALUE / 64)))
+        }
+        navigate(Screen.Quest)
+    }
+    private fun updateQuest(change: (QuestRun, QuestBook) -> QuestRun) {
+        val run = mutable.value.quest ?: return
+        val next = change(run, QuestBooks.get(run.island))
+        if (next != run) setQuest(next, mutable.value.questReward)
+        if (next.finished && !run.finished) saveQuest()
+    }
+    fun questTap(value: String) = updateQuest { run, book -> run.tap(book, value) }
+    fun questDrum(tapsMs: List<Long>) = updateQuest { run, book -> run.drum(book, tapsMs) }
+    fun questUndo() = updateQuest { run, book -> run.undo(book) }
+    /** «تابِع» / «فهمت!»: the next step, or the end of the quest (then saved once). */
+    fun questNext() = updateQuest { run, book -> run.next(book) }
+    /** Saves a finished quest (idempotent: a retry after a failed save changes nothing twice). */
+    fun saveQuest() = transact {
+        val run = mutable.value.quest?.takeIf { it.finished } ?: return@transact
+        val book = QuestBooks.get(run.island)
+        var reward: QuestReward? = null
+        repository.update { store ->
+            val before = store.profiles.firstOrNull { it.id == run.profileId } ?: return@update store
+            if (run.id in before.completedSessions) return@update store
+            val after = store.finishQuest(run, book)
+            val p = after.profiles.first { it.id == run.profileId }
+            reward = QuestReward(run.id, run.stars, first = !before.questDone(run.island, run.questId), pearls = p.pearls - before.pearls)
+            after
+        }
+        reward?.let { setQuest(mutable.value.quest, it) }
+    }
+    /** The island's helper has said hello: next time it says «back». */
+    fun meetHelper(island: String) = updateFarm { store, id -> store.updateProfile(id) { p -> if (island in p.helpersMet) p else p.copy(helpersMet = p.helpersMet + island) } }
 
     fun createProfile(hero: Hero, name: String) = transact {
         val profile = Profile(UUID.randomUUID().toString(), name.trim().take(20).ifEmpty { hero.arabic }, hero)
