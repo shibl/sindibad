@@ -1,0 +1,1732 @@
+[
+ {
+  "quest": "homeland",
+  "index": 0,
+  "view": "map",
+  "w": 320,
+  "h": 300,
+  "spots": [
+   {
+    "id": "chad",
+    "label": [
+     163.9,
+     106.6
+    ]
+   },
+   {
+    "id": "equator",
+    "label": [
+     274,
+     152.9
+    ]
+   },
+   {
+    "id": "med",
+    "label": [
+     163.9,
+     25.3
+    ]
+   },
+   {
+    "id": "red",
+    "label": [
+     243.6,
+     81
+    ]
+   },
+   {
+    "id": "atlantic",
+    "label": [
+     53.5,
+     157.9
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "homeland",
+  "index": 5,
+  "view": "map",
+  "w": 320,
+  "h": 190,
+  "spots": [
+   {
+    "id": "med",
+    "label": [
+     153.9,
+     31.5
+    ]
+   },
+   {
+    "id": "suez",
+    "label": [
+     204.4,
+     51.3
+    ]
+   },
+   {
+    "id": "babmandab",
+    "label": [
+     248.7,
+     128.7
+    ]
+   },
+   {
+    "id": "gibraltar",
+    "label": [
+     50.2,
+     28.3
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "homeland",
+  "index": 6,
+  "view": "map",
+  "w": 320,
+  "h": 190,
+  "spots": [
+   {
+    "id": "suez",
+    "label": [
+     204.4,
+     51.3
+    ]
+   },
+   {
+    "id": "babmandab",
+    "label": [
+     248.7,
+     128.7
+    ]
+   },
+   {
+    "id": "gibraltar",
+    "label": [
+     50.2,
+     28.3
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "gates",
+  "index": 0,
+  "view": "map",
+  "w": 320,
+  "h": 300,
+  "spots": [
+   {
+    "id": "somalia",
+    "label": [
+     221.2,
+     202.6
+    ]
+   },
+   {
+    "id": "egypt",
+    "label": [
+     92.4,
+     70
+    ]
+   },
+   {
+    "id": "suez",
+    "label": [
+     123.4,
+     24
+    ]
+   },
+   {
+    "id": "babmandab",
+    "label": [
+     211.5,
+     174
+    ]
+   },
+   {
+    "id": "mogadishu",
+    "label": [
+     227.1,
+     250.89999999999998
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "gates",
+  "index": 1,
+  "view": "map",
+  "w": 320,
+  "h": 190,
+  "spots": [
+   {
+    "id": "morocco",
+    "label": [
+     52.7,
+     58.5
+    ]
+   },
+   {
+    "id": "libya",
+    "label": [
+     140.3,
+     60.7
+    ]
+   },
+   {
+    "id": "chad",
+    "label": [
+     145.8,
+     122.9
+    ]
+   },
+   {
+    "id": "gibraltar",
+    "label": [
+     50.2,
+     28.3
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "gates",
+  "index": 3,
+  "view": "map",
+  "w": 320,
+  "h": 190,
+  "spots": [
+   {
+    "id": "morocco",
+    "label": [
+     52.7,
+     58.5
+    ]
+   },
+   {
+    "id": "libya",
+    "label": [
+     140.3,
+     60.7
+    ]
+   },
+   {
+    "id": "somalia",
+    "label": [
+     253.6,
+     141.5
+    ]
+   },
+   {
+    "id": "egypt",
+    "label": [
+     201.1,
+     60.2
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "gates",
+  "index": 6,
+  "view": "timeline",
+  "w": 320,
+  "h": 190,
+  "spots": [
+   {
+    "id": "senusret",
+    "label": [
+     270.3,
+     58
+    ]
+   },
+   {
+    "id": "seti",
+    "label": [
+     222.5,
+     142
+    ]
+   },
+   {
+    "id": "necho",
+    "label": [
+     160,
+     58
+    ]
+   },
+   {
+    "id": "darius",
+    "label": [
+     97.5,
+     142
+    ]
+   },
+   {
+    "id": "umar",
+    "label": [
+     53,
+     58
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "nilegift",
+  "index": 0,
+  "view": "map",
+  "w": 320,
+  "h": 289,
+  "spots": [
+   {
+    "id": "nile",
+    "label": [
+     220.8,
+     242.6
+    ]
+   },
+   {
+    "id": "delta",
+    "label": [
+     164.9,
+     26.1
+    ]
+   },
+   {
+    "id": "giza",
+    "label": [
+     175.5,
+     48.7
+    ]
+   },
+   {
+    "id": "aswan",
+    "label": [
+     219.1,
+     211
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "nilegift",
+  "index": 4,
+  "view": "timeline",
+  "w": 320,
+  "h": 190,
+  "spots": [
+   {
+    "id": "old",
+    "label": [
+     267,
+     58
+    ]
+   },
+   {
+    "id": "middle",
+    "label": [
+     235,
+     142
+    ]
+   },
+   {
+    "id": "hyksos",
+    "label": [
+     185,
+     58
+    ]
+   },
+   {
+    "id": "new",
+    "label": [
+     135,
+     142
+    ]
+   },
+   {
+    "id": "hatshepsut",
+    "label": [
+     85,
+     58
+    ]
+   },
+   {
+    "id": "kadesh",
+    "label": [
+     43,
+     142
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "carthage",
+  "index": 0,
+  "view": "map",
+  "w": 320,
+  "h": 190,
+  "spots": [
+   {
+    "id": "tunisia",
+    "label": [
+     94.7,
+     104.6
+    ]
+   },
+   {
+    "id": "lebanon",
+    "label": [
+     302.7,
+     107.5
+    ]
+   },
+   {
+    "id": "med",
+    "label": [
+     160,
+     102.9
+    ]
+   },
+   {
+    "id": "carthage",
+    "label": [
+     98.6,
+     69.9
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "carthage",
+  "index": 10,
+  "view": "map",
+  "w": 320,
+  "h": 190,
+  "spots": [
+   {
+    "id": "greece",
+    "label": [
+     166.7,
+     7.8
+    ]
+   },
+   {
+    "id": "lebanon",
+    "label": [
+     218.1,
+     33.9
+    ]
+   },
+   {
+    "id": "carthage",
+    "label": [
+     114.8,
+     13.399999999999999
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "state",
+  "index": 0,
+  "view": "map",
+  "w": 320,
+  "h": 300,
+  "spots": [
+   {
+    "id": "turkey",
+    "label": [
+     121.1,
+     17.1
+    ]
+   },
+   {
+    "id": "iraq",
+    "label": [
+     255.4,
+     205.7
+    ]
+   },
+   {
+    "id": "syria",
+    "label": [
+     143.3,
+     118.5
+    ]
+   },
+   {
+    "id": "jordan",
+    "label": [
+     107,
+     270
+    ]
+   },
+   {
+    "id": "palestine",
+    "label": [
+     39.9,
+     261.4
+    ]
+   },
+   {
+    "id": "lebanon",
+    "label": [
+     69.9,
+     162.9
+    ]
+   },
+   {
+    "id": "damascus",
+    "label": [
+     81.9,
+     185.4
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "state",
+  "index": 1,
+  "view": "map",
+  "w": 320,
+  "h": 300,
+  "spots": [
+   {
+    "id": "turkey",
+    "label": [
+     121.1,
+     17.1
+    ]
+   },
+   {
+    "id": "iraq",
+    "label": [
+     255.4,
+     205.7
+    ]
+   },
+   {
+    "id": "jordan",
+    "label": [
+     107,
+     270
+    ]
+   },
+   {
+    "id": "palestine",
+    "label": [
+     39.9,
+     261.4
+    ]
+   },
+   {
+    "id": "lebanon",
+    "label": [
+     69.9,
+     162.9
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "nilelands",
+  "index": 0,
+  "view": "map",
+  "w": 320,
+  "h": 300,
+  "spots": [
+   {
+    "id": "bluenile",
+    "label": [
+     190.6,
+     178.3
+    ]
+   },
+   {
+    "id": "nile",
+    "label": [
+     169,
+     75.4
+    ]
+   },
+   {
+    "id": "delta",
+    "label": [
+     139.3,
+     10.4
+    ]
+   },
+   {
+    "id": "khartoum",
+    "label": [
+     156.1,
+     133.6
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "nilelands",
+  "index": 1,
+  "view": "map",
+  "w": 320,
+  "h": 289,
+  "spots": [
+   {
+    "id": "nile",
+    "label": [
+     220.8,
+     242.6
+    ]
+   },
+   {
+    "id": "sinai",
+    "label": [
+     241.2,
+     75.7
+    ]
+   },
+   {
+    "id": "red",
+    "label": [
+     268.3,
+     161.1
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "nilelands",
+  "index": 3,
+  "view": "map",
+  "w": 320,
+  "h": 289,
+  "spots": [
+   {
+    "id": "sinai",
+    "label": [
+     241.2,
+     75.7
+    ]
+   },
+   {
+    "id": "delta",
+    "label": [
+     164.9,
+     26.1
+    ]
+   },
+   {
+    "id": "red",
+    "label": [
+     268.3,
+     161.1
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "nilewealth",
+  "index": 0,
+  "view": "map",
+  "w": 320,
+  "h": 300,
+  "spots": [
+   {
+    "id": "sudan",
+    "label": [
+     129.7,
+     160.2
+    ]
+   },
+   {
+    "id": "sinai",
+    "label": [
+     166.6,
+     26.3
+    ]
+   },
+   {
+    "id": "delta",
+    "label": [
+     139.3,
+     10.4
+    ]
+   },
+   {
+    "id": "red",
+    "label": [
+     203.2,
+     102.6
+    ]
+   },
+   {
+    "id": "aswan",
+    "label": [
+     159.2,
+     60.8
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "nilewealth",
+  "index": 2,
+  "view": "map",
+  "w": 320,
+  "h": 300,
+  "spots": [
+   {
+    "id": "ssudan",
+    "label": [
+     135.9,
+     205.6
+    ]
+   },
+   {
+    "id": "nubian",
+    "label": [
+     161.7,
+     104.3
+    ]
+   },
+   {
+    "id": "delta",
+    "label": [
+     139.3,
+     10.4
+    ]
+   },
+   {
+    "id": "cairo",
+    "label": [
+     145.4,
+     30.8
+    ]
+   },
+   {
+    "id": "khartoum",
+    "label": [
+     156.1,
+     133.6
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "nilewealth",
+  "index": 3,
+  "view": "map",
+  "w": 320,
+  "h": 300,
+  "spots": [
+   {
+    "id": "nubian",
+    "label": [
+     161.7,
+     104.3
+    ]
+   },
+   {
+    "id": "cairo",
+    "label": [
+     145.4,
+     30.8
+    ]
+   },
+   {
+    "id": "khartoum",
+    "label": [
+     156.1,
+     133.6
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "liberation",
+  "index": 1,
+  "view": "map",
+  "w": 320,
+  "h": 289,
+  "spots": [
+   {
+    "id": "sinai",
+    "label": [
+     241.2,
+     75.7
+    ]
+   },
+   {
+    "id": "cairo",
+    "label": [
+     178.2,
+     47
+    ]
+   },
+   {
+    "id": "alexandria",
+    "label": [
+     145.7,
+     15.100000000000001
+    ]
+   },
+   {
+    "id": "aswan",
+    "label": [
+     219.1,
+     211
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "liberation",
+  "index": 3,
+  "view": "timeline",
+  "w": 320,
+  "h": 190,
+  "spots": [
+   {
+    "id": "quds",
+    "label": [
+     277,
+     58
+    ]
+   },
+   {
+    "id": "alex",
+    "label": [
+     160,
+     142
+    ]
+   },
+   {
+    "id": "dongola",
+    "label": [
+     46.3,
+     58
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "fustat",
+  "index": 0,
+  "view": "map",
+  "w": 320,
+  "h": 289,
+  "spots": [
+   {
+    "id": "egypt",
+    "label": [
+     188.1,
+     121.2
+    ]
+   },
+   {
+    "id": "nile",
+    "label": [
+     220.8,
+     242.6
+    ]
+   },
+   {
+    "id": "cairo",
+    "label": [
+     178.2,
+     47
+    ]
+   },
+   {
+    "id": "aswan",
+    "label": [
+     219.1,
+     211
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "hornlands",
+  "index": 0,
+  "view": "map",
+  "w": 320,
+  "h": 300,
+  "spots": [
+   {
+    "id": "red",
+    "label": [
+     142.6,
+     36.5
+    ]
+   },
+   {
+    "id": "indian",
+    "label": [
+     246.8,
+     204
+    ]
+   },
+   {
+    "id": "aden",
+    "label": [
+     253.1,
+     86.5
+    ]
+   },
+   {
+    "id": "djibouticity",
+    "label": [
+     174.3,
+     85.6
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "hornlands",
+  "index": 4,
+  "view": "map",
+  "w": 320,
+  "h": 300,
+  "spots": [
+   {
+    "id": "somalia",
+    "label": [
+     192.3,
+     128.9
+    ]
+   },
+   {
+    "id": "eritrea",
+    "label": [
+     130.1,
+     53.7
+    ]
+   },
+   {
+    "id": "ethiohigh",
+    "label": [
+     112.9,
+     91
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "hornlands",
+  "index": 7,
+  "view": "map",
+  "w": 320,
+  "h": 300,
+  "spots": [
+   {
+    "id": "ethiohigh",
+    "label": [
+     112.9,
+     91
+    ]
+   },
+   {
+    "id": "red",
+    "label": [
+     142.6,
+     36.5
+    ]
+   },
+   {
+    "id": "indian",
+    "label": [
+     246.8,
+     204
+    ]
+   },
+   {
+    "id": "aden",
+    "label": [
+     253.1,
+     86.5
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "hornwealth",
+  "index": 0,
+  "view": "map",
+  "w": 320,
+  "h": 300,
+  "spots": [
+   {
+    "id": "somalia",
+    "label": [
+     192.3,
+     128.9
+    ]
+   },
+   {
+    "id": "mogadishu",
+    "label": [
+     201.4,
+     204.9
+    ]
+   },
+   {
+    "id": "djibouticity",
+    "label": [
+     174.3,
+     85.6
+    ]
+   },
+   {
+    "id": "asmara",
+    "label": [
+     121.9,
+     39
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "hornwealth",
+  "index": 2,
+  "view": "map",
+  "w": 320,
+  "h": 300,
+  "spots": [
+   {
+    "id": "mogadishu",
+    "label": [
+     201.4,
+     204.9
+    ]
+   },
+   {
+    "id": "djibouticity",
+    "label": [
+     174.3,
+     85.6
+    ]
+   },
+   {
+    "id": "asmara",
+    "label": [
+     121.9,
+     39
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "libyaland",
+  "index": 0,
+  "view": "map",
+  "w": 320,
+  "h": 300,
+  "spots": [
+   {
+    "id": "tibesti",
+    "label": [
+     177.9,
+     257.8
+    ]
+   },
+   {
+    "id": "akhdar",
+    "label": [
+     252.9,
+     52.7
+    ]
+   },
+   {
+    "id": "sahara",
+    "label": [
+     62.2,
+     194.9
+    ]
+   },
+   {
+    "id": "fezzan",
+    "label": [
+     102.9,
+     158.5
+    ]
+   },
+   {
+    "id": "med",
+    "label": [
+     192.6,
+     16.7
+    ]
+   },
+   {
+    "id": "tripoli",
+    "label": [
+     89.7,
+     22.3
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "libyaland",
+  "index": 7,
+  "view": "map",
+  "w": 320,
+  "h": 300,
+  "spots": [
+   {
+    "id": "tibesti",
+    "label": [
+     177.9,
+     257.8
+    ]
+   },
+   {
+    "id": "akhdar",
+    "label": [
+     252.9,
+     52.7
+    ]
+   },
+   {
+    "id": "fezzan",
+    "label": [
+     102.9,
+     158.5
+    ]
+   },
+   {
+    "id": "tripoli",
+    "label": [
+     89.7,
+     22.3
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "libyaoil",
+  "index": 6,
+  "view": "map",
+  "w": 320,
+  "h": 300,
+  "spots": [
+   {
+    "id": "sahara",
+    "label": [
+     62.2,
+     194.9
+    ]
+   },
+   {
+    "id": "med",
+    "label": [
+     192.6,
+     16.7
+    ]
+   },
+   {
+    "id": "tripoli",
+    "label": [
+     89.7,
+     22.3
+    ]
+   },
+   {
+    "id": "benghazi",
+    "label": [
+     201.9,
+     36.3
+    ]
+   },
+   {
+    "id": "misrata",
+    "label": [
+     120.7,
+     52.5
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "libyaoil",
+  "index": 7,
+  "view": "map",
+  "w": 320,
+  "h": 300,
+  "spots": [
+   {
+    "id": "tripoli",
+    "label": [
+     89.7,
+     22.3
+    ]
+   },
+   {
+    "id": "benghazi",
+    "label": [
+     201.9,
+     36.3
+    ]
+   },
+   {
+    "id": "misrata",
+    "label": [
+     120.7,
+     52.5
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "libyafarm",
+  "index": 0,
+  "view": "map",
+  "w": 320,
+  "h": 300,
+  "spots": [
+   {
+    "id": "akhdar",
+    "label": [
+     252.9,
+     52.7
+    ]
+   },
+   {
+    "id": "sahara",
+    "label": [
+     62.2,
+     194.9
+    ]
+   },
+   {
+    "id": "tripoli",
+    "label": [
+     89.7,
+     22.3
+    ]
+   },
+   {
+    "id": "benghazi",
+    "label": [
+     201.9,
+     36.3
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "libyafarm",
+  "index": 9,
+  "view": "map",
+  "w": 320,
+  "h": 300,
+  "spots": [
+   {
+    "id": "sahara",
+    "label": [
+     62.2,
+     194.9
+    ]
+   },
+   {
+    "id": "tripoli",
+    "label": [
+     89.7,
+     22.3
+    ]
+   },
+   {
+    "id": "benghazi",
+    "label": [
+     201.9,
+     36.3
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "libyapast",
+  "index": 3,
+  "view": "map",
+  "w": 320,
+  "h": 300,
+  "spots": [
+   {
+    "id": "egypt",
+    "label": [
+     217.8,
+     48.9
+    ]
+   },
+   {
+    "id": "atlantic",
+    "label": [
+     53.5,
+     157.9
+    ]
+   },
+   {
+    "id": "tripoli",
+    "label": [
+     145,
+     42.1
+    ]
+   },
+   {
+    "id": "kairouan",
+    "label": [
+     132.8,
+     10.100000000000001
+    ]
+   },
+   {
+    "id": "tangier",
+    "label": [
+     70.1,
+     9.7
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "figures",
+  "index": 1,
+  "view": "map",
+  "w": 320,
+  "h": 300,
+  "spots": [
+   {
+    "id": "egypt",
+    "label": [
+     106.9,
+     179.9
+    ]
+   },
+   {
+    "id": "syria",
+    "label": [
+     194.7,
+     59.5
+    ]
+   },
+   {
+    "id": "palestine",
+    "label": [
+     156.1,
+     110.2
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "figures",
+  "index": 5,
+  "view": "timeline",
+  "w": 320,
+  "h": 190,
+  "spots": [
+   {
+    "id": "y1911",
+    "label": [
+     267,
+     58
+    ]
+   },
+   {
+    "id": "y1926",
+    "label": [
+     160,
+     142
+    ]
+   },
+   {
+    "id": "y1931",
+    "label": [
+     35,
+     58
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "figures",
+  "index": 7,
+  "view": "map",
+  "w": 320,
+  "h": 300,
+  "spots": [],
+  "marks": 0
+ },
+ {
+  "quest": "maghrebland",
+  "index": 0,
+  "view": "map",
+  "w": 320,
+  "h": 289,
+  "spots": [
+   {
+    "id": "atlas",
+    "label": [
+     193,
+     91.1
+    ]
+   },
+   {
+    "id": "ahaggar",
+    "label": [
+     239.7,
+     217.1
+    ]
+   },
+   {
+    "id": "sahara",
+    "label": [
+     182.9,
+     183.2
+    ]
+   },
+   {
+    "id": "med",
+    "label": [
+     238.7,
+     36.4
+    ]
+   },
+   {
+    "id": "atlantic",
+    "label": [
+     50.8,
+     119.6
+    ]
+   },
+   {
+    "id": "gibraltar",
+    "label": [
+     126,
+     62.4
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "maghrebland",
+  "index": 6,
+  "view": "map",
+  "w": 320,
+  "h": 289,
+  "spots": [
+   {
+    "id": "atlas",
+    "label": [
+     193,
+     91.1
+    ]
+   },
+   {
+    "id": "ahaggar",
+    "label": [
+     239.7,
+     217.1
+    ]
+   },
+   {
+    "id": "atlantic",
+    "label": [
+     50.8,
+     119.6
+    ]
+   },
+   {
+    "id": "gibraltar",
+    "label": [
+     126,
+     62.4
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "maghrebwealth",
+  "index": 0,
+  "view": "map",
+  "w": 320,
+  "h": 289,
+  "spots": [
+   {
+    "id": "algeria",
+    "label": [
+     213.5,
+     142.6
+    ]
+   },
+   {
+    "id": "morocco",
+    "label": [
+     101.4,
+     125.5
+    ]
+   },
+   {
+    "id": "mauritania",
+    "label": [
+     66.8,
+     256.2
+    ]
+   },
+   {
+    "id": "tunisia",
+    "label": [
+     282.8,
+     80.8
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "maghrebwealth",
+  "index": 4,
+  "view": "map",
+  "w": 320,
+  "h": 289,
+  "spots": [
+   {
+    "id": "sahara",
+    "label": [
+     182.9,
+     183.2
+    ]
+   },
+   {
+    "id": "tunis",
+    "label": [
+     286.3,
+     41.6
+    ]
+   },
+   {
+    "id": "algiers",
+    "label": [
+     213.9,
+     42.1
+    ]
+   },
+   {
+    "id": "rabat",
+    "label": [
+     113.4,
+     73.7
+    ]
+   },
+   {
+    "id": "nouakchott",
+    "label": [
+     46.5,
+     268.8
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "maghrebwealth",
+  "index": 5,
+  "view": "map",
+  "w": 320,
+  "h": 289,
+  "spots": [
+   {
+    "id": "tunis",
+    "label": [
+     286.3,
+     41.6
+    ]
+   },
+   {
+    "id": "algiers",
+    "label": [
+     213.9,
+     42.1
+    ]
+   },
+   {
+    "id": "rabat",
+    "label": [
+     113.4,
+     73.7
+    ]
+   },
+   {
+    "id": "nouakchott",
+    "label": [
+     46.5,
+     268.8
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "maghrebpast",
+  "index": 3,
+  "view": "timeline",
+  "w": 320,
+  "h": 190,
+  "spots": [
+   {
+    "id": "uqba",
+    "label": [
+     273.7,
+     58
+    ]
+   },
+   {
+    "id": "hassan",
+    "label": [
+     201.7,
+     142
+    ]
+   },
+   {
+    "id": "musa",
+    "label": [
+     118.3,
+     58
+    ]
+   },
+   {
+    "id": "andalus",
+    "label": [
+     43,
+     142
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "maghrebpast",
+  "index": 4,
+  "view": "map",
+  "w": 320,
+  "h": 289,
+  "spots": [
+   {
+    "id": "carthage",
+    "label": [
+     261.8,
+     52
+    ]
+   },
+   {
+    "id": "kairouan",
+    "label": [
+     285.5,
+     75.5
+    ]
+   },
+   {
+    "id": "tangier",
+    "label": [
+     123.9,
+     53.5
+    ]
+   }
+  ],
+  "marks": 0
+ },
+ {
+  "quest": "alandalus",
+  "index": 0,
+  "view": "map",
+  "w": 320,
+  "h": 242,
+  "spots": [
+   {
+    "id": "andalusia",
+    "label": [
+     169.4,
+     132.4
+    ]
+   },
+   {
+    "id": "atlantic",
+    "label": [
+     52.7,
+     183.2
+    ]
+   },
+   {
+    "id": "gibraltar",
+    "label": [
+     142.1,
+     196.6
+    ]
+   },
+   {
+    "id": "tangier",
+    "label": [
+     135.5,
+     213.3
+    ]
+   },
+   {
+    "id": "granada",
+    "label": [
+     176.9,
+     158.2
+    ]
+   },
+   {
+    "id": "seville",
+    "label": [
+     132.1,
+     153.1
+    ]
+   }
+  ],
+  "marks": 0
+ }
+]

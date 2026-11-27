@@ -30,6 +30,18 @@ data class Profile(
     val certificateEarned: Boolean = false,
     val wordBook: List<Vocabulary> = emptyList(),
     val gallery: Map<String, List<Int>> = emptyMap(),
+    /** Quests finished at least once, per island (music: one golden note each). */
+    val islandQuests: Map<String, List<String>> = emptyMap(),
+    /** Islands whose helper has already said hello. */
+    val helpersMet: Set<String> = emptySet(),
+    /** The sticker book: sticker ids in the order they were earned (web: save.stickers, core/stickers.ts). */
+    val stickers: List<String> = emptyList(),
+    /** Countries whose atlas card was opened on the globe, ISO ids in the order visited (web: save.world.atlas.visited). */
+    val atlasVisited: List<String> = emptyList(),
+    /** English quests opened, in the order opened (web: save.world.english.seen): their words fill the word book. */
+    val englishSeen: List<String> = emptyList(),
+    /** The word book's flash cards: the longest run of right cards (web: save.world.english.best). */
+    val wordCardsBest: Int = 0,
 ) {
     val totalStars get() = topics.values.sumOf { it.stars }
     fun starsIn(region: String) = topics.filterKeys { it.startsWith("$region-") || (region == "treasure" && it == "review-treasure") }.values.sumOf { it.stars }
@@ -54,17 +66,8 @@ data class GameStore(val version: Int = 1, val activeId: String? = null, val pro
                     completedSessions = (p.completedSessions + session.id).takeLast(128),
                 )
             } else {
-                val prev = p.topics[session.topicId] ?: TopicRecord()
                 val stars = starsFor(session.correct, session.questionIds.size)
-                val missed = (prev.missed - session.questionIds.toSet() + session.missed).distinct().takeLast(30)
-                p.copy(
-                    pearls = p.pearls + (stars - prev.stars).coerceAtLeast(0) * 5,
-                    barn = p.barn.harvest(session.topicId),
-                    topics = p.topics + (session.topicId to TopicRecord(
-                        stars = maxOf(prev.stars, stars),
-                        best = maxOf(prev.best, session.correct.toFloat() / session.questionIds.size),
-                        plays = prev.plays + 1, missed = missed,
-                    )),
+                p.record(session.topicId, session.correct, session.questionIds.size, session.questionIds, session.missed).copy(
                     completedSessions = (p.completedSessions + session.id).takeLast(128),
                     certificateEarned = p.certificateEarned || (session.topicId == "review-treasure" && stars >= 1),
                 )
@@ -73,11 +76,46 @@ data class GameStore(val version: Int = 1, val activeId: String? = null, val pro
     }
 }
 
+/** Best stars and score stay; new stars give 5 pearls each; missed questions come back first next time. */
+fun Profile.record(topicId: String, correct: Int, total: Int, asked: List<String>, missedNow: List<String>): Profile {
+    val prev = topics[topicId] ?: TopicRecord()
+    val stars = starsFor(correct, total)
+    val missed = (prev.missed - asked.toSet() + missedNow).distinct().takeLast(30)
+    return copy(
+        pearls = pearls + (stars - prev.stars).coerceAtLeast(0) * 5,
+        topics = topics + (topicId to TopicRecord(
+            stars = maxOf(prev.stars, stars),
+            best = maxOf(prev.best, if (total == 0) 0f else correct.toFloat() / total),
+            plays = prev.plays + 1, missed = missed,
+        )),
+    )
+}
+
 fun starsFor(correct: Int, total: Int): Int {
     require(correct >= 0 && total >= 0 && correct <= total)
-    if (total == 0) return 0
-    val ratio = correct.toDouble() / total
+    return starsForRatio(correct.toDouble(), total.toDouble())
+}
+
+/** Stars for a score that may be fractional (a quest step scores the share of its parts right first try). */
+fun starsForRatio(ok: Double, total: Double): Int {
+    require(ok >= 0 && total >= 0 && ok <= total + 1e-9)
+    if (total == 0.0) return 0
+    val ratio = ok / total + 1e-9
     return when { ratio >= .9 -> 3; ratio >= .7 -> 2; ratio >= .5 -> 1; else -> 0 }
+}
+
+/** A quest's result for its topic: like [record], best stars and score stay, new stars give 5 pearls each. */
+fun Profile.recordScore(topicId: String, ok: Double, total: Double): Profile {
+    val prev = topics[topicId] ?: TopicRecord()
+    val stars = starsForRatio(ok, total)
+    return copy(
+        pearls = pearls + (stars - prev.stars).coerceAtLeast(0) * 5,
+        topics = topics + (topicId to prev.copy(
+            stars = maxOf(prev.stars, stars),
+            best = maxOf(prev.best, if (total == 0.0) 0f else (ok / total).toFloat().coerceIn(0f, 1f)),
+            plays = prev.plays + 1,
+        )),
+    )
 }
 
 data class Island(
@@ -97,8 +135,12 @@ val islands = listOf(
     Island("treasure", "جزيرة الكنز", "مراجعة شاملة", "treasure", 0xFFE0A93A, nativeReady = true),
 )
 
+/**
+ * A word kept in the child's word book. Saves before 0.9.0 hold only en, ar and sentence; [pic] and [quest] (the
+ * English quest it comes from) are filled for words saved since, and looked up in the book for older ones.
+ */
 @Serializable
-data class Vocabulary(val en: String, val ar: String, val sentence: String)
+data class Vocabulary(val en: String, val ar: String, val sentence: String, val pic: String? = null, val quest: String? = null)
 
 @Serializable
 data class LearnCard(val title: String, val text: String, val example: List<String> = emptyList(), val labels: List<String> = emptyList(), val art: List<String> = emptyList(), val tools: List<String> = emptyList(), val requiredTools: List<String> = emptyList(), val notes: List<String> = emptyList(),
