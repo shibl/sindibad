@@ -1,5 +1,21 @@
 # Native Android verification
 
+## Version 0.8.0 atlas island build (#12)
+
+Run from `Grade6/Android` with `ANDROID_HOME=/home/mx/Android/Sdk`:
+
+```sh
+cd tools && node import-quests.mjs social atlas && cd ..
+./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
+./gradlew :app:assembleRelease
+```
+
+- The importer wrote `islands/social-quests.json` (25 quests of shared kinds, 13 places, 5 units, 6 stickers), `islands/atlas-map.json`, `islands/globe.json` (173 countries, 22 Arab, 71 full cards with flags; it replaces the old outline-only file) and the test resource `atlas-web-pictures.json` (45 pictures). Rerunning `import-quests.mjs` for music and science and `import-island.mjs` for music, science, social, art, english and farm left every other island JSON byte-for-byte unchanged. No lesson wording changed: quest text, country facts and sticker facts are the web's verbatim, and a test fails if any HTML tag is left.
+- The local JVM suite passed 103 tests with zero failures and zero skipped (83 before). `AtlasQuestTest` (10): all 25 quests and 13 places decode and a perfect run gives 3 stars on each; teaching before every graded step with a hint; partial scores; the reveal rule on a map label; compass rays and stickers once per quest (25 rays, 6 stickers); visits once, old saves without visits, a doubled visit refused; every map, timeline and question map drawn natively; the 45 native pictures match the web's SVG (size, places, each name within 0.15 units, marks); each place's anchor hits it. `GlobeTest` (4): the world's counts and map decisions, projection round-trips, `countryAt` on Syria, Lebanon, Palestine, Djibouti, Qatar, Cyprus, Morocco, Somalia, South Sudan, the Bahrain and Comoros dots, Russia and Fiji on both sides of 180°, the sea. `GlobeGameTest` (6): exploring, the round draw, both games' rules, mode switches and saving. The music `QuestTest` (11) and `ScienceQuestTest` (9) still pass unchanged.
+- Debug lint completed with zero errors, 11 warnings and 2 hints, all of kinds that were already there (dependency and plugin versions, the ChromeOS ABI note, `AutoboxingStateCreation` in `Sea3DMap.kt`); the new code adds none.
+- The debug and unsigned release builds passed. `app-debug.apk` is 51,007,830 bytes (48.6 MiB). `app-release-unsigned.apk` is 18,112,351 bytes (17.3 MiB).
+- No device, emulator or UI run happened. The island screen, the maps and timelines, the globe's drawing, drag, inertia, pinch and frame rate on a 2 GB phone, the flags, TalkBack (places, globe actions), calm mode, sound, haptics and large text are verified only by source, JVM tests and build. They need the owner's phone check: play a map quest and a timeline quest, turn and pinch the globe, open a few cards (Palestine, Fiji, Bahrain), play five rounds of each game, and repeat once in calm mode and once with TalkBack.
+
 ## Version 0.7.0 science island build (#11)
 
 Run from `Grade6/Android` with `ANDROID_HOME=/home/mx/Android/Sdk`:
@@ -126,8 +142,9 @@ or generated `.js` files were edited.
    Check negative numbers, improper fractions and accepted angle ranges.
 9. Use review, complete a guardian challenge, buy/equip/reset cosmetics, switch
    profiles and reopen. Verify purchases and rewards are isolated and durable.
-10. Treasure must stay behind its original Atlas prerequisite. Full journey
-    acceptance needs the remaining native islands; do not bypass their locks.
+10. Treasure is open from the first voyage (#35/#36); the atlas island
+    (#12) adds no lock. Full journey acceptance needs the remaining native
+    islands; do not bypass their locks.
 11. Enable airplane mode. All current content should remain available.
 
 Do not interpret the coming-soon islands as completed ports. Native 3D,

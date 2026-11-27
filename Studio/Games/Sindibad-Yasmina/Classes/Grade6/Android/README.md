@@ -11,7 +11,66 @@ This is an incremental native implementation; full website parity remains in the
 
 All nine islands can be visited in any order on the native map. Tap a destination in 3D to move the hero on its shore, then enter its lessons. The flat list opens the activities directly. Treasure is playable on a fresh profile and its certificate is awarded for passing the review.
 
-The six subject ports cover 7 farm lessons, 10 music lessons, 17 science lessons, 25 Atlas lessons, 25 art lessons and 24 English units. The native app plays the farm's seven quests in a native scene with harvests and ship orders, the music island's ten quests with its piano, staff, rhythm, drum and glasses games, the science island's seventeen quests with their native experiment pictures, subject practice, a touch-selectable globe, saved paintings, offline English speech when a local voice is available, and a personal word book. The [tracker](https://github.com/shibl/sindibad/issues/3) records outstanding specialized activities and owner phone acceptance.
+The six subject ports cover 7 farm lessons, 10 music lessons, 17 science lessons, 25 Atlas lessons, 25 art lessons and 24 English units. The native app plays the farm's seven quests in a native scene with harvests and ship orders, the music island's ten quests with its piano, staff, rhythm, drum and glasses games, the science island's seventeen quests with their native experiment pictures, the atlas island's twenty-five quests with native maps and timelines, a native globe with country cards and its two games, subject practice, saved paintings, offline English speech when a local voice is available, and a personal word book. The [tracker](https://github.com/shibl/sindibad/issues/3) records outstanding specialized activities and owner phone acceptance.
+
+## Version 0.8: the atlas island, its maps, globe and country games (#12)
+
+- «جزيرة الأطلس» is a native island screen (`ui/atlas/AtlasIsland.kt`) on
+  the music and science pattern: the helper سهيل (a little golden star; hello
+  on the first visit, then «back» and the next quest), the thirteen places of
+  the web island grouped under the book's five units, each with its quests,
+  stars and the golden arrow, «افتح الأطلس 🌍», the travellers' compass (one
+  ray per quest finished once, 25 in all; all of them light Suhail's star, as
+  the web's atlas.ts reward), and the album's social studies page (six
+  stickers). Treasure stays open from the first voyage (#35/#36); the atlas
+  island locks nothing. The web's walkable 3D island is not drawn; its places
+  are cards.
+- The twenty-five quests come from `Web/worlds/grade6/atlas.ts` through
+  `node tools/import-quests.mjs social atlas` into
+  `islands/social-quests.json`, wording verbatim. They use only the shared
+  kinds; the importer still fails on an unhandled kind. Each quest records
+  its stars on the existing review topic `social-<quest>`. The same command
+  writes `islands/atlas-map.json` (the places, frames and label tweaks of
+  `Web/core/atlas/views.ts`, read from the built views.js itself, not copied
+  by hand) and `islands/globe.json` (every country of
+  `Web/worlds/atlas/countries.ts` with its outline from `shapes.ts` and its
+  flag turned into plain vector shapes). `tools/import-island.mjs` no longer
+  writes globe.json.
+- **Native maps and timelines** (`domain/atlas/MapPicture.kt`,
+  `ui/atlas/AtlasPictures.kt`): the web's `map` view (by `area`: countries,
+  dot countries, seas, lakes, rivers, mountains, lands, lines and cities,
+  projected and labelled as views.ts does) and `timeline` view (by `events`)
+  are laid out in pure Kotlin and drawn on a Compose Canvas, no WebView or
+  PNG. A JVM test checks all 45 pictures against the web's own SVG: the same
+  size, the same places and each name within 0.15 units of the web's. Each
+  place is a touch target of at least 48 dp with its name for TalkBack
+  (label steps read «مكان على الخريطة n», since the names are the answers);
+  a glow pulses, and stays still in calm mode.
+- **Globe** (`ui/atlas/GlobeScreen.kt`, `domain/atlas/Globe.kt`,
+  `GlobeGame.kt`): an orthographic Canvas Earth from the same outlines and
+  the web's colours (continents, Arab countries in gold, the chosen one
+  orange, a marked one yellow, Bahrain and Comoros as dots, graticule and
+  dashed equator). Drag to turn with the web's inertia (none in calm mode),
+  pinch between the web's distances 1.7–4.6, pitch held at ±1.3 rad, and a
+  chosen country turns to face the viewer (at once in calm mode). A tap is
+  read back to latitude and longitude and found with the web's rule,
+  including the countries across the 180° meridian and the two dots. Cards
+  carry the web's facts (flag drawn natively, official name, capital,
+  continent, currency, language, meanings of name and flag, resources,
+  «هل تعلم؟»); short cards show the name, continent, capital and the
+  territory note. Arab names are pinned when zoomed in. Search by Arabic
+  name, and the passport «🛂 n من 22» counts visited Arab countries (saved
+  per profile; old saves decode empty, a doubled visit is refused). TalkBack
+  gets actions to turn, zoom and choose the country in the middle.
+- **The two games**, as globe.ts defines them, untimed: «📍 أين تقع؟» (find
+  the named country; a wrong tap names what was tapped; from the second miss
+  the answer glows and the globe turns to it) and «🚩 علم مَن هذا؟» (whose
+  flag, out of three names; a wrong name is disabled; the globe is not an
+  answer). A star only on the first try; switching games starts at 0; rounds
+  come from the 22 Arab countries plus ten other full cards; «التالي ◀».
+- Not yet: the web's 3D island, the perspective three.js globe (the native
+  globe is orthographic, without lighting or stars), sounds beyond the
+  right/wrong/finish tones, and large text inside the maps.
 
 ## Version 0.7: the science island's quests and experiments (#11)
 
