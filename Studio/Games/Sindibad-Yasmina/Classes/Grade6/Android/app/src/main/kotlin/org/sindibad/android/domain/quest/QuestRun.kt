@@ -37,13 +37,19 @@ import org.sindibad.android.domain.starsForRatio
     }
 }
 
-/** Golden notes: one for each quest finished at least once on the island (web: T.done, the rainbow staff). */
-fun Profile.goldenNotes(island: String) = islandQuests[island].orEmpty().size
+/** Quests finished at least once on the island (web: doneCount): golden notes on the music island, crystals in the science lighthouse. */
+fun Profile.questsDone(island: String) = islandQuests[island].orEmpty().size
+fun Profile.goldenNotes(island: String) = questsDone(island)
+/** The science lighthouse: one crystal per quest finished once; all of them light its beam (web: core/lab/lab.ts). */
+fun Profile.crystals(island: String = "science") = questsDone(island)
+fun Profile.hasSticker(id: String) = id in stickers
 fun Profile.questDone(island: String, questId: String) = questId in islandQuests[island].orEmpty()
 
 /**
  * Saves a finished quest once: stars and pearls for its topic like a lesson, and the island's first-finish reward
- * (a golden note on the music island). Saving the same run again changes nothing.
+ * (a golden note on the music island, a crystal in the science lighthouse), plus the quest's sticker on its first
+ * finish when the island has a sticker set (web: awardSticker in core/isle/island.ts finishQuest). Saving the same
+ * run again changes nothing; a sticker is never given twice.
  */
 fun GameStore.finishQuest(run: QuestRun, book: QuestBook): GameStore {
     require(run.finished)
@@ -51,13 +57,15 @@ fun GameStore.finishQuest(run: QuestRun, book: QuestBook): GameStore {
         if (run.id in p.completedSessions) p else {
             val quest = run.quest(book)
             val done = p.islandQuests[run.island].orEmpty()
+            val sticker = book.sticker(quest.sticker)?.id?.takeIf { quest.id !in done && it !in p.stickers }
             p.recordScore(quest.topic, run.ok, maxOf(1.0, run.total)).copy(
                 islandQuests = p.islandQuests + (run.island to if (quest.id in done) done else done + quest.id),
                 completedSessions = (p.completedSessions + run.id).takeLast(128),
+                stickers = if (sticker != null) p.stickers + sticker else p.stickers,
             )
         }
     }
 }
 
 /** What finishing a run earned, shown on the result card (kept across process death with the run). */
-@Serializable data class QuestReward(val runId: String, val stars: Int, val first: Boolean, val pearls: Int)
+@Serializable data class QuestReward(val runId: String, val stars: Int, val first: Boolean, val pearls: Int, val sticker: String? = null)

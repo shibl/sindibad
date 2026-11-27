@@ -34,6 +34,8 @@ data class Profile(
     val islandQuests: Map<String, List<String>> = emptyMap(),
     /** Islands whose helper has already said hello. */
     val helpersMet: Set<String> = emptySet(),
+    /** The sticker book: sticker ids in the order they were earned (web: save.stickers, core/stickers.ts). */
+    val stickers: List<String> = emptyList(),
 ) {
     val totalStars get() = topics.values.sumOf { it.stars }
     fun starsIn(region: String) = topics.filterKeys { it.startsWith("$region-") || (region == "treasure" && it == "review-treasure") }.values.sumOf { it.stars }

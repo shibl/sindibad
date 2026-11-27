@@ -43,9 +43,13 @@ data class StepResult(val ok: Double, val total: Double)
     val done: Boolean = false,
     /** Counts misses, so the UI can shake and sound each one once. */
     val wrongTick: Int = 0,
+    /**
+     * The answer glows: set by a miss from the second on (core/learn/steps.ts tracker), cleared when the part is
+     * answered, as on the web where each new part starts unlit and the next miss lights it again.
+     */
+    val glow: Boolean = false,
 ) {
-    /** From the second miss the right answer glows (core/learn/steps.ts tracker). */
-    val reveal get() = misses >= 2
+    val reveal get() = glow
 }
 
 /** The rules of every step kind: pure functions from (step, state, what the child did) to the next state. */
@@ -185,17 +189,17 @@ object StepMachine {
         val sum = measureSum(step, state)
         if (sum + MusicTheory.beatsOfToken(token) > step.beats) {
             val misses = state.misses + 1
-            return state.copy(misses = misses, stepMisses = state.stepMisses + 1, missedParts = 1, missedHere = true, wrongTick = state.wrongTick + 1,
+            return state.copy(misses = misses, stepMisses = state.stepMisses + 1, missedParts = 1, missedHere = true, wrongTick = state.wrongTick + 1, glow = misses >= 2,
                 line = if (misses == 1) Line("${step.hint.orEmpty()} هذه النوتة أطول مما بقي!", Mood.Oops) else Line("${step.hint.orEmpty()} **جرّب ما يلمع ✨**", Mood.Think))
         }
-        val next = state.copy(placed = state.placed + token)
+        val next = state.copy(placed = state.placed + token, glow = false)
         return if (measureSum(step, next) == step.beats) finish(step, next) else next
     }
 
     private fun miss(step: Step, state: StepState, value: String): StepState {
         val misses = state.misses + 1
         return state.copy(
-            misses = misses, stepMisses = state.stepMisses + 1,
+            misses = misses, stepMisses = state.stepMisses + 1, glow = misses >= 2,
             missedParts = state.missedParts + if (state.missedHere) 0 else 1, missedHere = true,
             wrong = if (value.isEmpty()) state.wrong else state.wrong + value, wrongTick = state.wrongTick + 1,
             line = if (misses == 1) Line(step.hint.orEmpty(), Mood.Oops) else Line("${step.hint.orEmpty()} **$GLOW**", Mood.Think),
@@ -206,6 +210,8 @@ object StepMachine {
         val part = state.part + 1
         val next = state.copy(
             part = part, okParts = state.okParts + if (state.missedHere) 0 else 1, missedHere = false, wrong = emptyList(),
+            // The gaps game keeps the remaining right gaps lit (web: only the found one goes dark).
+            glow = step is Gaps && state.glow,
             misses = if (resetsPerPart(step)) 0 else state.misses,
             found = if (step is LabelStep) state.found + step.ask[state.part].id else state.found,
             note = if (step is TrueOrFalse) step.items[state.part].let { if (!it.truth && it.fix != null) "✏️ ${it.fix}" else null } else state.note,

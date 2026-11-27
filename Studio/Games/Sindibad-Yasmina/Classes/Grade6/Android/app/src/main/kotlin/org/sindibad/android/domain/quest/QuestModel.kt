@@ -202,15 +202,28 @@ data class GlassesStep(
     val steps: List<Step>,
 )
 @Serializable data class Helper(val name: String, val hello: String, val back: String, val free: String? = null)
-@Serializable data class Station(val id: String, val name: String, val icon: String)
+/** A place on the island; `unit` is the book's unit it belongs to (science: one district per unit). */
+@Serializable data class Station(val id: String, val name: String, val icon: String, val unit: Int? = null)
+@Serializable data class BookUnit(val n: Int, val name: String, val color: String)
+/** A sticker a quest gives on its first finish, with its short fact (web: core/stickers.ts). */
+@Serializable data class Sticker(val id: String, val icon: String, val name: String, val fact: String)
+/**
+ * A part of an island picture (web: data-spot): its touch box [x, y, w, h] and where its name shows once found
+ * [x, y], in the picture's 320 × 200 units; or a `pill` button under the picture (the ramp's three set-ups).
+ */
+@Serializable data class PicturePart(val id: String, val hit: List<Double>? = null, val label: List<Double>? = null, val pill: String? = null)
+@Serializable data class PictureParts(val name: String, val spots: List<PicturePart>)
 @Serializable data class Glass(val id: String, val n: Int, val d: Int, val color: String)
 
 /** One island's quests, its places and its helper. */
 @Serializable data class QuestBook(
     val helper: Helper, val stations: List<Station> = emptyList(), val quests: List<Quest>,
     val skySong: List<String> = emptyList(), val glasses: List<Glass> = emptyList(), val instruments: Map<String, String> = emptyMap(),
+    val units: List<BookUnit> = emptyList(), val stickers: List<Sticker> = emptyList(), val views: List<PictureParts> = emptyList(),
 ) {
     fun quest(id: String) = quests.first { it.id == id }
+    fun sticker(id: String?) = stickers.firstOrNull { it.id == id }
+    fun view(name: String?) = views.firstOrNull { it.name == name }
     fun questsAt(station: String) = quests.filter { it.station == station }
 
     companion object {

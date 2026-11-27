@@ -141,7 +141,8 @@ class GameViewModel(private val repository: GameRepository, private val saved: S
             if (run.id in before.completedSessions) return@update store
             val after = store.finishQuest(run, book)
             val p = after.profiles.first { it.id == run.profileId }
-            reward = QuestReward(run.id, run.stars, first = !before.questDone(run.island, run.questId), pearls = p.pearls - before.pearls)
+            reward = QuestReward(run.id, run.stars, first = !before.questDone(run.island, run.questId), pearls = p.pearls - before.pearls,
+                sticker = (p.stickers - before.stickers.toSet()).firstOrNull())
             after
         }
         reward?.let { setQuest(mutable.value.quest, it) }
