@@ -11,7 +11,222 @@ This is an incremental native implementation; full website parity remains in the
 
 All nine islands can be visited in any order on the native map. Tap a destination in 3D to move the hero on its shore, then enter its lessons. The flat list opens the activities directly. Treasure is playable on a fresh profile and its certificate is awarded for passing the review.
 
-The six subject ports cover 7 farm lessons, 10 music lessons, 17 science lessons, 25 Atlas lessons, 25 art lessons and 24 English units. The native app supports farm harvests and ship orders, musical scales, subject practice, a touch-selectable globe, saved paintings, offline English speech when a local voice is available, and a personal word book. The [tracker](https://github.com/shibl/sindibad/issues/3) records outstanding specialized activities and owner phone acceptance.
+The six subject ports cover 7 farm lessons, 10 music lessons, 17 science lessons, 25 Atlas lessons, 25 art lessons and 24 English units. The native app plays the farm's seven quests in a native scene with harvests and ship orders, the music island's ten quests with its piano, staff, rhythm, drum and glasses games, the science island's seventeen quests with their native experiment pictures, the atlas island's twenty-five quests with native maps and timelines, a native globe with country cards and its two games, subject practice, saved paintings, offline English speech when a local voice is available, and a personal word book. The [tracker](https://github.com/shibl/sindibad/issues/3) records outstanding specialized activities and owner phone acceptance.
+
+## Version 0.8: the atlas island, its maps, globe and country games (#12)
+
+- «جزيرة الأطلس» is a native island screen (`ui/atlas/AtlasIsland.kt`) on
+  the music and science pattern: the helper سهيل (a little golden star; hello
+  on the first visit, then «back» and the next quest), the thirteen places of
+  the web island grouped under the book's five units, each with its quests,
+  stars and the golden arrow, «افتح الأطلس 🌍», the travellers' compass (one
+  ray per quest finished once, 25 in all; all of them light Suhail's star, as
+  the web's atlas.ts reward), and the album's social studies page (six
+  stickers). Treasure stays open from the first voyage (#35/#36); the atlas
+  island locks nothing. The web's walkable 3D island is not drawn; its places
+  are cards.
+- The twenty-five quests come from `Web/worlds/grade6/atlas.ts` through
+  `node tools/import-quests.mjs social atlas` into
+  `islands/social-quests.json`, wording verbatim. They use only the shared
+  kinds; the importer still fails on an unhandled kind. Each quest records
+  its stars on the existing review topic `social-<quest>`. The same command
+  writes `islands/atlas-map.json` (the places, frames and label tweaks of
+  `Web/core/atlas/views.ts`, read from the built views.js itself, not copied
+  by hand) and `islands/globe.json` (every country of
+  `Web/worlds/atlas/countries.ts` with its outline from `shapes.ts` and its
+  flag turned into plain vector shapes). `tools/import-island.mjs` no longer
+  writes globe.json.
+- **Native maps and timelines** (`domain/atlas/MapPicture.kt`,
+  `ui/atlas/AtlasPictures.kt`): the web's `map` view (by `area`: countries,
+  dot countries, seas, lakes, rivers, mountains, lands, lines and cities,
+  projected and labelled as views.ts does) and `timeline` view (by `events`)
+  are laid out in pure Kotlin and drawn on a Compose Canvas, no WebView or
+  PNG. A JVM test checks all 45 pictures against the web's own SVG: the same
+  size, the same places and each name within 0.15 units of the web's. Each
+  place is a touch target of at least 48 dp with its name for TalkBack
+  (label steps read «مكان على الخريطة n», since the names are the answers);
+  a glow pulses, and stays still in calm mode.
+- **Globe** (`ui/atlas/GlobeScreen.kt`, `domain/atlas/Globe.kt`,
+  `GlobeGame.kt`): an orthographic Canvas Earth from the same outlines and
+  the web's colours (continents, Arab countries in gold, the chosen one
+  orange, a marked one yellow, Bahrain and Comoros as dots, graticule and
+  dashed equator). Drag to turn with the web's inertia (none in calm mode),
+  pinch between the web's distances 1.7–4.6, pitch held at ±1.3 rad, and a
+  chosen country turns to face the viewer (at once in calm mode). A tap is
+  read back to latitude and longitude and found with the web's rule,
+  including the countries across the 180° meridian and the two dots. Cards
+  carry the web's facts (flag drawn natively, official name, capital,
+  continent, currency, language, meanings of name and flag, resources,
+  «هل تعلم؟»); short cards show the name, continent, capital and the
+  territory note. Arab names are pinned when zoomed in. Search by Arabic
+  name, and the passport «🛂 n من 22» counts visited Arab countries (saved
+  per profile; old saves decode empty, a doubled visit is refused). TalkBack
+  gets actions to turn, zoom and choose the country in the middle.
+- **The two games**, as globe.ts defines them, untimed: «📍 أين تقع؟» (find
+  the named country; a wrong tap names what was tapped; from the second miss
+  the answer glows and the globe turns to it) and «🚩 علم مَن هذا؟» (whose
+  flag, out of three names; a wrong name is disabled; the globe is not an
+  answer). A star only on the first try; switching games starts at 0; rounds
+  come from the 22 Arab countries plus ten other full cards; «التالي ◀».
+- Not yet: the web's 3D island, the perspective three.js globe (the native
+  globe is orthographic, without lighting or stars), sounds beyond the
+  right/wrong/finish tones, and large text inside the maps.
+
+## Version 0.7: the science island's quests and experiments (#11)
+
+- «جزيرة العلوم» is a native island screen (`ui/science/ScienceIsland.kt`) on
+  the music island's pattern: the helper شرارة (a robot face; hello on the
+  first visit, then «back» and the next quest), the ten places of the web
+  island grouped under the book's four units (unit name and colour), each
+  with its quests, stars, «ابدأ ▶» / «↻ العب مجدداً» / «🔁 راجع» and the
+  golden arrow, the lighthouse (one crystal per quest finished once, 17 in
+  all, saved per profile; the web's lab.ts lines), and the album's science
+  page. The web's walkable 3D island, its lighthouse beam and its seesaw,
+  crane and noria are not drawn; the places are cards.
+- The seventeen quests (138 steps) come from `Web/worlds/grade6/lab.ts`
+  through `node tools/import-quests.mjs science lab` into
+  `islands/science-quests.json`, wording verbatim. They use only the shared
+  kinds (explore, choice, sort, twoway, match, tf, number, label, order); the
+  importer still fails on an unhandled kind. The importer also exports the
+  units, the six science stickers (from `Web/core/stickers.ts`, facts
+  verbatim) and, for each of the 38 pictures, its parts' touch boxes and
+  name positions read from the web's own SVG markup. Each quest records its
+  stars on the existing review topic `science-<quest>`. The importer now keeps
+  `truth: false` on true/false items (it used to drop it; no music item was
+  affected).
+- **Native pictures and experiments** (`ui/science/ScienceViews.kt`,
+  `MachineViews.kt`, `Pen.kt`): all 38 pictures (valley, food chain and web,
+  pins and magnet, the spring scale, resultant force, friction, falling
+  paper, work, the excretory organs, the filter, the kidney and skin
+  sections, fingerprints, the ramp, wedge, screw, lever classes, pulleys,
+  knob, steering wheels, the castle…) are hand-drawn in Compose Canvas in the
+  web's 320 × 200 units; no PNG or WebView. A found part plays its
+  experiment once, as the web's CSS does: the magnet pulls the pins, the
+  scale reads 3N, w₁ + w₂ read 5N like w, the folded paper lands first, the
+  work bars grow, the filter clears, the hammer drives the wedge, the lever
+  lifts the book, the pulleys raise their weights, the wheels turn. Calm mode
+  shows each end state at once; nothing is timed. Each part is a touch
+  target of at least 48 dp with its spot name for TalkBack; guided steps let
+  only the glowing part be tapped. Parts a picture does not draw become cards.
+- `label` steps (paraglider, urinary system, truck ramp, claw hammer): only
+  the asked parts can be tapped; a wrong one is a miss; each named part shows
+  its name. TalkBack reads them as «جزء من الصورة n», since their names are
+  the answers, so these four steps are hard to play by ear alone.
+- The tracker now matches the web for every island: the first miss says the
+  hint; the second and later misses light the answer; each new part starts
+  unlit and its next miss lights it again. Before, a multi-part step (a piano
+  melody, sorting, order, match, true/false) kept every later part lit after
+  two misses; the gaps game still keeps its remaining gaps lit, as on the web.
+- **Sticker album**: `Profile.stickers` (ordered, saved per profile, old
+  saves decode empty, a doubled sticker is refused) is filled by
+  `finishQuest` on a quest's first finish only; the result card shows
+  «📒 ملصق جديد في ألبومك!» with the sticker's fact. `StickerBook` shows an
+  island's page (owned in colour, tap for its fact; the rest «؟؟؟»); any
+  island whose book lists `stickers` can use it.
+- Not yet: the web's 3D island and lighthouse beam, the full album across
+  islands, sounds for the experiments (only right/wrong/finish tones and a
+  soft tap), and large text inside the pictures (their words scale with the
+  picture, not with the large-text preference).
+
+## Version 0.6: the music island's quests, synth and games (#10)
+
+- «جزيرة الأنغام» is a native island screen (`ui/music/MusicIsland.kt`): the
+  helper نغمة (hello on the first visit, then «back» and the next quest), the
+  eight places of the web island (the giant piano, the theatre, the rhythm
+  circle, the tempo tower, the notes cloud, the music library, the glasses
+  wing, the harbour) as cards with their quests, stars, «ابدأ ▶» /
+  «↻ العب مجدداً» and «🔁 راجع» (the quest's review lesson), the golden notes
+  (one per quest finished once, saved per profile) and the sky song they
+  make, and free play on the piano, the drum, the metronome and (once built)
+  the glasses. The web's walkable 3D island is not drawn; its places are cards.
+- The ten quests come from `Web/worlds/grade6/tunes.ts` through
+  `tools/import-quests.mjs` into `islands/music-quests.json`, wording verbatim
+  (`<b>` kept as bold). The review topics in `islands/music.json` are
+  unchanged; a quest records its stars on the same topic.
+- **A quest framework for every island** (`domain/quest`, pure Kotlin, and
+  `ui/quest`): a sealed `Step` decoded by `kind` (strict: an unknown kind or
+  field fails the import test), `StepMachine` with the web's tracker (first
+  miss: the hint; second: the hint and the right answer glows), the web's
+  scoring per kind (whole step, share of parts, or one per part), quest score
+  Σok/Σtotal → `starsFor`, idempotent first-finish rewards, and a
+  `QuestScreen` with «أتعلّم» discovery steps (guided spots, «✨ الخلاصة»,
+  «فهمت! ◀»), «تابِع ◀» with the explanation after each step, step dots,
+  the helper's line, exit with confirmation, and a result card. The run lives
+  in `SavedStateHandle` (rotation and process death). Shared kinds are
+  ready for the other islands: explore, learn, choice, twoway, sort (tap a
+  bin), order, match, tf (with the fix line) and number (keypad). An island
+  adds its own kinds and pictures through a `QuestKit`; the `label` step's
+  pictures are an island's (`QuestKit.labelPicture`), so science, the atlas,
+  English and art can be ported on the same player.
+- All the music games are native Compose: the piano (keys, gaps, the
+  whole/half step pattern), the grand staff drawn on a Canvas with both
+  clefs (rain drops placed by tap or with ▲ ▼ «ضعها ✓» buttons; name the
+  note), rhythm cards with notation, the drum, the measure, filling a glass
+  and playing the glasses, and the «أتعلّم» pictures (keyboard, grand staff,
+  notes, key signature, hymn of St John, tempo slider, measures, anacrusis,
+  portraits, the five folk instruments and the singers redrawn from the web's
+  SVG).
+- **Synth** (`audio/Synth.kt`, pure, unit-tested; `audio/MusicEngine.kt`): the
+  web's voices rebuilt in Kotlin and mixed live on one streaming AudioTrack:
+  piano, water glasses, drums (dum, tak, riq, clap, metronome tick), the five
+  folk instruments, the choir, a Longa run, a canon, rhythms and the
+  metronome. Audio focus (ducks for others, stops on loss), a soft limiter
+  (no clipping), released when the screen stops. With the sound off every
+  sound still lights what it plays (keys, glasses, drum lights, beats), so
+  every game stays playable. The lessons' practice keyboard uses it too.
+- The drum keeps the web's tolerance (0.32 of a beat, 0.45 once the lights
+  guide), measured from the child's own first tap, with no count-in and no
+  time limit: «دوري!», then tap; it is judged at the last beat or at
+  «✓ انتهيت».
+- Accessibility: keys are ≥ 48 dp wide (the piano scrolls sideways on a narrow
+  phone; black keys are about 32 dp wide), every key, glass, gap and spot is
+  a labelled button, the staff has big buttons as well as taps, the helper's
+  line is a polite live region, and haptics follow the profile.
+- Not yet: the web's 3D island and its animations, music stickers (the
+  album arrived in 0.7 for science), and the web's room echo on sounds.
+
+## Version 0.5: the farm island played in a native scene (#9)
+
+- «مزرعتي السعيدة» is now an illustrated 2D scene drawn with Jetpack Compose
+  Canvas (`ui/farm/`): six fields, the barn and silo, the Shami cow's pen with
+  its feeder, trough and milk bucket, the dairy with its pot and thermometer,
+  three beehives, the orders board and the dock with the shared dhow PNG, and
+  the decorations once bought. Crops at every growth stage, weeds, earthed-up
+  mounds, stakes, the cow, bees, helpers and the choice pictures (potato
+  pieces with buds, red/green tomatoes, queen/drone/worker bees) are native
+  vector drawings. Places sit in `FarmLayout` (pure Kotlin, scene units), so a
+  later 3D island (#8) can reuse the same place ids.
+- The seven quests are played in the scene as on the web: tap the field or the
+  place, then pick the job from the tool tray. A wrong tool is explained
+  (later / already done / not part of this crop, or the book's own word); the
+  second miss names the step's hint and makes the right tool glow. The small
+  choices are all native: one answer, find the queen, pick only the red
+  tomatoes, put the bee's life cycle in order, a balanced meal with one feed of
+  each kind, and the 85 °C / 42 °C thermometer. Plants change stage after the
+  right jobs; the book's weeks pass as captions (and a short dusk when motion
+  is on), never as waiting. Cotton is picked in three rounds.
+- The harvest goes to the barn (with the chosen helper's gift: bee +2 at
+  flowering, kitty +1 at the potato and beet harvests, cow +1 milk, puppy +15
+  experience), then the quest's quick review follows. Stars = share right first
+  try over the jobs and the review questions (`starsFor`). The story's first
+  finish gives +30 coins and opens the next quest; replaying a quest on
+  another plot is practice: its products again, stars kept at the best, no
+  second story reward (as on the web). Cheese uses two milks.
+- Helper choice on the first visit (changeable from the quests list), with the
+  helper's portrait, name and words beside the scene; tap it for the step's
+  hint. Orders board with three orders in the book's order (only for products
+  the farm can make), filled from the barn for coins; decorations bought with
+  coins appear in the scene. Coins and decorations never change lessons,
+  answers or access.
+- A run in progress (step, tools done, misses, the open choice, review answers)
+  is part of the saved profile and written after every action, so it survives
+  rotation, process death and a cold restart. Older saves decode with defaults.
+- Accessibility: every place is a real button over the canvas with a spoken
+  description (what grows there, its stage, the step), tools and choice
+  options are labelled buttons (≥ 48 dp), calm mode stops the idle motion and
+  the action effects, the screen scrolls and wraps at 320 dp.
+- Not yet: the 3D walkable farm (#8), farm levels beyond a number, stickers,
+  helper voices (pitch), and the web's ship sailing animation after a sale.
 
 ## Version 0.3: the 3D sea (#8)
 

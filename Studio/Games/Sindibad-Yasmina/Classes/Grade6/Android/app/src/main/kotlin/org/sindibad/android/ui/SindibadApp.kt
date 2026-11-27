@@ -36,6 +36,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.sindibad.android.*
 import org.sindibad.android.content.Topics
 import org.sindibad.android.domain.*
+import org.sindibad.android.ui.farm.FarmIsland
+import org.sindibad.android.ui.music.IslandQuest
+import org.sindibad.android.ui.music.MusicIsland
+import org.sindibad.android.ui.science.ScienceIsland
+import org.sindibad.android.ui.atlas.AtlasIsland
+import org.sindibad.android.ui.atlas.GlobeScreen
 import org.sindibad.android.ui.sea.Sea3DMap
 
 @Composable
@@ -43,9 +49,16 @@ fun SindibadApp(vm: GameViewModel) {
     val state by vm.ui.collectAsStateWithLifecycle()
     val prefs = state.store.active?.preferences ?: Preferences()
     var exitLesson by remember { mutableStateOf(false) }
+    var exitQuest by remember { mutableStateOf(false) }
     val requestBack: () -> Unit = {
         val session = state.session
+        val quest = state.quest
         when {
+            state.screen == Screen.Quest -> when {
+                quest != null && !quest.finished -> exitQuest = true
+                quest != null && state.questReward?.runId != quest.id && !state.busy -> vm.saveQuest()
+                else -> vm.back()
+            }
             state.screen != Screen.Lesson -> vm.back()
             session?.finished == false -> exitLesson = true
             session != null && state.store.active?.completedSessions?.contains(session.id) != true -> vm.saveResult()
@@ -91,9 +104,11 @@ fun SindibadApp(vm: GameViewModel) {
                                 })
                             }
                             Screen.Arabic -> SubjectIsland("arabic", state.store.active ?: return@Box, vm::startTopic)
-                            Screen.Music -> SubjectIsland("music", state.store.active ?: return@Box, vm::startTopic)
-                            Screen.Science -> SubjectIsland("science", state.store.active ?: return@Box, vm::startTopic)
-                            Screen.Atlas -> SubjectIsland("social", state.store.active ?: return@Box, vm::startTopic)
+                            Screen.Music -> MusicIsland(state.store.active ?: return@Box, vm)
+                            Screen.Quest -> IslandQuest(state, vm)
+                            Screen.Science -> ScienceIsland(state.store.active ?: return@Box, vm)
+                            Screen.Atlas -> AtlasIsland(state.store.active ?: return@Box, vm)
+                            Screen.Globe -> GlobeScreen(state.store.active ?: return@Box, vm)
                             Screen.Art -> SubjectIsland("art", state.store.active ?: return@Box, vm::startTopic) {
                                 PaintingStudio(state.store.active ?: return@SubjectIsland, vm::savePainting)
                             }
@@ -108,10 +123,7 @@ fun SindibadApp(vm: GameViewModel) {
                                     }
                                 }
                             }
-                            Screen.Farm -> Column {
-                                FarmBoard(state.store.active ?: return@Box, vm)
-                                SubjectIsland("farm", state.store.active ?: return@Box, vm::startTopic)
-                            }
+                            Screen.Farm -> FarmIsland(state.store.active ?: return@Box, vm)
                             Screen.Math -> SubjectIsland("math", state.store.active ?: return@Box, vm::startTopic)
                             Screen.Treasure -> TreasureIsland(state.store.active ?: return@Box, vm)
                             Screen.Review -> ReviewList(state.store.active ?: return@Box, vm::startTopic)
@@ -125,6 +137,14 @@ fun SindibadApp(vm: GameViewModel) {
                     }
                 }
             }
+            if (exitQuest) AlertDialog(
+                onDismissRequest = { exitQuest = false },
+                title = { Text("العودة إلى الجزيرة؟") },
+                text = { Text(if (state.quest?.island == "social") "لا بأس! نكمل الرحلة متى شئت. 🧭 تبقى خطوتك محفوظة ما دام التطبيق يذكرها، وتُحفظ النجوم وشعاع البوصلة عند إكمال الدرس."
+                    else "لا بأس! نكمل الدرس متى شئت. 🎵 تبقى خطوتك محفوظة ما دام التطبيق يذكرها، وتُحفظ النجوم والنوتة الذهبية عند إكمال الدرس.") },
+                confirmButton = { TextButton(onClick = { exitQuest = false; vm.back() }) { Text("العودة") } },
+                dismissButton = { TextButton(onClick = { exitQuest = false }) { Text("أكمل الدرس") } },
+            )
             if (exitLesson) AlertDialog(
                 onDismissRequest = { exitLesson = false },
                 title = { Text("العودة إلى الجزيرة؟") },
@@ -166,10 +186,12 @@ private fun AppBar(state: AppUiState, vm: GameViewModel, back: () -> Unit) {
         Screen.Shop -> "سوق الميناء"
         Screen.Certificate -> "شهادتي"
         Screen.Lesson -> "نتعلّم مع هُدهُد"
+        Screen.Quest -> islands.firstOrNull { it.id == state.quest?.island }?.name ?: "درس"
         Screen.Journey -> "رحلتي"
         Screen.Settings -> "الإعدادات"
         Screen.Profiles -> "مَن سيلعب؟"
         Screen.About -> "عن الرحلة"
+        Screen.Globe -> "🌍 أطلس العالم"
     }
     Row(Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
         if (state.screen != Screen.Home) TextButton(onClick = back) { Text("رجوع", color = Color.White) }
@@ -373,7 +395,6 @@ private fun SubjectIsland(region: String, profile: Profile, open: (String) -> Un
     val island = islands.first { it.id == region }
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         if (workshop != null) item { workshop() }
-        if (region == "social") item { AtlasGlobe() }
         item {
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
                 SharedArt("islands/${island.art}", null, Modifier.height(150.dp))

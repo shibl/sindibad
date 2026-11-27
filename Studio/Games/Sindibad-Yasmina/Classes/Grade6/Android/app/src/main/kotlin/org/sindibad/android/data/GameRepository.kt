@@ -30,6 +30,10 @@ class GameRepository(private val store: DataStore<Preferences>) {
                 require(data.profiles.map { it.id }.distinct().size == data.profiles.size)
                 require(data.activeId == null || data.profiles.any { it.id == data.activeId })
                 require(data.profiles.all { p -> p.pearls >= 0 && p.topics.values.all { it.stars in 0..3 && it.best in 0f..1f && it.plays >= 0 } })
+                require(data.profiles.all { p -> p.barn.coins >= 0 && p.barn.xp >= 0 && p.barn.stock.values.all { it >= 0 } })
+                require(data.profiles.all { p -> p.islandQuests.values.all { it.distinct().size == it.size } })
+                require(data.profiles.all { p -> p.stickers.distinct().size == p.stickers.size })
+                require(data.profiles.all { p -> p.atlasVisited.distinct().size == p.atlasVisited.size })
                 require(data.profiles.all { p -> p.style.all { (slot, id) ->
                     id in p.owned && cosmetics.any { it.id == id && it.slot == slot }
                 } })
