@@ -42,13 +42,14 @@ function step(st) {
     const scoring = ISLAND_SCORING[source]?.[st.kind] ?? SHARED_SCORING[st.kind];
     if (scoring) base.scoring = scoring;
     switch (st.kind) {
-        case 'explore': return compact({ ...base, title: rich(st.title), tap: text(st.tap), view: st.view, guided: st.guided, cols: st.cols,
+        case 'explore': return compact({ ...base, title: rich(st.title), tap: text(st.tap), view: st.view, area: st.area, guided: st.guided, cols: st.cols,
+            events: st.events?.map(e => ({ id: e.id, year: e.year, label: text(e.label) })),
             theme: st.theme, done: rich(st.done), sum: rich(st.sum), spots: st.spots.map(spot),
             kb: st.kb && compact({ from: st.kb.from, to: st.kb.to, labels: st.kb.labels, gaps: st.kb.gaps }),
             person: st.person && { name: text(st.person.name), role: text(st.person.role), icon: st.person.icon }, art: st.art });
         case 'learn': return compact({ ...base, title: rich(st.title), html: rich(st.html), show: st.show, play: sound(st.play) });
         case 'choice': return compact({ ...base, q: rich(st.q), options: st.options.map(rich), art: st.art, layout: st.layout,
-            listen: sound(st.listen), show: st.show, pic: st.pic });
+            listen: sound(st.listen), show: st.show, pic: st.pic, area: st.area, mark: st.mark });
         case 'keys': return compact({ ...base, q: rich(st.q), play: st.play, labels: st.labels });
         case 'gaps': case 'pattern': return compact({ ...base, q: rich(st.q) });
         case 'staff': return compact({ ...base, q: rich(st.q), drops: st.drops.map(([note, name]) => ({ note, name: text(name) })) });
@@ -66,7 +67,7 @@ function step(st) {
         case 'match': return compact({ ...base, q: rich(st.q), pairs: st.pairs.map(([left, right]) => ({ left: rich(left), right: rich(right) })), pic: st.pic });
         case 'tf': return compact({ ...base, q: rich(st.q), items: st.items.map(([line, truth, fix]) => ({ text: rich(line), truth: !!truth, ...compact({ fix: rich(fix) }) })), pic: st.pic });
         case 'number': return compact({ ...base, q: rich(st.q), answer: String(st.answer), unit: text(st.unit), pic: st.pic });
-        case 'label': return compact({ ...base, q: rich(st.q), view: st.view, ask: st.ask.map(([id, name]) => ({ id, name: text(name) })) });
+        case 'label': return compact({ ...base, q: rich(st.q), view: st.view, area: st.area, ask: st.ask.map(([id, name]) => ({ id, name: text(name) })) });
         default: throw new Error(`import-quests: step kind "${st.kind}" is not handled — add it here and in domain/quest/`);
     }
 }
@@ -87,7 +88,7 @@ if (source === 'tunes') {
     out.instruments = book.INSTRUMENTS;
 }
 if (book.UNITS) out.units = Object.entries(book.UNITS).map(([n, u]) => ({ n: Number(n), name: text(u.name), color: u.color }));
-if (source === 'lab') {
+if (source === 'lab' || source === 'atlas') {
     // The stickers a science quest gives on its first finish (web: awardSticker(cfg.sticker, quest.sticker)).
     // core/stickers.js wires the web's sound to `document` when it loads; a stub is enough to read the data.
     globalThis.document ??= { addEventListener() {}, hidden: true };
@@ -123,3 +124,126 @@ if (source === 'lab') {
 const directory = new URL('../app/src/main/resources/islands/', import.meta.url);
 await mkdir(directory, { recursive: true });
 await writeFile(new URL(region + '-quests.json', directory), JSON.stringify(out, null, 2) + '\n');
+
+if (source === 'atlas') await exportAtlas(book, quests);
+
+/**
+ * The atlas island's world (web: core/atlas/views.ts, core/atlas/globe.ts, worlds/atlas/): written to
+ * islands/atlas-map.json (the map's places, frames and label tweaks, read from views.js itself — they are not
+ * exported, so its top-level tables are evaluated in a sandbox) and islands/globe.json (every country: its card,
+ * its flag as plain shapes, its outline from shapes.js). Nothing is copied by hand. For the tests, the web's own
+ * SVG of every map and timeline a step draws is reduced to its spots and their name positions
+ * (src/test/resources/atlas-web-pictures.json), so the native drawing can be checked against it.
+ */
+async function exportAtlas(book, quests) {
+    const { readFile } = await import('node:fs/promises');
+    const vm = await import('node:vm');
+    const { SHAPES } = await import('../../Web/worlds/atlas/shapes.js');
+    const { COUNTRIES, SMALL, CONTINENTS } = await import('../../Web/worlds/atlas/countries.js');
+    const { ATLAS_VIEWS } = await import('../../Web/core/atlas/views.js');
+    const source = await readFile(new URL('../../Web/core/atlas/views.js', import.meta.url), 'utf8');
+    const head = source.slice(0, source.indexOf('function projector')).replace(/^import .*$/gm, '').replace(/^export /gm, '');
+    const names = ['COUNTRY', 'DOT_COUNTRY', 'WATER', 'LAKES', 'RIVERS', 'MOUNTAINS', 'LAND', 'CITY', 'AT', 'OFF', 'LINES', 'ARAB', 'AREAS'];
+    const t = vm.runInNewContext(`${head}\n({ ${names.join(', ')} })`, { SHAPES });
+    const nudge = vm.runInNewContext(source.match(/^const NUDGE = .*;$/m)[0].replace('const NUDGE =', '(') .replace(/;$/, ')'), {});
+    // The always-drawn mountain ranges (views.ts: `!['atlas', 'ethiohigh'].includes(k)`).
+    const always = source.match(/\['atlas', 'ethiohigh'\]\.includes\(k\)/) ? ['atlas', 'ethiohigh'] : null;
+    if (!always) throw new Error('views.js: the always-drawn mountains changed — update exportAtlas');
+    const map = {
+        country: t.COUNTRY, dotCountry: t.DOT_COUNTRY, water: t.WATER, lakes: t.LAKES, rivers: t.RIVERS, mountains: t.MOUNTAINS,
+        alwaysMountains: always, land: t.LAND, city: t.CITY, at: t.AT, off: t.OFF, lines: t.LINES, arab: [...t.ARAB], areas: t.AREAS, nudge,
+    };
+    const directory = new URL('../app/src/main/resources/islands/', import.meta.url);
+    await writeFile(new URL('atlas-map.json', directory), JSON.stringify(map) + '\n');
+
+    // ---- the globe: every country with its card and outline ----
+    const color = c => {
+        if (c == null || c === 'none') return undefined;
+        const m = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(c);
+        if (!m) throw new Error(`flag colour "${c}"`);
+        const h = m[1].length === 3 ? [...m[1]].map(x => x + x).join('') : m[1];
+        return '#' + h.toLowerCase();
+    };
+    const attrs = tag => Object.fromEntries([...tag.matchAll(/([\w-]+)="([^"]*)"/g)].map(m => [m[1], m[2]]));
+    const mul = (a, b) => [a[0] * b[0] + a[2] * b[1], a[1] * b[0] + a[3] * b[1], a[0] * b[2] + a[2] * b[3], a[1] * b[2] + a[3] * b[3],
+        a[0] * b[4] + a[2] * b[5] + a[4], a[1] * b[4] + a[3] * b[5] + a[5]];
+    const I = [1, 0, 0, 1, 0, 0];
+    function transformOf(s) {
+        if (!s) return I;
+        let m = I;
+        for (const [, fn, args] of s.matchAll(/(\w+)\(([^)]*)\)/g)) {
+            const a = args.split(/[\s,]+/).filter(Boolean).map(Number);
+            if (fn === 'rotate') {
+                const r = a[0] * Math.PI / 180, cx = a[1] ?? 0, cy = a[2] ?? 0, c = Math.cos(r), sn = Math.sin(r);
+                m = mul(m, [c, sn, -sn, c, cx - c * cx + sn * cy, cy - sn * cx - c * cy]);
+            } else if (fn === 'translate') m = mul(m, [1, 0, 0, 1, a[0], a[1] ?? 0]);
+            else if (fn === 'scale') m = mul(m, [a[0], 0, 0, a[1] ?? a[0], 0, 0]);
+            else throw new Error(`flag transform ${fn}`);
+        }
+        return m;
+    }
+    const r1 = x => Math.round(x * 1e4) / 1e4;
+    /** A flag's SVG (worlds/atlas/countries.ts: rect, circle, polygon, path, g and a nested svg) as plain shapes. */
+    function flagShapes(svg) {
+        const shapes = [];
+        const stack = [{ m: I, clip: null }];
+        let first = true;
+        for (const [tag, close, name, , self] of svg.matchAll(/<(\/?)(\w+)([^>]*?)(\/?)>/g).map(m => [m[0], m[1], m[2], m[3], m[4]])) {
+            const top = stack[stack.length - 1];
+            if (close) { if (name === 'svg' || name === 'g') stack.pop(); continue; }
+            const a = attrs(tag);
+            if (name === 'svg') {
+                if (first) { first = false; if (a.viewBox !== '0 0 300 200') throw new Error('flag viewBox'); stack.push(top); continue; }
+                const [, , vw, vh] = a.viewBox.split(/\s+/).map(Number), w = +a.width, h = +a.height, x = +(a.x ?? 0), y = +(a.y ?? 0);
+                if (top.m !== I) throw new Error('nested flag svg inside a transform');
+                stack.push({ m: mul(top.m, [w / vw, 0, 0, h / vh, x, y]), clip: [x, y, w, h] });
+                continue;
+            }
+            if (name === 'g') { if (!self) stack.push({ m: mul(top.m, transformOf(a.transform)), clip: top.clip }); continue; }
+            let d;
+            if (name === 'rect') { const x = +(a.x ?? 0), y = +(a.y ?? 0), w = +a.width, h = +a.height; d = `M${x},${y}h${w}v${h}h${-w}z`; }
+            else if (name === 'circle') { const cx = +a.cx, cy = +a.cy, r = +a.r; d = `M${cx - r},${cy}a${r},${r} 0 1,0 ${2 * r},0a${r},${r} 0 1,0 ${-2 * r},0z`; }
+            else if (name === 'polygon') { const p = a.points.trim().split(/[\s,]+/).map(Number); d = 'M' + p.reduce((s, v, i) => s + (i % 2 ? `,${v}` : `${i ? 'L' : ''}${v}`), '') + 'z'; }
+            else if (name === 'path') d = a.d;
+            else throw new Error(`flag element <${name}>`);
+            const m = mul(top.m, transformOf(a.transform));
+            shapes.push(compact({
+                d, fill: a.fill === undefined ? '#000000' : color(a.fill), stroke: color(a.stroke), sw: a['stroke-width'] && Number(a['stroke-width']),
+                cap: a['stroke-linecap'], join: a['stroke-linejoin'], m: m.every((v, i) => Math.abs(v - I[i]) < 1e-9) ? undefined : m.map(r1), clip: top.clip ?? undefined,
+            }));
+        }
+        return shapes;
+    }
+    const all = { ...COUNTRIES, ...SMALL };
+    const countries = Object.entries(all).map(([id, c]) => compact({
+        id, ar: text(c.ar), capital: c.capital == null ? undefined : text(c.capital), continent: c.continent, lat: c.lat, lon: c.lon,
+        arab: c.arab, territory: c.territory, note: text(c.note), small: id in SMALL,
+        official: text(c.official), currency: c.currency && { ar: text(c.currency.ar), code: c.currency.code }, language: text(c.language),
+        nameMeaning: text(c.nameMeaning), flagMeaning: text(c.flagMeaning), resources: c.resources?.map(text), fact: text(c.fact),
+        flag: c.flag && { colors: c.flag.colors.map(color), shapes: flagShapes(c.flag.svg) },
+        rings: SHAPES[id],
+    }));
+    for (const id of Object.keys(SHAPES)) if (!all[id]) throw new Error(`shape ${id} has no card`);
+    await writeFile(new URL('globe.json', directory), JSON.stringify({ continents: Object.fromEntries(Object.entries(CONTINENTS).map(([k, v]) => [k, text(v)])), countries }) + '\n');
+
+    // ---- the web's own pictures, for the tests ----
+    const num = (tag, a) => { const m = tag.match(new RegExp(`\\s${a}="(-?[\\d.]+)"`)); return m ? Number(m[1]) : undefined; };
+    const pictures = [];
+    book.QUESTS.forEach(q => q.steps.forEach((st, index) => {
+        const view = st.kind === 'choice' ? st.pic : st.view;
+        if (!view) return;
+        const html = ATLAS_VIEWS[view].html(st);
+        const [, , w, h] = html.match(/viewBox="([^"]+)"/)[1].split(' ').map(Number);
+        const spots = [];
+        for (const m of html.matchAll(/<g data-spot="([^"]+)"( class="[^"]*")?>/g)) {
+            const rest = html.slice(m.index);
+            const lab = rest.match(/<text class="lx-label[^>]*>/)[0];
+            spots.push({ id: m[1], label: [num(lab, 'x'), num(lab, 'y')] });
+        }
+        const marks = [...html.matchAll(/class="[^"]*mp-mark[^"]*"/g)].length;
+        pictures.push({ quest: q.id, index, view, w, h, spots, marks });
+    }));
+    const tests = new URL('../app/src/test/resources/', import.meta.url);
+    await mkdir(tests, { recursive: true });
+    await writeFile(new URL('atlas-web-pictures.json', tests), JSON.stringify(pictures, null, 1) + '\n');
+}

@@ -45,6 +45,8 @@ import kotlinx.serialization.json.Json
 @Serializable data class MatchPair(val left: String, val right: String)
 @Serializable data class TrueFalse(val text: String, val truth: Boolean, val fix: String? = null)
 @Serializable data class Ask(val id: String, val name: String)
+/** A timeline event (the atlas): `year` < 0 is BC; `label` is the date as written. */
+@Serializable data class TimeEvent(val id: String, val year: Int, val label: String)
 
 /** One step of a quest. The JSON `kind` names it. */
 @Serializable
@@ -60,6 +62,8 @@ sealed class Step {
 @Serializable @SerialName("explore")
 data class Explore(
     val title: String, val spots: List<Spot>, val tap: String? = null, val view: String? = null, val guided: Boolean = false,
+    /** The atlas: the map's area (view `map`) and the timeline's events (view `timeline`). */
+    val area: String? = null, val events: List<TimeEvent>? = null,
     val cols: Int? = null, val theme: String? = null, val done: String? = null, val sum: String? = null,
     val kb: Keyboard? = null, val person: Person? = null, val art: String? = null,
     override val say: String? = null, override val hint: String? = null, override val explain: String? = null, override val scoring: Scoring? = null,
@@ -76,6 +80,8 @@ data class Learn(
 data class Choice(
     val q: String, val options: List<String>, val art: List<String>? = null, val layout: String? = null,
     val listen: Sound? = null, val show: String? = null, val pic: String? = null,
+    /** The atlas: a `map` picture's area and the places marked on it. */
+    val area: String? = null, val mark: List<String>? = null,
     override val say: String? = null, override val hint: String? = null, override val explain: String? = null, override val scoring: Scoring? = null,
 ) : Step()
 
@@ -120,7 +126,7 @@ data class NumberStep(
 /** Tap the named parts of a picture. The picture comes from the island (ui/quest/QuestViews: `labelViews`). */
 @Serializable @SerialName("label")
 data class LabelStep(
-    val q: String, val view: String, val ask: List<Ask>,
+    val q: String, val view: String, val ask: List<Ask>, val area: String? = null,
     override val say: String? = null, override val hint: String? = null, override val explain: String? = null, override val scoring: Scoring? = null,
 ) : Step()
 

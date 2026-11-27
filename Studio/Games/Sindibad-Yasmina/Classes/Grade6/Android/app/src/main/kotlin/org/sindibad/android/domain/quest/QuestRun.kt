@@ -42,6 +42,10 @@ fun Profile.questsDone(island: String) = islandQuests[island].orEmpty().size
 fun Profile.goldenNotes(island: String) = questsDone(island)
 /** The science lighthouse: one crystal per quest finished once; all of them light its beam (web: core/lab/lab.ts). */
 fun Profile.crystals(island: String = "science") = questsDone(island)
+/** The travellers' compass on the atlas island: one ray per quest finished once; all 25 light Suhail's star (web atlas.ts). */
+fun Profile.compassRays(island: String = "social") = questsDone(island)
+/** A country's card opened on the globe: remembered once (web remember()). */
+fun Profile.visit(country: String) = if (country in atlasVisited) this else copy(atlasVisited = atlasVisited + country)
 fun Profile.hasSticker(id: String) = id in stickers
 fun Profile.questDone(island: String, questId: String) = questId in islandQuests[island].orEmpty()
 

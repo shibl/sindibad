@@ -4,7 +4,7 @@ import org.sindibad.android.domain.quest.QuestBook
 
 /** Islands played as quests (resources/islands/<region>-quests.json, made by tools/import-quests.mjs). */
 object QuestBooks {
-    val regions = listOf("music", "science")
+    val regions = listOf("music", "science", "social")
     private val books = regions.associateWith { region -> lazy {
         val resource = requireNotNull(javaClass.getResourceAsStream("/islands/$region-quests.json")) { "No quests for $region" }
         QuestBook.decode(resource.bufferedReader().use { it.readText() })

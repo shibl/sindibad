@@ -36,6 +36,8 @@ data class Profile(
     val helpersMet: Set<String> = emptySet(),
     /** The sticker book: sticker ids in the order they were earned (web: save.stickers, core/stickers.ts). */
     val stickers: List<String> = emptyList(),
+    /** Countries whose atlas card was opened on the globe, ISO ids in the order visited (web: save.world.atlas.visited). */
+    val atlasVisited: List<String> = emptyList(),
 ) {
     val totalStars get() = topics.values.sumOf { it.stars }
     fun starsIn(region: String) = topics.filterKeys { it.startsWith("$region-") || (region == "treasure" && it == "review-treasure") }.values.sumOf { it.stars }

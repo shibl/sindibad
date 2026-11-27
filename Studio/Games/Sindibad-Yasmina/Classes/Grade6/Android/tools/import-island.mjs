@@ -52,15 +52,7 @@ for (const quest of book.QUESTS) {
 const directory = new URL('../app/src/main/resources/islands/', import.meta.url);
 await mkdir(directory, { recursive: true });
 await writeFile(new URL(region + '.json', directory), JSON.stringify(topics, null, 2) + '\n');
-if (region === 'social') {
-    const { COUNTRIES, SMALL, CONTINENTS } = await import('../../Web/worlds/atlas/countries.js');
-    const { SHAPES } = await import('../../Web/worlds/atlas/shapes.js');
-    const cards = Object.entries({ ...COUNTRIES, ...SMALL }).map(([id, c]) => ({
-        name: c.ar, lat: c.lat, lon: c.lon, lines: SHAPES[id] ?? [],
-        facts: [CONTINENTS[c.continent], c.capital, c.language, c.currency?.ar, c.nameMeaning, c.note].filter(Boolean).map(plain),
-    }));
-    await writeFile(new URL('globe.json', directory), JSON.stringify(cards) + '\n');
-}
+// The atlas globe (islands/globe.json) is written by `node tools/import-quests.mjs social atlas`.
 if (region === 'farm') {
     // Everything the native farm scene needs to play each quest as the web does.
     const places = { barn: 'pen', dairy: 'dairy', hive: 'hive' };
