@@ -40,6 +40,8 @@ import org.sindibad.android.ui.farm.FarmIsland
 import org.sindibad.android.ui.music.IslandQuest
 import org.sindibad.android.ui.music.MusicIsland
 import org.sindibad.android.ui.science.ScienceIsland
+import org.sindibad.android.ui.atlas.AtlasIsland
+import org.sindibad.android.ui.atlas.GlobeScreen
 import org.sindibad.android.ui.sea.Sea3DMap
 
 @Composable
@@ -105,7 +107,8 @@ fun SindibadApp(vm: GameViewModel) {
                             Screen.Music -> MusicIsland(state.store.active ?: return@Box, vm)
                             Screen.Quest -> IslandQuest(state, vm)
                             Screen.Science -> ScienceIsland(state.store.active ?: return@Box, vm)
-                            Screen.Atlas -> SubjectIsland("social", state.store.active ?: return@Box, vm::startTopic)
+                            Screen.Atlas -> AtlasIsland(state.store.active ?: return@Box, vm)
+                            Screen.Globe -> GlobeScreen(state.store.active ?: return@Box, vm)
                             Screen.Art -> SubjectIsland("art", state.store.active ?: return@Box, vm::startTopic) {
                                 PaintingStudio(state.store.active ?: return@SubjectIsland, vm::savePainting)
                             }
@@ -137,7 +140,8 @@ fun SindibadApp(vm: GameViewModel) {
             if (exitQuest) AlertDialog(
                 onDismissRequest = { exitQuest = false },
                 title = { Text("العودة إلى الجزيرة؟") },
-                text = { Text("لا بأس! نكمل الدرس متى شئت. 🎵 تبقى خطوتك محفوظة ما دام التطبيق يذكرها، وتُحفظ النجوم والنوتة الذهبية عند إكمال الدرس.") },
+                text = { Text(if (state.quest?.island == "social") "لا بأس! نكمل الرحلة متى شئت. 🧭 تبقى خطوتك محفوظة ما دام التطبيق يذكرها، وتُحفظ النجوم وشعاع البوصلة عند إكمال الدرس."
+                    else "لا بأس! نكمل الدرس متى شئت. 🎵 تبقى خطوتك محفوظة ما دام التطبيق يذكرها، وتُحفظ النجوم والنوتة الذهبية عند إكمال الدرس.") },
                 confirmButton = { TextButton(onClick = { exitQuest = false; vm.back() }) { Text("العودة") } },
                 dismissButton = { TextButton(onClick = { exitQuest = false }) { Text("أكمل الدرس") } },
             )
@@ -187,6 +191,7 @@ private fun AppBar(state: AppUiState, vm: GameViewModel, back: () -> Unit) {
         Screen.Settings -> "الإعدادات"
         Screen.Profiles -> "مَن سيلعب؟"
         Screen.About -> "عن الرحلة"
+        Screen.Globe -> "🌍 أطلس العالم"
     }
     Row(Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
         if (state.screen != Screen.Home) TextButton(onClick = back) { Text("رجوع", color = Color.White) }
@@ -390,7 +395,6 @@ private fun SubjectIsland(region: String, profile: Profile, open: (String) -> Un
     val island = islands.first { it.id == region }
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         if (workshop != null) item { workshop() }
-        if (region == "social") item { AtlasGlobe() }
         item {
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
                 SharedArt("islands/${island.art}", null, Modifier.height(150.dp))

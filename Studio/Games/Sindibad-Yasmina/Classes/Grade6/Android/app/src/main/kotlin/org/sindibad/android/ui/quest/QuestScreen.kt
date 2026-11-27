@@ -74,6 +74,8 @@ interface QuestKit {
     fun silence()
     /** A question's picture (`pic`: science's force vector…); nothing by default. */
     @Composable fun QuestionPicture(name: String) {}
+    /** A question's picture that depends on the step (the atlas's map with its area and marked places). */
+    @Composable fun QuestionPicture(step: Step, name: String) = QuestionPicture(name)
     /** The result card's words: the book the quest comes from, the first-finish chip, the line once all are done. */
     val bookName: String get() = "التربية الموسيقية"
     val gainChip: String get() = "🎵 نوتة ذهبية"
@@ -236,17 +238,17 @@ private fun StepView(step: Step, state: StepState, kit: QuestKit, act: QuestActi
         }
         is Choice -> {
             Ask(step.q)
-            step.pic?.let { kit.QuestionPicture(it) }
+            step.pic?.let { kit.QuestionPicture(step, it) }
             step.show?.let { kit.Show(it) }
             step.listen?.let { p -> OutlinedButton(onClick = { kit.play(p) }, Modifier.heightIn(min = 48.dp)) { Text(if (p.tempo != null) "▶ اسمع السرعة" else "▶ اسمع") } }
             Options(step.options, state, art = step.art?.takeIf { a -> a.all(kit::hasArt) }, kit = kit, act = act)
         }
-        is TwoWay -> { TwoWayView(step, state, act) { step.pic?.let { kit.QuestionPicture(it) } } }
-        is Sort -> SortView(step, state, act) { step.pic?.let { kit.QuestionPicture(it) } }
+        is TwoWay -> { TwoWayView(step, state, act) { step.pic?.let { kit.QuestionPicture(step, it) } } }
+        is Sort -> SortView(step, state, act) { step.pic?.let { kit.QuestionPicture(step, it) } }
         is Order -> OrderView(step, state, kit, act)
-        is Match -> MatchView(step, state, act) { step.pic?.let { kit.QuestionPicture(it) } }
-        is TrueOrFalse -> TrueFalseView(step, state, act) { step.pic?.let { kit.QuestionPicture(it) } }
-        is NumberStep -> NumberView(step, state, act) { step.pic?.let { kit.QuestionPicture(it) } }
+        is Match -> MatchView(step, state, act) { step.pic?.let { kit.QuestionPicture(step, it) } }
+        is TrueOrFalse -> TrueFalseView(step, state, act) { step.pic?.let { kit.QuestionPicture(step, it) } }
+        is NumberStep -> NumberView(step, state, act) { step.pic?.let { kit.QuestionPicture(step, it) } }
         is LabelStep -> {
             Ask(step.q)
             if (!state.done) Text("👆 ${step.ask[state.part].name}", style = MaterialTheme.typography.titleMedium)
@@ -344,7 +346,7 @@ private fun SortView(step: Sort, state: StepState, act: QuestActions, picture: @
 @Composable
 private fun OrderView(step: Order, state: StepState, kit: QuestKit, act: QuestActions) {
     Ask(step.q)
-    step.pic?.let { kit.QuestionPicture(it) }
+    step.pic?.let { kit.QuestionPicture(step, it) }
     step.show?.let { kit.Show(it) }
     // The slots: filled in order.
     FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {

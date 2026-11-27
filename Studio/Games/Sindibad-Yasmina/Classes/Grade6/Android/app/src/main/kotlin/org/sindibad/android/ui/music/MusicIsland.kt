@@ -41,6 +41,8 @@ import org.sindibad.android.domain.quest.*
 import org.sindibad.android.ui.*
 import org.sindibad.android.ui.quest.*
 import org.sindibad.android.ui.science.RobotHelper
+import org.sindibad.android.ui.atlas.AtlasKit
+import org.sindibad.android.ui.atlas.StarHelper
 import org.sindibad.android.ui.science.ScienceKit
 
 // «جزيرة الأنغام» natively (web: core/tunes/tunes.ts): the helper نغمة, the eight places of the island with
@@ -234,10 +236,13 @@ internal fun IslandQuest(state: org.sindibad.android.AppUiState, vm: GameViewMod
     val scope = rememberCoroutineScope()
     // Each island brings its own part of the player: music its instruments, science its pictures.
     val science = run.island == "science"
-    val kit: QuestKit = remember(engine, book, prefs.calm) { if (science) ScienceKit(engine, book, scope, prefs.calm) else MusicKit(engine, book, scope) }
+    val atlas = run.island == "social"
+    val kit: QuestKit = remember(engine, book, prefs.calm) {
+        when { science -> ScienceKit(engine, book, scope, prefs.calm); atlas -> AtlasKit(engine, scope, prefs.calm); else -> MusicKit(engine, book, scope) }
+    }
     LaunchedEffect(run.id, run.finished) { if (run.finished && state.questReward?.runId != run.id) vm.saveQuest() }
     QuestScreen(run, book, kit, prefs, state.questReward, nextAfter(book, profile, run),
-        helperFace = { mood, m -> if (science) RobotHelper(mood, m) else NoteHelper(mood, m) },
+        helperFace = { mood, m -> when { science -> RobotHelper(mood, m); atlas -> StarHelper(mood, m); else -> NoteHelper(mood, m) } },
         act = QuestActions(vm::questTap, vm::questDrum, vm::questUndo), next = vm::questNext, close = vm::back, saveAgain = vm::saveQuest, busy = state.busy)
 }
 

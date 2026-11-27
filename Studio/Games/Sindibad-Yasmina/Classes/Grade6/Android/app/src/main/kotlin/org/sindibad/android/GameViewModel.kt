@@ -19,7 +19,7 @@ import org.sindibad.android.domain.quest.*
 import java.util.UUID
 import kotlin.random.Random
 
-enum class Screen { English, Art, Atlas, Science, Home, Voyages, Sea, Music, Farm, Arabic, Math, Treasure, Review, Shop, Certificate, Lesson, Quest, Journey, Settings, Profiles, About }
+enum class Screen { English, Art, Atlas, Science, Home, Voyages, Sea, Music, Farm, Arabic, Math, Treasure, Review, Shop, Certificate, Lesson, Quest, Journey, Settings, Profiles, About, Globe }
 
 data class AppUiState(
     val loading: Boolean = true, val store: GameStore = GameStore(),
@@ -149,6 +149,9 @@ class GameViewModel(private val repository: GameRepository, private val saved: S
     }
     /** The island's helper has said hello: next time it says «back». */
     fun meetHelper(island: String) = updateFarm { store, id -> store.updateProfile(id) { p -> if (island in p.helpersMet) p else p.copy(helpersMet = p.helpersMet + island) } }
+
+    /** A country's card opened on the atlas globe: remembered once per profile (the passport counts the Arab ones). */
+    fun visitCountry(id: String) = updateFarm { store, pid -> store.updateProfile(pid) { p -> p.visit(id) } }
 
     fun createProfile(hero: Hero, name: String) = transact {
         val profile = Profile(UUID.randomUUID().toString(), name.trim().take(20).ifEmpty { hero.arabic }, hero)
