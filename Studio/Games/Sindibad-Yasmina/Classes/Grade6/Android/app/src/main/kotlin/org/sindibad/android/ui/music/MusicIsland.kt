@@ -44,6 +44,9 @@ import org.sindibad.android.ui.science.RobotHelper
 import org.sindibad.android.ui.atlas.AtlasKit
 import org.sindibad.android.ui.atlas.StarHelper
 import org.sindibad.android.ui.science.ScienceKit
+import org.sindibad.android.ui.english.EnglishKit
+import org.sindibad.android.ui.english.ParrotHelper
+import org.sindibad.android.ui.english.rememberEnglishVoice
 
 // «جزيرة الأنغام» natively (web: core/tunes/tunes.ts): the helper نغمة, the eight places of the island with
 // their quests and stars, the golden notes (one per quest finished once) and the sky song they make, and the
@@ -225,7 +228,7 @@ fun NoteHelper(mood: Mood, modifier: Modifier = Modifier) {
     }
 }
 
-/** The quest player for an island's quests (music and science; other islands give their own QuestKit here). */
+/** The quest player for an island's quests (music, science, the atlas and English each give their own QuestKit). */
 @Composable
 internal fun IslandQuest(state: org.sindibad.android.AppUiState, vm: GameViewModel) {
     val run = state.quest ?: return
@@ -237,12 +240,24 @@ internal fun IslandQuest(state: org.sindibad.android.AppUiState, vm: GameViewMod
     // Each island brings its own part of the player: music its instruments, science its pictures.
     val science = run.island == "science"
     val atlas = run.island == "social"
-    val kit: QuestKit = remember(engine, book, prefs.calm) {
-        when { science -> ScienceKit(engine, book, scope, prefs.calm); atlas -> AtlasKit(engine, scope, prefs.calm); else -> MusicKit(engine, book, scope) }
+    val english = run.island == "english"
+    // The English voice is only made for the English island (and released when the screen stops).
+    val voice = if (english) rememberEnglishVoice(prefs.sound) else null
+    val kit: QuestKit = remember(engine, book, prefs.calm, voice) {
+        when {
+            science -> ScienceKit(engine, book, scope, prefs.calm)
+            atlas -> AtlasKit(engine, scope, prefs.calm)
+            voice != null -> EnglishKit(engine, book, scope, prefs.calm, voice, vm::toggleWord)
+            else -> MusicKit(engine, book, scope)
+        }
+    }
+    if (kit is EnglishKit) {
+        val saved = profile.wordBook.map { it.en.trim().lowercase() }.toSet()
+        SideEffect { kit.saved = saved }
     }
     LaunchedEffect(run.id, run.finished) { if (run.finished && state.questReward?.runId != run.id) vm.saveQuest() }
     QuestScreen(run, book, kit, prefs, state.questReward, nextAfter(book, profile, run),
-        helperFace = { mood, m -> when { science -> RobotHelper(mood, m); atlas -> StarHelper(mood, m); else -> NoteHelper(mood, m) } },
+        helperFace = { mood, m -> when { science -> RobotHelper(mood, m); atlas -> StarHelper(mood, m); english -> ParrotHelper(mood, m); else -> NoteHelper(mood, m) } },
         act = QuestActions(vm::questTap, vm::questDrum, vm::questUndo), next = vm::questNext, close = vm::back, saveAgain = vm::saveQuest, busy = state.busy)
 }
 

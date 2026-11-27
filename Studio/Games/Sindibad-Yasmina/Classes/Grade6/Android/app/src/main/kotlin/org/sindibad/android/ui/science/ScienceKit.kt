@@ -141,9 +141,10 @@ fun partBox(part: PicturePart): FloatArray? {
 @Composable
 fun SciencePicture(
     name: String, parts: PictureParts?, key: Any, found: Set<String>, latest: String?, calm: Boolean, description: String,
-    labels: Map<String, String>, targets: List<PartTarget>, onTap: (String) -> Unit,
+    labels: Map<String, String>, targets: List<PartTarget>, drawn: SciView? = null, onTap: (String) -> Unit,
 ) {
-    val view = ScienceViews[name] ?: return
+    // Another island may lend its own drawing (the English island's whale, plant and planets).
+    val view = drawn ?: ScienceViews[name] ?: return
     val context = LocalContext.current
     val font = remember { runCatching { ResourcesCompat.getFont(context, R.font.baloo_arabic_800) }.getOrNull() ?: Typeface.DEFAULT_BOLD }
     // Each part's experiment, 0..1: the parts found before the picture appeared (a restored step) are done.

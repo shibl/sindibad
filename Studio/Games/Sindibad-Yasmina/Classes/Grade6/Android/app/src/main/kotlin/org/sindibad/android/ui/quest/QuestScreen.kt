@@ -32,6 +32,10 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import org.sindibad.android.domain.Mood
 import org.sindibad.android.domain.Preferences
 import org.sindibad.android.domain.quest.*
+import org.sindibad.android.domain.english.Bidi
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.text.style.TextDirection
 import org.sindibad.android.ui.*
 
 // The native quest player, shared by every island: the header with the steps, the helper's line, the step
@@ -80,7 +84,23 @@ interface QuestKit {
     val bookName: String get() = "التربية الموسيقية"
     val gainChip: String get() = "🎵 نوتة ذهبية"
     val allDoneNext: String get() = "🎉 جمعت النوتات الذهبية كلها!"
+    /** English island: mostly-English text in the shared steps reads left to right (web: fixDir). */
+    val ltrEnglish: Boolean get() = false
+    /** The line under an «أتعلّم» picture before a spot is open (null: the step's own or the default). */
+    fun tapLine(step: Explore): String? = null
+    /** Draws the card of an opened «أتعلّم» spot itself (the English word cards); false: the shared card. */
+    @Composable fun openSpot(step: Explore, spot: Spot): Boolean = false
+    /** A part of a step was answered right, or the step finished (not on restoration): the English is read aloud. */
+    fun answered(step: Step, before: StepState, after: StepState) {}
 }
+
+/** True inside the English island's quests: English text in the shared steps is laid out left to right. */
+val LocalEnglishLtr = staticCompositionLocalOf { false }
+
+/** [style] for [text]: left to right, in English, when the island asks for it and the text is mostly English. */
+@Composable
+fun dirStyle(text: String, style: TextStyle): TextStyle =
+    if (LocalEnglishLtr.current && Bidi.isEnglish(text)) style.copy(textDirection = TextDirection.Ltr, localeList = LocaleList("en")) else style
 
 /** **bold** → bold spans. */
 fun rich(text: String): AnnotatedString = buildAnnotatedString {
@@ -107,6 +127,16 @@ fun QuestScreen(
         if (opened != key && !run.finished && !run.state.done && lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) kit.stepOpened(run.step(book))
         opened = key
     }
+    // A part answered right (same step, more parts, or done): the island may read it aloud. Not on restoration.
+    var last by remember { mutableStateOf(run) }
+    LaunchedEffect(run) {
+        val before = last
+        last = run
+        if (before.id == run.id && before.index == run.index && !before.finished && !run.finished &&
+            (run.state.part > before.state.part || (run.state.done && !before.state.done)))
+            kit.answered(run.step(book), before.state, run.state)
+    }
+    CompositionLocalProvider(LocalEnglishLtr provides kit.ltrEnglish) {
     Column(Modifier.fillMaxSize().verticalScroll(scroll).padding(horizontal = 14.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         QuestHeader(quest, run)
         if (run.finished) { ResultCard(quest, run, book, kit, reward, nextQuest, busy, saveAgain, close); return@Column }
@@ -118,6 +148,7 @@ fun QuestScreen(
             if (run.state.done) GoldButton(if (step is Explore) "فهمت! ◀" else "تابِع ◀", true, next)
         }
         Text("مسودة محتوى، بانتظار مراجعة معلّمين سوريين", color = Paper.copy(alpha = .8f), style = MaterialTheme.typography.bodySmall)
+    }
     }
 }
 
@@ -256,11 +287,11 @@ private fun StepView(step: Step, state: StepState, kit: QuestKit, act: QuestActi
         }
         else -> if (!kit.game(step, state, act)) Text("هذه الخطوة غير متوفرة في التطبيق بعد.", color = Rose)
     }
-    state.note?.let { Text(it, Modifier.semantics { liveRegion = LiveRegionMode.Polite }, style = MaterialTheme.typography.bodyLarge, color = Teal) }
+    state.note?.let { Text(rich(it), Modifier.semantics { liveRegion = LiveRegionMode.Polite }, style = dirStyle(it, MaterialTheme.typography.bodyLarge), color = Teal) }
 }
 
 @Composable
-fun Ask(q: String) = Text(rich(q), style = MaterialTheme.typography.titleMedium)
+fun Ask(q: String) = Text(rich(q), style = dirStyle(q, MaterialTheme.typography.titleMedium))
 
 /** A big answer button: glows (gold) when revealed, green once right, faded once tried wrong. */
 @Composable
@@ -278,7 +309,7 @@ fun AnswerButton(
         }) {
         Column(Modifier.padding(horizontal = 12.dp, vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
             content?.invoke(this)
-            if (label.isNotEmpty()) Text(label, textAlign = TextAlign.Center, style = MaterialTheme.typography.titleMedium,
+            if (label.isNotEmpty()) Text(label, textAlign = TextAlign.Center, style = dirStyle(label, MaterialTheme.typography.titleMedium),
                 color = if (tried) Ink.copy(alpha = .45f) else Ink,
                 modifier = if (isLatin(label)) Modifier.semantics { } else Modifier)
         }
@@ -308,7 +339,7 @@ private fun TwoWayView(step: TwoWay, state: StepState, act: QuestActions, pictur
     picture()
     step.lines.forEachIndexed { k, line ->
         val filled = if (k < state.part) line.text.replace("___", "«${line.right}»") else line.text.replace("___", "…")
-        Text(filled, style = MaterialTheme.typography.bodyLarge, fontWeight = if (k == state.part && !state.done) FontWeight.Bold else FontWeight.Normal,
+        Text(filled, style = dirStyle(filled, MaterialTheme.typography.bodyLarge), fontWeight = if (k == state.part && !state.done) FontWeight.Bold else FontWeight.Normal,
             color = if (k < state.part) Correct else Ink)
     }
     if (!state.done) {
@@ -327,7 +358,7 @@ private fun SortView(step: Sort, state: StepState, act: QuestActions, picture: @
         val item = StepMachine.sortItem(step, state)
         Surface(color = Sand.copy(alpha = .5f), shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth().semantics { liveRegion = LiveRegionMode.Polite }) {
             Column(Modifier.padding(14.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("${item.icon.orEmpty()} ${item.text}".trim(), style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center)
+                Text("${item.icon.orEmpty()} ${item.text}".trim(), style = dirStyle(item.text, MaterialTheme.typography.titleLarge), textAlign = TextAlign.Center)
                 Text("${state.part + 1} / ${step.items.size}", style = MaterialTheme.typography.bodySmall)
             }
         }
@@ -353,7 +384,7 @@ private fun OrderView(step: Order, state: StepState, kit: QuestKit, act: QuestAc
         step.items.forEachIndexed { k, t ->
             Surface(color = if (k < state.part) Correct.copy(alpha = .15f) else Color.White, shape = RoundedCornerShape(10.dp),
                 border = BorderStroke(1.dp, if (k < state.part) Correct else Sand), modifier = Modifier.heightIn(min = 40.dp).widthIn(min = 40.dp)) {
-                Box(Modifier.padding(8.dp), contentAlignment = Alignment.Center) { Text(if (k < state.part) t else "${k + 1}", color = if (k < state.part) Ink else Ink.copy(alpha = .35f)) }
+                Box(Modifier.padding(8.dp), contentAlignment = Alignment.Center) { Text(if (k < state.part) t else "${k + 1}", color = if (k < state.part) Ink else Ink.copy(alpha = .35f), style = dirStyle(t, LocalTextStyle.current)) }
             }
         }
     }
@@ -377,9 +408,13 @@ private fun OrderView(step: Order, state: StepState, kit: QuestKit, act: QuestAc
 private fun MatchView(step: Match, state: StepState, act: QuestActions, picture: @Composable () -> Unit = {}) {
     Ask(step.q)
     picture()
-    step.pairs.take(state.part).forEach { Text("${it.left} ← ${it.right}", color = Correct, style = MaterialTheme.typography.bodyLarge) }
+    step.pairs.take(state.part).forEach {
+        val en = LocalEnglishLtr.current && Bidi.isEnglish(it.left + it.right)
+        val line = if (en) "${it.left} → ${it.right}" else "${it.left} ← ${it.right}"
+        Text(line, color = Correct, style = dirStyle(line, MaterialTheme.typography.bodyLarge))
+    }
     if (!state.done) {
-        Text("👉 ${step.pairs[state.part].left}", style = MaterialTheme.typography.titleMedium)
+        Text("👉 ${step.pairs[state.part].left}", style = dirStyle(step.pairs[state.part].left, MaterialTheme.typography.titleMedium))
         val order = StepMachine.permutation(state, step.pairs.size)
         FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             order.filter { it >= state.part }.forEach { k ->
@@ -393,10 +428,10 @@ private fun MatchView(step: Match, state: StepState, act: QuestActions, picture:
 private fun TrueFalseView(step: TrueOrFalse, state: StepState, act: QuestActions, picture: @Composable () -> Unit = {}) {
     Ask(step.q)
     picture()
-    step.items.take(state.part).forEach { Text("${if (it.truth) "✓" else "✗"} ${it.text}", color = Correct) }
+    step.items.take(state.part).forEach { Text("${if (it.truth) "✓" else "✗"} ${it.text}", color = Correct, style = dirStyle(it.text, LocalTextStyle.current)) }
     if (!state.done) {
         val item = step.items[state.part]
-        Text(item.text, style = MaterialTheme.typography.titleMedium)
+        Text(item.text, style = dirStyle(item.text, MaterialTheme.typography.titleMedium))
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             AnswerButton("صح ✓", Modifier.weight(1f), glow = state.reveal && item.truth, tried = "1" in state.wrong, onClick = { act.tap("1") })
             AnswerButton("خطأ ✗", Modifier.weight(1f), glow = state.reveal && !item.truth, tried = "0" in state.wrong, onClick = { act.tap("0") })
@@ -456,7 +491,8 @@ private fun ExploreView(step: Explore, state: StepState, kit: QuestKit, act: Que
         }
     }
     val open = step.spots.firstOrNull { it.id == state.open }
-    if (open != null) Surface(color = Color.White, shape = RoundedCornerShape(16.dp), border = BorderStroke(1.dp, Gold),
+    if (open != null && kit.openSpot(step, open)) Unit
+    else if (open != null) Surface(color = Color.White, shape = RoundedCornerShape(16.dp), border = BorderStroke(1.dp, Gold),
         modifier = Modifier.fillMaxWidth().semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite }) {
         Row(Modifier.padding(12.dp), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
             when {
@@ -464,11 +500,11 @@ private fun ExploreView(step: Explore, state: StepState, kit: QuestKit, act: Que
                 open.icon != null -> Text(open.icon, fontSize = 34.sp)
             }
             Column(Modifier.weight(1f)) {
-                Text(rich(open.title), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
-                Text(rich(open.text), style = MaterialTheme.typography.bodyLarge)
+                Text(rich(open.title), fontWeight = FontWeight.Bold, style = dirStyle(open.title, MaterialTheme.typography.titleMedium))
+                Text(rich(open.text), style = dirStyle(open.text, MaterialTheme.typography.bodyLarge))
             }
         }
-    } else Text("👆 ${step.tap ?: if (step.guided) "اضغط على ما يلمع" else "اضغط على كل ما يلمع لتكتشفه"}", style = MaterialTheme.typography.bodyLarge)
+    } else Text("👆 ${step.tap ?: kit.tapLine(step) ?: if (step.guided) "اضغط على ما يلمع" else "اضغط على كل ما يلمع لتكتشفه"}", style = MaterialTheme.typography.bodyLarge)
     if (state.done && step.sum != null) Surface(color = Gold.copy(alpha = .2f), shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(12.dp)) { Text("✨ الخلاصة", fontWeight = FontWeight.Bold); Text(rich(step.sum), style = MaterialTheme.typography.bodyLarge) }
     }
