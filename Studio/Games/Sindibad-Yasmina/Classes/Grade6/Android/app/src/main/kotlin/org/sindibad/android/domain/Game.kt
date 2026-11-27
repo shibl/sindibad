@@ -30,6 +30,10 @@ data class Profile(
     val certificateEarned: Boolean = false,
     val wordBook: List<Vocabulary> = emptyList(),
     val gallery: Map<String, List<Int>> = emptyMap(),
+    /** Quests finished at least once, per island (music: one golden note each). */
+    val islandQuests: Map<String, List<String>> = emptyMap(),
+    /** Islands whose helper has already said hello. */
+    val helpersMet: Set<String> = emptySet(),
 ) {
     val totalStars get() = topics.values.sumOf { it.stars }
     fun starsIn(region: String) = topics.filterKeys { it.startsWith("$region-") || (region == "treasure" && it == "review-treasure") }.values.sumOf { it.stars }
@@ -81,9 +85,29 @@ fun Profile.record(topicId: String, correct: Int, total: Int, asked: List<String
 
 fun starsFor(correct: Int, total: Int): Int {
     require(correct >= 0 && total >= 0 && correct <= total)
-    if (total == 0) return 0
-    val ratio = correct.toDouble() / total
+    return starsForRatio(correct.toDouble(), total.toDouble())
+}
+
+/** Stars for a score that may be fractional (a quest step scores the share of its parts right first try). */
+fun starsForRatio(ok: Double, total: Double): Int {
+    require(ok >= 0 && total >= 0 && ok <= total + 1e-9)
+    if (total == 0.0) return 0
+    val ratio = ok / total + 1e-9
     return when { ratio >= .9 -> 3; ratio >= .7 -> 2; ratio >= .5 -> 1; else -> 0 }
+}
+
+/** A quest's result for its topic: like [record], best stars and score stay, new stars give 5 pearls each. */
+fun Profile.recordScore(topicId: String, ok: Double, total: Double): Profile {
+    val prev = topics[topicId] ?: TopicRecord()
+    val stars = starsForRatio(ok, total)
+    return copy(
+        pearls = pearls + (stars - prev.stars).coerceAtLeast(0) * 5,
+        topics = topics + (topicId to prev.copy(
+            stars = maxOf(prev.stars, stars),
+            best = maxOf(prev.best, if (total == 0.0) 0f else (ok / total).toFloat().coerceIn(0f, 1f)),
+            plays = prev.plays + 1,
+        )),
+    )
 }
 
 data class Island(
