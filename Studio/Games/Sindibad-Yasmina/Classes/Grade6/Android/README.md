@@ -11,7 +11,78 @@ This is an incremental native implementation; full website parity remains in the
 
 All nine islands can be visited in any order on the native map. Tap a destination in 3D to move the hero on its shore, then enter its lessons. The flat list opens the activities directly. Treasure is playable on a fresh profile and its certificate is awarded for passing the review.
 
-The six subject ports cover 7 farm lessons, 10 music lessons, 17 science lessons, 25 Atlas lessons, 25 art lessons and 24 English units. The native app plays the farm's seven quests in a native scene with harvests and ship orders, the music island's ten quests with its piano, staff, rhythm, drum and glasses games, the science island's seventeen quests with their native experiment pictures, the atlas island's twenty-five quests with native maps and timelines, a native globe with country cards and its two games, subject practice, saved paintings, offline English speech when a local voice is available, and a personal word book. The [tracker](https://github.com/shibl/sindibad/issues/3) records outstanding specialized activities and owner phone acceptance.
+The six subject ports cover 7 farm lessons, 10 music lessons, 17 science lessons, 25 Atlas lessons, 25 art lessons and 24 English units. The native app plays the farm's seven quests in a native scene with harvests and ship orders, the music island's ten quests with its piano, staff, rhythm, drum and glasses games, the science island's seventeen quests with their native experiment pictures, the atlas island's twenty-five quests with native maps and timelines, a native globe with country cards and its two games, the English island's twenty-four quests with its ten language games, word cards and word book, subject practice, saved paintings, and offline English speech when a local voice is available. The [tracker](https://github.com/shibl/sindibad/issues/3) records outstanding specialized activities and owner phone acceptance.
+
+## Version 0.9: the English island, its language games and word book (#14)
+
+- «جزيرة Hello» is a native island screen (`ui/english/EnglishIsland.kt`) on
+  the same pattern: the parrot بولي (hello on the first visit, then «Welcome
+  back!» and the next quest), the web's twelve places grouped under the
+  book's four blocks of units (1–5, 6–10, 11–15, 16–20), each with its
+  quests, stars, golden arrow and «🔁 راجع», the HELLO sign (a star for each
+  quest finished once, 24 in all, and a letter of HELLO at 5, 10, 15, 20 and
+  24, counted from the finished quests so it is never given twice), the
+  album's English page (six stickers) and «📖 دفتر كلماتي». The web's 3D
+  town is not drawn; its places are cards.
+- The twenty-four quests come from `Web/worlds/grade6/english.ts` through
+  `node tools/import-quests.mjs english english` into
+  `islands/english-quests.json` (197 steps of 19 kinds, 212 word cards),
+  wording verbatim. The web's `<bdi class="en">` spans become the Unicode
+  isolates LRI … PDI, so English inside Arabic keeps its own direction; that
+  is the only change to the text. `english.json` (the old lessons, now the
+  quests' review topics `english-<quest>`) is kept. The importer still fails
+  on an unhandled kind, and a test fails on a kind the app cannot play.
+- **The ten games of games.ts, natively** (`domain/quest/EnglishSteps.kt`,
+  `EnglishGames.kt`, `ui/english/EnglishKit.kt`), with the web's rules and
+  `share` scoring (the share of rounds with no slip): listen (hear a word, tap
+  its picture), picture (a word → its picture, or a picture → its word),
+  build (word tiles in order), spell (letters, a doubled letter either way,
+  two extra letters), verb (the right form in the gap, with its base),
+  memory (flip two cards; a slip counts only when the partner card had been
+  seen, the first slip says the hint, nothing glows), odd one out (with the
+  reason), rank (the planets by distance; 1 − misses / items), adjective
+  order (opinion › size › shape › age › colour, the key and each tile's
+  category shown; never dealt in order) and chat (the book's conversation;
+  the child picks each of their lines). The shared tracker applies: the
+  first miss says the hint, from the second the answer glows, never the
+  answer in words. No timers; a wrong tile or letter can be tried again.
+- **Left to right inside Arabic**: tiles, slots, sentences, options, chat
+  bubbles, the rule table and the planets' order are laid out LTR; in the
+  shared steps (match, sort, twoway, tf, order, choice) the English island
+  turns mostly-English text LTR with the web's `isEnglish` rule
+  (`domain/english/Bidi.kt`, `QuestKit.ltrEnglish`, `dirStyle`). Other
+  islands are unchanged.
+- **Voice** (`ui/english/EnglishVoice.kt`): the phone's text-to-speech with
+  an installed British or American voice that works offline (then any
+  offline English voice; never a network voice). It is made only while the
+  sound preference is on and the screen is started, and shut down when the
+  screen stops. It reads each listening round, each right answer, the word
+  cards and «🔊 اقرأ لي النص». **With no voice every lesson stays
+  playable**: listening rounds show the word to read, with «🔇 لا يوجد صوت
+  إنكليزي مثبّت على هذا الهاتف، فاقرأ الكلمة بدلاً من سماعها.», and no 🔊
+  button is shown.
+- **Word cards and the word book**: «أتعلّم» word steps are cards (picture and
+  word); a tapped card opens the vocabulary card (the word LTR, its
+  Arabic, the book's sentence with the word marked, 🔊 with a voice, and
+  ⭐ add/remove). The grammar box shows the book's table and sentences; a
+  reading shows its glossary words in colour. «📖 دفتر كلماتي»
+  (`WordBookScreen`, web words.ts) lists every word met in quests opened or
+  finished, once each, grouped by quest in the book's order, the child's ⭐
+  words, and «🃏 لعبة البطاقات» (a picture and its Arabic, three English
+  words, from four words up; a wrong word shows the right one; the best run
+  is saved). The old flat word book migrates without loss: old entries keep
+  their own sentence and are placed under their quest by looking them up
+  (unknown words go under «كلمات أخرى»); `Profile.englishSeen` and
+  `wordCardsBest` default when missing.
+- **Native pictures** (`ui/english/EnglishArt.kt`, on the science Pen): the
+  whale, plant and planets pictures with a TalkBack-labelled touch target of
+  at least 48 dp per part (label steps read «جزء من الصورة n»), the `art:`
+  pictures (seahorse, zip wire, shapes, curtains, stage, soil, coal, the sun
+  and planets) and the drawn people of Unit 8 (`p:` specs: who, height,
+  build, hair, eyes, glasses). `SciencePicture` takes another island's
+  drawing for this.
+- Not yet: the web's 3D town and its animated places, the parrot's flying
+  and the web's sound effects beyond the right/wrong/finish tones.
 
 ## Version 0.8: the atlas island, its maps, globe and country games (#12)
 

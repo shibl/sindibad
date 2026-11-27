@@ -1,5 +1,21 @@
 # Native Android verification
 
+## Version 0.9.0 English island build (#14)
+
+Run from `Grade6/Android` with `ANDROID_HOME=/home/mx/Android/Sdk`:
+
+```sh
+node tools/import-quests.mjs english english
+./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
+./gradlew :app:assembleRelease
+```
+
+- The importer wrote only `islands/english-quests.json` (24 quests, 197 steps of 19 kinds, 12 places, 4 blocks, 20 units, 6 stickers, 3 pictures with their parts, 212 word cards). Rerunning `import-quests.mjs` for music (tunes), science (lab) and social (atlas), and `import-island.mjs` for music, science, social, art (studio), english and farm, left every other island JSON byte-for-byte unchanged in `git status`. No lesson wording changed: quest text and sticker facts are the web's verbatim; the web's `<bdi class="en">` spans became invisible Unicode isolates (U+2066 … U+2069) in the English island's file only, and a test fails if any HTML tag is left or an isolate is unbalanced. `english.json` is unchanged.
+- The local JVM suite passed 127 tests with zero failures and zero skipped (103 before). `EnglishQuestTest` (24 new): all 24 quests and 12 places decode and a perfect run gives 3 stars on each for three seeds; their review topics exist; teaching before every graded step with a hint; only playable kinds, every games.ts kind present, no HTML, balanced isolates, none in the other islands' files; stickers unique across books; partial score for a slipped listening round (n − 1)/n; the reveal rule (hint, then glow, next round unlit, a tried option disabled); seeded rounds and options; build (a wrong tile is a miss and stays available), adjective order (book order, never dealt in order over 40 seeds), spelling with a doubled letter, verb/odd/chat (shown lines grow as the child answers), rank (1 − misses/items), memory (slips only on seen cards, hint on the first, no glow); the step machine delegates English steps; the no-voice path (every listening round shows its word and the Arabic note, and finishes); voice choice (offline GB/US first, never a network or uninstalled voice); the bidi helper; HELLO sign and stickers once per quest, letters at 5/10/15/20/24; met words once each in book order; ⭐ add/remove case-insensitive; an old flat word book decodes and keeps every entry and sentence, unknown words grouped last, doubled `englishSeen` or a negative streak refused; flash cards; every `view`, spot and `pic` drawn natively with touch boxes; person specs and word marking; the English read aloud for each answer. The previous 103 tests still pass unchanged.
+- Debug lint completed with zero errors, 11 warnings and 2 hints, all of kinds that were already there (dependency and plugin versions, the ChromeOS ABI note); the new code adds none.
+- The debug and unsigned release builds passed. `app-debug.apk` is 51,766,743 bytes (49.4 MiB). `app-release-unsigned.apk` is 18,346,916 bytes (17.5 MiB).
+- No device, emulator or UI run happened. The island screen, the ten games' layouts at 320/360 dp, left-to-right English inside the Arabic screens, the pictures and people, the text-to-speech voice (with and without an installed English voice, sound on and off, released when the app goes to the background), TalkBack, calm mode, haptics and large text are verified only by source, JVM tests and build. They need the owner's phone check: play one quest of each block with a British or American offline voice installed, once with no English voice (or sound off), open the word book and play ten flash cards, and repeat one quest with TalkBack.
+
 ## Version 0.8.0 atlas island build (#12)
 
 Run from `Grade6/Android` with `ANDROID_HOME=/home/mx/Android/Sdk`:
